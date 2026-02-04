@@ -6803,8 +6803,7 @@ function NavTestPageContent() {
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      console.log('Search button clicked, calling onSearchClick')
-                      onSearchClick()
+                      setSearchOverlayOpen(true)
                     }}
                     className="flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-colors hover:bg-white/5 cursor-pointer"
                     style={{ pointerEvents: 'auto', zIndex: 10 }}
@@ -6821,7 +6820,7 @@ function NavTestPageContent() {
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    onBack()
+                    router.push('/casino')
                   }}
                   className="flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-colors hover:bg-white/5 cursor-pointer"
                 >
