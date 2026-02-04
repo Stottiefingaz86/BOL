@@ -1,0 +1,334 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --border: 220 13% 18%;
+  --input: 220 13% 18%;
+  --ring: 217.2 91.2% 59.8%;
+  --card: 0 0% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 14.9%;
+  --secondary-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --muted: 0 0% 14.9%;
+  --muted-foreground: 0 0% 63.9%;
+  --accent: 0 0% 14.9%;
+  --accent-foreground: 0 0% 98%;
+  --popover: 0 0% 3.9%;
+  --popover-foreground: 0 0% 98%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+}
+
+/* Mobile: Allow vertical scrolling */
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  body {
+    overflow-y: auto;
+    position: relative;
+  }
+}
+
+/* SF Sans font for titles */
+.sf-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+  font-weight: 700;
+}
+
+/* Neumorphic effects - dark black */
+.neu-soft {
+  background: #0a0a0a;
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.8),
+    -8px -8px 16px rgba(20, 20, 20, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neu-inset {
+  background: #0a0a0a;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.9),
+    inset -4px -4px 8px rgba(20, 20, 20, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.neu-flat {
+  background: #0a0a0a;
+  box-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.6),
+    -2px -2px 4px rgba(20, 20, 20, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Soft glass */
+.glass-soft {
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Agency font */
+.agency-font {
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Sprite animation */
+.sprite-container {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Shimmer button animation */
+@keyframes shimmer-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Text shimmer animation */
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* Subtle tile shimmer on hover */
+@keyframes tile-shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.tile-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: tile-shimmer 1.5s ease-in-out infinite;
+}
+
+@layer base {
+  :root {
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 0 0% 17.6%; /* #2d2d2d */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%; /* #1a1a1a */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 0.1; /* white/10 */
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+  html {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+}
+
+/* Position sidebar below header */
+[data-sidebar="sidebar"] {
+  background-color: #2d2d2d !important;
+}
+
+/* Adjust sidebar fixed positioning to start below fixed header */
+.group.peer > div.fixed {
+  top: 64px !important;
+  height: calc(100vh - 64px) !important;
+}
+
+/* Ensure sidebar content is dark */
+[data-sidebar="sidebar"],
+[data-sidebar="sidebar"] > div,
+.bg-sidebar {
+  background-color: #2d2d2d !important;
+}
+
+/* Make "Other" navigation menu red when open */
+[data-state="open"] button[class*="NavigationMenuTrigger"] {
+  background-color: #ee3536 !important;
+}
+
+/* Fix banner and tabs scrolling - allow natural page scroll */
+/* Remove viewport height constraint from SidebarProvider to allow natural page scroll */
+.group\/sidebar-wrapper {
+  min-height: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+  display: block !important;
+}
+
+/* Ensure SidebarInset doesn't create a scroll container but allows sticky to work */
+main[data-sidebar="inset"] {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  max-height: none !important;
+  position: relative !important;
+  display: block !important;
+  flex: none !important;
+  flex-direction: column !important;
+}
+
+/* Ensure parent containers allow sticky positioning - no overflow hidden on parents */
+main[data-sidebar="inset"] > * {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* Lock horizontal scroll on body and html */
+html, body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+}
+
+/* Ensure header stays fixed at top */
+header[class*="z-\[100\]"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Ensure sub nav is fixed - positioned right below the header at 64px, after sidebar */
+[data-sub-nav] {
+  position: fixed !important;
+  top: 64px !important;
+  right: 0 !important;
+  z-index: 90 !important;
+  display: block !important;
+  transition: left 0.2s ease-linear !important;
+}
+
+/* CRITICAL: Ensure body/html is the scrolling container, not any parent */
+html {
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+}
+
+/* Ensure no parent creates a scroll container that prevents sticky */
+.group\/sidebar-wrapper,
+.group\/sidebar-wrapper > *,
+main[data-sidebar="inset"],
+main[data-sidebar="inset"] > * {
+  overflow: visible !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Ensure all parent containers up to body allow sticky */
+body > div,
+body > div > div,
+body > div > div > div[class*="flex"] {
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+  height: auto !important;
+}
+
+/* Ensure content items don't overlap and flow properly - banners should be visible below sub nav */
+[data-content-item] {
+  position: relative !important;
+  z-index: 1 !important;
+  margin-top: 0 !important;
+}
+
+/* Ensure content flows below sticky nav - content should start after sub nav in normal flow */
+main[data-sidebar="inset"] [data-sub-nav] ~ * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Add blur effect to content when scrolling under sub nav */
+main[data-sidebar="inset"] > div > div:not(:first-child) {
+  position: relative;
+}
+
+/* Ensure content doesn't overlap sticky elements */
+main[data-sidebar="inset"] > div > div:first-child + div {
+  margin-top: 0;
+}
