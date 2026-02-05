@@ -272,7 +272,7 @@ function FamilyDrawerContent({
       <Drawer.Content
         asChild
         className={clsx(
-          "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
+          "fixed inset-x-0 bottom-0 z-[9999] w-full rounded-t-[8px] bg-background outline-none md:mx-auto md:max-w-[361px]",
           className
         )}
         style={{
@@ -288,7 +288,7 @@ function FamilyDrawerContent({
     <Drawer.Content
       asChild
       className={clsx(
-        "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
+        "fixed inset-x-0 bottom-0 z-[9999] w-full rounded-t-[8px] bg-background outline-none md:mx-auto md:max-w-[361px]",
         className
       )}
       style={{
