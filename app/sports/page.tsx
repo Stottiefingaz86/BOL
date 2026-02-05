@@ -6195,10 +6195,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         views={betslipViews} 
         open={betslipOpen} 
         onOpenChange={(open) => {
-          if (!open && bets.length === 0) {
+          if (!open) {
             setBetslipOpen(false)
             setBetslipMinimized(false)
             // On mobile, mark as manually closed so it won't auto-open again
+            // This happens whenever user closes betslip, regardless of bet count
             if (isMobile) {
               setBetslipManuallyClosed(true)
             }
