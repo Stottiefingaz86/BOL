@@ -275,8 +275,6 @@ function FamilyDrawerContent({
           "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
           className
         )}
-        modal={false}
-        noOverlay={true}
         style={{
           pointerEvents: 'auto',
         }}
@@ -293,8 +291,6 @@ function FamilyDrawerContent({
         "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
         className
       )}
-      modal={false}
-      noOverlay={true}
       style={{
         pointerEvents: 'auto',
       }}
