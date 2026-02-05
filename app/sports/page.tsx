@@ -3864,6 +3864,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         setShowToast(true)
                         setTimeout(() => setShowToast(false), 3000)
                         
+                        // Clear bets and close drawer
+                        setBets([])
+                        setBetslipOpen(false)
+                        setBetslipMinimized(false)
+                        // On mobile, mark as manually closed
+                        if (isMobile) {
+                          setBetslipManuallyClosed(true)
+                        }
+                        
                         // Trigger confirmation modal at parent level
                         console.log('Dispatching showBetConfirmation event')
                         if (typeof window !== 'undefined') {
