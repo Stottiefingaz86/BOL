@@ -2653,10 +2653,107 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 }
 
 // Sports Page Component
-function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void }) {
+function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
   const isMobile = useIsMobile()
   const router = useRouter()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [pendingBets, setPendingBets] = useState<Array<{
+    id: string
+    eventId: number
+    eventName: string
+    marketTitle: string
+    selection: string
+    odds: string
+    stake: number
+  }>>([])
+
+  // Listen for bet confirmation event from betslip
+  useEffect(() => {
+    const handleShowConfirmation = (e: CustomEvent) => {
+      setPendingBets(e.detail.bets || [])
+      setShowConfirmation(true)
+    }
+    window.addEventListener('showBetConfirmation' as any, handleShowConfirmation as EventListener)
+    return () => {
+      window.removeEventListener('showBetConfirmation' as any, handleShowConfirmation as EventListener)
+    }
+  }, [])
+
+  // Ensure background remains clickable when betslip is open
+  useEffect(() => {
+    if (betslipOpen) {
+      // Remove any overlays
+      const removeOverlays = () => {
+        const overlays = document.querySelectorAll('[data-vaul-overlay]')
+        overlays.forEach((overlay) => {
+          const el = overlay as HTMLElement
+          if (el.parentNode) {
+            el.remove()
+          }
+        })
+      }
+      
+      // Force wrapper to be non-interactive
+      const makeWrapperNonInteractive = () => {
+        const wrappers = document.querySelectorAll('[data-vaul-drawer-wrapper]')
+        wrappers.forEach((wrapper) => {
+          const el = wrapper as HTMLElement
+          el.style.setProperty('pointer-events', 'none', 'important')
+          el.style.setProperty('background', 'transparent', 'important')
+          
+          // Make all children non-interactive except drawer content
+          Array.from(el.children).forEach((child) => {
+            const childEl = child as HTMLElement
+            if (!childEl.hasAttribute('data-vaul-drawer-direction')) {
+              childEl.style.setProperty('pointer-events', 'none', 'important')
+            } else {
+              childEl.style.setProperty('pointer-events', 'auto', 'important')
+            }
+          })
+        })
+      }
+      
+      // Ensure body/html allow clicks
+      const enableBodyClicks = () => {
+        document.body.style.setProperty('pointer-events', 'auto', 'important')
+        document.documentElement.style.setProperty('pointer-events', 'auto', 'important')
+      }
+      
+      // Run immediately
+      removeOverlays()
+      makeWrapperNonInteractive()
+      enableBodyClicks()
+      
+      // Run again after a short delay to catch any dynamically created elements
+      const timeout = setTimeout(() => {
+        removeOverlays()
+        makeWrapperNonInteractive()
+        enableBodyClicks()
+      }, 100)
+      
+      // Use MutationObserver to catch any new overlays/wrappers
+      const observer = new MutationObserver(() => {
+        removeOverlays()
+        makeWrapperNonInteractive()
+      })
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-vaul-overlay', 'data-vaul-drawer-wrapper', 'style']
+      })
+      
+      return () => {
+        clearTimeout(timeout)
+        observer.disconnect()
+        // Restore body styles
+        document.body.style.removeProperty('pointer-events')
+        document.documentElement.style.removeProperty('pointer-events')
+      }
+    }
+  }, [betslipOpen])
   const subNavScrollRef = useRef<HTMLDivElement>(null)
   const [expandedSports, setExpandedSports] = useState<string[]>(['Soccer'])
   const [currentTime, setCurrentTime] = useState<string>('')
@@ -3217,22 +3314,45 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     )
   }
 
-  // Helper function to add/remove bet from betslip (toggle behavior)
-  const addBetToSlip = (eventId: number, eventName: string, marketTitle: string, selection: string, odds: string) => {
+  // State for minimizing betslip
+  const [betslipMinimized, setBetslipMinimized] = useState(false)
+  
+  // Helper function to remove bet from betslip - instant removal
+  const removeBet = useCallback((betId: string) => {
+    // Remove immediately - no delay
+    setBets(prev => {
+      const newBets = prev.filter(bet => bet.id !== betId)
+      // Close drawer if no bets left
+      if (newBets.length === 0) {
+        setBetslipOpen(false)
+        setBetslipMinimized(false)
+      }
+      return newBets
+    })
+  }, [setBets, setBetslipOpen])
+  
+  // Helper function to add/remove bet from betslip (toggle behavior) - instant response
+  const addBetToSlip = useCallback((eventId: number, eventName: string, marketTitle: string, selection: string, odds: string) => {
+    setBets(prev => {
     // Check if this exact bet already exists
-    const existingBet = bets.find(bet => 
+      const existingBetIndex = prev.findIndex(bet => 
       bet.eventId === eventId && 
       bet.marketTitle === marketTitle && 
       bet.selection === selection
     )
     
-    if (existingBet) {
-      // If bet already exists, remove it (toggle off)
-      removeBet(existingBet.id)
-      return
-    }
-    
-    // Add new bet
+      if (existingBetIndex !== -1) {
+        // Remove it immediately - no delay
+        const newBets = prev.filter((_, index) => index !== existingBetIndex)
+        // Close drawer if no bets left
+        if (newBets.length === 0) {
+          setBetslipOpen(false)
+          setBetslipMinimized(false)
+        }
+        return newBets
+      }
+      
+      // Add new bet immediately
     const newBet = {
       id: `${eventId}-${marketTitle}-${selection}-${Date.now()}`,
       eventId,
@@ -3240,302 +3360,511 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       marketTitle,
       selection,
       odds,
-      stake: 10 // Default stake
+        stake: 10
     }
-    setBets(prev => [...prev, newBet])
-    // Open betslip when adding first bet, keep open for additional bets
-    setBetslipOpen(true)
-    // Expand betslip when adding a new bet
-    setBetslipCollapsed(false)
-  }
-
-  // State for animating bet removal
-  const [removingBetId, setRemovingBetId] = useState<string | null>(null)
-  
-  // State for collapsing betslip
-  const [betslipCollapsed, setBetslipCollapsed] = useState(false)
-  
-  // Helper function to remove bet from betslip with swipe animation
-  const removeBet = (betId: string) => {
-    setRemovingBetId(betId)
-    // Wait for animation to complete before removing
-    setTimeout(() => {
-      const newBets = bets.filter(bet => bet.id !== betId)
-      setBets(newBets)
-      setRemovingBetId(null)
-      // Close drawer if no bets left
-      if (newBets.length === 0) {
-        setBetslipOpen(false)
+      
+      // Open betslip if closed, but preserve minimized state if already open
+      // On mobile, don't auto-open - user must click betslip button in dock
+      if (!betslipOpen && !isMobile) {
+        // If closed and NOT on mobile, open and expand it
+        setBetslipOpen(true)
+        setBetslipMinimized(false)
       }
-    }, 300)
-  }
+      // If already open (whether minimized or expanded), don't change the state
+      // This preserves the minimized state when adding bets
+      // On mobile, if closed, don't open - user must manually open via dock button
+      
+      return [...prev, newBet]
+    })
+  }, [setBets, setBetslipOpen, betslipOpen, betslipMinimized, isMobile])
 
   // Helper function to update bet stake
   const updateBetStake = (betId: string, stake: number) => {
     setBets(prev => prev.map(bet => bet.id === betId ? { ...bet, stake } : bet))
   }
 
-  // Calculate total stake and potential winnings
-  const totalStake = bets.reduce((sum, bet) => sum + bet.stake, 0)
-  const calculatePotentialWin = () => {
-    if (bets.length === 0) return 0
-    // For parlay: multiply all odds and stake
-    const oddsMultiplier = bets.reduce((product, bet) => {
-      const oddsValue = parseFloat(bet.odds.replace('+', ''))
-      return product * (oddsValue / 100 + 1)
-    }, 1)
-    return totalStake * oddsMultiplier - totalStake
+  // Group bets by event (game) to identify straights vs parlay
+  const betsByEvent = useMemo(() => {
+    return bets.reduce((acc, bet) => {
+      if (!acc[bet.eventId]) {
+        acc[bet.eventId] = []
+      }
+      acc[bet.eventId].push(bet)
+      return acc
+    }, {} as Record<number, typeof bets>)
+  }, [bets])
+
+  const uniqueEvents = Object.keys(betsByEvent).length
+  const hasMultipleGames = uniqueEvents > 1
+  const hasParlay = hasMultipleGames && bets.length > 1
+
+  // Calculate straight bets (one per game, or multiple if same game)
+  const straightBets = Object.values(betsByEvent).flat()
+  const straightStake = straightBets.reduce((sum, bet) => sum + bet.stake, 0)
+  
+  // Helper function to convert odds to decimal multiplier
+  const oddsToDecimal = (oddsStr: string): number => {
+    const cleaned = oddsStr.replace('+', '').trim()
+    const oddsValue = parseFloat(cleaned)
+    
+    // If odds are >= 2.0, assume decimal format (e.g., 3.25, 2.10)
+    // If odds are < 2.0 or start with +, assume American format (e.g., +350, +150)
+    if (oddsStr.startsWith('+') || (oddsValue < 2.0 && oddsValue > 0)) {
+      // American odds: +350 means bet $100 to win $350
+      return oddsValue / 100 + 1
+    } else {
+      // Decimal odds: 3.25 means bet $1 to win $3.25 total
+      return oddsValue
+    }
   }
-  const potentialWin = calculatePotentialWin()
+  
+  // Calculate parlay (only if multiple games)
+  const [parlayStake, setParlayStake] = useState(0)
+  const calculateParlayOdds = () => {
+    if (!hasParlay) return 0
+    const oddsMultiplier = bets.reduce((product, bet) => {
+      return product * oddsToDecimal(bet.odds)
+    }, 1)
+    return oddsMultiplier
+  }
+  const parlayOddsMultiplier = calculateParlayOdds()
+  const parlayOdds = parlayOddsMultiplier > 0 ? `+${((parlayOddsMultiplier - 1) * 100).toFixed(0)}` : '+0'
+  const parlayPotentialWin = parlayStake * parlayOddsMultiplier - parlayStake
 
-  // Betslip Views
+  // Calculate total stake (straights + parlay)
+  const totalStake = straightStake + parlayStake
+  const totalPotentialWin = bets.reduce((sum, bet) => {
+    const decimalMultiplier = oddsToDecimal(bet.odds)
+    const toWin = bet.stake * decimalMultiplier - bet.stake
+    return sum + toWin
+  }, 0) + parlayPotentialWin
+
+  // Betslip Views - Clean, simple design
   const BetslipDefaultView = () => {
-    const { setView } = useFamilyDrawer()
     const currencySymbol = '$'
+    const [isScrolled, setIsScrolled] = useState(false)
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+    
+    useEffect(() => {
+      const container = scrollContainerRef.current
+      if (!container) return
+      
+      const handleScroll = () => {
+        setIsScrolled(container.scrollTop > 0)
+      }
+      
+      container.addEventListener('scroll', handleScroll)
+      return () => container.removeEventListener('scroll', handleScroll)
+    }, [])
 
+    // On mobile, don't show minimized state - just close
+    // Minimized state - just header bar (desktop only)
+    if (betslipMinimized && !isMobile) {
     return (
-      <>
-        {betslipCollapsed ? (
-          /* Minimized State - Compact bar only - NO other content */
-          <div className="px-3 py-1.5 flex items-center justify-between w-full">
+        <div className="px-4 py-2 flex items-center justify-between border-b border-black/5">
             <div className="flex items-center gap-2">
-              {/* Counter Badge */}
               {bets.length > 0 && (
-                <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-[2px]">
-                  <span className="text-[12px] font-semibold text-white/87 leading-none">{bets.length}</span>
+              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded">
+                <span className="text-xs font-semibold text-white leading-none">{bets.length}</span>
                 </div>
               )}
-              <span className="text-[12px] font-semibold text-black" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>Selection</span>
+            <span className="text-sm font-semibold text-black">Betslip</span>
+            {totalStake > 0 && (
+              <span className="text-xs text-black/60">{currencySymbol}{totalStake.toFixed(2)}</span>
+            )}
             </div>
             <button
-              onClick={() => {
-                setBetslipCollapsed(false)
-              }}
-              className="text-[10px] font-semibold uppercase tracking-[0.46px] cursor-pointer hover:opacity-70 transition-opacity px-2 py-1"
-              style={{ color: 'rgba(0, 0, 0, 0.87)' }}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setBetslipMinimized(false)
+            }}
+            className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black"
             >
               Show
             </button>
           </div>
-        ) : (
-          <>
-            {/* Drag Indicator */}
-            <div className="flex justify-center pt-4 pb-1">
-              <div className="h-1 w-16 bg-black/20 rounded-full" />
-            </div>
+      )
+    }
 
-            {/* Header with Counter and Collapse/Show */}
-            <div className="px-2 pb-2 border-b border-black/12">
-              <div className="flex items-center justify-between mb-1">
+    // Expanded state
+    return (
+      <div className="flex flex-col w-full h-full" style={{ display: 'flex', flexDirection: 'column', position: 'relative', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden', justifyContent: 'flex-start' }}>
+        {/* Header - Always visible at top - Glass effect when scrolled */}
+        <div className={cn("px-2 py-1.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, position: 'sticky', top: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'white' }}>
                 <div className="flex items-center gap-2">
-                  {/* Counter Badge */}
                   {bets.length > 0 && (
-                    <div className="bg-[#424242] h-4 min-w-[16px] px-1 flex items-center justify-center rounded-[2px]">
-                      <span className="text-[12px] font-semibold text-white/87 leading-none">{bets.length}</span>
+              <div className="bg-black/8 h-4 min-w-[18px] px-1.5 flex items-center justify-center rounded-full">
+                <span className="text-[10px] font-medium text-black leading-none">{bets.length}</span>
                     </div>
                   )}
-                  <h2 className="text-[14px] font-semibold text-black leading-[18.48px]" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>Selection</h2>
+            <h2 className="text-sm font-medium text-black/90">Betslip</h2>
                 </div>
                 {bets.length > 0 && (
                   <button
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      console.log('Collapse clicked, current state:', betslipCollapsed)
-                      setBetslipCollapsed(true)
-                      console.log('Set to collapsed')
-                    }}
-                    className="text-[10px] font-semibold uppercase tracking-[0.46px] cursor-pointer hover:opacity-70 transition-opacity px-1 py-1"
-                    style={{ color: 'rgba(0, 0, 0, 0.87)' }}
-                  >
-                    Collapse
+                if (isMobile) {
+                  setBetslipOpen(false)
+                } else {
+                  setBetslipMinimized(true)
+                }
+              }}
+              className="text-[9px] font-medium text-black/50 hover:text-black/70"
+            >
+              {isMobile ? 'Close' : 'Minimize'}
                   </button>
                 )}
-              </div>
             </div>
 
-            {/* Bets List - Only show when not collapsed */}
+        {/* Middle Section - Scrollable when content exceeds available space */}
             {bets.length === 0 ? (
-              <div className="px-2 py-8 text-center">
-                <p className="text-sm" style={{ color: 'rgba(0, 0, 0, 0.7)' }}>Your betslip is empty</p>
-                <p className="text-xs mt-2" style={{ color: 'rgba(0, 0, 0, 0.5)' }}>Select odds to add bets</p>
+          <div className="px-4 py-12 text-center flex-1 min-h-0 flex items-center justify-center" style={{ flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
+            <div>
+              <p className="text-sm text-black/70">Your betslip is empty</p>
+              <p className="text-xs mt-2 text-black/50">Select odds to add bets</p>
+            </div>
               </div>
             ) : (
-              <div className="flex flex-col">
-                <div className="px-2 py-2 space-y-0 overflow-y-auto scrollbar-hide" style={{ 
-                  maxHeight: '60vh',
-                  scrollbarWidth: 'none', 
-                  msOverflowStyle: 'none' 
-                }}>
-                  <AnimatePresence>
-                    {[...bets].reverse().map((bet, reversedIndex) => {
+          <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', position: 'relative', zIndex: 1 }}>
+              {/* Straight Bets - Scrollable list in middle section - Tighter, cleaner design */}
+              {bets.length > 0 && (
+                <div className="px-2">
+                  <div className="flex items-center justify-between mb-1.5 pt-2">
+                    <div className="text-[10px] font-medium text-black/50 uppercase tracking-wide">
+                      {hasMultipleGames ? `${bets.length} Selections` : 'Straight Bet'}
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setBets([])
+                        setBetslipOpen(false)
+                        setBetslipMinimized(false)
+                      }}
+                      className="text-[10px] font-medium text-black/50 hover:text-black/70 uppercase tracking-wide"
+                    >
+                      Remove All
+                    </button>
+                  </div>
+                  {/* New bets appear at top (reversed array order) */}
+                  {[...bets].reverse().map((bet, index) => {
                 const event = liveEvents.find(e => e.id === bet.eventId) || upcomingEvents.find(e => e.id === bet.eventId)
-                // First bet in original order (last in reversed) should have price boost
-                const isFirstBet = reversedIndex === bets.length - 1
-                const isRemoving = removingBetId === bet.id
-                const toWin = bet.stake * (parseFloat(bet.odds.replace('+', '')) / 100 + 1) - bet.stake
+                // Helper to convert odds to decimal multiplier
+                const oddsToDecimal = (oddsStr: string): number => {
+                  const cleaned = oddsStr.replace('+', '').trim()
+                  const oddsValue = parseFloat(cleaned)
+                  if (oddsStr.startsWith('+') || (oddsValue < 2.0 && oddsValue > 0)) {
+                    return oddsValue / 100 + 1
+                  } else {
+                    return oddsValue
+                  }
+                }
+                const decimalMultiplier = oddsToDecimal(bet.odds)
+                const toWin = bet.stake * decimalMultiplier - bet.stake
 
                 return (
-                  <motion.div
+                  <div
                     key={bet.id}
-                    initial={{ opacity: 1, x: 0 }}
-                    animate={isRemoving ? { opacity: 0, x: '100%' } : { opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: '100%' }}
-                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="flex gap-2 items-start min-h-[62px] pr-2 py-2"
+                    className="flex items-start gap-2 py-2 border-b border-black/5 last:border-b-0"
                   >
-                    {/* Close Button */}
+                    {/* Remove Button - Smaller, more subtle */}
                     <button
-                      onClick={() => removeBet(bet.id)}
-                      className="pt-1 flex-shrink-0 w-4 h-4 flex items-center justify-center"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        removeBet(bet.id)
+                      }}
+                      className="mt-0.5 flex-shrink-0 w-4 h-4 flex items-center justify-center hover:bg-black/5 rounded"
                     >
-                      <IconX className="w-4 h-4" strokeWidth={2} style={{ color: 'rgba(0, 0, 0, 0.87)' }} />
+                      <IconX className="w-3 h-3 text-black/50" strokeWidth={2.5} />
                     </button>
 
-                    {/* Bet Details */}
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      {/* Selection Name - Bold */}
-                      <div className="text-[12px] font-bold leading-[16px] mb-1 capitalize truncate" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>
-                        {bet.selection}
-                      </div>
-                      {/* Market Type */}
-                      <div className="text-[10px] font-normal leading-[14.7px] mb-1" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>
-                        {bet.marketTitle}
-                      </div>
-                      {/* Match Name */}
+                    {/* Bet Info - Tighter spacing */}
+                    <div className="flex-1 min-w-0 pr-1.5">
+                      <div className="text-xs font-medium text-black mb-0.5 truncate leading-tight">{bet.selection}</div>
+                      <div className="text-[10px] text-black/50 mb-0.5 leading-tight">{bet.marketTitle}</div>
                       {event && (
-                        <div className="text-[10px] font-normal leading-normal mb-1" style={{ color: 'rgba(0, 0, 0, 0.57)' }}>
-                          {event.team1} @ {event.team2}
-                        </div>
-                      )}
-                      {/* Price Boost Badge - Only for first bet */}
-                      {isFirstBet && (
-                        <div className="bg-[#ffdf00] flex items-center justify-center gap-0.5 p-0.5 rounded-[2px] inline-flex mt-1">
-                          <IconRocket className="w-2 h-2" style={{ color: 'rgba(0, 0, 0, 0.87)' }} />
-                          <span className="text-[8px] font-bold leading-[11.76px]" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>Price boost</span>
-                        </div>
+                        <div className="text-[10px] text-black/40 truncate leading-tight">{event.team1} v {event.team2}</div>
                       )}
                     </div>
 
-                    {/* Odds and Risk Input */}
-                    <div className="flex gap-2 items-start flex-shrink-0">
-                      {/* Odds */}
-                      <div className="flex items-center justify-center pt-4">
-                        <div className="text-[12px] font-bold leading-[16px]" style={{ color: 'rgba(0, 0, 0, 0.87)' }}>
+                      {/* Odds - Smaller, right-aligned */}
+                    <div className="flex-shrink-0 text-xs font-medium text-black mr-1.5 w-10 text-right">
                           {bet.odds}
                         </div>
-                      </div>
-                      {/* Risk Input */}
-                      <div className="flex flex-col gap-0.5">
-                        <div className="bg-white border border-black/12 rounded-[4px] h-[42px] w-[100px] flex items-center justify-end px-2 relative">
+
+                    {/* Stake Input - Smaller, tighter */}
+                    <div className="flex-shrink-0 w-[85px]">
+                      <div className="border border-black/5 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
                           <Input
                             type="text"
                             inputMode="decimal"
                             value={bet.stake === 0 ? '' : bet.stake.toString()}
                             onChange={(e) => {
-                              const inputValue = e.target.value
-                              // Allow empty string, numbers, and one decimal point
-                              if (inputValue === '' || /^\d*\.?\d*$/.test(inputValue)) {
-                                const numValue = inputValue === '' ? 0 : parseFloat(inputValue)
-                                if (!isNaN(numValue) && numValue >= 0) {
-                                  updateBetStake(bet.id, numValue)
-                                } else if (inputValue === '') {
-                                  updateBetStake(bet.id, 0)
+                            const val = e.target.value
+                            if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                              const num = val === '' ? 0 : parseFloat(val)
+                              if (!isNaN(num) && num >= 0) {
+                                updateBetStake(bet.id, num)
                                 }
                               }
                             }}
-                            onBlur={(e) => {
-                              // Format to 2 decimal places on blur
-                              const value = parseFloat(e.target.value) || 0
-                              updateBetStake(bet.id, Math.max(0, value))
+                            onFocus={(e) => {
+                              // Prevent page scroll when input is focused
+                              const input = e.target as HTMLInputElement
+                              const scrollContainer = scrollContainerRef.current
+                              
+                              // Store current window scroll position
+                              const windowScrollY = window.scrollY
+                              const windowScrollX = window.scrollX
+                              
+                              // Lock window scroll position
+                              const lockScroll = () => {
+                                window.scrollTo(windowScrollX, windowScrollY)
+                              }
+                              
+                              // Prevent scroll immediately and repeatedly
+                              const scrollInterval = setInterval(lockScroll, 10)
+                              
+                              // Only scroll within betslip container if needed
+                              if (scrollContainer) {
+                                requestAnimationFrame(() => {
+                                  const inputRect = input.getBoundingClientRect()
+                                  const containerRect = scrollContainer.getBoundingClientRect()
+                                  
+                                  // Only scroll if input is outside visible area of container
+                                  if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
+                                    input.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+                                  }
+                                })
+                              }
+                              
+                              // Stop locking scroll after input is visible (300ms should be enough)
+                              setTimeout(() => {
+                                clearInterval(scrollInterval)
+                                // Final restore
+                                window.scrollTo(windowScrollX, windowScrollY)
+                              }, 300)
                             }}
-                            onWheel={(e) => {
+                            onBlur={(e) => {
+                            const val = parseFloat(e.target.value) || 0
+                            updateBetStake(bet.id, Math.max(0, val))
+                          }}
+                          className="border-0 bg-transparent text-xs h-full p-0 pr-6 text-right focus-visible:ring-0 text-black w-full"
+                          placeholder="0"
+                        />
+                        <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
+                          <button
+                            type="button"
+                            onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              const target = e.currentTarget
-                              target.blur()
+                              updateBetStake(bet.id, (bet.stake || 0) + 1)
                             }}
-                            onFocus={(e) => {
-                              e.currentTarget.select()
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                            className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
+                          >
+                            <IconChevronUp className="w-2 h-2 text-black/40" strokeWidth={3} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
                                 e.preventDefault()
-                                const currentValue = bet.stake || 0
-                                const step = e.key === 'ArrowUp' ? 1 : -1
-                                updateBetStake(bet.id, Math.max(0, currentValue + step))
-                              }
+                              e.stopPropagation()
+                              updateBetStake(bet.id, Math.max(0, (bet.stake || 0) - 1))
                             }}
-                            className="border-0 bg-transparent text-[14px] font-normal leading-[24px] tracking-[0.15px] h-full p-0 pr-7 text-right focus-visible:ring-0 focus-visible:ring-offset-0 text-black"
-                            style={{ color: 'rgba(0, 0, 0, 0.87)' }}
+                            className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
+                          >
+                            <IconChevronDown className="w-2 h-2 text-black/40" strokeWidth={3} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
+                        To Win {currencySymbol}{toWin.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+                </div>
+              )}
+
+              {/* Parlay Section - Only show if multiple games - Light grey card */}
+              {hasParlay && (
+                <div className="px-2 pt-2">
+                <div className="bg-gray-100 rounded px-2 py-2.5">
+                <div className="text-[10px] font-medium text-black/50 uppercase tracking-wide mb-1.5">
+                  {bets.length}-Pick Parlay
+                </div>
+                <div className="flex items-start gap-2 py-2">
+                  {/* Parlay Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-black">
+                      {bets.length} Legs
+                    </div>
+                  </div>
+
+                  {/* Parlay Odds */}
+                  <div className="flex-shrink-0 text-xs font-medium text-black mr-1.5">
+                    {parlayOdds}
+                  </div>
+
+                  {/* Parlay Stake Input - Smaller */}
+                  <div className="flex-shrink-0 w-[85px]">
+                    <div className="border border-black/15 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
+                      <Input
+                        type="text"
+                        inputMode="decimal"
+                        value={parlayStake === 0 ? '' : parlayStake.toString()}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                            const num = val === '' ? 0 : parseFloat(val)
+                            if (!isNaN(num) && num >= 0) {
+                              setParlayStake(num)
+                            }
+                          }
+                        }}
+                        onFocus={(e) => {
+                          // Prevent page scroll when input is focused
+                          const input = e.target as HTMLInputElement
+                          const scrollContainer = scrollContainerRef.current
+                          
+                          // Store current window scroll position
+                          const windowScrollY = window.scrollY
+                          const windowScrollX = window.scrollX
+                          
+                          // Lock window scroll position
+                          const lockScroll = () => {
+                            window.scrollTo(windowScrollX, windowScrollY)
+                          }
+                          
+                          // Prevent scroll immediately and repeatedly
+                          const scrollInterval = setInterval(lockScroll, 10)
+                          
+                          // Only scroll within betslip container if needed
+                          if (scrollContainer) {
+                            requestAnimationFrame(() => {
+                              const inputRect = input.getBoundingClientRect()
+                              const containerRect = scrollContainer.getBoundingClientRect()
+                              
+                              // Only scroll if input is outside visible area of container
+                              if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
+                                input.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+                              }
+                            })
+                          }
+                          
+                          // Stop locking scroll after input is visible (300ms should be enough)
+                          setTimeout(() => {
+                            clearInterval(scrollInterval)
+                            // Final restore
+                            window.scrollTo(windowScrollX, windowScrollY)
+                          }, 300)
+                        }}
+                        onBlur={(e) => {
+                          const val = parseFloat(e.target.value) || 0
+                          setParlayStake(Math.max(0, val))
+                        }}
+                        className="border-0 bg-transparent text-xs h-full p-0 pr-6 text-right focus-visible:ring-0 text-black w-full"
                             placeholder="0"
                           />
-                          {/* Custom Up/Down Arrows - Smaller and positioned better */}
-                          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col gap-0.5">
+                      <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                updateBetStake(bet.id, (bet.stake || 0) + 1)
+                            setParlayStake((prev) => prev + 1)
                               }}
-                              className="w-3 h-2.5 flex items-center justify-center hover:bg-black/5 rounded transition-colors cursor-pointer"
-                              style={{ color: 'rgba(0, 0, 0, 0.38)' }}
+                          className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
                             >
-                              <IconChevronUp className="w-2 h-2" strokeWidth={3} />
+                          <IconChevronUp className="w-2 h-2 text-black/40" strokeWidth={3} />
                             </button>
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                updateBetStake(bet.id, Math.max(0, (bet.stake || 0) - 1))
+                            setParlayStake((prev) => Math.max(0, prev - 1))
                               }}
-                              className="w-3 h-2.5 flex items-center justify-center hover:bg-black/5 rounded transition-colors cursor-pointer"
-                              style={{ color: 'rgba(0, 0, 0, 0.38)' }}
+                          className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
                             >
-                              <IconChevronDown className="w-2 h-2" strokeWidth={3} />
+                          <IconChevronDown className="w-2 h-2 text-black/40" strokeWidth={3} />
                             </button>
                           </div>
                         </div>
-                        <div className="text-right pr-1">
-                          <div className="text-[10px] font-normal leading-[16.6px] tracking-[0.4px]" style={{ color: 'rgba(0, 0, 0, 0.57)' }}>
-                            To Win {currencySymbol}{toWin.toFixed(2)}
+                    <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
+                      To Win {currencySymbol}{parlayPotentialWin.toFixed(2)}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                )
-                    })}
-                  </AnimatePresence>
                 </div>
+              )}
+                </div>
+        )}
                 
-                {/* Place Bet Button - Sticky at bottom, always visible */}
+        {/* Summary and Place Bet - Always sticky at bottom, always visible */}
                 {bets.length > 0 && (
-                  <div className="px-2 pt-3 pb-2 bg-white border-t border-black/12 sticky bottom-0">
+          <div className="px-2 pt-2 pb-2 border-t border-black/5 bg-white/95 backdrop-blur-sm" style={{ position: 'sticky', bottom: 0, left: 0, right: 0, width: '100%', zIndex: 20, flexShrink: 0, boxSizing: 'border-box', marginTop: 'auto' }}>
                     <button
                       onClick={() => {
-                        console.log('Place bet:', bets)
-                        // Handle place bet logic
+                        if (bets.length === 0 || totalStake === 0) return
+                        
+                        // Store bets for confirmation modal
+                        const betsToPlace = [...bets]
+                        
+                        // Immediately place bets to My Bets
+                        const newPlacedBets = betsToPlace.map(bet => ({
+                          ...bet,
+                          placedAt: new Date()
+                        }))
+                        setPlacedBets(prev => [...prev, ...newPlacedBets])
+                        
+                        // Increment alert count for My Bets tab immediately
+                        setMyBetsAlertCount(prev => prev + betsToPlace.length)
+                        
+                        // Show notification immediately
+                        setToastMessage(`Bet placed! ${betsToPlace.length} ${betsToPlace.length === 1 ? 'selection' : 'selections'} for ${currencySymbol}${totalStake.toFixed(2)}`)
+                        setToastAction({
+                          label: 'View My Bets',
+                          onClick: () => {
+                            setMyBetsAlertCount(0)
+                            console.log('Navigate to My Bets')
+                          }
+                        })
+                        setShowToast(true)
+                        setTimeout(() => setShowToast(false), 3000)
+                        
+                        // Trigger confirmation modal at parent level
+                        console.log('Dispatching showBetConfirmation event')
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(new CustomEvent('showBetConfirmation', { detail: { bets: betsToPlace } }))
+                        }
                       }}
                       disabled={totalStake === 0}
                       className={cn(
-                        "w-full text-[15px] font-semibold uppercase tracking-[0.46px] py-2 px-[22px] rounded-[4px] transition-colors",
+                  "w-full py-2 rounded transition-colors flex flex-col items-center justify-center",
                         totalStake > 0 
-                          ? "bg-[#8BC34A] text-white hover:bg-[#7CB342] cursor-pointer" 
-                          : "bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed"
+                    ? "bg-[#8BC34A] text-white hover:bg-[#7CB342]" 
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       )}
                     >
-                      PLACE BET
+                      <span className="text-xs font-medium uppercase tracking-wide">
+                        PLACE {currencySymbol}{totalStake.toFixed(2)} BET
+                      </span>
+                      <span className={cn(
+                        "text-[10px] mt-0.5",
+                        totalStake > 0 ? "text-white/90" : "text-gray-400"
+                      )}>
+                        To Win {currencySymbol}{totalPotentialWin.toFixed(2)}
+                      </span>
                     </button>
                   </div>
                 )}
-              </div>
-            )}
-          </>
-        )}
-      </>
+      </div>
     )
   }
 
@@ -4144,7 +4473,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             })}
                           </tbody>
                         </table>
-                      </div>
+                  </div>
                     )}
 
                     {/* Fixtures Tab */}
@@ -4478,6 +4807,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         {/* Moneyline Betting Buttons */}
                         <div className="flex items-center gap-1.5 mb-3">
                           <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection={event.team1Code}
+                            data-odds="+350"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -4502,6 +4836,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                           <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection="Tie"
+                            data-odds="+350"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -4526,6 +4865,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                           <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection={event.team2Code}
+                            data-odds="+350"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -4880,8 +5224,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {!isMobile && canScrollLeft && (
                         <button
                           onClick={scrollLeft}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 border border-white/20 rounded-full p-1.5 flex items-center justify-center transition-colors"
-                          style={{ marginLeft: '-8px' }}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/80 hover:bg-black/90 border border-white/30 rounded-full p-1.5 flex items-center justify-center transition-colors shadow-lg"
+                          style={{ marginLeft: '-24px' }}
                         >
                           <IconChevronLeft className="w-4 h-4 text-white" />
                         </button>
@@ -4895,8 +5239,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           scrollBehavior: 'smooth',
                           WebkitOverflowScrolling: 'touch',
                           touchAction: 'pan-x',
-                          paddingLeft: isMobile ? '10px' : '10px',
-                          paddingRight: isMobile ? '10px' : (canScrollRight ? '40px' : '10px')
+                          paddingLeft: isMobile ? '10px' : (canScrollLeft ? '32px' : '10px'),
+                          paddingRight: isMobile ? '10px' : (canScrollRight ? '32px' : '10px')
                         }}
                       >
                         <div className="flex items-center gap-0" style={{ width: 'max-content' }}>
@@ -4912,6 +5256,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                     return (
                                       <button
                                         key={optionIndex}
+                                        data-event-id={event.id}
+                                        data-event-name={`${event.team1} v ${event.team2}`}
+                                        data-market-title={market.title}
+                                        data-selection={option.label}
+                                        data-odds={option.odds}
                                         onClick={(e) => {
                                           e.preventDefault()
                                           e.stopPropagation()
@@ -4955,8 +5304,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {!isMobile && canScrollRight && (
                         <button
                           onClick={scrollRight}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 border border-white/20 rounded-full p-1.5 flex items-center justify-center transition-colors"
-                          style={{ marginRight: '-8px' }}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/80 hover:bg-black/90 border border-white/30 rounded-full p-1.5 flex items-center justify-center transition-colors shadow-lg"
+                          style={{ marginRight: '-24px' }}
                         >
                           <IconChevronRight className="w-4 h-4 text-white" />
                         </button>
@@ -5369,8 +5718,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {!isMobile && canScrollLeft && (
                       <button 
                           onClick={scrollLeft}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 border border-white/20 rounded-full p-1.5 flex items-center justify-center transition-colors"
-                          style={{ marginLeft: '-8px' }}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/80 hover:bg-black/90 border border-white/30 rounded-full p-1.5 flex items-center justify-center transition-colors shadow-lg"
+                          style={{ marginLeft: '-24px' }}
                         >
                           <IconChevronLeft className="w-4 h-4 text-white" />
                         </button>
@@ -5384,8 +5733,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           scrollBehavior: 'smooth',
                           WebkitOverflowScrolling: 'touch',
                           touchAction: 'pan-x',
-                          paddingLeft: isMobile ? '10px' : '10px',
-                          paddingRight: isMobile ? '10px' : (canScrollRight ? '40px' : '10px')
+                          paddingLeft: isMobile ? '10px' : (canScrollLeft ? '32px' : '10px'),
+                          paddingRight: isMobile ? '10px' : (canScrollRight ? '32px' : '10px')
                         }}
                       >
                         <div className="flex items-center gap-0" style={{ width: 'max-content' }}>
@@ -5401,6 +5750,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                     return (
                                       <button
                                         key={optionIndex}
+                                        data-event-id={event.id}
+                                        data-event-name={`${event.team1} v ${event.team2}`}
+                                        data-market-title={market.title}
+                                        data-selection={option.label}
+                                        data-odds={option.odds}
                                         onClick={(e) => {
                                           e.preventDefault()
                                           e.stopPropagation()
@@ -5444,8 +5798,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {!isMobile && canScrollRight && (
                       <button 
                           onClick={scrollRight}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 border border-white/20 rounded-full p-1.5 flex items-center justify-center transition-colors"
-                          style={{ marginRight: '-8px' }}
+                          className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/80 hover:bg-black/90 border border-white/30 rounded-full p-1.5 flex items-center justify-center transition-colors shadow-lg"
+                          style={{ marginRight: '-24px' }}
                         >
                           <IconChevronRight className="w-4 h-4 text-white" />
                       </button>
@@ -5827,23 +6181,25 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         </footer>
       </SidebarInset>
       
-      {/* Betslip Drawer */}
+      {/* Betslip Drawer - Floating from bottom, grows upward */}
       <FamilyDrawerRoot 
         views={betslipViews} 
         open={betslipOpen} 
         onOpenChange={(open) => {
-          // Only allow closing if there are no bets
           if (!open && bets.length === 0) {
             setBetslipOpen(false)
+            setBetslipMinimized(false)
           } else if (open) {
             setBetslipOpen(true)
           }
         }}
       >
-        <FamilyDrawerContent className="bg-white">
+        <FamilyDrawerContent 
+          className="bg-white rounded-t-2xl"
+        >
           <FamilyDrawerAnimatedWrapper 
-            key={`betslip-wrapper-${bets.length}-${betslipCollapsed}`}
-            className={betslipCollapsed ? "px-3 py-1.5" : "px-2 pb-2 pt-2.5"}
+            key={`betslip-${bets.length}-${betslipMinimized}`}
+            className="px-0 py-0"
           >
             <FamilyDrawerAnimatedContent>
               <FamilyDrawerViewContent />
@@ -5851,6 +6207,83 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
       </FamilyDrawerRoot>
+
+      {/* Confirmation Modal - Rendered at page level via portal */}
+      {typeof window !== 'undefined' && showConfirmation && createPortal(
+        <div 
+          className="fixed inset-0 z-[10001] bg-black/50 backdrop-blur-sm flex items-center justify-center"
+          onClick={() => setShowConfirmation(false)}
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001 }}
+        >
+          <div
+            className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Success Icon */}
+            <div className="flex justify-center mb-3">
+              <div className="w-14 h-14 rounded-full bg-[#8BC34A] flex items-center justify-center">
+                <IconCheck className="w-7 h-7 text-white" strokeWidth={3} />
+              </div>
+            </div>
+            
+            {/* Message */}
+            <h3 className="text-base font-semibold text-black text-center mb-4">
+              Bet Placed Successfully
+            </h3>
+            
+            {/* Buttons */}
+            <div className="flex flex-col gap-2 mb-4">
+              <button
+                onClick={() => {
+                  setShowConfirmation(false)
+                  setBets([])
+                  setBetslipOpen(false)
+                  setMyBetsAlertCount(0)
+                }}
+                className="w-full py-2.5 px-4 border border-black/5 rounded text-xs font-medium text-black hover:bg-black/5 transition-colors"
+              >
+                GO TO MY BETS
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmation(false)
+                  setBets([])
+                  setBetslipOpen(false)
+                }}
+                className="w-full py-2.5 px-4 bg-red-500 rounded text-xs font-medium text-white hover:bg-red-600 transition-colors"
+              >
+                DONE
+              </button>
+            </div>
+            
+            {/* Re-use Selections */}
+            <div className="text-center pt-3 border-t border-black/5">
+              <p className="text-[10px] text-black/50 mb-1.5 leading-tight">
+                Once this window is closed, your betslip will be cleared, or you can
+              </p>
+              <button
+                onClick={() => {
+                  if (pendingBets.length > 0) {
+                    setPlacedBets(prev => {
+                      const newList = [...prev]
+                      newList.splice(-pendingBets.length)
+                      return newList
+                    })
+                    setMyBetsAlertCount(prev => Math.max(0, prev - pendingBets.length))
+                    setBets([...pendingBets])
+                  }
+                  setShowConfirmation(false)
+                }}
+                className="text-xs font-medium text-black hover:text-black/70 flex items-center justify-center gap-1 mx-auto transition-colors"
+              >
+                RE-USE SELECTIONS
+                <IconChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
@@ -6688,6 +7121,17 @@ function NavTestPageContent() {
     odds: string
     stake: number
   }>>([])
+  const [placedBets, setPlacedBets] = useState<Array<{
+    id: string
+    eventId: number
+    eventName: string
+    marketTitle: string
+    selection: string
+    odds: string
+    stake: number
+    placedAt: Date
+  }>>([])
+  const [myBetsAlertCount, setMyBetsAlertCount] = useState(0)
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollVipLeft, setCanScrollVipLeft] = useState(false)
   const [canScrollVipRight, setCanScrollVipRight] = useState(false)
@@ -7540,16 +7984,32 @@ function NavTestPageContent() {
               )}
               
               {/* My Bets Button - Always visible, doesn't scroll */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 relative">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
+                    // Clear alert when My Bets is clicked
+                    setMyBetsAlertCount(0)
                     router.push("/casino")
                   }}
-                  className="flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-colors hover:bg-white/5 cursor-pointer"
+                  className="flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-colors hover:bg-white/5 cursor-pointer relative"
                 >
+                  <div className="relative">
                   <IconTicket className="w-5 h-5 text-white/70" />
+                    {myBetsAlertCount > 0 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-red-500 flex items-center justify-center shadow-lg"
+                      >
+                        <span className="text-[8px] font-bold text-white leading-none">
+                          {myBetsAlertCount > 9 ? '9+' : myBetsAlertCount}
+                        </span>
+                      </motion.div>
+                    )}
+                  </div>
                   <span className="text-[10px] text-white/70 font-medium">My Bets</span>
                 </button>
               </div>
@@ -8848,6 +9308,13 @@ function NavTestPageContent() {
                 setBetslipOpen={setBetslipOpen}
                 bets={bets}
                 setBets={setBets}
+                setShowToast={setShowToast}
+                setToastMessage={setToastMessage}
+                setToastAction={setToastAction}
+                placedBets={placedBets}
+                setPlacedBets={setPlacedBets}
+                myBetsAlertCount={myBetsAlertCount}
+                setMyBetsAlertCount={setMyBetsAlertCount}
               />
                 </motion.div>
               ) : isPageTransitioning ? (
@@ -11604,7 +12071,18 @@ function NavTestPageContent() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                <IconGift className="w-4 h-4 text-white flex-shrink-0" />
+                <div style={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  borderRadius: '50%', 
+                  backgroundColor: '#8BC34A', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <IconCheck className="w-3 h-3 text-white" />
+                </div>
                 <span style={{ fontSize: '14px', fontWeight: '500', color: 'white', flex: 1 }}>{toastMessage}</span>
                 {toastAction && (
                   <Button
@@ -11626,10 +12104,14 @@ function NavTestPageContent() {
       )}
 
       {/* Mobile: Dynamic Island Search - Bottom of screen */}
-      {isMobile && (
+      {/* Hide dock when betslip is open */}
+      {isMobile && !betslipOpen && (
         <DynamicIsland
           onSearchClick={() => setSearchOverlayOpen(true)}
-          onBetslipClick={() => setBetslipOpen(true)}
+          onBetslipClick={() => {
+            setBetslipOpen(true)
+            setBetslipMinimized(false)
+          }}
           showBetslip={true}
           betCount={bets.length}
           isSearchActive={searchOverlayOpen}

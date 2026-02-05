@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useEffect,
   type ReactNode,
 } from "react"
 import { Slot } from "@radix-ui/react-slot"
@@ -127,7 +128,13 @@ function FamilyDrawerRoot({
 
   return (
     <FamilyDrawerContext.Provider value={contextValue}>
-      <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Drawer.Root 
+        open={isOpen} 
+        onOpenChange={setIsOpen}
+        modal={false}
+        shouldScaleBackground={false}
+        dismissible={false}
+      >
         {children}
       </Drawer.Root>
     </FamilyDrawerContext.Provider>
@@ -216,15 +223,44 @@ function FamilyDrawerContent({
   asChild = false,
 }: FamilyDrawerContentProps) {
   const { bounds } = useFamilyDrawer()
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+  
+  // Calculate max height to prevent drawer from going under sub-nav
+  // Sub-nav is at top: 64px (desktop) or 64px/104px (mobile), height ~56px
+  // Top nav is 64px
+  // Max height = viewport height - top nav - sub-nav - margin from sub-nav
+  const topNavHeight = 64
+  const subNavHeight = 56
+  const marginFromSubNav = 32 // Leave comfortable margin from sub-nav
+  const maxHeightValue = typeof window !== 'undefined' 
+    ? window.innerHeight - topNavHeight - subNavHeight - marginFromSubNav
+    : bounds.height
 
   const content = (
     <motion.div
       animate={{
-        height: bounds.height,
+        height: Math.min(bounds.height, maxHeightValue),
         transition: {
           duration: 0.27,
           ease: [0.25, 1, 0.5, 1],
         },
+      }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        maxHeight: typeof window !== 'undefined' ? `${maxHeightValue}px` : 'none',
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
       {children}
@@ -236,9 +272,14 @@ function FamilyDrawerContent({
       <Drawer.Content
         asChild
         className={clsx(
-          "fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[361px] overflow-hidden rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
+          "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
           className
         )}
+        modal={false}
+        noOverlay={true}
+        style={{
+          pointerEvents: 'auto',
+        }}
       >
         <Slot>{content}</Slot>
       </Drawer.Content>
@@ -249,9 +290,14 @@ function FamilyDrawerContent({
     <Drawer.Content
       asChild
       className={clsx(
-        "fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[361px] overflow-hidden rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
+        "fixed inset-x-0 bottom-0 z-[9999] mx-auto max-w-[361px] rounded-t-[8px] bg-background outline-none md:mx-auto md:w-full",
         className
       )}
+      modal={false}
+      noOverlay={true}
+      style={{
+        pointerEvents: 'auto',
+      }}
     >
       {content}
     </Drawer.Content>
@@ -276,7 +322,11 @@ function FamilyDrawerAnimatedWrapper({
   return (
     <div
       ref={elementRef}
-      className={clsx("px-6 pb-6 pt-2.5 antialiased", className)}
+      className={clsx("px-6 pb-6 pt-2.5 antialiased w-full", className)}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+      }}
     >
       {children}
     </div>

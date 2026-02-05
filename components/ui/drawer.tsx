@@ -35,18 +35,23 @@ const DrawerClose = DrawerPrimitive.Close
 
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
->(({ className, onClick, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay> & { nonInteractive?: boolean }
+>(({ className, onClick, nonInteractive = false, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
     className={cn("fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out", className)}
     style={{
       ...props.style,
-      pointerEvents: 'auto',
+      pointerEvents: nonInteractive ? 'none' : 'auto',
       visibility: 'visible',
       zIndex: 9998,
     } as React.CSSProperties}
     onClick={(e) => {
+      if (nonInteractive) {
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
       console.log('DrawerOverlay clicked')
       // Don't prevent default - let vaul handle it
       if (onClick) {
@@ -87,19 +92,12 @@ DrawerHandle.displayName = "DrawerHandle"
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => {
-  React.useEffect(() => {
-    // Debug: Log when DrawerContent renders
-    console.log('DrawerContent rendered')
-    return () => {
-      console.log('DrawerContent unmounted')
-    }
-  }, [])
-
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean }
+>(({ className, children, noOverlay = false, ...props }, ref) => {
+  // Never render overlay - always disabled to allow background clicks
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      {/* Overlay completely disabled to allow background interactions */}
       <DrawerPrimitive.Content
         ref={ref}
         className={cn(
