@@ -7112,6 +7112,7 @@ function NavTestPageContent() {
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const [betslipOpen, setBetslipOpen] = useState(false)
+  const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
