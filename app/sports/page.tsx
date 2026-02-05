@@ -3516,6 +3516,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       e.stopPropagation()
                 if (isMobile) {
                   setBetslipOpen(false)
+                  // Mark as manually closed so it won't auto-open again
+                  setBetslipManuallyClosed(true)
                 } else {
                   setBetslipMinimized(true)
                 }
