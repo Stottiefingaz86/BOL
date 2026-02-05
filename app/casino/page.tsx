@@ -445,7 +445,7 @@ function GameSection({ title, games }: { title: string; games: typeof mostPlayed
         <h2 className="text-xl font-bold text-gray-900">{title}</h2>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 h-8 px-3">
-            ALL GAMES
+            All Games
             <IconChevronRight className="ml-1 w-4 h-4" />
           </Button>
           <div className="flex gap-1">
@@ -8675,7 +8675,7 @@ function NavTestPageContent() {
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
                               }}
                             >
-                              ALL GAMES
+                              All Games
                             </Button>
                               {!isMobile && (
                                 <>
@@ -8790,7 +8790,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                               {!isMobile && (
                                 <>
@@ -8906,7 +8906,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9028,7 +9028,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                               {!isMobile && (
                                 <>
@@ -9152,7 +9152,7 @@ function NavTestPageContent() {
                                 setActiveSubNav('For You')
                               }}
                             >
-                              ALL GAMES
+                              All Games
                             </Button>
                               {!isMobile && (
                                 <>
@@ -9264,7 +9264,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Originals')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                               {!isMobile && (
                                 <>
@@ -9383,7 +9383,7 @@ function NavTestPageContent() {
                                   window.scrollTo({ top: 0, behavior: 'smooth' })
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                               {!isMobile && (
                                 <>
@@ -9599,7 +9599,7 @@ function NavTestPageContent() {
                                   }}
                                 >
                                   <IconGhost className="w-4 h-4" />
-                                  ALL GAMES
+                                  All Games
                                 </Button>
                               </div>
                               
@@ -9669,7 +9669,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('For You')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                               {!isMobile && (
                                 <>

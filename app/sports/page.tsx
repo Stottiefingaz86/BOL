@@ -395,7 +395,7 @@ function GameSection({ title, games }: { title: string; games: typeof mostPlayed
         <h2 className="text-xl font-bold text-gray-900">{title}</h2>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 h-8 px-3">
-            ALL GAMES
+            All Games
             <IconChevronRight className="ml-1 w-4 h-4" />
           </Button>
           <div className="flex gap-1">
@@ -2700,6 +2700,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const [topBetBoostsCanScrollPrev, setTopBetBoostsCanScrollPrev] = useState(false)
   const [topBetBoostsCanScrollNext, setTopBetBoostsCanScrollNext] = useState(false)
   
+  // Live scores state for animation - initialized after liveEvents is defined
+  const [liveScores, setLiveScores] = useState<{ [key: number]: { team1: number, team2: number, animating?: { team: 1 | 2, from: number, to: number } } }>({})
+  
+  // Top Events scores state for animation
+  const [topEventsScores, setTopEventsScores] = useState<{ [key: number]: { team1: number, team2: number, animating?: { team: 1 | 2, from: number, to: number } } }>({})
+
+  // Random score updates with realistic spacing - will be set up after liveEvents is defined (see useEffect below)
+  
   // Update slots carousel scroll state
   useEffect(() => {
     if (!sportsSlotsCarouselApi) return
@@ -2901,6 +2909,226 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       ]
     },
   ]
+  
+  // Initialize live scores and set up random score updates after liveEvents is defined
+  useEffect(() => {
+    if (Object.keys(liveScores).length === 0) {
+      const initial: { [key: number]: { team1: number, team2: number } } = {}
+      liveEvents.forEach(event => {
+        if (event.score) {
+          initial[event.id] = { team1: event.score.team1, team2: event.score.team2 }
+        }
+      })
+      if (Object.keys(initial).length > 0) {
+        setLiveScores(initial)
+      }
+    }
+    
+    // Initialize Top Events scores
+    if (Object.keys(topEventsScores).length === 0) {
+      const topEventsData = [
+        { id: 4, score: '1 - 0' },
+        { id: 5, score: '2 - 1' },
+        { id: 6, score: '1 - 2' },
+        { id: 7, score: '2 - 1' },
+        { id: 8, score: '2 - 0' },
+        { id: 9, score: '1 - 1' },
+        { id: 10, score: '0 - 1' },
+        { id: 11, score: '0 - 1' },
+        { id: 12, score: '3 - 0' },
+      ]
+      
+      const initial: { [key: number]: { team1: number, team2: number } } = {}
+      topEventsData.forEach(event => {
+        const parts = event.score.split(' - ')
+        initial[event.id] = { 
+          team1: parseInt(parts[0]) || 0, 
+          team2: parseInt(parts[1]) || 0 
+        }
+      })
+      if (Object.keys(initial).length > 0) {
+        setTopEventsScores(initial)
+      }
+    }
+
+    // Set up random score updates
+    if (liveEvents.length === 0) return
+
+    const timeoutIds: NodeJS.Timeout[] = []
+
+    // Make Liverpool score immediately (id: 1, team1)
+    const liverpoolEvent = liveEvents.find(e => e.id === 1)
+    if (liverpoolEvent && liverpoolEvent.score) {
+      const liverpoolTimeout = setTimeout(() => {
+        setLiveScores(prev => {
+          const currentScore = prev[1] || { team1: liverpoolEvent.score!.team1, team2: liverpoolEvent.score!.team2 }
+          
+          return {
+            ...prev,
+            [1]: {
+              team1: currentScore.team1 + 1,
+              team2: currentScore.team2,
+              animating: {
+                team: 1,
+                from: currentScore.team1,
+                to: currentScore.team1 + 1
+              }
+            }
+          }
+        })
+
+        // Clear animation after animation completes
+        setTimeout(() => {
+          setLiveScores(prev => {
+            const updated = { ...prev[1] }
+            delete updated.animating
+            return { ...prev, [1]: updated }
+          })
+        }, 800)
+      }, 3000) // 3 seconds after page load
+      timeoutIds.push(liverpoolTimeout)
+    }
+    
+    // Make a Top Events team score (randomly select one)
+    const topEventsTimeout = setTimeout(() => {
+      const topEventsIds = [4, 5, 6, 7, 8, 9, 10, 11, 12]
+      const randomId = topEventsIds[Math.floor(Math.random() * topEventsIds.length)]
+      
+      setTopEventsScores(prev => {
+        const currentScore = prev[randomId] || { team1: 0, team2: 0 }
+        const scoringTeam = Math.random() < 0.5 ? 1 : 2
+        
+        return {
+          ...prev,
+          [randomId]: {
+            team1: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team1,
+            team2: scoringTeam === 2 ? currentScore.team2 + 1 : currentScore.team2,
+            animating: {
+              team: scoringTeam,
+              from: scoringTeam === 1 ? currentScore.team1 : currentScore.team2,
+              to: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team2 + 1
+            }
+          }
+        }
+      })
+      
+      // Clear animation after animation completes
+      setTimeout(() => {
+        setTopEventsScores(prev => {
+          const updated = { ...prev[randomId] }
+          delete updated.animating
+          return { ...prev, [randomId]: updated }
+        })
+      }, 800)
+    }, 5000) // 5 seconds after page load
+    timeoutIds.push(topEventsTimeout)
+
+    const updateScore = () => {
+      // Random delay between 8-15 seconds for testing (reduced from 45-120)
+      const delay = 8000 + Math.random() * 7000
+      
+      const timeoutId = setTimeout(() => {
+        // Randomly select an event
+        const randomEvent = liveEvents[Math.floor(Math.random() * liveEvents.length)]
+        if (!randomEvent.score) {
+          updateScore()
+          return
+        }
+
+        setLiveScores(prev => {
+          const currentScore = prev[randomEvent.id] || { team1: randomEvent.score!.team1, team2: randomEvent.score!.team2 }
+          
+          // Randomly select which team scores (60% chance team1, 40% team2)
+          const scoringTeam = Math.random() < 0.6 ? 1 : 2
+          
+          return {
+            ...prev,
+            [randomEvent.id]: {
+              team1: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team1,
+              team2: scoringTeam === 2 ? currentScore.team2 + 1 : currentScore.team2,
+              animating: {
+                team: scoringTeam,
+                from: scoringTeam === 1 ? currentScore.team1 : currentScore.team2,
+                to: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team2 + 1
+              }
+            }
+          }
+        })
+
+        // Clear animation after animation completes
+        const clearTimeoutId = setTimeout(() => {
+          setLiveScores(prev => {
+            const updated = { ...prev[randomEvent.id] }
+            delete updated.animating
+            return { ...prev, [randomEvent.id]: updated }
+          })
+        }, 800)
+        timeoutIds.push(clearTimeoutId)
+
+        // Schedule next update
+        updateScore()
+      }, delay)
+      timeoutIds.push(timeoutId)
+    }
+    
+    // Update Top Events scores randomly
+    const updateTopEventsScore = () => {
+      // Random delay between 10-18 seconds for Top Events
+      const delay = 10000 + Math.random() * 8000
+      
+      const timeoutId = setTimeout(() => {
+        const topEventsIds = [4, 5, 6, 7, 8, 9, 10, 11, 12]
+        const randomId = topEventsIds[Math.floor(Math.random() * topEventsIds.length)]
+        
+        setTopEventsScores(prev => {
+          const currentScore = prev[randomId] || { team1: 0, team2: 0 }
+          const scoringTeam = Math.random() < 0.5 ? 1 : 2
+          
+          return {
+            ...prev,
+            [randomId]: {
+              team1: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team1,
+              team2: scoringTeam === 2 ? currentScore.team2 + 1 : currentScore.team2,
+              animating: {
+                team: scoringTeam,
+                from: scoringTeam === 1 ? currentScore.team1 : currentScore.team2,
+                to: scoringTeam === 1 ? currentScore.team1 + 1 : currentScore.team2 + 1
+              }
+            }
+          }
+        })
+        
+        // Clear animation after animation completes
+        const clearTimeoutId = setTimeout(() => {
+          setTopEventsScores(prev => {
+            const updated = { ...prev[randomId] }
+            delete updated.animating
+            return { ...prev, [randomId]: updated }
+          })
+        }, 800)
+        timeoutIds.push(clearTimeoutId)
+        
+        // Schedule next update
+        updateTopEventsScore()
+      }, delay)
+      timeoutIds.push(timeoutId)
+    }
+
+    // Start first random update after initial delay (5-10 seconds for testing)
+    const initialDelay = 5000 + Math.random() * 5000
+    const initialTimeoutId = setTimeout(updateScore, initialDelay)
+    timeoutIds.push(initialTimeoutId)
+    
+    // Start Top Events score updates after initial delay (8-12 seconds)
+    const topEventsInitialDelay = 8000 + Math.random() * 4000
+    const topEventsInitialTimeoutId = setTimeout(updateTopEventsScore, topEventsInitialDelay)
+    timeoutIds.push(topEventsInitialTimeoutId)
+
+    return () => {
+      timeoutIds.forEach(id => clearTimeout(id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   
   const upcomingEvents = [
     { 
@@ -3579,9 +3807,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       
       {/* Main Content */}
       <SidebarInset className="bg-[#1a1a1a] text-white overflow-x-hidden" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
-        <div className={cn("py-4 overflow-x-hidden", isMobile ? "px-1" : "px-5")}>
+        <div className={cn("pt-0 pb-4 overflow-x-hidden", isMobile ? "px-1" : "px-5")}>
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 -mt-1">
             <button 
               onClick={(e) => {
                 e.preventDefault()
@@ -3762,15 +3990,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white pl-2">Top Events</h2>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
+              <Button 
+                variant="ghost" 
                   className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
                   onClick={() => {
                     router.push('/sports')
                   }}
-                >
-                  ALL GAMES
-                </Button>
+              >
+                View All
+              </Button>
                 {!isMobile && (
                   <>
                     <Button
@@ -4015,9 +4243,112 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           </div>
                           
                           {/* Score */}
-                          <div className="flex items-center justify-center mx-3 flex-shrink-0">
-                            <div className="text-base font-bold text-white leading-none">{event.score}</div>
+                          {(() => {
+                            // Parse score string (e.g., "1 - 0" or "2 - 1")
+                            const parseScore = (scoreStr: string) => {
+                              const parts = scoreStr.split(' - ')
+                              return {
+                                team1: parseInt(parts[0]) || 0,
+                                team2: parseInt(parts[1]) || 0
+                              }
+                            }
+                            
+                            const initialScore = parseScore(event.score)
+                            const currentScore = topEventsScores[event.id] || initialScore
+                            const isAnimatingTeam1 = currentScore?.animating?.team === 1
+                            const isAnimatingTeam2 = currentScore?.animating?.team === 2
+                            
+                            // Animated Score Component for Top Events
+                            const TopEventsAnimatedScore = ({ value, isAnimating, from, to }: { value: number, isAnimating?: boolean, from?: number, to?: number }) => {
+                              const [displayValue, setDisplayValue] = useState(value)
+                              
+                              useEffect(() => {
+                                if (isAnimating && from !== undefined && to !== undefined) {
+                                  // Animate the value smoothly using requestAnimationFrame
+                                  const startValue = from
+                                  const endValue = to
+                                  const duration = 800
+                                  const startTime = Date.now()
+                                  
+                                  const animate = () => {
+                                    const elapsed = Date.now() - startTime
+                                    const progress = Math.min(elapsed / duration, 1)
+                                    const easeOutCubic = 1 - Math.pow(1 - progress, 3)
+                                    const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic)
+                                    setDisplayValue(currentValue)
+                                    
+                                    if (progress < 1) {
+                                      requestAnimationFrame(animate)
+                                    } else {
+                                      setDisplayValue(endValue)
+                                    }
+                                  }
+                                  requestAnimationFrame(animate)
+                                } else {
+                                  setDisplayValue(value)
+                                }
+                              }, [value, isAnimating, from, to])
+                              
+                              // Use NumberFlow with the animated displayValue
+                              return (
+                                <motion.div
+                                  key={displayValue}
+                                  initial={isAnimating ? { scale: 1.2 } : false}
+                                  animate={isAnimating ? { scale: 1 } : {}}
+                                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                                  className="text-base font-bold text-white leading-none"
+                                >
+                                  <NumberFlow value={displayValue} />
+                                </motion.div>
+                              )
+                            }
+                            
+                            return (
+                              <div className="flex items-center justify-center mx-3 flex-shrink-0 gap-1">
+                                <motion.div 
+                                  className={cn(
+                                    "transition-all duration-500",
+                                    isAnimatingTeam1 
+                                      ? "bg-green-500/30 border border-green-500/50 shadow-lg shadow-green-500/20 rounded-small px-1" 
+                                      : ""
+                                  )}
+                                  animate={isAnimatingTeam1 ? { 
+                                    scale: [1, 1.1, 1],
+                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                                  } : {}}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                >
+                                  <TopEventsAnimatedScore 
+                                    value={currentScore.team1} 
+                                    isAnimating={isAnimatingTeam1}
+                                    from={currentScore.animating?.team === 1 ? currentScore.animating.from : undefined}
+                                    to={currentScore.animating?.team === 1 ? currentScore.animating.to : undefined}
+                                  />
+                                </motion.div>
+                                <span className="text-base font-bold text-white leading-none">-</span>
+                                <motion.div 
+                                  className={cn(
+                                    "transition-all duration-500",
+                                    isAnimatingTeam2 
+                                      ? "bg-green-500/30 border border-green-500/50 shadow-lg shadow-green-500/20 rounded-small px-1" 
+                                      : ""
+                                  )}
+                                  animate={isAnimatingTeam2 ? { 
+                                    scale: [1, 1.1, 1],
+                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                                  } : {}}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                >
+                                  <TopEventsAnimatedScore 
+                                    value={currentScore.team2} 
+                                    isAnimating={isAnimatingTeam2}
+                                    from={currentScore.animating?.team === 2 ? currentScore.animating.from : undefined}
+                                    to={currentScore.animating?.team === 2 ? currentScore.animating.to : undefined}
+                                  />
+                                </motion.div>
                           </div>
+                            )
+                          })()}
                           
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
@@ -4269,7 +4600,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                    className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 border border-white/20 rounded-small cursor-pointer transition-colors duration-300"
                   >
                     <IconFilter className="w-4 h-4" />
                   </Button>
@@ -4297,6 +4628,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </div>
             <div className="space-y-2">
               {liveEvents.map((event) => {
+                const currentScore = liveScores[event.id] || (event.score ? { team1: event.score.team1, team2: event.score.team2 } : null)
+                const isAnimatingTeam1 = currentScore?.animating?.team === 1
+                const isAnimatingTeam2 = currentScore?.animating?.team === 2
+
                 // Timer component for each event
                 const MatchTimer = () => {
                   const [elapsedTime, setElapsedTime] = useState(event.elapsedSeconds || 0)
@@ -4316,6 +4651,51 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
                   
                   return <span className="text-[9px] text-white/70">{formattedTime}</span>
+                }
+
+                // Animated Score Component with NumberFlow and green flash
+                const AnimatedScore = ({ value, isAnimating, from, to }: { value: number, isAnimating?: boolean, from?: number, to?: number }) => {
+                  const [displayValue, setDisplayValue] = useState(value)
+                  
+                  useEffect(() => {
+                    if (isAnimating && from !== undefined && to !== undefined) {
+                      // Animate the value smoothly using requestAnimationFrame
+                      const startValue = from
+                      const endValue = to
+                      const duration = 800
+                      const startTime = Date.now()
+                      
+                      const animate = () => {
+                        const elapsed = Date.now() - startTime
+                        const progress = Math.min(elapsed / duration, 1)
+                        const easeOutCubic = 1 - Math.pow(1 - progress, 3)
+                        const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic)
+                        setDisplayValue(currentValue)
+                        
+                        if (progress < 1) {
+                          requestAnimationFrame(animate)
+                        } else {
+                          setDisplayValue(endValue)
+                        }
+                      }
+                      requestAnimationFrame(animate)
+                    } else {
+                      setDisplayValue(value)
+                    }
+                  }, [value, isAnimating, from, to])
+                  
+                  // Use NumberFlow with the animated displayValue
+                  return (
+                    <motion.div
+                      key={displayValue}
+                      initial={isAnimating ? { scale: 1.2 } : false}
+                      animate={isAnimating ? { scale: 1 } : {}}
+                      transition={{ duration: 0.4, ease: 'easeOut' }}
+                      className="text-xs font-bold text-white leading-tight text-center"
+                    >
+                      <NumberFlow value={displayValue} />
+                    </motion.div>
+                  )
                 }
                 
                 // Helper function to get team logo path
@@ -4559,14 +4939,49 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       </div>
                       
                       {/* Score - Fixed width container for alignment across all events */}
-                      {event.score && (
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <div className="flex flex-col items-center justify-center gap-0.5 w-[36px]">
-                            <div className="bg-white/5 border border-white/10 rounded-small px-1.5 py-1 w-full">
-                              <div className="text-xs font-bold text-white leading-tight text-center">{event.score.team1}</div>
-                            <div className="h-px w-full bg-white/20 my-0.5"></div>
-                              <div className="text-xs font-bold text-white leading-tight text-center">{event.score.team2}</div>
-                          </div>
+                      {currentScore && (
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="flex flex-col items-center justify-center gap-1 w-[24px]">
+                            <motion.div 
+                              className={cn(
+                                "border rounded-small px-0.5 py-0.5 w-full transition-all duration-500",
+                                isAnimatingTeam1 
+                                  ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
+                                  : "bg-white/5 border-white/10"
+                              )}
+                              animate={isAnimatingTeam1 ? { 
+                                scale: [1, 1.05, 1],
+                                boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                              } : {}}
+                              transition={{ duration: 0.6, ease: "easeOut" }}
+                            >
+                              <AnimatedScore 
+                                value={currentScore.team1} 
+                                isAnimating={isAnimatingTeam1}
+                                from={currentScore.animating?.team === 1 ? currentScore.animating.from : undefined}
+                                to={currentScore.animating?.team === 1 ? currentScore.animating.to : undefined}
+                              />
+                            </motion.div>
+                            <motion.div 
+                              className={cn(
+                                "border rounded-small px-0.5 py-0.5 w-full transition-all duration-500",
+                                isAnimatingTeam2 
+                                  ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
+                                  : "bg-white/5 border-white/10"
+                              )}
+                              animate={isAnimatingTeam2 ? { 
+                                scale: [1, 1.05, 1],
+                                boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                              } : {}}
+                              transition={{ duration: 0.6, ease: "easeOut" }}
+                            >
+                              <AnimatedScore 
+                                value={currentScore.team2} 
+                                isAnimating={isAnimatingTeam2}
+                                from={currentScore.animating?.team === 2 ? currentScore.animating.from : undefined}
+                                to={currentScore.animating?.team === 2 ? currentScore.animating.to : undefined}
+                              />
+                            </motion.div>
                           </div>
                           <IconChevronRight className="w-4 h-4 text-white/50 hover:text-white transition-colors cursor-pointer flex-shrink-0" />
                         </div>
@@ -4597,15 +5012,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white pl-2">Top Bet Boosts</h2>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
+              <Button 
+                variant="ghost" 
                   className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
                   onClick={() => {
                     router.push('/sports')
                   }}
-                >
-                  ALL GAMES
-                </Button>
+              >
+                View All
+              </Button>
                 {!isMobile && (
                   <>
                     <Button
@@ -4666,7 +5081,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain"
                             />
                             <span className="text-[10px] text-white">Premier League | England, Soccer</span>
-                          </div>
+                  </div>
                           {boost.isLive ? (
                             <div className="flex items-center gap-1.5">
                               <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
@@ -4676,49 +5091,49 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               <span className="text-[10px] text-[#ee3536]">{boost.liveTime}</span>
                             </div>
                           ) : (
-                            <span className="text-[10px] text-white">{boost.time}</span>
+                          <span className="text-[10px] text-white">{boost.time}</span>
                           )}
-                        </div>
+                  </div>
                         
                         {/* Market Name with Odds on the Right */}
                         <div className="flex items-center justify-between gap-4 mb-2">
                           <div className="text-sm font-semibold text-white/90 leading-tight flex-1" style={{ lineHeight: '1.3', maxWidth: '200px' }}>
-                            {boost.marketName}
-                          </div>
+                          {boost.marketName}
+                        </div>
                           {/* Odds Side by Side */}
                           <div className="flex items-center gap-2 flex-shrink-0">
                             {/* Was Odds */}
                             <div>
                               <div className="text-[10px] text-white/50 mb-1 text-center">Was</div>
-                              <button 
+                    <button 
                                 disabled
                                 className="bg-white/10 text-white/50 rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 cursor-not-allowed opacity-60"
                               >
                                 <span className="text-[10px] text-white/50 leading-none line-through">{boost.wasOdds}</span>
-                              </button>
+                    </button>
                             </div>
                             {/* Boosted Odds */}
                             <div>
                               <div className="text-[10px] text-white/50 mb-1 text-center">Boosted</div>
-                              <button 
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  console.log('Bet Boost clicked:', boost.id)
-                                }}
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                              console.log('Bet Boost clicked:', boost.id)
+                      }}
                                 className="bg-white/10 text-white rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 transition-colors cursor-pointer"
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor = brandPrimary
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                                }}
-                              >
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = brandPrimary
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
                                 <span className="text-[10px] font-bold text-white leading-none">{boost.boostedOdds}</span>
-                              </button>
+                    </button>
                             </div>
                           </div>
-                        </div>
+                  </div>
                         
                         {/* Information Disclaimer */}
                         <div className="flex items-start gap-1.5">
@@ -4726,7 +5141,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           <span className="text-[10px] text-white/50 leading-tight">
                             Player Must Play. If No TD's Are Scored Wager Will Be Graded As A Loss
                           </span>
-                        </div>
+                </div>
                       </div>
                     </CarouselItem>
               ))}
@@ -4744,7 +5159,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                    className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 border border-white/20 rounded-small cursor-pointer transition-colors duration-300"
                   >
                     <IconFilter className="w-4 h-4" />
                   </Button>
@@ -5050,7 +5465,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     router.push('/casino?category=Slots')
                   }}
                 >
-                  ALL GAMES
+                  All Games
                 </Button>
                 {!isMobile && (
                   <>
@@ -8916,7 +9331,7 @@ function NavTestPageContent() {
                                 window.scrollTo({ top: 0, behavior: 'smooth' })
                               }}
                             >
-                              ALL GAMES
+                              All Games
                             </Button>
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
@@ -9001,7 +9416,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9088,7 +9503,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9210,7 +9625,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('Live')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9304,7 +9719,7 @@ function NavTestPageContent() {
                                 setActiveSubNav('For You')
                               }}
                             >
-                              ALL GAMES
+                              All Games
                             </Button>
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
@@ -9386,7 +9801,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('For You')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9476,7 +9891,7 @@ function NavTestPageContent() {
                                   window.scrollTo({ top: 0, behavior: 'smooth' })
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
@@ -9663,7 +10078,7 @@ function NavTestPageContent() {
                                   }}
                                 >
                                   <IconGhost className="w-4 h-4" />
-                                  ALL GAMES
+                                  All Games
                                 </Button>
                               </div>
                               
@@ -9733,7 +10148,7 @@ function NavTestPageContent() {
                                   setActiveSubNav('For You')
                                 }}
                               >
-                                ALL GAMES
+                                All Games
                               </Button>
                             </div>
                           </div>
