@@ -2653,7 +2653,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 }
 
 // Sports Page Component
-function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void }) {
+function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
   const isMobile = useIsMobile()
   const router = useRouter()
@@ -2672,16 +2672,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       hour12: true
     }))
   }, [])
-  const [betslipOpen, setBetslipOpen] = useState(false)
-  const [bets, setBets] = useState<Array<{
-    id: string
-    eventId: number
-    eventName: string
-    marketTitle: string
-    selection: string
-    odds: string
-    stake: number
-  }>>([])
   const [eventOrderBy, setEventOrderBy] = useState<string>('Popularity')
   const [selectedLeague, setSelectedLeague] = useState<number>(1) // Default to Premier League (id: 1)
   
@@ -2694,6 +2684,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const [topEventsCarouselApi, setTopEventsCarouselApi] = useState<CarouselApi>()
   const [topEventsCanScrollPrev, setTopEventsCanScrollPrev] = useState(false)
   const [topEventsCanScrollNext, setTopEventsCanScrollNext] = useState(false)
+  
+  // Premier League table expand state
+  const [premierLeagueTableExpanded, setPremierLeagueTableExpanded] = useState(false)
+  const [premierLeagueActiveTab, setPremierLeagueActiveTab] = useState<'Table' | 'Fixtures' | 'Results' | 'Stats'>('Table')
   
   // Top Bet Boosts carousel state
   const [topBetBoostsCarouselApi, setTopBetBoostsCarouselApi] = useState<CarouselApi>()
@@ -2761,7 +2755,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   ]
   
   const sportsCategories = [
-    { icon: IconStar, label: 'Favourites' },
     { icon: IconTrophy, label: 'Top Leagues' },
     { icon: IconBallBaseball, label: 'Baseball' },
     { icon: IconBallBasketball, label: 'Basketball' },
@@ -2961,6 +2954,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     if (liverpoolEvent && liverpoolEvent.score) {
       const liverpoolTimeout = setTimeout(() => {
         setLiveScores(prev => {
+          // Ensure we have the initial score
           const currentScore = prev[1] || { team1: liverpoolEvent.score!.team1, team2: liverpoolEvent.score!.team2 }
           
           return {
@@ -2980,12 +2974,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         // Clear animation after animation completes
         setTimeout(() => {
           setLiveScores(prev => {
+            if (!prev[1]) return prev
             const updated = { ...prev[1] }
             delete updated.animating
             return { ...prev, [1]: updated }
           })
         }, 800)
-      }, 3000) // 3 seconds after page load
+      }, 2000) // 2 seconds after page load (reduced from 3)
       timeoutIds.push(liverpoolTimeout)
     }
     
@@ -3938,17 +3933,48 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </DropdownMenu>
           </div>
           
-          {/* League Header */}
-          <div className="relative h-14 mb-4 rounded-lg overflow-hidden">
-            <div className="absolute inset-0">
-              <Image 
-                src="/banners/sports_league/premier_banner_bg.png"
-                alt="Premier League Banner"
-                fill
-                className="object-cover"
+          {/* Premier League Section - Expandable */}
+          <motion.div
+            initial={false}
+            animate={{ 
+              height: premierLeagueTableExpanded ? 'auto' : '56px',
+            }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="relative mb-4 rounded-lg overflow-hidden"
+          >
+            {/* Expanded Background GIF Layer */}
+            <div 
+              className={`absolute inset-0 transition-opacity duration-300 z-0 overflow-hidden ${
+                premierLeagueTableExpanded ? 'opacity-25' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              <img
+                src="/premierleague background.gif"
+                alt="Premier League Background"
+                className="w-full h-full object-cover"
+                style={{ display: 'block' }}
               />
             </div>
-            <div className="relative h-full flex items-center px-4 gap-4">
+            {/* Banner Background for collapsed state */}
+            <div 
+              className={`absolute inset-0 transition-opacity duration-300 z-0 overflow-hidden ${
+                premierLeagueTableExpanded ? 'opacity-0 pointer-events-none' : 'opacity-25'
+              }`}
+            >
+              <img
+                src="/premierleague background.gif"
+                alt="Premier League Background"
+                className="w-full h-full object-cover"
+                style={{ display: 'block' }}
+              />
+            </div>
+            {/* Overlay for better text readability when expanded */}
+            {premierLeagueTableExpanded && (
+              <div className="absolute inset-0 bg-black/60 z-[1]"></div>
+            )}
+            
+            {/* Header */}
+            <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
               <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
                 {(() => {
                   const leagueData = leagues.find(l => l.name === 'Premier League')
@@ -3975,15 +4001,250 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    console.log('View All clicked')
+                    setPremierLeagueTableExpanded(!premierLeagueTableExpanded)
                   }}
                   className="text-white/70 hover:text-white hover:bg-white/10 text-xs cursor-pointer"
                 >
-                  View All
+                  {premierLeagueTableExpanded ? 'Hide Table' : 'View All'}
                 </Button>
-              </div>
             </div>
           </div>
+          
+            {/* Premier League Table - Expandable */}
+            <AnimatePresence>
+              {premierLeagueTableExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  {/* Tabs Navigation */}
+                  <div className="relative z-[10] border-b border-white/20 px-6">
+                    <div className="flex gap-1">
+                      {(['Table', 'Fixtures', 'Results', 'Stats'] as const).map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setPremierLeagueActiveTab(tab)}
+                          className={`px-4 py-3 text-xs font-semibold transition-colors relative ${
+                            premierLeagueActiveTab === tab
+                              ? 'text-white'
+                              : 'text-white/60 hover:text-white/80'
+                          }`}
+                        >
+                          {tab}
+                          {premierLeagueActiveTab === tab && (
+                            <motion.div
+                              layoutId="premierLeagueTabIndicator"
+                              className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
+                            />
+                          )}
+                        </button>
+                      ))}
+            </div>
+            </div>
+            
+                  {/* Tab Content */}
+                  <div className="relative z-[10] p-6">
+                    {/* Table Tab */}
+                    {premierLeagueActiveTab === 'Table' && (
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b border-white/20">
+                              <th className="text-left py-3 px-4 text-xs font-semibold text-white/70">Pos</th>
+                              <th className="text-left py-3 px-4 text-xs font-semibold text-white/70">Team</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">Pl</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">W</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">D</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">L</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GF</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GA</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GD</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">Pts</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { pos: 1, team: 'Liverpool', pl: 4, w: 4, d: 0, l: 0, gf: 9, ga: 4, gd: 5, pts: 12 },
+                              { pos: 2, team: 'Arsenal', pl: 4, w: 3, d: 0, l: 1, gf: 9, ga: 1, gd: 8, pts: 9 },
+                              { pos: 3, team: 'Tottenham', pl: 4, w: 3, d: 0, l: 1, gf: 8, ga: 1, gd: 7, pts: 9 },
+                              { pos: 4, team: 'Bournemouth', pl: 4, w: 3, d: 0, l: 1, gf: 6, ga: 5, gd: 1, pts: 9 },
+                              { pos: 5, team: 'Chelsea', pl: 4, w: 2, d: 2, l: 0, gf: 9, ga: 3, gd: 6, pts: 8 },
+                              { pos: 6, team: 'Everton', pl: 4, w: 2, d: 1, l: 1, gf: 5, ga: 3, gd: 2, pts: 7 },
+                              { pos: 7, team: 'Sunderland', pl: 4, w: 2, d: 1, l: 1, gf: 5, ga: 3, gd: 2, pts: 7 },
+                              { pos: 8, team: 'Manchester City', pl: 4, w: 2, d: 0, l: 2, gf: 8, ga: 4, gd: 4, pts: 6 },
+                              { pos: 9, team: 'Crystal Palace', pl: 4, w: 1, d: 3, l: 0, gf: 4, ga: 1, gd: 3, pts: 6 },
+                              { pos: 10, team: 'Newcastle', pl: 4, w: 1, d: 2, l: 1, gf: 3, ga: 3, gd: 0, pts: 5 },
+                              { pos: 11, team: 'Fulham', pl: 4, w: 1, d: 2, l: 1, gf: 3, ga: 4, gd: -1, pts: 5 },
+                              { pos: 12, team: 'Brentford', pl: 4, w: 1, d: 1, l: 2, gf: 5, ga: 7, gd: -2, pts: 4 },
+                              { pos: 13, team: 'Brighton', pl: 4, w: 1, d: 1, l: 2, gf: 4, ga: 6, gd: -2, pts: 4 },
+                              { pos: 14, team: 'Manchester United', pl: 4, w: 1, d: 1, l: 2, gf: 4, ga: 7, gd: -3, pts: 4 },
+                              { pos: 15, team: 'Nottingham Forest', pl: 4, w: 1, d: 1, l: 2, gf: 4, ga: 8, gd: -4, pts: 4 },
+                              { pos: 16, team: 'Leeds United', pl: 4, w: 1, d: 1, l: 2, gf: 1, ga: 6, gd: -5, pts: 4 },
+                              { pos: 17, team: 'Burnley', pl: 4, w: 1, d: 0, l: 3, gf: 4, ga: 7, gd: -3, pts: 3 },
+                              { pos: 18, team: 'West Ham United', pl: 4, w: 1, d: 0, l: 3, gf: 4, ga: 11, gd: -7, pts: 3 },
+                              { pos: 19, team: 'Aston Villa', pl: 4, w: 0, d: 2, l: 2, gf: 2, ga: 6, gd: -4, pts: 2 },
+                              { pos: 20, team: 'Wolves', pl: 4, w: 0, d: 0, l: 4, gf: 2, ga: 9, gd: -7, pts: 0 },
+                            ].map((row) => {
+                              const getTeamLogoPath = (teamName: string): string | null => {
+                                const teamLogoMap: { [key: string]: string } = {
+                                  'Liverpool': '/team/Liverpool FC.png',
+                                  'Arsenal': '/team/Arsenal FC.png',
+                                  'Tottenham': '/team/Tottenham Hotspur.png',
+                                  'Bournemouth': '/team/AFC Bournemouth.png',
+                                  'Chelsea': '/team/Chelsea FC.png',
+                                  'Everton': '/team/Everton FC.png',
+                                  'Sunderland': '/team/Sunderland AFC.png',
+                                  'Manchester City': '/team/Manchester City.png',
+                                  'Crystal Palace': '/team/Crystal Palace.png',
+                                  'Newcastle': '/team/Newcastle United.png',
+                                  'Fulham': '/team/Fulham FC.png',
+                                  'Brentford': '/team/Brentford FC.png',
+                                  'Brighton': '/team/Brighton & Hove Albion.png',
+                                  'Manchester United': '/team/Manchester United.png',
+                                  'Nottingham Forest': '/team/Nottingham Forest FC.png',
+                                  'Leeds United': '/team/Leeds United.png',
+                                  'Burnley': '/team/Burnley FC.png',
+                                  'West Ham United': '/team/West Ham United.png',
+                                  'Aston Villa': '/team/Aston Villa.png',
+                                  'Wolves': '/team/Wolverhampton Wanderers.png',
+                                }
+                                return teamLogoMap[teamName] || null
+                              }
+                              
+                              return (
+                                <tr key={row.pos} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                                  <td className="py-3 px-4 text-xs font-bold text-white">{row.pos}</td>
+                                  <td className="py-3 px-4">
+                                    <div className="flex items-center gap-2">
+                                      {getTeamLogoPath(row.team) && (
+                          <Image 
+                                          src={getTeamLogoPath(row.team)!}
+                                          alt={row.team}
+                                          width={20}
+                                          height={20}
+                            className="object-contain"
+                          />
+                                      )}
+                                      <span className="text-xs font-semibold text-white">{row.team}</span>
+                  </div>
+                                  </td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.pl}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.w}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.d}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.l}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.gf}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.ga}</td>
+                                  <td className="py-3 px-4 text-center text-xs font-semibold text-white">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                                  <td className="py-3 px-4 text-center text-xs font-bold text-white">{row.pts}</td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Fixtures Tab */}
+                    {premierLeagueActiveTab === 'Fixtures' && (
+                      <div className="space-y-3">
+                        <div className="text-center py-8 text-white/60 text-sm">
+                          Upcoming fixtures will be displayed here
+                        </div>
+                        {/* Placeholder fixtures */}
+                        {[
+                          { home: 'Liverpool', away: 'Arsenal', date: 'Sat, Feb 10', time: '15:00' },
+                          { home: 'Manchester City', away: 'Chelsea', date: 'Sat, Feb 10', time: '17:30' },
+                          { home: 'Tottenham', away: 'Newcastle', date: 'Sun, Feb 11', time: '14:00' },
+                        ].map((fixture, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="text-right flex-1">
+                                <div className="text-sm font-semibold text-white">{fixture.home}</div>
+                      </div>
+                              <div className="text-xs text-white/60 px-4">
+                                <div>{fixture.date}</div>
+                                <div>{fixture.time}</div>
+                        </div>
+                              <div className="text-left flex-1">
+                                <div className="text-sm font-semibold text-white">{fixture.away}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Results Tab */}
+                    {premierLeagueActiveTab === 'Results' && (
+                      <div className="space-y-3">
+                        <div className="text-center py-8 text-white/60 text-sm">
+                          Recent results will be displayed here
+                        </div>
+                        {/* Placeholder results */}
+                        {[
+                          { home: 'Liverpool', homeScore: 2, awayScore: 1, away: 'Arsenal', date: 'Sat, Feb 3' },
+                          { home: 'Manchester City', homeScore: 3, awayScore: 0, away: 'Chelsea', date: 'Sat, Feb 3' },
+                          { home: 'Tottenham', homeScore: 1, awayScore: 1, away: 'Newcastle', date: 'Sun, Feb 4' },
+                        ].map((result, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className="text-right flex-1">
+                                <div className="text-sm font-semibold text-white">{result.home}</div>
+                              </div>
+                              <div className="text-sm font-bold text-white px-4">
+                                {result.homeScore} - {result.awayScore}
+                              </div>
+                              <div className="text-left flex-1">
+                                <div className="text-sm font-semibold text-white">{result.away}</div>
+                              </div>
+                              <div className="text-xs text-white/60 ml-4">
+                                {result.date}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Stats Tab */}
+                    {premierLeagueActiveTab === 'Stats' && (
+                      <div className="space-y-4">
+                        <div className="text-center py-8 text-white/60 text-sm">
+                          League statistics will be displayed here
+                        </div>
+                        {/* Placeholder stats */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="text-xs text-white/60 mb-2">Top Scorer</div>
+                            <div className="text-sm font-semibold text-white">Mohamed Salah</div>
+                            <div className="text-xs text-white/60 mt-1">9 goals</div>
+                      </div>
+                          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="text-xs text-white/60 mb-2">Most Assists</div>
+                            <div className="text-sm font-semibold text-white">Kevin De Bruyne</div>
+                            <div className="text-xs text-white/60 mt-1">6 assists</div>
+                          </div>
+                          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="text-xs text-white/60 mb-2">Clean Sheets</div>
+                            <div className="text-sm font-semibold text-white">Arsenal</div>
+                            <div className="text-xs text-white/60 mt-1">3 clean sheets</div>
+                          </div>
+                          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <div className="text-xs text-white/60 mb-2">Avg Goals/Game</div>
+                            <div className="text-sm font-semibold text-white">2.5</div>
+                            <div className="text-xs text-white/60 mt-1">80 goals in 32 games</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
           
           {/* Top Events Section */}
           <div className="mb-8">
@@ -4034,164 +4295,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     </Button>
                   </>
                 )}
-              </div>
-            </div>
+                  </div>
+                </div>
             
             <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
               <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                 <CarouselContent className="ml-6 mr-0">
-                  {/* First event - Manchester City vs Liverpool (Live) */}
-                  <CarouselItem className="pl-0 pr-0 basis-auto flex-shrink-0">
-                    <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
-                      {/* Header: League info and Live status */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-1.5">
-                          <Image 
-                            src="/banners/sports_league/prem.svg" 
-                            alt="Premier League"
-                            width={16}
-                            height={16}
-                            className="object-contain"
-                          />
-                          <span className="text-[10px] text-white">Premier League | England</span>
-                  </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
-                            <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
-                  </div>
-                          <span className="text-[10px] text-[#ee3536]">H2 ET 90'+6</span>
-                        </div>
-                      </div>
-                      
-                      {/* Teams and Score */}
-                      <div className="flex items-center mb-3">
-                        {/* Team 1 - Manchester City */}
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Image 
-                            src="/team/Manchester City.png" 
-                            alt="Manchester City"
-                            width={20}
-                            height={20}
-                            className="object-contain flex-shrink-0"
-                            quality={100}
-                            unoptimized
-                          />
-                          <span className="text-xs font-semibold text-white truncate">Manchester City</span>
-                        </div>
-                        
-                        {/* Score */}
-                        <div className="flex items-center justify-center mx-3 flex-shrink-0">
-                          <div className="text-base font-bold text-white leading-none">4 - 0</div>
-                        </div>
-                        
-                        {/* Team 2 - Liverpool */}
-                        <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                          <span className="text-xs font-semibold text-white truncate">Liverpool</span>
-                          <Image 
-                            src="/team/Liverpool FC.png" 
-                            alt="Liverpool"
-                            width={20}
-                            height={20}
-                            className="object-contain flex-shrink-0"
-                            quality={100}
-                            unoptimized
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Moneyline Betting Buttons */}
-                      <div className="flex items-center gap-1.5 mb-3">
-                    <button 
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'MCI', '+350')
-                          }}
-                          className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                            isBetSelected(4, 'Moneyline', 'MCI') && "bg-red-500"
-                          )}
-                      onMouseEnter={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'MCI')) {
-                        e.currentTarget.style.backgroundColor = brandPrimary
-                            }
-                      }}
-                      onMouseLeave={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'MCI')) {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                            }
-                      }}
-                    >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">MCI</div>
-                          <div className="text-xs font-bold leading-none">+350</div>
-                    </button>
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'Tie', '+350')
-                          }}
-                          className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                            isBetSelected(4, 'Moneyline', 'Tie') && "bg-red-500"
-                          )}
-                          onMouseEnter={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'Tie')) {
-                              e.currentTarget.style.backgroundColor = brandPrimary
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'Tie')) {
-                              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                            }
-                          }}
-                        >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div>
-                          <div className="text-xs font-bold leading-none">+350</div>
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'LIV', '+350')
-                          }}
-                          className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                            isBetSelected(4, 'Moneyline', 'LIV') && "bg-red-500"
-                          )}
-                          onMouseEnter={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'LIV')) {
-                              e.currentTarget.style.backgroundColor = brandPrimary
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isBetSelected(4, 'Moneyline', 'LIV')) {
-                              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                            }
-                          }}
-                        >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">LIV</div>
-                          <div className="text-xs font-bold leading-none">+350</div>
-                    </button>
-                  </div>
-                      
-                      {/* Popularity Bar */}
-                      <div className="space-y-0.5">
-                        <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
-                        <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div className="bg-[#ee3536] h-full" style={{ width: '94%' }}></div>
-                          <div className="bg-white h-full" style={{ width: '6%' }}></div>
-                </div>
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-white/50">94% MCI</span>
-                          <span className="text-white/50">6% LIV</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                  
-                  {/* Other events - varied matches (Premier League, La Liga, and Serie A) */}
+                  {/* Dynamic Top Events */}
                   {[
                     { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
                     { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
@@ -4296,7 +4406,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   initial={isAnimating ? { scale: 1.2 } : false}
                                   animate={isAnimating ? { scale: 1 } : {}}
                                   transition={{ duration: 0.4, ease: 'easeOut' }}
-                                  className="text-base font-bold text-white leading-none"
+                                  className="text-[10px] font-bold text-white leading-none"
                                 >
                                   <NumberFlow value={displayValue} />
                                 </motion.div>
@@ -4306,10 +4416,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             return (
                               <div className="flex items-center justify-center mx-3 flex-shrink-0 gap-1">
                                 <motion.div 
-                                  className={cn(
-                                    "transition-all duration-500",
+                          className={cn(
+                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
                                     isAnimatingTeam1 
-                                      ? "bg-green-500/30 border border-green-500/50 shadow-lg shadow-green-500/20 rounded-small px-1" 
+                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
                                       : ""
                                   )}
                                   animate={isAnimatingTeam1 ? { 
@@ -4327,10 +4437,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 </motion.div>
                                 <span className="text-base font-bold text-white leading-none">-</span>
                                 <motion.div 
-                                  className={cn(
-                                    "transition-all duration-500",
+                          className={cn(
+                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
                                     isAnimatingTeam2 
-                                      ? "bg-green-500/30 border border-green-500/50 shadow-lg shadow-green-500/20 rounded-small px-1" 
+                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
                                       : ""
                                   )}
                                   animate={isAnimatingTeam2 ? { 
@@ -4626,7 +4736,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {liveEvents.map((event) => {
                 const currentScore = liveScores[event.id] || (event.score ? { team1: event.score.team1, team2: event.score.team2 } : null)
                 const isAnimatingTeam1 = currentScore?.animating?.team === 1
@@ -4785,8 +4895,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           scrollBehavior: 'smooth',
                           WebkitOverflowScrolling: 'touch',
                           touchAction: 'pan-x',
-                          paddingLeft: isMobile ? '12px' : '12px',
-                          paddingRight: isMobile ? '12px' : (canScrollRight ? '48px' : '12px')
+                          paddingLeft: isMobile ? '10px' : '10px',
+                          paddingRight: isMobile ? '10px' : (canScrollRight ? '40px' : '10px')
                         }}
                       >
                         <div className="flex items-center gap-0" style={{ width: 'max-content' }}>
@@ -4834,7 +4944,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
-                                <div className="w-px h-[32px] bg-white/10 mx-2 flex-shrink-0" />
+                                <div className="w-px h-[38px] bg-white/10 mx-2 flex-shrink-0" />
                               )}
                             </React.Fragment>
                           ))}
@@ -4858,8 +4968,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
                     {/* Header Section - Premier League | England, Soccer */}
-                    <div className="px-3 py-2 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
+                    <div className="px-2.5 py-1.5 flex items-center justify-between">
+                      <div className="flex items-center gap-1">
                         {(() => {
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
@@ -4867,19 +4977,19 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <Image 
                               src={leagueData.icon as string} 
                               alt={event.league}
-                              width={14}
-                              height={14}
+                              width={12}
+                              height={12}
                               className="object-contain"
                             />
                           ) : (
-                            <IconTrophy className="w-3.5 h-3.5 text-white/70" />
+                            <IconTrophy className="w-3 h-3 text-white/70" />
                           )
                         })()}
-                        <span className="text-[10px] text-white/70">{event.league}</span>
-                        <span className="text-[10px] text-white/50">|</span>
-                        <span className="text-[10px] text-white/70">{event.country}</span>
-                        <span className="text-[10px] text-white/50">,</span>
-                        <span className="text-[10px] text-white/70">Soccer</span>
+                        <span className="text-[9px] text-white/70">{event.league}</span>
+                        <span className="text-[9px] text-white/50">|</span>
+                        <span className="text-[9px] text-white/70">{event.country}</span>
+                        <span className="text-[9px] text-white/50">,</span>
+                        <span className="text-[9px] text-white/70">Soccer</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -4895,16 +5005,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     </div>
                     
                     {/* Main Content Row - Status, Teams, Score, Markets (Desktop) or just Status, Teams, Score (Mobile) */}
-                    <div className="px-3 py-3 flex items-center gap-3" style={{ overflow: 'visible', alignItems: 'center' }}>
+                    <div className="px-2.5 py-2 flex items-center gap-2" style={{ overflow: 'visible', alignItems: 'center' }}>
                       {/* Status/Time Badge - Smaller */}
                       {event.isLive && (
-                        <div className="flex flex-col items-start justify-center gap-1 flex-shrink-0 w-[60px]">
+                        <div className="flex flex-col items-start justify-center gap-0.5 flex-shrink-0 w-[50px]">
                           <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
-                            <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
+                            <div className="w-1 h-1 bg-[#ee3536] rounded-full animate-pulse"></div>
+                            <span className="text-[8px] font-semibold text-[#ee3536]">LIVE</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-[9px] font-bold text-white/70">1h</span>
+                          <div className="flex items-center gap-0.5">
+                            <span className="text-[8px] font-bold text-white/70">1h</span>
                           <MatchTimer />
                           </div>
                         </div>
@@ -4922,7 +5032,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain flex-shrink-0"
                             />
                           )}
-                          <div className="text-xs font-semibold text-white truncate leading-tight">{event.team1}</div>
+                          <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team1}</div>
                         </div>
                         <div className="flex items-center gap-1.5">
                           {getTeamLogoPath(event.team2) && (
@@ -4934,17 +5044,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain flex-shrink-0"
                             />
                           )}
-                          <div className="text-xs font-semibold text-white truncate leading-tight">{event.team2}</div>
+                          <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team2}</div>
                         </div>
                       </div>
                       
                       {/* Score - Fixed width container for alignment across all events */}
                       {currentScore && (
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <div className="flex flex-col items-center justify-center gap-1 w-[24px]">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div className="flex flex-col items-center justify-center gap-0.5">
                             <motion.div 
                               className={cn(
-                                "border rounded-small px-0.5 py-0.5 w-full transition-all duration-500",
+                                "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center transition-all duration-500",
                                 isAnimatingTeam1 
                                   ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
                                   : "bg-white/5 border-white/10"
@@ -4964,7 +5074,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </motion.div>
                             <motion.div 
                               className={cn(
-                                "border rounded-small px-0.5 py-0.5 w-full transition-all duration-500",
+                                "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center transition-all duration-500",
                                 isAnimatingTeam2 
                                   ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
                                   : "bg-white/5 border-white/10"
@@ -4983,7 +5093,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               />
                             </motion.div>
                           </div>
-                          <IconChevronRight className="w-4 h-4 text-white/50 hover:text-white transition-colors cursor-pointer flex-shrink-0" />
+                          <IconChevronRight className="w-3.5 h-3.5 text-white/50 hover:text-white transition-colors cursor-pointer flex-shrink-0" />
                         </div>
                       )}
                       
@@ -4997,7 +5107,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     
                     {/* Betting Markets - Mobile: Under team names */}
                     {isMobile && (
-                      <div className="w-full pb-3" style={{ overflow: 'visible' }}>
+                      <div className="w-full pb-2" style={{ overflow: 'visible' }}>
                         <MarketsCarousel />
                       </div>
                     )}
@@ -5274,8 +5384,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           scrollBehavior: 'smooth',
                           WebkitOverflowScrolling: 'touch',
                           touchAction: 'pan-x',
-                          paddingLeft: isMobile ? '12px' : '12px',
-                          paddingRight: isMobile ? '12px' : (canScrollRight ? '48px' : '12px')
+                          paddingLeft: isMobile ? '10px' : '10px',
+                          paddingRight: isMobile ? '10px' : (canScrollRight ? '40px' : '10px')
                         }}
                       >
                         <div className="flex items-center gap-0" style={{ width: 'max-content' }}>
@@ -5323,7 +5433,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
-                                <div className="w-px h-[32px] bg-white/10 mx-2 flex-shrink-0" />
+                                <div className="w-px h-[38px] bg-white/10 mx-2 flex-shrink-0" />
                               )}
                             </React.Fragment>
                           ))}
@@ -5370,8 +5480,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
                     {/* Header Section - Premier League | England, Soccer */}
-                    <div className="px-3 py-2 flex items-center justify-between" style={{ alignItems: 'center' }}>
-                      <div className="flex items-center gap-1.5">
+                    <div className="px-2.5 py-1.5 flex items-center justify-between" style={{ alignItems: 'center' }}>
+                      <div className="flex items-center gap-1">
                         {(() => {
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
@@ -5379,30 +5489,30 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <Image 
                               src={leagueData.icon as string} 
                               alt={event.league}
-                              width={14}
-                              height={14}
+                              width={12}
+                              height={12}
                               className="object-contain"
                             />
                           ) : (
-                            <IconTrophy className="w-3.5 h-3.5 text-white/70" />
+                            <IconTrophy className="w-3 h-3 text-white/70" />
                           )
                         })()}
-                        <span className="text-[10px] text-white/70">{event.league}</span>
-                        <span className="text-[10px] text-white/50">|</span>
-                        <span className="text-[10px] text-white/70">{event.country}</span>
-                        <span className="text-[10px] text-white/50">,</span>
-                        <span className="text-[10px] text-white/70">Soccer</span>
+                        <span className="text-[9px] text-white/70">{event.league}</span>
+                        <span className="text-[9px] text-white/50">|</span>
+                        <span className="text-[9px] text-white/70">{event.country}</span>
+                        <span className="text-[9px] text-white/50">,</span>
+                        <span className="text-[9px] text-white/70">Soccer</span>
                       </div>
                     </div>
                     
                     {/* Main Content Row - Status, Teams, Markets (Desktop) or just Status, Teams (Mobile) */}
-                    <div className="px-3 py-3 flex items-center gap-3" style={{ overflow: 'visible', alignItems: 'center' }}>
+                    <div className="px-2.5 py-2 flex items-center gap-2" style={{ overflow: 'visible', alignItems: 'center' }}>
                       {/* Status/Time Badge - UPCOMING */}
-                      <div className="flex flex-col items-start justify-center gap-1 flex-shrink-0 w-[60px]">
+                      <div className="flex flex-col items-start justify-center gap-0.5 flex-shrink-0 w-[50px]">
                         <div className="flex items-center gap-0.5 bg-green-500/20 border border-green-500/50 rounded px-1 py-0.5 whitespace-nowrap">
-                          <span className="text-[9px] font-semibold text-green-400">UPCOMING</span>
+                          <span className="text-[8px] font-semibold text-green-400">UPCOMING</span>
                   </div>
-                        <span className="text-[9px] text-white/70">{parseTimeToMinutes(event.time)}</span>
+                        <span className="text-[8px] text-white/70">{parseTimeToMinutes(event.time)}</span>
                 </div>
                       
                       {/* Teams - Fixed width for alignment with logos */}
@@ -5417,7 +5527,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain flex-shrink-0"
                             />
                           )}
-                          <div className="text-xs font-semibold text-white truncate leading-tight">{event.team1}</div>
+                          <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team1}</div>
                         </div>
                         <div className="flex items-center gap-1.5">
                           {getTeamLogoPath(event.team2) && (
@@ -5429,7 +5539,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain flex-shrink-0"
                             />
                           )}
-                          <div className="text-xs font-semibold text-white truncate leading-tight">{event.team2}</div>
+                          <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team2}</div>
                         </div>
                       </div>
                       
@@ -5443,7 +5553,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     
                     {/* Betting Markets - Mobile: Under team names */}
                     {isMobile && (
-                      <div className="w-full pb-3" style={{ overflow: 'visible' }}>
+                      <div className="w-full pb-2" style={{ overflow: 'visible' }}>
                         <MarketsCarousel />
                       </div>
                     )}
@@ -6568,6 +6678,16 @@ function NavTestPageContent() {
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
+  const [betslipOpen, setBetslipOpen] = useState(false)
+  const [bets, setBets] = useState<Array<{
+    id: string
+    eventId: number
+    eventName: string
+    marketTitle: string
+    selection: string
+    odds: string
+    stake: number
+  }>>([])
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollVipLeft, setCanScrollVipLeft] = useState(false)
   const [canScrollVipRight, setCanScrollVipRight] = useState(false)
@@ -8724,6 +8844,10 @@ function NavTestPageContent() {
                 brandPrimary={brandPrimary}
                 brandPrimaryHover={brandPrimaryHover}
                 onSearchClick={() => setSearchOverlayOpen(true)}
+                betslipOpen={betslipOpen}
+                setBetslipOpen={setBetslipOpen}
+                bets={bets}
+                setBets={setBets}
               />
                 </motion.div>
               ) : isPageTransitioning ? (
@@ -11505,16 +11629,10 @@ function NavTestPageContent() {
       {isMobile && (
         <DynamicIsland
           onSearchClick={() => setSearchOverlayOpen(true)}
-          onFavoriteClick={() => {
-            setActiveIconTab('favorite')
-            setActiveSubNav('For You')
-            setSelectedCategory('Favorites')
-            setSelectedVendor('')
-            setShowAllGames(true)
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-          }}
+          onBetslipClick={() => setBetslipOpen(true)}
+          showBetslip={true}
+          betCount={bets.length}
           isSearchActive={searchOverlayOpen}
-          isFavoriteActive={activeIconTab === 'favorite' || selectedCategory === 'Favorites'}
         />
       )}
     </div>

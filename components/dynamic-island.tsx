@@ -1,6 +1,6 @@
 "use client";
 
-import { IconSearch, IconHeart } from "@tabler/icons-react";
+import { IconSearch, IconHeart, IconTicket } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -8,17 +8,23 @@ import { useState, useEffect } from "react";
 export type DynamicIslandProps = {
   onSearchClick?: () => void;
   onFavoriteClick?: () => void;
+  onBetslipClick?: () => void;
   className?: string;
   isSearchActive?: boolean;
   isFavoriteActive?: boolean;
+  betCount?: number;
+  showBetslip?: boolean;
 };
 
 export default function DynamicIsland({
   onSearchClick,
   onFavoriteClick,
+  onBetslipClick,
   className = "",
   isSearchActive = false,
   isFavoriteActive = false,
+  betCount = 0,
+  showBetslip = false,
 }: DynamicIslandProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -85,25 +91,46 @@ export default function DynamicIsland({
               <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
             </button>
 
-            {/* Favorites Button */}
-            <button
-              onClick={onFavoriteClick}
-              className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                isFavoriteActive
-                  ? "bg-pink-500/20 hover:bg-pink-500/30 active:bg-pink-500/40"
-                  : "bg-white/5 hover:bg-white/10 active:bg-white/15"
-              )}
-              aria-label="Favorites"
-            >
-              <IconHeart 
+            {/* Betslip or Favorites Button */}
+            {showBetslip ? (
+              <button
+                onClick={onBetslipClick}
                 className={cn(
-                  "w-4 h-4 relative z-10 transition-colors",
-                  isFavoriteActive ? "text-pink-500 fill-pink-500" : "text-white"
+                  "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                  "bg-white/5 hover:bg-white/10 active:bg-white/15"
                 )}
-                strokeWidth={2} 
-              />
-            </button>
+                aria-label="Betslip"
+              >
+                <IconTicket 
+                  className="w-4 h-4 relative z-10 text-white"
+                  strokeWidth={2} 
+                />
+                {betCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#ee3536] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                    {betCount > 99 ? '99+' : betCount}
+                  </span>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={onFavoriteClick}
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                  isFavoriteActive
+                    ? "bg-pink-500/20 hover:bg-pink-500/30 active:bg-pink-500/40"
+                    : "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                )}
+                aria-label="Favorites"
+              >
+                <IconHeart 
+                  className={cn(
+                    "w-4 h-4 relative z-10 transition-colors",
+                    isFavoriteActive ? "text-pink-500 fill-pink-500" : "text-white"
+                  )}
+                  strokeWidth={2} 
+                />
+              </button>
+            )}
           </div>
         </motion.div>
       )}
