@@ -3565,9 +3565,20 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
+                        // Clear all bets - this will trigger re-render and clear highlighting
                         setBets([])
                         setBetslipOpen(false)
                         setBetslipMinimized(false)
+                        // Clear any inline styles from hover handlers on all odds buttons
+                        // This ensures the red highlighting is cleared immediately
+                        requestAnimationFrame(() => {
+                          const oddsButtons = document.querySelectorAll('button[data-event-id]')
+                          oddsButtons.forEach((button) => {
+                            const el = button as HTMLElement
+                            // Clear inline background color to let className take over
+                            el.style.backgroundColor = ''
+                          })
+                        })
                       }}
                       className="text-[10px] font-medium text-black/50 hover:text-black/70 uppercase tracking-wide"
                     >
