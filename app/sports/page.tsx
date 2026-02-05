@@ -3316,6 +3316,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
 
   // State for minimizing betslip
   const [betslipMinimized, setBetslipMinimized] = useState(false)
+  // Track if user has manually closed betslip on mobile (so we don't auto-open again)
+  const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
   
   // Helper function to remove bet from betslip - instant removal
   const removeBet = useCallback((betId: string) => {
@@ -3364,19 +3366,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }
       
       // Open betslip if closed, but preserve minimized state if already open
-      // On mobile, don't auto-open - user must click betslip button in dock
-      if (!betslipOpen && !isMobile) {
-        // If closed and NOT on mobile, open and expand it
-        setBetslipOpen(true)
-        setBetslipMinimized(false)
+      // On mobile, only auto-open on the FIRST bet (when betslip was never manually closed)
+      // After user closes betslip on mobile, don't auto-open again - bets go to dock
+      if (!betslipOpen) {
+        if (!isMobile) {
+          // Desktop: always open if closed
+          setBetslipOpen(true)
+          setBetslipMinimized(false)
+        } else if (!betslipManuallyClosed) {
+          // Mobile: only auto-open if user hasn't manually closed it yet
+          setBetslipOpen(true)
+          setBetslipMinimized(false)
+        }
+        // If betslipManuallyClosed is true on mobile, don't auto-open - bets go to dock
       }
       // If already open (whether minimized or expanded), don't change the state
       // This preserves the minimized state when adding bets
-      // On mobile, if closed, don't open - user must manually open via dock button
       
       return [...prev, newBet]
     })
-  }, [setBets, setBetslipOpen, betslipOpen, betslipMinimized, isMobile])
+  }, [setBets, setBetslipOpen, betslipOpen, betslipMinimized, isMobile, betslipManuallyClosed])
 
   // Helper function to update bet stake
   const updateBetStake = (betId: string, stake: number) => {
@@ -6189,8 +6198,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           if (!open && bets.length === 0) {
             setBetslipOpen(false)
             setBetslipMinimized(false)
+            // On mobile, mark as manually closed so it won't auto-open again
+            if (isMobile) {
+              setBetslipManuallyClosed(true)
+            }
           } else if (open) {
             setBetslipOpen(true)
+            // When user manually opens, reset the flag
+            if (isMobile) {
+              setBetslipManuallyClosed(false)
+            }
           }
         }}
       >
@@ -12112,6 +12129,8 @@ function NavTestPageContent() {
           onBetslipClick={() => {
             setBetslipOpen(true)
             setBetslipMinimized(false)
+            // Reset manually closed flag when user clicks dock button
+            setBetslipManuallyClosed(false)
           }}
           showBetslip={true}
           betCount={bets.length}
