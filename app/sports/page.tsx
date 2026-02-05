@@ -3828,9 +3828,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           <span className="text-[10px] text-white">Premier League | England</span>
                   </div>
                         <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-1 bg-[#ee3536] px-1.5 py-0.5 rounded-full">
-                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                            <span className="text-[10px] font-semibold text-white">LIVE</span>
+                          <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                            <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                            <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
                   </div>
                           <span className="text-[10px] text-[#ee3536]">H2 ET 90'+6</span>
                         </div>
@@ -3841,10 +3841,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         {/* Team 1 - Manchester City */}
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <Image 
-                            src="/banners/sports_league/man_city.png" 
+                            src="/team/Manchester City.png" 
                             alt="Manchester City"
-                            width={24}
-                            height={24}
+                            width={20}
+                            height={20}
                             className="object-contain flex-shrink-0"
                             quality={100}
                             unoptimized
@@ -3861,10 +3861,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                           <span className="text-xs font-semibold text-white truncate">Liverpool</span>
                           <Image 
-                            src="/banners/sports_league/liverpool.png" 
+                            src="/team/Liverpool FC.png" 
                             alt="Liverpool"
-                            width={24}
-                            height={24}
+                            width={20}
+                            height={20}
                             className="object-contain flex-shrink-0"
                             quality={100}
                             unoptimized
@@ -3963,60 +3963,70 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     </div>
                   </CarouselItem>
                   
-                  {/* Other events - duplicate for carousel */}
-                  {[4, 5, 6].map((eventId) => (
-                    <CarouselItem key={eventId} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                  {/* Other events - varied matches (Premier League, La Liga, and Serie A) */}
+                  {[
+                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
+                    { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
+                    { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
+                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
+                    { id: 8, team1: 'Inter Milan', team2: 'Napoli', score: '2 - 0', team1Code: 'INT', team2Code: 'NAP', team1Percent: 68, team2Percent: 32, time: 'H1 28\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Inter Milan.png', team2Logo: '/team/Italy - Serie A/SSC Napoli.png' },
+                    { id: 9, team1: 'Atletico Madrid', team2: 'Sevilla', score: '1 - 1', team1Code: 'ATM', team2Code: 'SEV', team1Percent: 52, team2Percent: 48, time: 'H1 34\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Atlético de Madrid.png', team2Logo: '/team/Spain - LaLiga/Sevilla FC.png' },
+                    { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
+                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
+                    { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
+                  ].map((event) => (
+                    <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                       <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
                             <Image 
-                              src="/banners/sports_league/prem.svg" 
-                              alt="Premier League"
+                              src={event.leagueIcon} 
+                              alt={event.league}
                               width={16}
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">Premier League | England</span>
+                            <span className="text-[10px] text-white">{event.league} | {event.country}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <div className="flex items-center gap-1 bg-[#ee3536] px-1.5 py-0.5 rounded-full">
-                              <div className="w-1 h-1 bg-white rounded-full"></div>
-                              <span className="text-[10px] font-semibold text-white">LIVE</span>
+                            <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                              <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                              <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
                             </div>
-                            <span className="text-[10px] text-[#ee3536]">H2 ET 90'+6</span>
+                            <span className="text-[10px] text-[#ee3536]">{event.time}</span>
                           </div>
                         </div>
                         
                         {/* Teams and Score */}
                         <div className="flex items-center mb-3">
-                          {/* Team 1 - Manchester City */}
+                          {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
                             <Image 
-                              src="/banners/sports_league/man_city.png" 
-                              alt="Manchester City"
-                              width={24}
-                              height={24}
+                              src={event.team1Logo}
+                              alt={event.team1}
+                              width={20}
+                              height={20}
                               className="object-contain flex-shrink-0"
                               quality={100}
                               unoptimized
                             />
-                            <span className="text-xs font-semibold text-white truncate">Manchester City</span>
+                            <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
                           
                           {/* Score */}
                           <div className="flex items-center justify-center mx-3 flex-shrink-0">
-                            <div className="text-base font-bold text-white leading-none">4 - 0</div>
+                            <div className="text-base font-bold text-white leading-none">{event.score}</div>
                           </div>
                           
-                          {/* Team 2 - Liverpool */}
+                          {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                            <span className="text-xs font-semibold text-white truncate">Liverpool</span>
+                            <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
                             <Image 
-                              src="/banners/sports_league/liverpool.png" 
-                              alt="Liverpool"
-                              width={24}
-                              height={24}
+                              src={event.team2Logo}
+                              alt={event.team2}
+                              width={20}
+                              height={20}
                               className="object-contain flex-shrink-0"
                               quality={100}
                               unoptimized
@@ -4030,43 +4040,43 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'MCI', '+350')
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team1Code, '+350')
                             }}
                             className={cn(
                               "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(eventId, 'Moneyline', 'MCI') && "bg-red-500"
+                              isBetSelected(event.id, 'Moneyline', event.team1Code) && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'MCI')) {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
                                 e.currentTarget.style.backgroundColor = brandPrimary
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'MCI')) {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
                                 e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
                               }
                             }}
                           >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">MCI</div>
+                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team1Code}</div>
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                           <button 
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'Tie', '+350')
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', 'Tie', '+350')
                             }}
                             className={cn(
                               "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(eventId, 'Moneyline', 'Tie') && "bg-red-500"
+                              isBetSelected(event.id, 'Moneyline', 'Tie') && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'Tie')) {
+                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
                                 e.currentTarget.style.backgroundColor = brandPrimary
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'Tie')) {
+                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
                                 e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
                               }
                             }}
@@ -4078,24 +4088,24 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'LIV', '+350')
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team2Code, '+350')
                             }}
                             className={cn(
                               "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(eventId, 'Moneyline', 'LIV') && "bg-red-500"
+                              isBetSelected(event.id, 'Moneyline', event.team2Code) && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'LIV')) {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
                                 e.currentTarget.style.backgroundColor = brandPrimary
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (!isBetSelected(eventId, 'Moneyline', 'LIV')) {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
                                 e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
                               }
                             }}
                           >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">LIV</div>
+                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team2Code}</div>
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                         </div>
@@ -4104,12 +4114,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="space-y-0.5">
                           <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
                           <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div className="bg-[#ee3536] h-full" style={{ width: '94%' }}></div>
-                            <div className="bg-white h-full" style={{ width: '6%' }}></div>
+                            <div className="bg-[#ee3536] h-full" style={{ width: `${event.team1Percent}%` }}></div>
+                            <div className="bg-white h-full" style={{ width: `${event.team2Percent}%` }}></div>
                           </div>
                           <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-white/50">94% MCI</span>
-                            <span className="text-white/50">6% LIV</span>
+                            <span className="text-white/50">{event.team1Percent}% {event.team1Code}</span>
+                            <span className="text-white/50">{event.team2Percent}% {event.team2Code}</span>
                           </div>
                         </div>
                       </div>
@@ -4509,9 +4519,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {/* Status/Time Badge - Smaller */}
                       {event.isLive && (
                         <div className="flex flex-col items-start justify-center gap-1 flex-shrink-0 w-[60px]">
-                          <div className="flex items-center gap-1 bg-[#ee3536] px-1.5 py-0.5 rounded-full">
-                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                            <span className="text-[10px] font-semibold text-white">LIVE</span>
+                          <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                            <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                            <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span className="text-[9px] font-bold text-white/70">1h</span>
@@ -4585,7 +4595,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* Top Bet Boosts Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white pl-2">Top bet boosts</h2>
+              <h2 className="text-lg font-semibold text-white pl-2">Top Bet Boosts</h2>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
@@ -4638,15 +4648,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* Bet Boost Cards */}
                   {[
-                    { id: 1, marketName: 'Market Name Here On More Than One Line', time: 'TODAY 10:30PM' },
-                    { id: 2, marketName: 'Market Name Here On More Than One Line', time: 'TODAY 10:30PM' },
-                    { id: 3, marketName: 'Market Name Here On More Than One Line', time: 'TODAY 10:30PM' },
-                    { id: 4, marketName: 'Market Name Here On More Than One Line', time: 'TODAY 10:30PM' },
+                    { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+350' },
+                    { id: 2, marketName: 'Salah To Score 2+ Goals Vs Arsenal', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350' },
+                    { id: 3, marketName: 'Kane To Score First Goal Vs Chelsea', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                    { id: 4, marketName: 'Mbappe To Score From Outside Box Vs Lyon', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600' },
                   ].map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
-                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(31, 238, 245, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
-                        {/* Header: League info and Time */}
-                        <div className="flex items-center justify-between mb-3">
+                      <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                        {/* Header: League info and Time/Live Status */}
+                        <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Image 
                               src="/banners/sports_league/prem.svg" 
@@ -4656,50 +4666,59 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain"
                             />
                             <span className="text-[10px] text-white">Premier League | England, Soccer</span>
-                  </div>
-                          <span className="text-[10px] text-white">{boost.time}</span>
-                  </div>
-                        
-                        {/* Market Name */}
-                        <div className="text-sm font-medium text-white/90 mb-3 leading-tight min-h-[2.5rem]">
-                          {boost.marketName}
+                          </div>
+                          {boost.isLive ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                                <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                                <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
+                              </div>
+                              <span className="text-[10px] text-[#ee3536]">{boost.liveTime}</span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-white">{boost.time}</span>
+                          )}
                         </div>
                         
-                        {/* Betting Buttons */}
-                        <div className="flex items-center gap-2 mb-3">
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                              console.log('Bet Boost clicked:', boost.id)
-                      }}
-                            className="bg-white/10 text-white text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = brandPrimary
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                            +350
-                    </button>
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                              console.log('Bet Boost clicked:', boost.id)
-                      }}
-                            className="bg-white/10 text-white text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = brandPrimary
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                            +350
-                    </button>
-                  </div>
+                        {/* Market Name with Odds on the Right */}
+                        <div className="flex items-center justify-between gap-4 mb-2">
+                          <div className="text-sm font-semibold text-white/90 leading-tight flex-1" style={{ lineHeight: '1.3', maxWidth: '200px' }}>
+                            {boost.marketName}
+                          </div>
+                          {/* Odds Side by Side */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Was Odds */}
+                            <div>
+                              <div className="text-[10px] text-white/50 mb-1 text-center">Was</div>
+                              <button 
+                                disabled
+                                className="bg-white/10 text-white/50 rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 cursor-not-allowed opacity-60"
+                              >
+                                <span className="text-[10px] text-white/50 leading-none line-through">{boost.wasOdds}</span>
+                              </button>
+                            </div>
+                            {/* Boosted Odds */}
+                            <div>
+                              <div className="text-[10px] text-white/50 mb-1 text-center">Boosted</div>
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  console.log('Bet Boost clicked:', boost.id)
+                                }}
+                                className="bg-white/10 text-white rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 transition-colors cursor-pointer"
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = brandPrimary
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                                }}
+                              >
+                                <span className="text-[10px] font-bold text-white leading-none">{boost.boostedOdds}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                         
                         {/* Information Disclaimer */}
                         <div className="flex items-start gap-1.5">
@@ -4707,7 +4726,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           <span className="text-[10px] text-white/50 leading-tight">
                             Player Must Play. If No TD's Are Scored Wager Will Be Graded As A Loss
                           </span>
-                </div>
+                        </div>
                       </div>
                     </CarouselItem>
               ))}
