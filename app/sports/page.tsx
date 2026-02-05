@@ -3531,11 +3531,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
 
         {/* Middle Section - Scrollable when content exceeds available space */}
             {bets.length === 0 ? (
-          <div className="px-4 py-12 text-center flex-1 min-h-0 flex items-center justify-center" style={{ flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
+          <div className="px-4 py-12 text-center flex-1 min-h-0 flex flex-col items-center justify-center" style={{ flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
             <div>
               <p className="text-sm text-black/70">Your betslip is empty</p>
               <p className="text-xs mt-2 text-black/50">Select odds to add bets</p>
             </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setBetslipOpen(false)
+                setBetslipMinimized(false)
+                // On mobile, mark as manually closed
+                if (isMobile) {
+                  setBetslipManuallyClosed(true)
+                }
+              }}
+              className="mt-6 px-4 py-2 text-xs font-medium text-black/70 hover:text-black border border-black/10 rounded hover:bg-black/5 transition-colors"
+            >
+              Close
+            </button>
               </div>
             ) : (
           <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', position: 'relative', zIndex: 1 }}>
