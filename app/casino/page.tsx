@@ -387,27 +387,35 @@ function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
 // Payment Logo Component with fallback
 function PaymentLogo({ method, className }: { method: string; className?: string }) {
   const [imageError, setImageError] = useState(false)
-  const imagePath = `/logos/payment/${method.toLowerCase()}.png`
+  const [useFallback, setUseFallback] = useState(false)
+  // Normalize method name for file lookup
+  const normalizedMethod = method.toLowerCase().replace(/\s+/g, '')
+  // Try SVG first, then PNG as fallback
+  const imagePath = useFallback 
+    ? `/logos/payment/${normalizedMethod}.png`
+    : `/logos/payment/${normalizedMethod}.svg`
   
   return (
-    <Card className={`border-white/10 bg-white/5 p-2 rounded-small ${className || ''}`}>
-      <CardContent className="p-0">
-        <div className="flex items-center justify-center h-8 px-3 min-w-[60px]">
-          {!imageError ? (
-            <Image
-              src={imagePath}
-              alt={method}
-              width={60}
-              height={20}
-              className="object-contain"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <span className="text-xs font-semibold text-white/70">{method}</span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`flex items-center justify-center h-8 px-2 ${className || ''}`}>
+      {!imageError ? (
+        <Image
+          src={imagePath}
+          alt={method}
+          width={60}
+          height={20}
+          className="object-contain opacity-80 hover:opacity-100 transition-opacity"
+          onError={() => {
+            if (!useFallback) {
+              setUseFallback(true)
+            } else {
+              setImageError(true)
+            }
+          }}
+        />
+      ) : (
+        <span className="text-xs font-semibold text-white/70">{method}</span>
+      )}
+    </div>
   )
 }
 
@@ -416,25 +424,20 @@ function SecurityBadge({ name, iconPath, className }: { name: string; iconPath: 
   const [imageError, setImageError] = useState(false)
   
   return (
-    <Card className={`border-white/10 bg-white/5 p-2 rounded-small ${className || ''}`}>
-      <CardContent className="p-0">
-        <div className="flex items-center gap-2 h-8 px-3">
-          {!imageError ? (
-            <Image
-              src={iconPath}
-              alt={name}
-              width={16}
-              height={16}
-              className="object-contain"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <IconShield className="w-4 h-4 text-green-500" />
-          )}
-          <span className="text-xs font-semibold text-white/70">{name}</span>
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`flex items-center justify-center ${className || ''}`}>
+      {!imageError ? (
+        <Image
+          src={iconPath}
+          alt={name}
+          width={80}
+          height={30}
+          className="object-contain opacity-80 hover:opacity-100 transition-opacity"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <IconShield className="w-6 h-6 text-green-500" />
+      )}
+    </div>
   )
 }
 
@@ -4879,12 +4882,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         
         {/* Footer - responsive to sidebar state */}
         <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-          <div className="w-full px-6 py-8">
-            {/* Quick Links Section */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
+          <div className="w-full px-6 py-6">
+            {/* Quick Links Section - More compact */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
               <div>
-                <h3 className="font-semibold mb-4">QUICK LINKS</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
@@ -4894,26 +4897,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
                 </ul>
-                <div className="mt-4">
-                  <Button 
-                    className="w-full rounded-small h-10 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all"
-                    style={{ backgroundColor: brandPrimary }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = brandPrimaryHover
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = brandPrimary
-                    }}
-                  >
-                    <IconLifebuoy className="w-4 h-4 mr-2" />
-                    NEED HELP?
-                  </Button>
-                </div>
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Casino</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Casino</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
@@ -4926,8 +4914,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Sports</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Sports</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
@@ -4940,15 +4928,18 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Poker</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Poker</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
                 </ul>
-                <h3 className="font-semibold mb-4 mt-6">Racebook</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
@@ -4958,8 +4949,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Other</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Other</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
@@ -4968,82 +4959,93 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
                 </ul>
               </div>
+
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Support</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                </ul>
+              </div>
             </div>
 
-            <Separator className="bg-white/10 mb-8" />
+            <Separator className="bg-white/10 mb-6" />
 
-            {/* Trust & Security Section */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <h3 className="font-semibold text-lg">A TRUSTED & SAFE EXPERIENCE</h3>
-                <IconShield className="w-5 h-5" />
+            {/* Trust & Security Section - More compact */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
+                <IconShield className="w-4 h-4" />
               </div>
-              <p className="text-sm text-white/70 mb-6 max-w-3xl">
+              <p className="text-xs text-white/70 mb-4 max-w-2xl">
                 At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 {/* Crypto payment method logos */}
-                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'Bitcoin Cash', 'Dogecoin'].map((method) => (
+                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
                   <PaymentLogo key={method} method={method} />
                 ))}
                 {/* Traditional payment method logos */}
-                {['VISA', 'Mastercard', 'AMEX', 'Discover', 'MoneyGram'].map((method) => (
+                {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
                   <PaymentLogo key={method} method={method} />
                 ))}
                 {/* Security badges */}
-                <SecurityBadge name="Responsible Gaming" iconPath="/logos/security/responsible-gaming.png" />
-                <SecurityBadge name="SSL Secure" iconPath="/logos/security/ssl-secure.png" />
-                <Card className="border-2 border-white bg-red-500 p-2 rounded-full">
-                  <CardContent className="p-0">
-                    <div className="flex items-center justify-center w-8 h-8">
-                      <span className="text-xs font-bold text-white">18+</span>
-            </div>
-                  </CardContent>
-                </Card>
-          </div>
-        </div>
-
-            <Separator className="bg-white/10 mb-8" />
-
-            {/* Partners & Social Media */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-4">
-                <h3 className="font-semibold">OFFICIAL PARTNERS</h3>
-                <Separator orientation="vertical" className="h-6 bg-white/20" />
-                <div className="flex items-center gap-4 text-white/70">
-                  <span>LALIGA</span>
-                  <span>LFA</span>
-                  <span>matchroom.</span>
-                  <span>GOLDEN BOY</span>
+                <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
+                <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
+                  <span className="text-[10px] font-bold text-white">18+</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+            </div>
+
+            <Separator className="bg-white/10 mb-6" />
+
+            {/* Partners & Social Media - More compact */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
+                <Separator orientation="vertical" className="h-5 bg-white/20" />
+                <div className="flex items-center gap-3">
+                  {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
+                    <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
+                      <Image
+                        src={`/banners/partners/${partner}.svg`}
+                        alt={partner}
+                        width={70}
+                        height={28}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
                 {/* Social media icons using Button components */}
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandFacebook className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandFacebook className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandInstagram className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandInstagram className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandX className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandX className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandYoutube className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandYoutube className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandTiktok className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandTiktok className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
             {/* Timestamp and Copyright */}
-            <div className="text-center space-y-2">
-              <div className="text-xs text-white/50">
-                {typeof currentTime !== 'undefined' ? currentTime : ''}
+            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+              <div>
+                Copyright ©2024 BetOnline.ag. All rights reserved.
               </div>
-              <div className="text-sm text-white/50">
-                <p>Copyright ©2024 BetOnline.ag. All rights reserved.</p>
+              <div>
+                {typeof currentTime !== 'undefined' ? currentTime : ''}
               </div>
             </div>
           </div>
@@ -6515,7 +6517,7 @@ function NavTestPageContent() {
             
             {/* Navigation Menu - Desktop only */}
             {!isMobile && (
-              <nav className="flex-1 flex items-center z-[110]" style={{ pointerEvents: 'auto' }}>
+              <nav className="flex-1 flex items-center z-[110] ml-6" style={{ pointerEvents: 'auto' }}>
                 <SidebarMenu className="flex flex-row items-center gap-2">
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -6732,8 +6734,8 @@ function NavTestPageContent() {
             "flex items-center",
             isMobile ? "gap-2" : "gap-3"
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
-            {/* Theme Toggle Button - Hide on mobile */}
-            {!isMobile && (
+            {/* Theme Toggle Button - Hidden for now */}
+            {false && !isMobile && (
               <div style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
                 <ModeToggle />
               </div>
@@ -9764,12 +9766,12 @@ function NavTestPageContent() {
               
               {/* Footer - responsive to sidebar state */}
               <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-              <div className="w-full px-6 py-8">
-                  {/* Quick Links Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
+              <div className="w-full px-6 py-6">
+                  {/* Quick Links Section - More compact */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
                     <div>
-                      <h3 className="font-semibold mb-4">QUICK LINKS</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                      <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
@@ -9779,26 +9781,11 @@ function NavTestPageContent() {
                         <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
                       </ul>
-                      <div className="mt-4">
-                        <Button 
-                          className="w-full rounded-small h-10 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all"
-                          style={{ backgroundColor: brandPrimary }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = brandPrimaryHover
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = brandPrimary
-                          }}
-                        >
-                          <IconLifebuoy className="w-4 h-4 mr-2" />
-                          NEED HELP?
-                        </Button>
-                      </div>
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-4">Casino</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                      <h3 className="font-semibold mb-3 text-sm">Casino</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
@@ -9811,8 +9798,8 @@ function NavTestPageContent() {
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-4">Sports</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                      <h3 className="font-semibold mb-3 text-sm">Sports</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
@@ -9825,15 +9812,18 @@ function NavTestPageContent() {
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-4">Poker</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                      <h3 className="font-semibold mb-3 text-sm">Poker</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
                       </ul>
-                      <h3 className="font-semibold mb-4 mt-6">Racebook</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
@@ -9843,8 +9833,8 @@ function NavTestPageContent() {
                     </div>
                     
                     <div>
-                      <h3 className="font-semibold mb-4">Other</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
+                      <h3 className="font-semibold mb-3 text-sm">Other</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
                         <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
                         <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
@@ -9853,85 +9843,96 @@ function NavTestPageContent() {
                         <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
                       </ul>
                     </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-3 text-sm">Support</h3>
+                      <ul className="space-y-1.5 text-xs text-white/70">
+                        <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
+                        <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                      </ul>
+                    </div>
                   </div>
 
-                  <Separator className="bg-white/10 mb-8" />
+                  <Separator className="bg-white/10 mb-6" />
 
-                  {/* Trust & Security Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-4">
-                      <h3 className="font-semibold text-lg">A TRUSTED & SAFE EXPERIENCE</h3>
-                      <IconShield className="w-5 h-5" />
+                  {/* Trust & Security Section - More compact */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
+                      <IconShield className="w-4 h-4" />
                     </div>
-                    <p className="text-sm text-white/70 mb-6 max-w-3xl">
+                    <p className="text-xs text-white/70 mb-4 max-w-2xl">
                       At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
                     </p>
                     <div className="flex flex-wrap items-center gap-3">
                       {/* Crypto payment method logos */}
-                      {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'Bitcoin Cash', 'Dogecoin'].map((method) => (
+                      {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
                         <PaymentLogo key={method} method={method} />
                       ))}
                       {/* Traditional payment method logos */}
-                      {['VISA', 'Mastercard', 'AMEX', 'Discover', 'MoneyGram'].map((method) => (
+                      {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
                         <PaymentLogo key={method} method={method} />
                       ))}
                       {/* Security badges */}
-                      <SecurityBadge name="Responsible Gaming" iconPath="/logos/security/responsible-gaming.png" />
-                      <SecurityBadge name="SSL Secure" iconPath="/logos/security/ssl-secure.png" />
-                      <Card className="border-2 border-white bg-red-500 p-2 rounded-full">
-                        <CardContent className="p-0">
-                          <div className="flex items-center justify-center w-8 h-8">
-                            <span className="text-xs font-bold text-white">18+</span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
+                      <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
+                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
+                        <span className="text-[10px] font-bold text-white">18+</span>
+                      </div>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 mb-8" />
+                  <Separator className="bg-white/10 mb-6" />
 
-                  {/* Partners & Social Media */}
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-                    <div className="flex items-center gap-4">
-                      <h3 className="font-semibold">OFFICIAL PARTNERS</h3>
-                      <Separator orientation="vertical" className="h-6 bg-white/20" />
-                      <div className="flex items-center gap-4 text-white/70">
-                        <span>LALIGA</span>
-                        <span>LFA</span>
-                        <span>matchroom.</span>
-                        <span>GOLDEN BOY</span>
+                  {/* Partners & Social Media - More compact */}
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
+                      <Separator orientation="vertical" className="h-5 bg-white/20" />
+                      <div className="flex items-center gap-3">
+                        {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
+                          <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
+                            <Image
+                              src={`/banners/partners/${partner}.svg`}
+                              alt={partner}
+                              width={70}
+                              height={28}
+                              className="object-contain"
+                            />
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       {/* Social media icons using Button components */}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandFacebook className="w-5 h-5" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                        <IconBrandFacebook className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandInstagram className="w-5 h-5" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                        <IconBrandInstagram className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandX className="w-5 h-5" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                        <IconBrandX className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandYoutube className="w-5 h-5" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                        <IconBrandYoutube className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandTiktok className="w-5 h-5" />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                        <IconBrandTiktok className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
                   {/* Timestamp and Copyright */}
-                  <div className="text-center space-y-2">
-                    <div className="text-xs text-white/50">
+                  <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+                    <div>
+                      Copyright ©2024 BetOnline.ag. All rights reserved.
+                    </div>
+                    <div>
                       {typeof currentTime !== 'undefined' ? currentTime : ''}
                     </div>
-                    <div className="text-sm text-white/50">
-                      <p>Copyright ©2024 BetOnline.ag. All rights reserved.</p>
-                    </div>
                   </div>
-                </div>
+              </div>
               </footer>
           </SidebarInset>
         </div>

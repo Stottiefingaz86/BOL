@@ -6277,7 +6277,7 @@ function NavTestPageContent() {
             
             {/* Navigation Menu - Desktop only */}
             {!isMobile && (
-              <nav className="flex-1 flex items-center z-[110]" style={{ pointerEvents: 'auto' }}>
+              <nav className="flex-1 flex items-center z-[110] ml-6" style={{ pointerEvents: 'auto' }}>
                 <SidebarMenu className="flex flex-row items-center gap-2">
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -6495,8 +6495,8 @@ function NavTestPageContent() {
             "flex items-center",
             isMobile ? "gap-2" : "gap-3"
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
-            {/* Theme Toggle Button - Hide on mobile */}
-            {!isMobile && (
+            {/* Theme Toggle Button - Hidden for now */}
+            {false && !isMobile && (
               <div style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
                 <ModeToggle />
               </div>

@@ -39,6 +39,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import Image from 'next/image'
+import * as NFLIcons from 'react-nfl-logos'
 import { 
   IconLayoutDashboard, 
   IconFileText, 
@@ -112,7 +113,8 @@ import {
   IconCoins,
   IconDownload,
   IconExternalLink,
-  IconMaximize
+  IconMaximize,
+  IconShare
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
@@ -337,27 +339,35 @@ function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
 // Payment Logo Component with fallback
 function PaymentLogo({ method, className }: { method: string; className?: string }) {
   const [imageError, setImageError] = useState(false)
-  const imagePath = `/logos/payment/${method.toLowerCase()}.png`
+  const [useFallback, setUseFallback] = useState(false)
+  // Normalize method name for file lookup
+  const normalizedMethod = method.toLowerCase().replace(/\s+/g, '')
+  // Try SVG first, then PNG as fallback
+  const imagePath = useFallback 
+    ? `/logos/payment/${normalizedMethod}.png`
+    : `/logos/payment/${normalizedMethod}.svg`
   
   return (
-    <Card className={`border-white/10 bg-white/5 p-2 rounded-small ${className || ''}`}>
-      <CardContent className="p-0">
-        <div className="flex items-center justify-center h-8 px-3 min-w-[60px]">
-          {!imageError ? (
-            <Image
-              src={imagePath}
-              alt={method}
-              width={60}
-              height={20}
-              className="object-contain"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <span className="text-xs font-semibold text-white/70">{method}</span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`flex items-center justify-center h-8 px-2 ${className || ''}`}>
+      {!imageError ? (
+        <Image
+          src={imagePath}
+          alt={method}
+          width={60}
+          height={20}
+          className="object-contain opacity-80 hover:opacity-100 transition-opacity"
+          onError={() => {
+            if (!useFallback) {
+              setUseFallback(true)
+            } else {
+              setImageError(true)
+            }
+          }}
+        />
+      ) : (
+        <span className="text-xs font-semibold text-white/70">{method}</span>
+      )}
+    </div>
   )
 }
 
@@ -366,25 +376,20 @@ function SecurityBadge({ name, iconPath, className }: { name: string; iconPath: 
   const [imageError, setImageError] = useState(false)
   
   return (
-    <Card className={`border-white/10 bg-white/5 p-2 rounded-small ${className || ''}`}>
-      <CardContent className="p-0">
-        <div className="flex items-center gap-2 h-8 px-3">
-          {!imageError ? (
-            <Image
-              src={iconPath}
-              alt={name}
-              width={16}
-              height={16}
-              className="object-contain"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <IconShield className="w-4 h-4 text-green-500" />
-          )}
-          <span className="text-xs font-semibold text-white/70">{name}</span>
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`flex items-center justify-center ${className || ''}`}>
+      {!imageError ? (
+        <Image
+          src={iconPath}
+          alt={name}
+          width={80}
+          height={30}
+          className="object-contain opacity-80 hover:opacity-100 transition-opacity"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <IconShield className="w-6 h-6 text-green-500" />
+      )}
+    </div>
   )
 }
 
@@ -2653,11 +2658,12 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 }
 
 // Sports Page Component
-function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void }) {
+function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed, activeSport, setActiveSport }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void; activeSport: 'Soccer' | 'Football'; setActiveSport: (sport: 'Soccer' | 'Football') => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
   const isMobile = useIsMobile()
   const router = useRouter()
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [showShareTicket, setShowShareTicket] = useState(false)
   const [pendingBets, setPendingBets] = useState<Array<{
     id: string
     eventId: number
@@ -2668,17 +2674,20 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     stake: number
   }>>([])
 
-  // Listen for bet confirmation event from betslip
+  // Listen for bet confirmation event from betslip (backup - not used since we set directly now)
   useEffect(() => {
     const handleShowConfirmation = (e: CustomEvent) => {
-      setPendingBets(e.detail.bets || [])
-      setShowConfirmation(true)
+      // Only handle if confirmation is not already showing to prevent flashing
+      if (!showConfirmation) {
+        setPendingBets(e.detail.bets || [])
+        setShowConfirmation(true)
+      }
     }
     window.addEventListener('showBetConfirmation' as any, handleShowConfirmation as EventListener)
     return () => {
       window.removeEventListener('showBetConfirmation' as any, handleShowConfirmation as EventListener)
     }
-  }, [])
+  }, [showConfirmation])
 
   // Ensure background remains clickable when betslip is open
   useEffect(() => {
@@ -2785,6 +2794,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // Premier League table expand state
   const [premierLeagueTableExpanded, setPremierLeagueTableExpanded] = useState(false)
   const [premierLeagueActiveTab, setPremierLeagueActiveTab] = useState<'Table' | 'Fixtures' | 'Results' | 'Stats'>('Table')
+  
+  // Total market price selection state - key: `${eventId}-${marketIndex}`, value: selected price
+  const [totalMarketPrices, setTotalMarketPrices] = useState<{ [key: string]: string }>({})
   
   // Top Bet Boosts carousel state
   const [topBetBoostsCarouselApi, setTopBetBoostsCarouselApi] = useState<CarouselApi>()
@@ -3305,6 +3317,122 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     },
   ]
 
+  // NFL events (Football) - Live
+  const nflLiveEvents = [
+    { 
+      id: 101, 
+      league: 'NFL', 
+      country: 'USA',
+      sport: 'Football',
+      startTime: 'Q2', 
+      elapsedSeconds: 420, // 7 minutes = 420 seconds
+      isLive: true,
+      team1: 'Alanta Falcons', 
+      team2: 'Tennessee Titans', 
+      score: { team1: 10, team2: 9 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ATL', odds: '+150' }, { label: 'TEN', odds: '+180' }] },
+        { title: 'Total', options: [{ label: 'O 45.5', odds: '-110' }, { label: 'U 45.5', odds: '-110' }] },
+        { title: 'Spread', options: [{ label: 'ATL -3.5', odds: '-110' }, { label: 'TEN +3.5', odds: '-110' }] },
+        { title: 'First Half Moneyline', options: [{ label: 'ATL', odds: '+140' }, { label: 'TEN', odds: '+160' }] },
+        { title: 'Q1 Spread', options: [{ label: 'ATL -0.5', odds: '-105' }, { label: 'TEN +0.5', odds: '-115' }] },
+        { title: 'Team B Win', options: [{ label: 'ATL', odds: '+150' }, { label: 'TEN', odds: '+180' }] },
+        { title: 'Half-Time Score', options: [{ label: 'O 21.5', odds: '-110' }, { label: 'U 21.5', odds: '-110' }] },
+        { title: 'Player A Touchdowns', options: [{ label: 'O 0.5', odds: '+120' }, { label: 'U 0.5', odds: '-150' }] },
+      ]
+    },
+    { 
+      id: 102, 
+      league: 'NFL', 
+      country: 'USA',
+      sport: 'Football',
+      startTime: 'Q4', 
+      elapsedSeconds: 2280, // 38 minutes = 2280 seconds
+      isLive: true,
+      team1: 'Minnesota Vikings', 
+      team2: 'New England Patriots', 
+      score: { team1: 34, team2: 28 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'MIN', odds: '+120' }, { label: 'NE', odds: '+140' }] },
+        { title: 'Total', options: [{ label: 'O 48.5', odds: '-110' }, { label: 'U 48.5', odds: '-110' }] },
+        { title: 'Spread', options: [{ label: 'MIN -2.5', odds: '-110' }, { label: 'NE +2.5', odds: '-110' }] },
+        { title: 'First Half Moneyline', options: [{ label: 'MIN', odds: '+130' }, { label: 'NE', odds: '+150' }] },
+        { title: 'Q4 Spread', options: [{ label: 'MIN -1.5', odds: '-105' }, { label: 'NE +1.5', odds: '-115' }] },
+        { title: 'Team B Win', options: [{ label: 'MIN', odds: '+120' }, { label: 'NE', odds: '+140' }] },
+        { title: 'Half-Time Score', options: [{ label: 'O 24.5', odds: '-110' }, { label: 'U 24.5', odds: '-110' }] },
+        { title: 'Player A Touchdowns', options: [{ label: 'O 1.5', odds: '+150' }, { label: 'U 1.5', odds: '-180' }] },
+      ]
+    },
+    { 
+      id: 103, 
+      league: 'NFL', 
+      country: 'USA',
+      sport: 'Football',
+      startTime: 'Q1', 
+      elapsedSeconds: 60, // 1 minute = 60 seconds
+      isLive: true,
+      team1: 'Detroit Lions', 
+      team2: 'Miami Dolphins', 
+      score: { team1: 0, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'DET', odds: '+110' }, { label: 'MIA', odds: '+130' }] },
+        { title: 'Total', options: [{ label: 'O 47.5', odds: '-110' }, { label: 'U 47.5', odds: '-110' }] },
+        { title: 'Spread', options: [{ label: 'DET -1.5', odds: '-110' }, { label: 'MIA +1.5', odds: '-110' }] },
+        { title: 'First Half Moneyline', options: [{ label: 'DET', odds: '+115' }, { label: 'MIA', odds: '+135' }] },
+        { title: 'Q1 Spread', options: [{ label: 'DET -0.5', odds: '-105' }, { label: 'MIA +0.5', odds: '-115' }] },
+        { title: 'Team B Win', options: [{ label: 'DET', odds: '+110' }, { label: 'MIA', odds: '+130' }] },
+        { title: 'Half-Time Score', options: [{ label: 'O 23.5', odds: '-110' }, { label: 'U 23.5', odds: '-110' }] },
+        { title: 'Player A Touchdowns', options: [{ label: 'O 0.5', odds: '+110' }, { label: 'U 0.5', odds: '-140' }] },
+      ]
+    },
+  ]
+
+  // NFL events (Football) - Upcoming
+  const nflUpcomingEvents = [
+    { 
+      id: 104, 
+      league: 'NFL', 
+      country: 'USA',
+      sport: 'Football',
+      time: 'Today 10:30 PM', 
+      team1: 'Seattle Seahawks', 
+      team2: 'Kansas City Chiefs', 
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SEA', odds: '+160' }, { label: 'KC', odds: '+140' }] },
+        { title: 'Total', options: [{ label: 'O 46.5', odds: '-110' }, { label: 'U 46.5', odds: '-110' }] },
+        { title: 'Spread', options: [{ label: 'SEA +3.5', odds: '-110' }, { label: 'KC -3.5', odds: '-110' }] },
+        { title: 'First Half Moneyline', options: [{ label: 'SEA', odds: '+170' }, { label: 'KC', odds: '+150' }] },
+        { title: 'Q1 Spread', options: [{ label: 'SEA +0.5', odds: '-105' }, { label: 'KC -0.5', odds: '-115' }] },
+        { title: 'Team B Win', options: [{ label: 'SEA', odds: '+160' }, { label: 'KC', odds: '+140' }] },
+        { title: 'Half-Time Score', options: [{ label: 'O 23.5', odds: '-110' }, { label: 'U 23.5', odds: '-110' }] },
+        { title: 'Player A Touchdowns', options: [{ label: 'O 0.5', odds: '+125' }, { label: 'U 0.5', odds: '-155' }] },
+      ]
+    },
+    { 
+      id: 105, 
+      league: 'NFL', 
+      country: 'USA',
+      sport: 'Football',
+      time: 'In 59min', 
+      team1: 'Indianapolis Colts', 
+      team2: 'Green Bay Packers', 
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'IND', odds: '+145' }, { label: 'GB', odds: '+125' }] },
+        { title: 'Total', options: [{ label: 'O 44.5', odds: '-110' }, { label: 'U 44.5', odds: '-110' }] },
+        { title: 'Spread', options: [{ label: 'IND +2.5', odds: '-110' }, { label: 'GB -2.5', odds: '-110' }] },
+        { title: 'First Half Moneyline', options: [{ label: 'IND', odds: '+155' }, { label: 'GB', odds: '+135' }] },
+        { title: 'Q1 Spread', options: [{ label: 'IND +0.5', odds: '-105' }, { label: 'GB -0.5', odds: '-115' }] },
+        { title: 'Team B Win', options: [{ label: 'IND', odds: '+145' }, { label: 'GB', odds: '+125' }] },
+        { title: 'Half-Time Score', options: [{ label: 'O 22.5', odds: '-110' }, { label: 'U 22.5', odds: '-110' }] },
+        { title: 'Player A Touchdowns', options: [{ label: 'O 0.5', odds: '+115' }, { label: 'U 0.5', odds: '-145' }] },
+      ]
+    },
+  ]
+
+  // Filter events based on active sport
+  const filteredLiveEvents = activeSport === 'Football' ? nflLiveEvents : liveEvents.filter(e => e.league !== 'NFL')
+  const filteredUpcomingEvents = activeSport === 'Football' ? nflUpcomingEvents : upcomingEvents.filter(e => e.league !== 'NFL')
+
   // Helper function to check if a bet is selected
   const isBetSelected = (eventId: number, marketTitle: string, selection: string) => {
     return bets.some(bet => 
@@ -3360,7 +3488,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       marketTitle,
       selection,
       odds,
-        stake: 10
+        stake: 0
     }
       
       // Open betslip if closed, but preserve minimized state if already open
@@ -3369,7 +3497,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       if (!betslipOpen) {
         if (!isMobile) {
           // Desktop: always open if closed
-          setBetslipOpen(true)
+    setBetslipOpen(true)
           setBetslipMinimized(false)
         } else if (!betslipManuallyClosed) {
           // Mobile: only auto-open if user hasn't manually closed it yet
@@ -3450,7 +3578,32 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const BetslipDefaultView = () => {
     const currencySymbol = '$'
     const [isScrolled, setIsScrolled] = useState(false)
+    const [nudgeKey, setNudgeKey] = useState(0)
     const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const previousBetsLengthRef = useRef(bets.length)
+    // Local state for input values to prevent losing focus
+    const [localStakes, setLocalStakes] = useState<Record<string, string>>({})
+    const [localParlayStake, setLocalParlayStake] = useState<string>('')
+    const inputRefs = useRef<Record<string, HTMLInputElement>>({})
+    const focusedInputRef = useRef<string | null>(null)
+    const scrollLockRafRef = useRef<number | null>(null)
+    const savedScrollPositionRef = useRef<{ x: number; y: number } | null>(null)
+    
+    // Restore focus if input was focused before re-render
+    useEffect(() => {
+      if (focusedInputRef.current) {
+        const input = inputRefs.current[focusedInputRef.current]
+        if (input && document.activeElement !== input) {
+          // Use setTimeout to ensure DOM is ready
+          setTimeout(() => {
+            input.focus()
+            // Restore cursor position if possible
+            const length = input.value.length
+            input.setSelectionRange(length, length)
+          }, 0)
+        }
+      }
+    }, [localStakes])
     
     useEffect(() => {
       const container = scrollContainerRef.current
@@ -3464,45 +3617,110 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       return () => container.removeEventListener('scroll', handleScroll)
     }, [])
 
+    // Ensure scroll starts at top when bets change or drawer opens
+    useEffect(() => {
+      if (bets.length > 0 && betslipOpen && !betslipMinimized) {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          const container = scrollContainerRef.current
+          if (container) {
+            // Reset scroll to top to ensure first bet is visible
+            container.scrollTop = 0
+          }
+        })
+      }
+    }, [bets.length, betslipOpen, betslipMinimized])
+
+    // Track bets length changes separately
+    useEffect(() => {
+      const prevLength = previousBetsLengthRef.current
+      const newLength = bets.length
+      
+      // Only trigger if length actually increased
+      if (newLength > prevLength) {
+        console.log('🎯 Bets increased!', prevLength, '->', newLength, 'minimized:', betslipMinimized, 'mobile:', isMobile)
+        
+        // Trigger animation if minimized
+        if (betslipMinimized && !isMobile) {
+          console.log('✅✅✅ TRIGGERING NUDGE ANIMATION!')
+          setNudgeKey(prev => {
+            const newKey = prev + 1
+            console.log('🎬 Incrementing nudge key to:', newKey)
+            return newKey
+          })
+        }
+      }
+      
+      // Update ref for next comparison
+      previousBetsLengthRef.current = newLength
+    }, [bets.length, betslipMinimized, isMobile])
+
     // On mobile, don't show minimized state - just close
     // Minimized state - just header bar (desktop only)
     if (betslipMinimized && !isMobile) {
-    return (
-        <div className="px-4 py-2 flex items-center justify-between border-b border-black/5">
-            <div className="flex items-center gap-2">
-              {bets.length > 0 && (
+      return (
+        <motion.div 
+          key={`minimized-nudge-${nudgeKey}`}
+          className="px-4 py-2 flex items-center justify-between border-b border-black/5"
+          initial={{ y: 0 }}
+          animate={nudgeKey > 0 ? {
+            y: [0, -12, 0],
+          } : {
+            y: 0
+          }}
+          transition={{
+            duration: 0.6,
+            ease: [0.4, 0, 0.2, 1],
+            times: [0, 0.5, 1]
+          }}
+          onAnimationStart={() => console.log('🎬 Drawer nudge animation started! Key:', nudgeKey)}
+          onAnimationComplete={() => console.log('✅ Drawer nudge completed!')}
+        >
+          <div className="flex items-center gap-2">
+            {bets.length > 0 && (
               <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded">
                 <span className="text-xs font-semibold text-white leading-none">{bets.length}</span>
-                </div>
-              )}
+              </div>
+            )}
             <span className="text-sm font-semibold text-black">Betslip</span>
             {totalStake > 0 && (
               <span className="text-xs text-black/60">{currencySymbol}{totalStake.toFixed(2)}</span>
             )}
-            </div>
-            <button
+          </div>
+          <button
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
               setBetslipMinimized(false)
             }}
-            className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black"
-            >
-              Show
-            </button>
-          </div>
+            className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black flex items-center gap-1"
+          >
+            <IconChevronUp className="w-3 h-3" />
+            SHOW
+          </button>
+        </motion.div>
       )
     }
-
     // Expanded state
     return (
-      <div className="flex flex-col w-full h-full" style={{ display: 'flex', flexDirection: 'column', position: 'relative', height: '100%', maxHeight: '100%', minHeight: 0, overflow: 'hidden', justifyContent: 'flex-start' }}>
+      <div className="relative flex flex-col w-full" 
+        style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          position: 'relative', 
+          height: '100%',
+          maxHeight: '100%',
+          minHeight: 0,
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        }}
+      >
         {/* Header - Always visible at top - Glass effect when scrolled */}
-        <div className={cn("px-2 py-1.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, position: 'sticky', top: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'white' }}>
+        <div className={cn("px-2 py-1.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, flexGrow: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'white' }}>
                 <div className="flex items-center gap-2">
                   {bets.length > 0 && (
-              <div className="bg-black/8 h-4 min-w-[18px] px-1.5 flex items-center justify-center rounded-full">
-                <span className="text-[10px] font-medium text-black leading-none">{bets.length}</span>
+              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded">
+                <span className="text-xs font-semibold text-white leading-none">{bets.length}</span>
                     </div>
                   )}
             <h2 className="text-sm font-medium text-black/90">Betslip</h2>
@@ -3520,9 +3738,19 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   setBetslipMinimized(true)
                 }
               }}
-              className="text-[9px] font-medium text-black/50 hover:text-black/70"
+              className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black flex items-center gap-1"
             >
-              {isMobile ? 'Close' : 'Minimize'}
+              {isMobile ? (
+                <>
+                  <IconX className="w-3 h-3" />
+                  CLOSE
+                </>
+              ) : (
+                <>
+                  <IconChevronDown className="w-3 h-3" />
+                  MINIMIZE
+                </>
+              )}
                   </button>
                 )}
             </div>
@@ -3533,7 +3761,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div>
               <p className="text-sm text-black/70">Your betslip is empty</p>
               <p className="text-xs mt-2 text-black/50">Select odds to add bets</p>
-            </div>
+                    </div>
             <button
               onClick={(e) => {
                 e.preventDefault()
@@ -3551,22 +3779,37 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </button>
               </div>
             ) : (
-          <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch', position: 'relative', zIndex: 1 }}>
+          <div 
+            ref={scrollContainerRef} 
+            className="overscroll-contain" 
+            style={{ 
+              flex: '1 1 auto',
+              minHeight: 0,
+              overflowY: 'auto', 
+              overflowX: 'hidden', 
+              WebkitOverflowScrolling: 'touch', 
+              position: 'relative', 
+              zIndex: 1,
+              paddingBottom: '70px' // Space for the fixed button
+            }}
+          >
               {/* Straight Bets - Scrollable list in middle section - Tighter, cleaner design */}
-              {bets.length > 0 && (
-                <div className="px-2">
+                {bets.length > 0 && (
+                <div className="px-2" style={{ minHeight: 'fit-content' }}>
                   <div className="flex items-center justify-between mb-1.5 pt-2">
                     <div className="text-[10px] font-medium text-black/50 uppercase tracking-wide">
                       {hasMultipleGames ? `${bets.length} Selections` : 'Straight Bet'}
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
                         // Clear all bets - this will trigger re-render and clear highlighting
                         setBets([])
                         setBetslipOpen(false)
                         setBetslipMinimized(false)
+                        // Reset manually closed flag so next first bet will open betslip
+                        setBetslipManuallyClosed(false)
                         // Clear any inline styles from hover handlers on all odds buttons
                         // This ensures the red highlighting is cleared immediately
                         requestAnimationFrame(() => {
@@ -3581,8 +3824,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       className="text-[10px] font-medium text-black/50 hover:text-black/70 uppercase tracking-wide"
                     >
                       Remove All
-                    </button>
-                  </div>
+                  </button>
+              </div>
                   {/* New bets appear at top (reversed array order) */}
                   {[...bets].reverse().map((bet, index) => {
                 const event = liveEvents.find(e => e.id === bet.eventId) || upcomingEvents.find(e => e.id === bet.eventId)
@@ -3597,12 +3840,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   }
                 }
                 const decimalMultiplier = oddsToDecimal(bet.odds)
-                const toWin = bet.stake * decimalMultiplier - bet.stake
+                // Use local stake value if typing, otherwise use bet.stake
+                const currentStake = localStakes[bet.id] !== undefined 
+                  ? (localStakes[bet.id] === '' || localStakes[bet.id] === '.' ? 0 : parseFloat(localStakes[bet.id]) || 0)
+                  : bet.stake
+                const toWin = currentStake * decimalMultiplier - currentStake
 
                 return (
                   <div
                     key={bet.id}
-                    className="flex items-start gap-2 py-2 border-b border-black/5 last:border-b-0"
+                    className="flex items-start gap-2 py-2 px-2 -mx-2 border-b border-black/5 last:border-b-0 bg-[#f5f5f5] rounded"
                   >
                     {/* Remove Button - Smaller, more subtle */}
                     <button
@@ -3631,65 +3878,144 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         </div>
 
                     {/* Stake Input - Smaller, tighter */}
-                    <div className="flex-shrink-0 w-[85px]">
+                    <div className="flex-shrink-0 w-[110px] min-w-[110px]">
                       <div className="border border-black/5 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
-                          <Input
+                          <span className="absolute left-1.5 text-xs text-black/50 z-10">$</span>
+                          <input
+                            ref={(el) => {
+                              if (el) inputRefs.current[bet.id] = el
+                            }}
                             type="text"
                             inputMode="decimal"
-                            value={bet.stake === 0 ? '' : bet.stake.toString()}
+                            value={localStakes[bet.id] !== undefined ? localStakes[bet.id] : (bet.stake > 0 ? bet.stake.toString() : '')}
                             onChange={(e) => {
-                            const val = e.target.value
-                            if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                              const num = val === '' ? 0 : parseFloat(val)
-                              if (!isNaN(num) && num >= 0) {
-                                updateBetStake(bet.id, num)
-                                }
+                              // Prevent any scroll during typing
+                              if (savedScrollPositionRef.current) {
+                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                              }
+                              
+                              const val = e.target.value.replace(/[^0-9.]/g, '')
+                              // Allow decimals: allow empty, single dot, or valid decimal number
+                              if (val === '' || val === '.' || /^\d*\.?\d*$/.test(val)) {
+                                // Only update local state - don't update bet.stake to prevent re-renders
+                                // "To Win" will update in real-time because it uses localStakes[bet.id]
+                                setLocalStakes(prev => ({ ...prev, [bet.id]: val }))
+                                
+                                // Re-lock scroll after state update
+                                requestAnimationFrame(() => {
+                                  if (savedScrollPositionRef.current) {
+                                    window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                                  }
+                                })
                               }
                             }}
                             onFocus={(e) => {
-                              // Prevent page scroll when input is focused
+                              // Track which input is focused
+                              focusedInputRef.current = bet.id
+                              // Initialize local state if not set - start empty
+                              if (localStakes[bet.id] === undefined) {
+                                setLocalStakes(prev => ({ ...prev, [bet.id]: bet.stake === 0 ? '' : bet.stake.toString() }))
+                              }
+                              // Select all text for easy replacement
+                              e.target.select()
+                              
+                              // Store current window scroll position in ref so it persists through re-renders
+                              savedScrollPositionRef.current = {
+                                x: window.scrollX,
+                                y: window.scrollY
+                              }
                               const input = e.target as HTMLInputElement
-                              const scrollContainer = scrollContainerRef.current
                               
-                              // Store current window scroll position
-                              const windowScrollY = window.scrollY
-                              const windowScrollX = window.scrollX
-                              
-                              // Lock window scroll position
+                              // Prevent page scrolling by locking scroll position
                               const lockScroll = () => {
-                                window.scrollTo(windowScrollX, windowScrollY)
+                                if (focusedInputRef.current === bet.id && savedScrollPositionRef.current) {
+                                  if (window.scrollY !== savedScrollPositionRef.current.y || window.scrollX !== savedScrollPositionRef.current.x) {
+                                    window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                                  }
+                                }
                               }
                               
-                              // Prevent scroll immediately and repeatedly
-                              const scrollInterval = setInterval(lockScroll, 10)
+                              // Lock scroll position - use requestAnimationFrame for better performance
+                              // Clear any existing scroll lock
+                              if (scrollLockRafRef.current !== null) {
+                                cancelAnimationFrame(scrollLockRafRef.current)
+                              }
+                              
+                              const lockScrollLoop = () => {
+                                if (focusedInputRef.current === bet.id) {
+                                  lockScroll()
+                                  scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
+                                } else {
+                                  scrollLockRafRef.current = null
+                                }
+                              }
+                              scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
                               
                               // Only scroll within betslip container if needed
+                              const scrollContainer = scrollContainerRef.current
                               if (scrollContainer) {
                                 requestAnimationFrame(() => {
                                   const inputRect = input.getBoundingClientRect()
                                   const containerRect = scrollContainer.getBoundingClientRect()
                                   
-                                  // Only scroll if input is outside visible area of container
                                   if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
-                                    input.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+                                    const inputOffsetTop = input.offsetTop - scrollContainer.offsetTop
+                                    scrollContainer.scrollTo({
+                                      top: inputOffsetTop - 10,
+                                      behavior: 'smooth'
+                                    })
                                   }
                                 })
                               }
-                              
-                              // Stop locking scroll after input is visible (300ms should be enough)
-                              setTimeout(() => {
-                                clearInterval(scrollInterval)
-                                // Final restore
-                                window.scrollTo(windowScrollX, windowScrollY)
-                              }, 300)
                             }}
                             onBlur={(e) => {
-                            const val = parseFloat(e.target.value) || 0
-                            updateBetStake(bet.id, Math.max(0, val))
-                          }}
-                          className="border-0 bg-transparent text-xs h-full p-0 pr-6 text-right focus-visible:ring-0 text-black w-full"
-                          placeholder="0"
-                        />
+                              // Clear focused input ref
+                              if (focusedInputRef.current === bet.id) {
+                                focusedInputRef.current = null
+                              }
+                              
+                              // Stop scroll lock
+                              if (scrollLockRafRef.current !== null) {
+                                cancelAnimationFrame(scrollLockRafRef.current)
+                                scrollLockRafRef.current = null
+                              }
+                              
+                              // Restore scroll position one final time
+                              if (savedScrollPositionRef.current) {
+                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                                savedScrollPositionRef.current = null
+                              }
+                              
+                              const val = e.target.value
+                              const num = val === '' || val === '.' ? 0 : parseFloat(val)
+                              const finalVal = isNaN(num) || num < 0 ? 0 : num
+                              // Update the bet stake
+                              updateBetStake(bet.id, finalVal)
+                              // Clear local state so it will show the actual saved value
+                              setLocalStakes(prev => {
+                                const next = { ...prev }
+                                delete next[bet.id]
+                                return next
+                              })
+                            }}
+                            onWheel={(e) => {
+                              e.stopPropagation()
+                            }}
+                            onTouchMove={(e) => {
+                              e.stopPropagation()
+                            }}
+                            onKeyDown={(e) => {
+                              e.stopPropagation()
+                              // Prevent Enter from causing page scroll
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                e.currentTarget.blur()
+                              }
+                            }}
+                            className="border-0 bg-transparent text-xs h-full p-0 pl-4 pr-6 text-right focus-visible:outline-none focus-visible:ring-0 text-black w-full overflow-visible placeholder:text-black/40"
+                            placeholder="Enter Risk"
+                            style={{ WebkitAppearance: 'none', MozAppearance: 'textfield', minWidth: 0 }}
+                          />
                         <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
                           <button
                             type="button"
@@ -3726,9 +4052,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               )}
 
               {/* Parlay Section - Only show if multiple games - Light grey card */}
-              {hasParlay && (
+              {hasParlay && (() => {
+                // Use local parlay stake value if typing, otherwise use parlayStake
+                const currentParlayStake = localParlayStake !== '' 
+                  ? (localParlayStake === '.' ? 0 : parseFloat(localParlayStake) || 0)
+                  : parlayStake
+                const currentParlayPotentialWin = currentParlayStake * parlayOddsMultiplier - currentParlayStake
+                
+                return (
                 <div className="px-2 pt-2">
-                <div className="bg-gray-100 rounded px-2 py-2.5">
+                <div className="bg-[#f5f5f5] rounded px-2 py-2 -mx-2">
                 <div className="text-[10px] font-medium text-black/50 uppercase tracking-wide mb-1.5">
                   {bets.length}-Pick Parlay
                 </div>
@@ -3746,65 +4079,136 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </div>
 
                   {/* Parlay Stake Input - Smaller */}
-                  <div className="flex-shrink-0 w-[85px]">
+                  <div className="flex-shrink-0 w-[110px] min-w-[110px]">
                     <div className="border border-black/15 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
-                      <Input
+                      <span className="absolute left-1.5 text-xs text-black/50 z-10">$</span>
+                      <input
                         type="text"
                         inputMode="decimal"
-                        value={parlayStake === 0 ? '' : parlayStake.toString()}
+                        value={localParlayStake !== '' ? localParlayStake : (parlayStake > 0 ? parlayStake.toString() : '')}
                         onChange={(e) => {
-                          const val = e.target.value
-                          if (val === '' || /^\d*\.?\d*$/.test(val)) {
-                            const num = val === '' ? 0 : parseFloat(val)
-                            if (!isNaN(num) && num >= 0) {
-                              setParlayStake(num)
-                            }
+                          // Prevent any scroll during typing
+                          if (savedScrollPositionRef.current) {
+                            window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                          }
+                          
+                          const val = e.target.value.replace(/[^0-9.]/g, '')
+                          // Allow decimals: allow empty, single dot, or valid decimal number
+                          if (val === '' || val === '.' || /^\d*\.?\d*$/.test(val)) {
+                            // Only update local state - don't update parlayStake to prevent re-renders
+                            // "To Win" will update in real-time because it uses localParlayStake
+                            setLocalParlayStake(val)
+                            
+                            // Re-lock scroll after state update
+                            requestAnimationFrame(() => {
+                              if (savedScrollPositionRef.current) {
+                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                              }
+                            })
                           }
                         }}
                         onFocus={(e) => {
-                          // Prevent page scroll when input is focused
+                          // Track that parlay input is focused
+                          focusedInputRef.current = 'parlay'
+                          // Initialize local state if not set - start empty
+                          if (localParlayStake === '') {
+                            setLocalParlayStake('')
+                          }
+                          // Select all text for easy replacement
+                          e.target.select()
+                          
+                          // Store current window scroll position in ref so it persists through re-renders
+                          savedScrollPositionRef.current = {
+                            x: window.scrollX,
+                            y: window.scrollY
+                          }
                           const input = e.target as HTMLInputElement
-                          const scrollContainer = scrollContainerRef.current
                           
-                          // Store current window scroll position
-                          const windowScrollY = window.scrollY
-                          const windowScrollX = window.scrollX
-                          
-                          // Lock window scroll position
+                          // Prevent page scrolling by locking scroll position
                           const lockScroll = () => {
-                            window.scrollTo(windowScrollX, windowScrollY)
+                            if (focusedInputRef.current === 'parlay' && savedScrollPositionRef.current) {
+                              if (window.scrollY !== savedScrollPositionRef.current.y || window.scrollX !== savedScrollPositionRef.current.x) {
+                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                              }
+                            }
                           }
                           
-                          // Prevent scroll immediately and repeatedly
-                          const scrollInterval = setInterval(lockScroll, 10)
+                          // Lock scroll position - use requestAnimationFrame for better performance
+                          // Clear any existing scroll lock
+                          if (scrollLockRafRef.current !== null) {
+                            cancelAnimationFrame(scrollLockRafRef.current)
+                          }
+                          
+                          const lockScrollLoop = () => {
+                            if (focusedInputRef.current === 'parlay') {
+                              lockScroll()
+                              scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
+                            } else {
+                              scrollLockRafRef.current = null
+                            }
+                          }
+                          scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
                           
                           // Only scroll within betslip container if needed
+                          const scrollContainer = scrollContainerRef.current
                           if (scrollContainer) {
                             requestAnimationFrame(() => {
                               const inputRect = input.getBoundingClientRect()
                               const containerRect = scrollContainer.getBoundingClientRect()
                               
-                              // Only scroll if input is outside visible area of container
                               if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
-                                input.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+                                const inputOffsetTop = input.offsetTop - scrollContainer.offsetTop
+                                scrollContainer.scrollTo({
+                                  top: inputOffsetTop - 10,
+                                  behavior: 'smooth'
+                                })
                               }
                             })
                           }
-                          
-                          // Stop locking scroll after input is visible (300ms should be enough)
-                          setTimeout(() => {
-                            clearInterval(scrollInterval)
-                            // Final restore
-                            window.scrollTo(windowScrollX, windowScrollY)
-                          }, 300)
                         }}
                         onBlur={(e) => {
-                          const val = parseFloat(e.target.value) || 0
-                          setParlayStake(Math.max(0, val))
+                          // Clear focused input ref
+                          if (focusedInputRef.current === 'parlay') {
+                            focusedInputRef.current = null
+                          }
+                          
+                          // Stop scroll lock
+                          if (scrollLockRafRef.current !== null) {
+                            cancelAnimationFrame(scrollLockRafRef.current)
+                            scrollLockRafRef.current = null
+                          }
+                          
+                          // Restore scroll position one final time
+                          if (savedScrollPositionRef.current) {
+                            window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
+                            savedScrollPositionRef.current = null
+                          }
+                          
+                          const val = e.target.value
+                          const num = val === '' || val === '.' ? 0 : parseFloat(val)
+                          const finalVal = isNaN(num) || num < 0 ? 0 : num
+                          setParlayStake(finalVal)
+                          // Clear local state to sync with actual value
+                          setLocalParlayStake('')
                         }}
-                        className="border-0 bg-transparent text-xs h-full p-0 pr-6 text-right focus-visible:ring-0 text-black w-full"
-                            placeholder="0"
-                          />
+                        onWheel={(e) => {
+                          e.stopPropagation()
+                        }}
+                        onTouchMove={(e) => {
+                          e.stopPropagation()
+                        }}
+                        onKeyDown={(e) => {
+                          e.stopPropagation()
+                          // Prevent Enter from causing page scroll
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            e.currentTarget.blur()
+                          }
+                        }}
+                        className="border-0 bg-transparent text-xs h-full p-0 pl-4 pr-6 text-right focus-visible:outline-none focus-visible:ring-0 text-black w-full overflow-visible placeholder:text-black/40"
+                        placeholder="Enter Risk"
+                        style={{ WebkitAppearance: 'none', MozAppearance: 'textfield', minWidth: 0 }}
+                      />
                       <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
                             <button
                               type="button"
@@ -3831,19 +4235,20 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           </div>
                         </div>
                     <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
-                      To Win {currencySymbol}{parlayPotentialWin.toFixed(2)}
+                      To Win {currencySymbol}{currentParlayPotentialWin.toFixed(2)}
                           </div>
                         </div>
                       </div>
                     </div>
                 </div>
-              )}
-                </div>
+                )
+              })()}
+          </div>
         )}
                 
-        {/* Summary and Place Bet - Always sticky at bottom, always visible */}
+        {/* Summary and Place Bet - Always visible at bottom, fixed position */}
                 {bets.length > 0 && (
-          <div className="px-2 pt-2 pb-2 border-t border-black/5 bg-white/95 backdrop-blur-sm" style={{ position: 'sticky', bottom: 0, left: 0, right: 0, width: '100%', zIndex: 20, flexShrink: 0, boxSizing: 'border-box', marginTop: 'auto' }}>
+          <div className="px-2 pt-2 pb-2 border-t border-black/5 bg-white backdrop-blur-sm" style={{ height: '70px', flexShrink: 0, position: 'absolute', bottom: 0, left: 0, right: 0, width: '100%', zIndex: 30, backgroundColor: 'white' }}>
                     <button
                       onClick={() => {
                         if (bets.length === 0 || totalStake === 0) return
@@ -3873,20 +4278,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         setShowToast(true)
                         setTimeout(() => setShowToast(false), 3000)
                         
-                        // Clear bets and close drawer
-                        setBets([])
-                        setBetslipOpen(false)
-                        setBetslipMinimized(false)
-                        // On mobile, mark as manually closed
-                        if (isMobile) {
-                          setBetslipManuallyClosed(true)
-                        }
-                        
-                        // Trigger confirmation modal at parent level
-                        console.log('Dispatching showBetConfirmation event')
-                        if (typeof window !== 'undefined') {
-                          window.dispatchEvent(new CustomEvent('showBetConfirmation', { detail: { bets: betsToPlace } }))
-                        }
+                        // Switch to confirmation view - keep drawer open
+                        setPendingBets(betsToPlace)
+                        setShowConfirmation(true)
                       }}
                       disabled={totalStake === 0}
                       className={cn(
@@ -3908,12 +4302,108 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     </button>
                   </div>
                 )}
+
+      </div>
+    )
+  }
+
+  // View Switcher Component - Must be inside drawer context
+  const BetslipViewSwitcher = () => {
+    const { setView } = useFamilyDrawer()
+    
+    useEffect(() => {
+      if (showConfirmation) {
+        setView('confirmation')
+      } else {
+        setView('default')
+      }
+    }, [showConfirmation, setView])
+    
+    return null
+  }
+
+  // Confirmation View - Separate screen in betslip drawer
+  const BetslipConfirmationView = () => {
+    const { setView } = useFamilyDrawer()
+    
+    return (
+      <div className="flex flex-col w-full h-full bg-white" style={{ minHeight: '400px' }}>
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+          {/* Success Icon */}
+          <div className="mb-4">
+            <div className="w-16 h-16 rounded-full bg-[#8BC34A] flex items-center justify-center">
+              <IconCheck className="w-8 h-8 text-white" strokeWidth={3} />
+            </div>
+          </div>
+          
+          {/* Message */}
+          <h3 className="text-lg font-semibold text-black text-center mb-6">
+            Bet Placed Successfully
+          </h3>
+          
+          {/* Buttons */}
+          <div className="flex flex-col gap-3 w-full max-w-sm mb-6">
+            <button
+              onClick={() => {
+                setView('default')
+                setShowConfirmation(false)
+                setBets([])
+                setBetslipOpen(false)
+                setMyBetsAlertCount(0)
+                setBetslipManuallyClosed(false)
+              }}
+              className="w-full py-3 px-4 border border-black/10 rounded text-sm font-medium text-black hover:bg-black/5 transition-colors"
+            >
+              GO TO MY BETS
+            </button>
+            <button
+              onClick={() => {
+                setView('default')
+                setShowConfirmation(false)
+                setBets([])
+                setBetslipOpen(false)
+                setBetslipManuallyClosed(false)
+              }}
+              className="w-full py-3 px-4 bg-red-500 rounded text-sm font-medium text-white hover:bg-red-600 transition-colors"
+            >
+              DONE
+            </button>
+          </div>
+          
+          {/* Re-use Selections */}
+          <div className="text-center pt-4 border-t border-black/10 w-full max-w-sm">
+            <p className="text-xs text-black/50 mb-2 leading-tight">
+              Once this window is closed, your betslip will be cleared, or you can
+            </p>
+            <button
+              onClick={() => {
+                if (pendingBets.length > 0) {
+                  setPlacedBets(prev => {
+                    const newList = [...prev]
+                    newList.splice(-pendingBets.length)
+                    return newList
+                  })
+                  setMyBetsAlertCount(prev => Math.max(0, prev - pendingBets.length))
+                  setBets([...pendingBets])
+                }
+                setView('default')
+                setShowConfirmation(false)
+              }}
+              className="text-sm font-medium text-black hover:text-black/70 flex items-center justify-center gap-1 mx-auto transition-colors"
+            >
+              RE-USE SELECTIONS
+              <IconChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          
+        </div>
       </div>
     )
   }
 
   const betslipViews: ViewsRegistry = {
     default: BetslipDefaultView,
+    confirmation: BetslipConfirmationView,
   }
 
   return (
@@ -4193,14 +4683,32 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              Soccer
+              {activeSport}
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Football')}
+                  className={cn(
+                    "hover:bg-white/5 cursor-pointer",
+                    activeSport === 'Soccer' ? "text-white bg-white/10" : "text-white/70 hover:text-white"
+                  )}
+                  onClick={() => {
+                    setActiveSport('Soccer')
+                    setSelectedLeague(1) // Premier League id
+                  }}
+                >
+                  Soccer
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className={cn(
+                    "hover:bg-white/5 cursor-pointer",
+                    activeSport === 'Football' ? "text-white bg-white/10" : "text-white/70 hover:text-white"
+                  )}
+                  onClick={() => {
+                    setActiveSport('Football')
+                    setSelectedLeague(12) // NFL league id
+                  }}
                 >
                   Football
                 </DropdownMenuItem>
@@ -4236,7 +4744,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              England
+              {activeSport === 'Football' ? 'USA' : 'England'}
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
@@ -4267,11 +4775,64 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              Premier League
+              {activeSport === 'Football' ? 'NFL' : 'Premier League'}
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
+                {activeSport === 'Football' ? (
+                  <>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: AFC East')}
+                    >
+                      AFC East
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: AFC West')}
+                    >
+                      AFC West
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: AFC North')}
+                    >
+                      AFC North
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: AFC South')}
+                    >
+                      AFC South
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: NFC East')}
+                    >
+                      NFC East
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: NFC West')}
+                    >
+                      NFC West
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: NFC North')}
+                    >
+                      NFC North
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                      onClick={() => console.log('Selected: NFC South')}
+                    >
+                      NFC South
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
                 <DropdownMenuItem 
                   className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
                   onClick={() => console.log('Selected: Championship')}
@@ -4302,6 +4863,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 >
                   League Cup
                 </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -4322,8 +4885,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src="/premierleague background.gif"
-                alt="Premier League Background"
+                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
+                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -4335,8 +4898,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src="/premierleague background.gif"
-                alt="Premier League Background"
+                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
+                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -4350,12 +4913,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
               <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
                 {(() => {
-                  const leagueData = leagues.find(l => l.name === 'Premier League')
+                  const leagueName = activeSport === 'Football' ? 'NFL' : 'Premier League'
+                  const leagueData = leagues.find(l => l.name === leagueName)
                   const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                   return isSvgPath ? (
                     <Image 
                       src={leagueData.icon as string} 
-                      alt="Premier League"
+                      alt={leagueName}
                       width={24}
                       height={24}
                       className="object-contain"
@@ -4366,7 +4930,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 })()}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">Premier League</h1>
+                <h1 className="text-lg font-bold text-white">{activeSport === 'Football' ? 'NFL' : 'Premier League'}</h1>
               </div>
               <div className="ml-auto">
                 <Button 
@@ -4428,18 +4992,49 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <tr className="border-b border-white/20">
                               <th className="text-left py-3 px-4 text-xs font-semibold text-white/70">Pos</th>
                               <th className="text-left py-3 px-4 text-xs font-semibold text-white/70">Team</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">Pl</th>
+                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">{activeSport === 'Football' ? 'GP' : 'Pl'}</th>
                               <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">W</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">D</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">L</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GF</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GA</th>
-                              <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GD</th>
+                              {activeSport === 'Football' ? (
+                                <>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">L</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">T</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">PF</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">PA</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">PD</th>
+                                </>
+                              ) : (
+                                <>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">D</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">L</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GF</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GA</th>
+                                  <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">GD</th>
+                                </>
+                              )}
                               <th className="text-center py-3 px-4 text-xs font-semibold text-white/70">Pts</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {[
+                            {(activeSport === 'Football' ? [
+                              { pos: 1, team: 'Kansas City Chiefs', teamCode: 'KC', gp: 5, w: 5, l: 0, t: 0, pf: 142, pa: 98, pd: 44, pts: 10 },
+                              { pos: 2, team: 'Buffalo Bills', teamCode: 'BUF', gp: 5, w: 4, l: 1, t: 0, pf: 135, pa: 89, pd: 46, pts: 8 },
+                              { pos: 3, team: 'Dallas Cowboys', teamCode: 'DAL', gp: 5, w: 4, l: 1, t: 0, pf: 128, pa: 95, pd: 33, pts: 8 },
+                              { pos: 4, team: 'San Francisco 49ers', teamCode: 'SF', gp: 5, w: 4, l: 1, t: 0, pf: 131, pa: 102, pd: 29, pts: 8 },
+                              { pos: 5, team: 'Miami Dolphins', teamCode: 'MIA', gp: 5, w: 3, l: 2, t: 0, pf: 118, pa: 105, pd: 13, pts: 6 },
+                              { pos: 6, team: 'Baltimore Ravens', teamCode: 'BAL', gp: 5, w: 3, l: 2, t: 0, pf: 125, pa: 112, pd: 13, pts: 6 },
+                              { pos: 7, team: 'Philadelphia Eagles', teamCode: 'PHI', gp: 5, w: 3, l: 2, t: 0, pf: 122, pa: 108, pd: 14, pts: 6 },
+                              { pos: 8, team: 'Seattle Seahawks', teamCode: 'SEA', gp: 5, w: 3, l: 2, t: 0, pf: 115, pa: 110, pd: 5, pts: 6 },
+                              { pos: 9, team: 'Cincinnati Bengals', teamCode: 'CIN', gp: 5, w: 2, l: 3, t: 0, pf: 108, pa: 115, pd: -7, pts: 4 },
+                              { pos: 10, team: 'New York Jets', teamCode: 'NYJ', gp: 5, w: 2, l: 3, t: 0, pf: 98, pa: 118, pd: -20, pts: 4 },
+                              { pos: 11, team: 'Los Angeles Rams', teamCode: 'LAR', gp: 5, w: 2, l: 3, t: 0, pf: 105, pa: 122, pd: -17, pts: 4 },
+                              { pos: 12, team: 'Arizona Cardinals', teamCode: 'ARI', gp: 5, w: 2, l: 3, t: 0, pf: 102, pa: 125, pd: -23, pts: 4 },
+                              { pos: 13, team: 'Green Bay Packers', teamCode: 'GB', gp: 5, w: 2, l: 3, t: 0, pf: 95, pa: 128, pd: -33, pts: 4 },
+                              { pos: 14, team: 'Chicago Bears', teamCode: 'CHI', gp: 5, w: 1, l: 4, t: 0, pf: 88, pa: 135, pd: -47, pts: 2 },
+                              { pos: 15, team: 'Pittsburgh Steelers', teamCode: 'PIT', gp: 5, w: 1, l: 4, t: 0, pf: 85, pa: 142, pd: -57, pts: 2 },
+                              { pos: 16, team: 'Cleveland Browns', teamCode: 'CLE', gp: 5, w: 1, l: 4, t: 0, pf: 82, pa: 148, pd: -66, pts: 2 },
+                              { pos: 17, team: 'Denver Broncos', teamCode: 'DEN', gp: 5, w: 1, l: 4, t: 0, pf: 78, pa: 152, pd: -74, pts: 2 },
+                              { pos: 18, team: 'Las Vegas Raiders', teamCode: 'LV', gp: 5, w: 0, l: 5, t: 0, pf: 75, pa: 158, pd: -83, pts: 0 },
+                            ] : [
                               { pos: 1, team: 'Liverpool', pl: 4, w: 4, d: 0, l: 0, gf: 9, ga: 4, gd: 5, pts: 12 },
                               { pos: 2, team: 'Arsenal', pl: 4, w: 3, d: 0, l: 1, gf: 9, ga: 1, gd: 8, pts: 9 },
                               { pos: 3, team: 'Tottenham', pl: 4, w: 3, d: 0, l: 1, gf: 8, ga: 1, gd: 7, pts: 9 },
@@ -4460,31 +5055,45 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               { pos: 18, team: 'West Ham United', pl: 4, w: 1, d: 0, l: 3, gf: 4, ga: 11, gd: -7, pts: 3 },
                               { pos: 19, team: 'Aston Villa', pl: 4, w: 0, d: 2, l: 2, gf: 2, ga: 6, gd: -4, pts: 2 },
                               { pos: 20, team: 'Wolves', pl: 4, w: 0, d: 0, l: 4, gf: 2, ga: 9, gd: -7, pts: 0 },
-                            ].map((row) => {
-                              const getTeamLogoPath = (teamName: string): string | null => {
-                                const teamLogoMap: { [key: string]: string } = {
-                                  'Liverpool': '/team/Liverpool FC.png',
-                                  'Arsenal': '/team/Arsenal FC.png',
-                                  'Tottenham': '/team/Tottenham Hotspur.png',
-                                  'Bournemouth': '/team/AFC Bournemouth.png',
-                                  'Chelsea': '/team/Chelsea FC.png',
-                                  'Everton': '/team/Everton FC.png',
-                                  'Sunderland': '/team/Sunderland AFC.png',
-                                  'Manchester City': '/team/Manchester City.png',
-                                  'Crystal Palace': '/team/Crystal Palace.png',
-                                  'Newcastle': '/team/Newcastle United.png',
-                                  'Fulham': '/team/Fulham FC.png',
-                                  'Brentford': '/team/Brentford FC.png',
-                                  'Brighton': '/team/Brighton & Hove Albion.png',
-                                  'Manchester United': '/team/Manchester United.png',
-                                  'Nottingham Forest': '/team/Nottingham Forest FC.png',
-                                  'Leeds United': '/team/Leeds United.png',
-                                  'Burnley': '/team/Burnley FC.png',
-                                  'West Ham United': '/team/West Ham United.png',
-                                  'Aston Villa': '/team/Aston Villa.png',
-                                  'Wolves': '/team/Wolverhampton Wanderers.png',
+                            ]).map((row) => {
+                              const getTeamLogo = (teamName: string, teamCode?: string) => {
+                                if (activeSport === 'Football' && teamCode) {
+                                  const TeamIcon = (NFLIcons as any)[teamCode]
+                                  return TeamIcon ? <TeamIcon size={20} /> : null
+                                } else {
+                                  const teamLogoMap: { [key: string]: string } = {
+                                    'Liverpool': '/team/Liverpool FC.png',
+                                    'Arsenal': '/team/Arsenal FC.png',
+                                    'Tottenham': '/team/Tottenham Hotspur.png',
+                                    'Bournemouth': '/team/AFC Bournemouth.png',
+                                    'Chelsea': '/team/Chelsea FC.png',
+                                    'Everton': '/team/Everton FC.png',
+                                    'Sunderland': '/team/Sunderland AFC.png',
+                                    'Manchester City': '/team/Manchester City.png',
+                                    'Crystal Palace': '/team/Crystal Palace.png',
+                                    'Newcastle': '/team/Newcastle United.png',
+                                    'Fulham': '/team/Fulham FC.png',
+                                    'Brentford': '/team/Brentford FC.png',
+                                    'Brighton': '/team/Brighton & Hove Albion.png',
+                                    'Manchester United': '/team/Manchester United.png',
+                                    'Nottingham Forest': '/team/Nottingham Forest FC.png',
+                                    'Leeds United': '/team/Leeds United.png',
+                                    'Burnley': '/team/Burnley FC.png',
+                                    'West Ham United': '/team/West Ham United.png',
+                                    'Aston Villa': '/team/Aston Villa.png',
+                                    'Wolves': '/team/Wolverhampton Wanderers.png',
+                                  }
+                                  const logoPath = teamLogoMap[teamName]
+                                  return logoPath ? (
+                          <Image 
+                                      src={logoPath}
+                                      alt={teamName}
+                                      width={20}
+                                      height={20}
+                            className="object-contain"
+                          />
+                                  ) : null
                                 }
-                                return teamLogoMap[teamName] || null
                               }
                               
                               return (
@@ -4492,25 +5101,29 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   <td className="py-3 px-4 text-xs font-bold text-white">{row.pos}</td>
                                   <td className="py-3 px-4">
                                     <div className="flex items-center gap-2">
-                                      {getTeamLogoPath(row.team) && (
-                          <Image 
-                                          src={getTeamLogoPath(row.team)!}
-                                          alt={row.team}
-                                          width={20}
-                                          height={20}
-                            className="object-contain"
-                          />
-                                      )}
+                                      {getTeamLogo(row.team, (row as any).teamCode)}
                                       <span className="text-xs font-semibold text-white">{row.team}</span>
                   </div>
                                   </td>
-                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.pl}</td>
+                                  <td className="py-3 px-4 text-center text-xs text-white/70">{activeSport === 'Football' ? (row as any).gp : (row as any).pl}</td>
                                   <td className="py-3 px-4 text-center text-xs text-white/70">{row.w}</td>
-                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.d}</td>
-                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.l}</td>
-                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.gf}</td>
-                                  <td className="py-3 px-4 text-center text-xs text-white/70">{row.ga}</td>
-                                  <td className="py-3 px-4 text-center text-xs font-semibold text-white">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                                  {activeSport === 'Football' ? (
+                                    <>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).l}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).t}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).pf}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).pa}</td>
+                                      <td className="py-3 px-4 text-center text-xs font-semibold text-white">{(row as any).pd > 0 ? `+${(row as any).pd}` : (row as any).pd}</td>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).d}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).l}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).gf}</td>
+                                      <td className="py-3 px-4 text-center text-xs text-white/70">{(row as any).ga}</td>
+                                      <td className="py-3 px-4 text-center text-xs font-semibold text-white">{(row as any).gd > 0 ? `+${(row as any).gd}` : (row as any).gd}</td>
+                                    </>
+                                  )}
                                   <td className="py-3 px-4 text-center text-xs font-bold text-white">{row.pts}</td>
                                 </tr>
                               )
@@ -4675,7 +5288,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                 <CarouselContent className="ml-6 mr-0">
                   {/* Dynamic Top Events */}
-                  {[
+                  {(activeSport === 'Football' ? [
+                    { id: 4, team1: 'Kansas City Chiefs', team2: 'Buffalo Bills', score: '24 - 17', team1Code: 'KC', team2Code: 'BUF', team1Percent: 65, team2Percent: 35, time: 'Q3 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'KC', team2NFL: 'BUF' },
+                    { id: 5, team1: 'Dallas Cowboys', team2: 'Philadelphia Eagles', score: '31 - 28', team1Code: 'DAL', team2Code: 'PHI', team1Percent: 58, team2Percent: 42, time: 'Q4 2\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DAL', team2NFL: 'PHI' },
+                    { id: 6, team1: 'San Francisco 49ers', team2: 'Seattle Seahawks', score: '21 - 14', team1Code: 'SF', team2Code: 'SEA', team1Percent: 68, team2Percent: 32, time: 'Q2 12\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'SF', team2NFL: 'SEA' },
+                    { id: 7, team1: 'Miami Dolphins', team2: 'New York Jets', score: '17 - 10', team1Code: 'MIA', team2Code: 'NYJ', team1Percent: 72, team2Percent: 28, time: 'Q3 5\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'MIA', team2NFL: 'NYJ' },
+                    { id: 8, team1: 'Baltimore Ravens', team2: 'Cincinnati Bengals', score: '28 - 21', team1Code: 'BAL', team2Code: 'CIN', team1Percent: 62, team2Percent: 38, time: 'Q4 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'BAL', team2NFL: 'CIN' },
+                    { id: 9, team1: 'Los Angeles Rams', team2: 'Arizona Cardinals', score: '14 - 14', team1Code: 'LAR', team2Code: 'ARI', team1Percent: 52, team2Percent: 48, time: 'Q2 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'LAR', team2NFL: 'ARI' },
+                    { id: 10, team1: 'Green Bay Packers', team2: 'Chicago Bears', score: '10 - 7', team1Code: 'GB', team2Code: 'CHI', team1Percent: 58, team2Percent: 42, time: 'Q1 11\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'GB', team2NFL: 'CHI' },
+                    { id: 11, team1: 'Pittsburgh Steelers', team2: 'Cleveland Browns', score: '7 - 3', team1Code: 'PIT', team2Code: 'CLE', team1Percent: 55, team2Percent: 45, time: 'Q1 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'PIT', team2NFL: 'CLE' },
+                    { id: 12, team1: 'Denver Broncos', team2: 'Las Vegas Raiders', score: '35 - 10', team1Code: 'DEN', team2Code: 'LV', team1Percent: 78, team2Percent: 22, time: 'Q4 9\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DEN', team2NFL: 'LV' },
+                  ] : [
                     { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
                     { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
                     { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
@@ -4685,7 +5308,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
                     { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
                     { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
-                  ].map((event) => (
+                  ]).map((event) => (
                     <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                       <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
@@ -4713,15 +5336,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center mb-3">
                           {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {activeSport === 'Football' && event.team1NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team1NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
                             <Image 
-                              src={event.team1Logo}
-                              alt={event.team1}
-                              width={20}
-                              height={20}
+                                src={event.team1Logo}
+                                alt={event.team1}
+                                width={20}
+                                height={20}
                               className="object-contain flex-shrink-0"
                               quality={100}
                               unoptimized
                             />
+                            )}
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
                           
@@ -4836,15 +5466,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                             <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
+                            {activeSport === 'Football' && event.team2NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team2NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
                             <Image 
-                              src={event.team2Logo}
-                              alt={event.team2}
-                              width={20}
-                              height={20}
+                                src={event.team2Logo}
+                                alt={event.team2}
+                                width={20}
+                                height={20}
                               className="object-contain flex-shrink-0"
                               quality={100}
                               unoptimized
                             />
+                            )}
                           </div>
                         </div>
                         
@@ -5125,7 +5762,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </DropdownMenu>
             </div>
             <div className="space-y-1.5">
-              {liveEvents.map((event) => {
+              {filteredLiveEvents.map((event) => {
                 const currentScore = liveScores[event.id] || (event.score ? { team1: event.score.team1, team2: event.score.team2 } : null)
                 const isAnimatingTeam1 = currentScore?.animating?.team === 1
                 const isAnimatingTeam2 = currentScore?.animating?.team === 2
@@ -5144,11 +5781,20 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     return () => clearInterval(interval)
                   }, [event.isLive])
                   
+                  if (activeSport === 'Football') {
+                    // NFL format: Q1, Q2, Q3, Q4 with minutes
+                    const quarter = event.startTime || 'Q1'
+                    const minutes = Math.floor((elapsedTime % 900) / 60) // 15 minutes per quarter
+                    const quarterNum = quarter.replace('Q', '')
+                    const formattedTime = `${quarter} ${minutes}'`
+                    return <span className="text-[9px] text-white/70">{formattedTime}</span>
+                  } else {
+                    // Soccer format: H1, H2 with minutes
                   const minutes = Math.floor(elapsedTime / 60)
                   const seconds = elapsedTime % 60
                   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-                  
                   return <span className="text-[9px] text-white/70">{formattedTime}</span>
+                  }
                 }
 
                 // Animated Score Component with NumberFlow and green flash
@@ -5196,7 +5842,24 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   )
                 }
                 
-                // Helper function to get team logo path
+                // Helper function to get NFL team code
+                const getNFLTeamCode = (teamName: string): string | null => {
+                  const nflTeamMap: { [key: string]: string } = {
+                    'Alanta Falcons': 'ATL',
+                    'Tennessee Titans': 'TEN',
+                    'Seattle Seahawks': 'SEA',
+                    'Kansas City Chiefs': 'KC',
+                    'Indianapolis Colts': 'IND',
+                    'Green Bay Packers': 'GB',
+                    'Minnesota Vikings': 'MIN',
+                    'New England Patriots': 'NE',
+                    'Detroit Lions': 'DET',
+                    'Miami Dolphins': 'MIA',
+                  }
+                  return nflTeamMap[teamName] || null
+                }
+                
+                // Helper function to get team logo path (for soccer teams)
                 const getTeamLogoPath = (teamName: string): string | null => {
                   const teamLogoMap: { [key: string]: string } = {
                     'Liverpool': '/team/Liverpool FC.png',
@@ -5221,6 +5884,33 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     'Wolverhampton': '/team/Wolverhampton Wanderers.png',
                   }
                   return teamLogoMap[teamName] || null
+                }
+                
+                // Helper component to render team logo
+                const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
+                  if (activeSport === 'Football') {
+                    const teamCode = getNFLTeamCode(teamName)
+                    if (teamCode) {
+                      const TeamIcon = (NFLIcons as any)[teamCode]
+                      if (TeamIcon) {
+                        return <TeamIcon size={size} />
+                      }
+                    }
+                  } else {
+                    const logoPath = getTeamLogoPath(teamName)
+                    if (logoPath) {
+                      return (
+                        <Image
+                          src={logoPath}
+                          alt={teamName}
+                          width={size}
+                          height={size}
+                          className="object-contain flex-shrink-0"
+                        />
+                      )
+                    }
+                  }
+                  return null
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -5293,18 +5983,70 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               <div className="flex flex-col items-center flex-shrink-0">
                                 {/* Market Title - Centered */}
                                 <div className="text-[10px] text-white/50 mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
-                                {/* Market Options - Centered, Fixed width for alignment */}
+                                {/* Market Options - 2 rows for Football/NFL, 1 row for Soccer */}
+                                {activeSport === 'Football' ? (
+                                  <div className="flex flex-col gap-1">
+                                    {/* For Football: Top button = Team 1, Bottom button = Team 2 */}
+                                    {market.options.slice(0, 2).map((option, optionIndex) => {
+                                      // Ensure first option is team1, second is team2
+                                      const isTeam1 = optionIndex === 0
+                                      const isTeam2 = optionIndex === 1
+                                      const isSelected = isBetSelected(event.id, market.title, option.label)
+                                      return (
+                                        <button
+                                          key={`${event.id}-${market.title}-${option.label}-${optionIndex}`}
+                                          data-event-id={event.id}
+                                          data-event-name={`${event.team1} v ${event.team2}`}
+                                          data-market-title={market.title}
+                                          data-selection={option.label}
+                                          data-odds={option.odds}
+                                          data-team={isTeam1 ? 'team1' : 'team2'}
+                                          onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            const eventName = `${event.team1} v ${event.team2}`
+                                            // Remove any existing bet for this market first
+                                            setBets(prev => prev.filter(bet => 
+                                              !(bet.eventId === event.id && bet.marketTitle === market.title)
+                                            ))
+                                            // Add the new bet
+                                            addBetToSlip(event.id, eventName, market.title, option.label, option.odds)
+                                          }}
+                                          className={cn(
+                                            "text-white rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
+                                            isSelected 
+                                              ? "bg-red-500 hover:bg-red-600" 
+                                              : "bg-white/10 hover:bg-white/20"
+                                          )}
+                                          onMouseEnter={(e) => {
+                                            if (!isSelected) {
+                                              e.currentTarget.style.backgroundColor = brandPrimary
+                                            }
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            if (!isSelected) {
+                                              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                                            }
+                                          }}
+                                        >
+                                          <div className="text-[10px] text-white/70 leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
+                                          <div className="text-xs font-bold leading-none">{option.odds}</div>
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                ) : (
                                 <div className="flex gap-1 h-[38px] items-center">
                                   {market.options.map((option, optionIndex) => {
                                     const isSelected = isBetSelected(event.id, market.title, option.label)
                                     return (
                                       <button
                                         key={optionIndex}
-                                        data-event-id={event.id}
-                                        data-event-name={`${event.team1} v ${event.team2}`}
-                                        data-market-title={market.title}
-                                        data-selection={option.label}
-                                        data-odds={option.odds}
+                                          data-event-id={event.id}
+                                          data-event-name={`${event.team1} v ${event.team2}`}
+                                          data-market-title={market.title}
+                                          data-selection={option.label}
+                                          data-odds={option.odds}
                                         onClick={(e) => {
                                           e.preventDefault()
                                           e.stopPropagation()
@@ -5334,6 +6076,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                     )
                                   })}
                                 </div>
+                                )}
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
@@ -5382,7 +6125,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <span className="text-[9px] text-white/50">|</span>
                         <span className="text-[9px] text-white/70">{event.country}</span>
                         <span className="text-[9px] text-white/50">,</span>
-                        <span className="text-[9px] text-white/70">Soccer</span>
+                        <span className="text-[9px] text-white/70">{activeSport === 'Football' ? 'Football' : 'Soccer'}</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -5416,27 +6159,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {/* Teams - Fixed width for alignment with logos */}
                       <div className={cn("flex flex-col gap-1 min-w-0 justify-center", isMobile ? "flex-1" : "w-[200px] flex-shrink-0")}>
                         <div className="flex items-center gap-1.5">
-                          {getTeamLogoPath(event.team1) && (
-                            <Image
-                              src={getTeamLogoPath(event.team1)!}
-                              alt={event.team1}
-                              width={12}
-                              height={12}
-                              className="object-contain flex-shrink-0"
-                            />
-                          )}
+                          <TeamLogoComponent teamName={event.team1} size={activeSport === 'Football' ? 20 : 12} />
                           <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team1}</div>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {getTeamLogoPath(event.team2) && (
-                            <Image
-                              src={getTeamLogoPath(event.team2)!}
-                              alt={event.team2}
-                              width={12}
-                              height={12}
-                              className="object-contain flex-shrink-0"
-                            />
-                          )}
+                          <TeamLogoComponent teamName={event.team2} size={activeSport === 'Football' ? 20 : 12} />
                           <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team2}</div>
                         </div>
                       </div>
@@ -5565,25 +6292,30 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               <Carousel setApi={setTopBetBoostsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                 <CarouselContent className="ml-6 mr-0">
                   {/* Bet Boost Cards */}
-                  {[
+                  {(activeSport === 'Football' ? [
+                    { id: 1, marketName: 'Mahomes To Throw 3+ Touchdowns Vs Bills', isLive: true, liveTime: 'Q3 8\'', wasOdds: '+280', boostedOdds: '+350' },
+                    { id: 2, marketName: 'Prescott To Pass 300+ Yards Vs Eagles', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+250', boostedOdds: '+320' },
+                    { id: 3, marketName: 'McCaffrey To Score First TD Vs Seahawks', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                    { id: 4, marketName: 'Allen To Rush For 50+ Yards Vs Chiefs', isLive: true, liveTime: 'Q2 12\'', wasOdds: '+350', boostedOdds: '+450' },
+                  ] : [
                     { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+350' },
                     { id: 2, marketName: 'Salah To Score 2+ Goals Vs Arsenal', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350' },
                     { id: 3, marketName: 'Kane To Score First Goal Vs Chelsea', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
                     { id: 4, marketName: 'Mbappe To Score From Outside Box Vs Lyon', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600' },
-                  ].map((boost, index) => (
+                  ]).map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                       <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Time/Live Status */}
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Image 
-                              src="/banners/sports_league/prem.svg" 
-                              alt="Premier League"
+                              src={activeSport === 'Football' ? "/banners/sports_league/NFL.svg" : "/banners/sports_league/prem.svg"} 
+                              alt={activeSport === 'Football' ? "NFL" : "Premier League"}
                               width={16}
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">Premier League | England, Soccer</span>
+                            <span className="text-[10px] text-white">{activeSport === 'Football' ? 'NFL | USA, Football' : 'Premier League | England, Soccer'}</span>
                   </div>
                           {boost.isLive ? (
                             <div className="flex items-center gap-1.5">
@@ -5689,8 +6421,25 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </DropdownMenu>
             </div>
             <div className="space-y-2">
-              {upcomingEvents.map((event) => {
-                // Helper function to get team logo path
+              {filteredUpcomingEvents.map((event) => {
+                // Helper function to get NFL team code
+                const getNFLTeamCode = (teamName: string): string | null => {
+                  const nflTeamMap: { [key: string]: string } = {
+                    'Alanta Falcons': 'ATL',
+                    'Tennessee Titans': 'TEN',
+                    'Seattle Seahawks': 'SEA',
+                    'Kansas City Chiefs': 'KC',
+                    'Indianapolis Colts': 'IND',
+                    'Green Bay Packers': 'GB',
+                    'Minnesota Vikings': 'MIN',
+                    'New England Patriots': 'NE',
+                    'Detroit Lions': 'DET',
+                    'Miami Dolphins': 'MIA',
+                  }
+                  return nflTeamMap[teamName] || null
+                }
+                
+                // Helper function to get team logo path (for soccer teams)
                 const getTeamLogoPath = (teamName: string): string | null => {
                   const teamLogoMap: { [key: string]: string } = {
                     'Liverpool': '/team/Liverpool FC.png',
@@ -5715,6 +6464,33 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     'Wolverhampton': '/team/Wolverhampton Wanderers.png',
                   }
                   return teamLogoMap[teamName] || null
+                }
+                
+                // Helper component to render team logo
+                const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
+                  if (activeSport === 'Football') {
+                    const teamCode = getNFLTeamCode(teamName)
+                    if (teamCode) {
+                      const TeamIcon = (NFLIcons as any)[teamCode]
+                      if (TeamIcon) {
+                        return <TeamIcon size={size} />
+                      }
+                    }
+                  } else {
+                    const logoPath = getTeamLogoPath(teamName)
+                    if (logoPath) {
+                      return (
+                        <Image
+                          src={logoPath}
+                          alt={teamName}
+                          width={size}
+                          height={size}
+                          className="object-contain flex-shrink-0"
+                        />
+                      )
+                    }
+                  }
+                  return null
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -5787,18 +6563,70 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               <div className="flex flex-col items-center flex-shrink-0">
                                 {/* Market Title - Centered */}
                                 <div className="text-[10px] text-white/50 mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
-                                {/* Market Options - Centered, Fixed width for alignment */}
+                                {/* Market Options - 2 rows for Football/NFL, 1 row for Soccer */}
+                                {activeSport === 'Football' ? (
+                                  <div className="flex flex-col gap-1">
+                                    {/* For Football: Top button = Team 1, Bottom button = Team 2 */}
+                                    {market.options.slice(0, 2).map((option, optionIndex) => {
+                                      // Ensure first option is team1, second is team2
+                                      const isTeam1 = optionIndex === 0
+                                      const isTeam2 = optionIndex === 1
+                                      const isSelected = isBetSelected(event.id, market.title, option.label)
+                                      return (
+                                        <button
+                                          key={`${event.id}-${market.title}-${option.label}-${optionIndex}`}
+                                          data-event-id={event.id}
+                                          data-event-name={`${event.team1} v ${event.team2}`}
+                                          data-market-title={market.title}
+                                          data-selection={option.label}
+                                          data-odds={option.odds}
+                                          data-team={isTeam1 ? 'team1' : 'team2'}
+                                          onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            const eventName = `${event.team1} v ${event.team2}`
+                                            // Remove any existing bet for this market first
+                                            setBets(prev => prev.filter(bet => 
+                                              !(bet.eventId === event.id && bet.marketTitle === market.title)
+                                            ))
+                                            // Add the new bet
+                                            addBetToSlip(event.id, eventName, market.title, option.label, option.odds)
+                                          }}
+                                          className={cn(
+                                            "text-white rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
+                                            isSelected 
+                                              ? "bg-red-500 hover:bg-red-600" 
+                                              : "bg-white/10 hover:bg-white/20"
+                                          )}
+                                          onMouseEnter={(e) => {
+                                            if (!isSelected) {
+                                              e.currentTarget.style.backgroundColor = brandPrimary
+                                            }
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            if (!isSelected) {
+                                              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                                            }
+                                          }}
+                                        >
+                                          <div className="text-[10px] text-white/70 leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
+                                          <div className="text-xs font-bold leading-none">{option.odds}</div>
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                ) : (
                                 <div className="flex gap-1 h-[38px] items-center">
                                   {market.options.map((option, optionIndex) => {
                                     const isSelected = isBetSelected(event.id, market.title, option.label)
                                     return (
                                       <button
                                         key={optionIndex}
-                                        data-event-id={event.id}
-                                        data-event-name={`${event.team1} v ${event.team2}`}
-                                        data-market-title={market.title}
-                                        data-selection={option.label}
-                                        data-odds={option.odds}
+                                          data-event-id={event.id}
+                                          data-event-name={`${event.team1} v ${event.team2}`}
+                                          data-market-title={market.title}
+                                          data-selection={option.label}
+                                          data-odds={option.odds}
                                         onClick={(e) => {
                                           e.preventDefault()
                                           e.stopPropagation()
@@ -5828,6 +6656,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                     )
                                   })}
                                 </div>
+                                )}
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
@@ -5916,27 +6745,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       {/* Teams - Fixed width for alignment with logos */}
                       <div className={cn("flex flex-col gap-1 min-w-0 justify-center", isMobile ? "flex-1" : "w-[200px] flex-shrink-0")}>
                         <div className="flex items-center gap-1.5">
-                          {getTeamLogoPath(event.team1) && (
-                            <Image
-                              src={getTeamLogoPath(event.team1)!}
-                              alt={event.team1}
-                              width={12}
-                              height={12}
-                              className="object-contain flex-shrink-0"
-                            />
-                          )}
+                          <TeamLogoComponent teamName={event.team1} size={activeSport === 'Football' ? 20 : 12} />
                           <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team1}</div>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {getTeamLogoPath(event.team2) && (
-                            <Image
-                              src={getTeamLogoPath(event.team2)!}
-                              alt={event.team2}
-                              width={12}
-                              height={12}
-                              className="object-contain flex-shrink-0"
-                            />
-                          )}
+                          <TeamLogoComponent teamName={event.team2} size={activeSport === 'Football' ? 20 : 12} />
                           <div className="text-[11px] font-semibold text-white truncate leading-tight">{event.team2}</div>
                         </div>
                       </div>
@@ -6054,12 +6867,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         
         {/* Footer - responsive to sidebar state */}
         <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-          <div className="w-full px-6 py-8">
-            {/* Quick Links Section */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
+          <div className="w-full px-6 py-6">
+            {/* Quick Links Section - More compact */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
               <div>
-                <h3 className="font-semibold mb-4">QUICK LINKS</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
@@ -6069,26 +6882,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
                 </ul>
-                <div className="mt-4">
-                  <Button 
-                    className="w-full rounded-small h-10 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all"
-                    style={{ backgroundColor: brandPrimary }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = brandPrimaryHover
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = brandPrimary
-                    }}
-                  >
-                    <IconLifebuoy className="w-4 h-4 mr-2" />
-                    NEED HELP?
-                  </Button>
-                </div>
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Casino</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Casino</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
@@ -6101,8 +6899,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Sports</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Sports</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
@@ -6115,15 +6913,18 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Poker</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Poker</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
                 </ul>
-                <h3 className="font-semibold mb-4 mt-6">Racebook</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
@@ -6133,8 +6934,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               
               <div>
-                <h3 className="font-semibold mb-4">Other</h3>
-                <ul className="space-y-2 text-sm text-white/70">
+                <h3 className="font-semibold mb-3 text-sm">Other</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
                   <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
@@ -6143,82 +6944,93 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
                 </ul>
               </div>
+
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Support</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                </ul>
+              </div>
             </div>
 
-            <Separator className="bg-white/10 mb-8" />
+            <Separator className="bg-white/10 mb-6" />
 
-            {/* Trust & Security Section */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <h3 className="font-semibold text-lg">A TRUSTED & SAFE EXPERIENCE</h3>
-                <IconShield className="w-5 h-5" />
+            {/* Trust & Security Section - More compact */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
+                <IconShield className="w-4 h-4" />
               </div>
-              <p className="text-sm text-white/70 mb-6 max-w-3xl">
+              <p className="text-xs text-white/70 mb-4 max-w-2xl">
                 At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 {/* Crypto payment method logos */}
-                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'Bitcoin Cash', 'Dogecoin'].map((method) => (
+                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
                   <PaymentLogo key={method} method={method} />
                 ))}
                 {/* Traditional payment method logos */}
-                {['VISA', 'Mastercard', 'AMEX', 'Discover', 'MoneyGram'].map((method) => (
+                {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
                   <PaymentLogo key={method} method={method} />
                 ))}
                 {/* Security badges */}
-                <SecurityBadge name="Responsible Gaming" iconPath="/logos/security/responsible-gaming.png" />
-                <SecurityBadge name="SSL Secure" iconPath="/logos/security/ssl-secure.png" />
-                <Card className="border-2 border-white bg-red-500 p-2 rounded-full">
-                  <CardContent className="p-0">
-                    <div className="flex items-center justify-center w-8 h-8">
-                      <span className="text-xs font-bold text-white">18+</span>
-            </div>
-                  </CardContent>
-                </Card>
-          </div>
-        </div>
-
-            <Separator className="bg-white/10 mb-8" />
-
-            {/* Partners & Social Media */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-4">
-                <h3 className="font-semibold">OFFICIAL PARTNERS</h3>
-                <Separator orientation="vertical" className="h-6 bg-white/20" />
-                <div className="flex items-center gap-4 text-white/70">
-                  <span>LALIGA</span>
-                  <span>LFA</span>
-                  <span>matchroom.</span>
-                  <span>GOLDEN BOY</span>
+                <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
+                <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
+                  <span className="text-[10px] font-bold text-white">18+</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+            </div>
+
+            <Separator className="bg-white/10 mb-6" />
+
+            {/* Partners & Social Media - More compact */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
+                <Separator orientation="vertical" className="h-5 bg-white/20" />
+                <div className="flex items-center gap-3">
+                  {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
+                    <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
+                      <Image
+                        src={`/banners/partners/${partner}.svg`}
+                        alt={partner}
+                        width={70}
+                        height={28}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
                 {/* Social media icons using Button components */}
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandFacebook className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandFacebook className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandInstagram className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandInstagram className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandX className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandX className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandYoutube className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandYoutube className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandTiktok className="w-5 h-5" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandTiktok className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
             {/* Timestamp and Copyright */}
-            <div className="text-center space-y-2">
-              <div className="text-xs text-white/50">
-                {typeof currentTime !== 'undefined' ? currentTime : ''}
+            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+              <div>
+                Copyright ©2024 BetOnline.ag. All rights reserved.
               </div>
-              <div className="text-sm text-white/50">
-                <p>Copyright ©2024 BetOnline.ag. All rights reserved.</p>
+              <div>
+                {typeof currentTime !== 'undefined' ? currentTime : ''}
               </div>
             </div>
           </div>
@@ -6228,11 +7040,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       {/* Betslip Drawer - Floating from bottom, grows upward */}
       <FamilyDrawerRoot 
         views={betslipViews} 
-        open={betslipOpen} 
+        open={betslipOpen}
+        defaultView={showConfirmation ? 'confirmation' : 'default'}
         onOpenChange={(open) => {
           if (!open) {
             setBetslipOpen(false)
             setBetslipMinimized(false)
+            setShowConfirmation(false)
             // On mobile, mark as manually closed so it won't auto-open again
             // This happens whenever user closes betslip, regardless of bet count
             if (isMobile) {
@@ -6255,88 +7069,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             className="px-0 py-0"
           >
             <FamilyDrawerAnimatedContent>
+              <BetslipViewSwitcher />
               <FamilyDrawerViewContent />
             </FamilyDrawerAnimatedContent>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
       </FamilyDrawerRoot>
 
-      {/* Confirmation Modal - Rendered at page level via portal */}
-      {typeof window !== 'undefined' && showConfirmation && createPortal(
-        <div 
-          className="fixed inset-0 z-[10001] bg-black/50 backdrop-blur-sm flex items-center justify-center"
-          onClick={() => setShowConfirmation(false)}
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001 }}
-        >
-          <div
-            className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Success Icon */}
-            <div className="flex justify-center mb-3">
-              <div className="w-14 h-14 rounded-full bg-[#8BC34A] flex items-center justify-center">
-                <IconCheck className="w-7 h-7 text-white" strokeWidth={3} />
-              </div>
-            </div>
-            
-            {/* Message */}
-            <h3 className="text-base font-semibold text-black text-center mb-4">
-              Bet Placed Successfully
-            </h3>
-            
-            {/* Buttons */}
-            <div className="flex flex-col gap-2 mb-4">
-              <button
-                onClick={() => {
-                  setShowConfirmation(false)
-                  setBets([])
-                  setBetslipOpen(false)
-                  setMyBetsAlertCount(0)
-                }}
-                className="w-full py-2.5 px-4 border border-black/5 rounded text-xs font-medium text-black hover:bg-black/5 transition-colors"
-              >
-                GO TO MY BETS
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirmation(false)
-                  setBets([])
-                  setBetslipOpen(false)
-                }}
-                className="w-full py-2.5 px-4 bg-red-500 rounded text-xs font-medium text-white hover:bg-red-600 transition-colors"
-              >
-                DONE
-              </button>
-            </div>
-            
-            {/* Re-use Selections */}
-            <div className="text-center pt-3 border-t border-black/5">
-              <p className="text-[10px] text-black/50 mb-1.5 leading-tight">
-                Once this window is closed, your betslip will be cleared, or you can
-              </p>
-              <button
-                onClick={() => {
-                  if (pendingBets.length > 0) {
-                    setPlacedBets(prev => {
-                      const newList = [...prev]
-                      newList.splice(-pendingBets.length)
-                      return newList
-                    })
-                    setMyBetsAlertCount(prev => Math.max(0, prev - pendingBets.length))
-                    setBets([...pendingBets])
-                  }
-                  setShowConfirmation(false)
-                }}
-                className="text-xs font-medium text-black hover:text-black/70 flex items-center justify-center gap-1 mx-auto transition-colors"
-              >
-                RE-USE SELECTIONS
-                <IconChevronRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   )
 }
@@ -7167,6 +7906,7 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
+  const [activeSport, setActiveSport] = useState<'Soccer' | 'Football'>('Soccer') // Track active sport type
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
@@ -7197,7 +7937,6 @@ function NavTestPageContent() {
   const [showSports, setShowSports] = useState(true) // Always true for sports page
   const [showVipRewards, setShowVipRewards] = useState(false)
   const [initialVipSidebarItem, setInitialVipSidebarItem] = useState<string | null>(null)
-  const [activeSport, setActiveSport] = useState('Soccer')
   const [previousPageState, setPreviousPageState] = useState<{ showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null>(null)
   const [sportsActiveTab, setSportsActiveTab] = useState('Events')
   const [isPageTransitioning, setIsPageTransitioning] = useState(false)
@@ -7646,7 +8385,7 @@ function NavTestPageContent() {
             
             {/* Navigation Menu - Desktop only */}
             {!isMobile && (
-              <nav className="flex-1 flex items-center z-[110]" style={{ pointerEvents: 'auto' }}>
+              <nav className="flex-1 flex items-center z-[110] ml-6" style={{ pointerEvents: 'auto' }}>
                 <SidebarMenu className="flex flex-row items-center gap-2">
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -7863,8 +8602,8 @@ function NavTestPageContent() {
             "flex items-center",
             isMobile ? "gap-2" : "gap-3"
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
-            {/* Theme Toggle Button - Hide on mobile */}
-            {!isMobile && (
+            {/* Theme Toggle Button - Hidden for now */}
+            {false && !isMobile && (
               <div style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
                 <ModeToggle />
               </div>
@@ -8075,24 +8814,28 @@ function NavTestPageContent() {
                   "flex items-center gap-1.5 flex-1 min-w-0",
                   isMobile && "overflow-x-auto scrollbar-hide"
                 )}
-                style={isMobile ? {
-                  scrollBehavior: 'smooth',
-                  WebkitOverflowScrolling: 'touch',
-                  touchAction: 'pan-x',
-                  overscrollBehaviorX: 'contain',
-                  scrollSnapType: 'x mandatory',
-                  width: '100%',
-                  paddingLeft: '8px',
-                  paddingRight: '8px',
-                  marginLeft: 0,
-                  marginRight: 0,
-                  boxSizing: 'border-box',
-                  position: 'relative',
-                  overflowX: 'auto',
-                  overflowY: 'hidden'
-                } : {
-                  paddingLeft: '8px'
-                }}
+                style={{
+                  ...(isMobile ? {
+                    scrollBehavior: 'smooth',
+                    WebkitOverflowScrolling: 'touch',
+                    touchAction: 'pan-x',
+                    overscrollBehaviorX: 'contain',
+                    scrollSnapType: 'x mandatory',
+                    width: '100%',
+                    paddingLeft: '8px',
+                    paddingRight: '8px',
+                    marginLeft: 0,
+                    marginRight: 0,
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    overflowX: 'auto',
+                    overflowY: 'visible' // Changed from 'hidden' to 'visible' to show the red line
+                  } : {
+                    paddingLeft: '8px',
+                    overflow: 'visible'
+                  }),
+                  pointerEvents: 'auto' as const
+                } as React.CSSProperties}
               >
                 {[
                   { icon: '/sports_icons/all sports.svg', label: 'All Sports' },
@@ -8111,16 +8854,54 @@ function NavTestPageContent() {
                   return (
                     <button
                       key={sport.label}
+                      type="button"
                       onClick={(e) => {
+                        console.log('=== FOOTBALL CLICK START ===')
+                        console.log('Button clicked:', sport.label)
+                        console.log('Current activeSport:', activeSport)
+                        console.log('Event target:', e.target)
+                        console.log('Event currentTarget:', e.currentTarget)
+                        
                         e.preventDefault()
                         e.stopPropagation()
-                        setActiveSport(sport.label)
-                        console.log('Sport clicked:', sport.label)
+                        
+                        // Only allow Soccer and Football to change the active sport
+                        if (sport.label === 'Soccer' || sport.label === 'Football') {
+                          const newSport = sport.label as 'Soccer' | 'Football'
+                          console.log('Setting activeSport to:', newSport)
+                          
+                          // Use functional update to ensure state updates correctly
+                          setActiveSport((prev) => {
+                            console.log('Previous activeSport:', prev, 'New:', newSport)
+                            return newSport
+                          })
+                          
+                          console.log('=== FOOTBALL CLICK END ===')
+                        } else {
+                          console.log('Sport clicked but not enabled:', sport.label)
+                        }
+                      }}
+                      onMouseDown={(e) => {
+                        console.log('Mouse down on:', sport.label)
+                        // Don't prevent default on mousedown to allow click to fire
+                      }}
+                      onMouseUp={(e) => {
+                        console.log('Mouse up on:', sport.label)
                       }}
                       className={cn(
                         "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative",
-                        "hover:bg-white/5"
+                        "hover:bg-white/5 active:bg-white/15",
+                        isActive && "bg-white/10",
+                        isMobile && "pb-3" // Add extra padding bottom on mobile to accommodate the red line
                       )}
+                      style={{
+                        position: 'relative',
+                        overflow: 'visible',
+                        zIndex: isActive ? 10 : 1,
+                        pointerEvents: 'auto',
+                        userSelect: 'none',
+                        WebkitUserSelect: 'none'
+                      } as React.CSSProperties}
                     >
                       <Image
                         src={sport.icon}
@@ -8128,20 +8909,29 @@ function NavTestPageContent() {
                         width={20}
                         height={20}
                         className={cn(
-                          "object-contain transition-opacity duration-300",
+                          "object-contain transition-opacity duration-300 pointer-events-none",
                           isActive ? "opacity-100" : "opacity-70"
                         )}
+                        style={{ pointerEvents: 'none' }}
+                        onError={(e) => {
+                          console.error('Failed to load icon:', sport.icon)
+                          e.currentTarget.style.display = 'none'
+                        }}
                       />
-                      <span className={cn(
-                        "text-[10px] font-medium whitespace-nowrap transition-colors duration-300",
-                        isActive ? "text-white" : "text-white/70"
-                      )}>
+                      <span 
+                        className={cn(
+                          "text-[10px] font-medium whitespace-nowrap transition-colors duration-300 pointer-events-none",
+                          isActive ? "text-white" : "text-white/70"
+                        )}
+                        style={{ pointerEvents: 'none' }}
+                      >
                         {sport.label}
                       </span>
                       <div 
                         className={cn(
-                          "absolute -bottom-2 left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300 ease-in-out",
-                          isActive ? "w-8 opacity-100" : "w-0 opacity-0"
+                          "absolute left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300 ease-in-out z-10",
+                          isActive ? "w-8 opacity-100" : "w-0 opacity-0",
+                          isMobile ? "bottom-0" : "-bottom-2"
                         )}
                         style={isActive ? { backgroundColor: brandPrimary || '#ee3536' } : {}}
                       />
@@ -9372,6 +10162,8 @@ function NavTestPageContent() {
                 setMyBetsAlertCount={setMyBetsAlertCount}
                 betslipManuallyClosed={betslipManuallyClosed}
                 setBetslipManuallyClosed={setBetslipManuallyClosed}
+                activeSport={activeSport}
+                setActiveSport={setActiveSport}
               />
                 </motion.div>
               ) : isPageTransitioning ? (
@@ -10859,178 +11651,6 @@ function NavTestPageContent() {
                 </motion.div>
             )}
             </AnimatePresence>
-              
-              {/* Footer - responsive to sidebar state */}
-              <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-              <div className="w-full px-6 py-8">
-                  {/* Quick Links Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
-                    <div>
-                      <h3 className="font-semibold mb-4">QUICK LINKS</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
-                      </ul>
-                      <div className="mt-4">
-                        <Button 
-                          className="w-full rounded-small h-10 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all"
-                          style={{ backgroundColor: brandPrimary }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = brandPrimaryHover
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = brandPrimary
-                          }}
-                        >
-                          <IconLifebuoy className="w-4 h-4 mr-2" />
-                          NEED HELP?
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold mb-4">Casino</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold mb-4">Sports</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold mb-4">Poker</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
-                      </ul>
-                      <h3 className="font-semibold mb-4 mt-6">Racebook</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold mb-4">Other</h3>
-                      <ul className="space-y-2 text-sm text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  <Separator className="bg-white/10 mb-8" />
-
-                  {/* Trust & Security Section */}
-                  <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-4">
-                      <h3 className="font-semibold text-lg">A TRUSTED & SAFE EXPERIENCE</h3>
-                      <IconShield className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm text-white/70 mb-6 max-w-3xl">
-                      At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
-                    </p>
-                    <div className="flex flex-wrap items-center gap-3">
-                      {/* Crypto payment method logos */}
-                      {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'Bitcoin Cash', 'Dogecoin'].map((method) => (
-                        <PaymentLogo key={method} method={method} />
-                      ))}
-                      {/* Traditional payment method logos */}
-                      {['VISA', 'Mastercard', 'AMEX', 'Discover', 'MoneyGram'].map((method) => (
-                        <PaymentLogo key={method} method={method} />
-                      ))}
-                      {/* Security badges */}
-                      <SecurityBadge name="Responsible Gaming" iconPath="/logos/security/responsible-gaming.png" />
-                      <SecurityBadge name="SSL Secure" iconPath="/logos/security/ssl-secure.png" />
-                      <Card className="border-2 border-white bg-red-500 p-2 rounded-full">
-                        <CardContent className="p-0">
-                          <div className="flex items-center justify-center w-8 h-8">
-                            <span className="text-xs font-bold text-white">18+</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-
-                  <Separator className="bg-white/10 mb-8" />
-
-                  {/* Partners & Social Media */}
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-                    <div className="flex items-center gap-4">
-                      <h3 className="font-semibold">OFFICIAL PARTNERS</h3>
-                      <Separator orientation="vertical" className="h-6 bg-white/20" />
-                      <div className="flex items-center gap-4 text-white/70">
-                        <span>LALIGA</span>
-                        <span>LFA</span>
-                        <span>matchroom.</span>
-                        <span>GOLDEN BOY</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {/* Social media icons using Button components */}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandFacebook className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandInstagram className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandX className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandYoutube className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                        <IconBrandTiktok className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Timestamp and Copyright */}
-                  <div className="text-center space-y-2">
-                    <div className="text-xs text-white/50">
-                      {typeof currentTime !== 'undefined' ? currentTime : ''}
-                    </div>
-                    <div className="text-sm text-white/50">
-                      <p>Copyright ©2024 BetOnline.ag. All rights reserved.</p>
-                    </div>
-                  </div>
-                </div>
-              </footer>
           </SidebarInset>
         </div>
 
