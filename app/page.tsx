@@ -1383,7 +1383,7 @@ function HomePageContent() {
               { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Live Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { window.location.href = '/poker'; setQuickLinksOpen(false); } },
-              { label: 'VIP Rewards', onClick: () => { setVipDrawerOpen(true); setQuickLinksOpen(false); } },
+              { label: 'VIP Rewards', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
             ].map((item) => (
               <button
@@ -1478,7 +1478,7 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
-                    onClick={() => setVipDrawerOpen(true)}
+                    onClick={() => router.push('/casino')}
                   >
                     VIP Rewards
                   </SidebarMenuButton>
@@ -1794,7 +1794,12 @@ function HomePageContent() {
         {/* Top Sports Carousel */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-white">Top Sports</h2>
+            <h2 
+              className="text-lg font-semibold text-white cursor-pointer hover:text-white/80 transition-colors"
+              onClick={() => router.push('/sports')}
+            >
+              Top Sports
+            </h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -1840,12 +1845,6 @@ function HomePageContent() {
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              {!isMobile && (
-                <>
-                  <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                  <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                </>
-              )}
               <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
                 {topEventsData.map((event, index) => {
                   const parseScore = (scoreStr: string) => {
@@ -2242,20 +2241,7 @@ function HomePageContent() {
               <CardContent className="p-4 relative z-10">
                 <div className="mb-4">
                   <div className="text-white font-semibold text-sm mb-0.5 leading-tight">TRUSTED BY</div>
-                  <div className="text-white font-semibold text-sm mb-2 leading-tight">MILLIONS</div>
-                  {/* Star Rating */}
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <IconStarFilled
-                        key={star}
-                        className={cn(
-                          "w-3 h-3",
-                          star <= 4 ? "text-green-500 fill-green-500" : "text-white/20 fill-white/20"
-                        )}
-                      />
-                    ))}
-                    <span className="text-white/90 text-xs font-medium ml-1">3.9</span>
-                  </div>
+                  <div className="text-white font-semibold text-sm leading-tight">MILLIONS</div>
                 </div>
                 <Button
                   variant="outline"
@@ -2266,6 +2252,18 @@ function HomePageContent() {
                   FIND OUT MORE
                 </Button>
               </CardContent>
+              {/* Trust Image */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
+                <Image
+                  src="/banners/partners/trust.png"
+                  alt="Trust"
+                  width={140}
+                  height={90}
+                  className="object-contain"
+                  quality={100}
+                  unoptimized
+                />
+              </div>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
             </Card>
             
@@ -2281,7 +2279,7 @@ function HomePageContent() {
                   variant="outline"
                   size="sm"
                   className="bg-transparent border-white/20 text-white/70 hover:text-white hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
-                  onClick={() => setVipDrawerOpen(true)}
+                  onClick={() => router.push('/casino')}
                 >
                   BECOME A VIP
                 </Button>
@@ -2291,8 +2289,8 @@ function HomePageContent() {
                 <Image
                   src="/banners/partners/vip_why.png"
                   alt="VIP Crowns"
-                  width={140}
-                  height={90}
+                  width={280}
+                  height={180}
                   className="object-contain"
                   quality={100}
                   unoptimized
