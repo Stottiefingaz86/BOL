@@ -2199,7 +2199,7 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* Why BetOnline Section */}
+        {/* Why BetOnline Section - Updated with left-aligned text and trust image */}
         <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
           <h2 className="text-lg font-semibold text-white mb-4">Why BetOnline?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
