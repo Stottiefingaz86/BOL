@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -5868,6 +5868,7 @@ function VipDrawerContent({
 function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
@@ -6351,7 +6352,15 @@ function NavTestPageContent() {
       second: '2-digit',
       hour12: true
     }))
-  }, [])
+    
+    // Check for VIP query parameter to deep link to VIP Rewards
+    const vipParam = searchParams.get('vip')
+    if (vipParam === 'true') {
+      setShowVipRewards(true)
+      // Clean up URL
+      router.replace('/casino', { scroll: false })
+    }
+  }, [searchParams, router])
 
   // Don't render until mounted to prevent hydration issues
   if (!mounted) {

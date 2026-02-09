@@ -8375,9 +8375,7 @@ function NavTestPageContent() {
             <div 
               className="relative h-8 w-[120px] flex items-center cursor-pointer"
               onClick={() => {
-                if (isMobile) {
-                  setQuickLinksOpen(!quickLinksOpen)
-                }
+                router.push('/')
               }}
             >
               {currentBrand.logo}

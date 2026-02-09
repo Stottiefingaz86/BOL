@@ -39,6 +39,9 @@ import {
   IconUserPlus,
   IconTicket,
   IconCheck,
+  IconDeviceGamepad2,
+  IconBallFootball,
+  IconTrophy,
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
@@ -50,6 +53,14 @@ import {
   SidebarProvider,
   useSidebar,
 } from '@/components/ui/sidebar'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   Carousel,
   CarouselContent,
@@ -63,6 +74,11 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import NumberFlow from "@number-flow/react"
+import {
+  Tabs as AnimateTabs,
+  TabsList as AnimateTabsList,
+  TabsTab,
+} from '@/components/animate-ui/components/base/tabs'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1168,6 +1184,131 @@ function HomePageContent() {
   // Top Events scores state
   const [topEventsScores, setTopEventsScores] = useState<Record<number, { team1: number; team2: number; animating?: { team: number; from: number; to: number } }>>({})
   
+  // Activity Leaderboard state
+  const [activityTab, setActivityTab] = useState<'All Bets' | 'High Rollers' | 'Race Leaderboard'>('All Bets')
+  const [activityFeed, setActivityFeed] = useState<Array<{
+    id: string
+    type: 'sports' | 'casino'
+    event: string
+    user: string
+    time: string
+    odds?: string
+    betAmount: string
+    winAmount?: string
+    icon: 'football' | 'basketball' | 'tennis' | 'esports' | 'casino'
+    gameImage?: string
+  }>>([])
+  
+  // Race Leaderboard data
+  const raceLeaderboardData = [
+    { rank: 1, nickname: 'Hidden', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
+    { rank: 2, nickname: 'Player_5130165', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
+    { rank: 3, nickname: 'Hidden', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
+    { rank: 4, nickname: 'Hidden', wagered: '$6,000.00', prize: '12%' },
+    { rank: 5, nickname: 'Hidden', wagered: '$5,865.00', prize: '10%' },
+    { rank: 6, nickname: 'Hidden', wagered: '$4,986.34', prize: '8%' },
+    { rank: 7, nickname: 'Hidden', wagered: '$4,503.05', prize: '5%' },
+    { rank: 8, nickname: 'Hidden', wagered: '$4,163.80', prize: '3%' },
+    { rank: 9, nickname: 'Hidden', wagered: '$3,123.05', prize: '2%' },
+    { rank: 10, nickname: 'Hidden', wagered: '$2,305.07', prize: '1%' },
+  ]
+  
+  const userRacePosition = {
+    rank: 5708,
+    nickname: 'You',
+    wagered: '$1,250.00',
+    prize: '0.1%'
+  }
+  
+  // Generate mock activity data - mix sports and casino
+  const generateActivity = useCallback(() => {
+    const users = ['Gurvinderdeo', 'Eruyarr4545', 'JadrankaB', 'VUDEMMADHU', 'Dzikiti123', 'Player1', 'GamerX', 'LuckyBet', 'HighRoller', 'CasinoKing']
+    const sportsEvents = [
+      { name: 'Ikorodu City - Plateau United', icon: 'football' as const },
+      { name: 'Borussia Dortmund - Sporting CP', icon: 'football' as const },
+      { name: 'Lakers vs Warriors', icon: 'basketball' as const },
+      { name: 'Alcaraz, Carlos - Nardi, L.', icon: 'tennis' as const },
+      { name: 'Paris Saint-Germain - Stade Rennais', icon: 'football' as const },
+      { name: 'Pakistan - New Zealand', icon: 'football' as const },
+      { name: 'Koby Khalil - Isaac', icon: 'basketball' as const },
+    ]
+    const esportsEvents = [
+      { name: 'BetBoom Team - Shopify Rebellion', icon: 'esports' as const },
+      { name: 'Xtreme Gaming - Heroic', icon: 'esports' as const },
+    ]
+    const casinoGames = [
+      { name: 'Starburst', icon: 'casino' as const, image: squareTileImages[0] },
+      { name: 'Book of Dead', icon: 'casino' as const, image: squareTileImages[1] },
+      { name: 'Gonzo\'s Quest', icon: 'casino' as const, image: squareTileImages[2] },
+      { name: 'Mega Moolah', icon: 'casino' as const, image: squareTileImages[3] },
+      { name: 'Dead or Alive', icon: 'casino' as const, image: squareTileImages[4] },
+      { name: 'Razor Shark', icon: 'casino' as const, image: squareTileImages[5] },
+      { name: 'Big Bass Bonanza', icon: 'casino' as const, image: squareTileImages[6] },
+      { name: 'Sweet Bonanza', icon: 'casino' as const, image: squareTileImages[7] },
+    ]
+    
+    const now = new Date()
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+    
+    // Randomly choose sports or casino (70% sports, 30% casino)
+    const isCasino = Math.random() < 0.3
+    const isEsports = !isCasino && Math.random() < 0.2
+    
+    let eventData
+    if (isCasino) {
+      eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
+    } else if (isEsports) {
+      eventData = esportsEvents[Math.floor(Math.random() * esportsEvents.length)]
+    } else {
+      eventData = sportsEvents[Math.floor(Math.random() * sportsEvents.length)]
+    }
+    
+    const user = users[Math.floor(Math.random() * users.length)]
+    const isHidden = Math.random() < 0.6 // 60% chance of being hidden
+    const displayUser = isHidden ? 'Hidden' : user
+    
+    const betAmount = activityTab === 'High Rollers' 
+      ? (Math.random() * 15000 + 1000).toFixed(2)
+      : (Math.random() * 5000 + 10).toFixed(2)
+    
+    const odds = isCasino ? undefined : (Math.random() * 2 + 1).toFixed(2)
+    
+    // For casino games, calculate win amount (60% chance of winning)
+    const winAmount = isCasino && Math.random() > 0.4
+      ? (parseFloat(betAmount) * (Math.random() * 5 + 1)).toFixed(2)
+      : undefined
+    
+    return {
+      id: `${isCasino ? 'casino' : 'sports'}-${Date.now()}-${Math.random()}`,
+      type: isCasino ? 'casino' as const : 'sports' as const,
+      event: eventData.name,
+      user: displayUser,
+      time: timeStr,
+      odds,
+      betAmount: `$${parseFloat(betAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      winAmount: winAmount ? `$${parseFloat(winAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined,
+      icon: eventData.icon,
+      gameImage: isCasino && 'image' in eventData ? eventData.image : undefined
+    }
+  }, [activityTab])
+  
+  // Initialize and update activity feed
+  useEffect(() => {
+    // Initialize with 10 items
+    const initialFeed = Array.from({ length: 10 }, () => generateActivity())
+    setActivityFeed(initialFeed)
+    
+    // Add new activity every 3-5 seconds
+    const interval = setInterval(() => {
+      setActivityFeed(prev => {
+        const newActivity = generateActivity()
+        return [newActivity, ...prev.slice(0, 19)] // Keep max 20 items
+      })
+    }, Math.random() * 2000 + 3000) // 3-5 seconds
+    
+    return () => clearInterval(interval)
+  }, [activityTab, generateActivity])
+  
   // Set up carousel scroll state watchers
   useEffect(() => {
     if (!topEventsCarouselApi) return
@@ -1299,10 +1440,10 @@ function HomePageContent() {
   }, [gameLauncherMenuOpen])
 
   if (!mounted) {
-  return (
+    return (
       <div className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen flex items-center justify-center">
         <div className="text-white/70">Loading...</div>
-    </div>
+      </div>
     )
   }
 
@@ -1478,7 +1619,7 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
-                    onClick={() => router.push('/casino')}
+                    onClick={() => router.push('/casino?vip=true')}
                   >
                     VIP Rewards
                   </SidebarMenuButton>
@@ -1968,7 +2109,7 @@ function HomePageContent() {
         {/* Slots Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-white">Slots (128)</h2>
+            <h2 className="text-lg font-semibold text-white">New Games (128)</h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -2279,7 +2420,7 @@ function HomePageContent() {
                   variant="outline"
                   size="sm"
                   className="bg-transparent border-white/20 text-white/70 hover:text-white hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
-                  onClick={() => router.push('/casino')}
+                  onClick={() => router.push('/casino?vip=true')}
                 >
                   BECOME A VIP
                 </Button>
@@ -2299,6 +2440,213 @@ function HomePageContent() {
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
             </Card>
           </div>
+        </div>
+
+        {/* Activity Section */}
+        <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
+          <Separator className="mb-6 bg-white/10" />
+          <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
+          
+          {/* Tabs - Sub Nav Style */}
+          <div className="mb-4">
+            <div className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex">
+              {['All Bets', 'High Rollers', 'Race Leaderboard'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActivityTab(tab as 'All Bets' | 'High Rollers' | 'Race Leaderboard')}
+                  className={cn(
+                    "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
+                    activityTab === tab
+                      ? "text-white"
+                      : "text-white/70 hover:text-white hover:bg-white/5 dark:hover:bg-white/5 bg-transparent"
+                  )}
+                >
+                  {activityTab === tab && (
+                    <motion.div
+                      layoutId="activityTab"
+                      className="absolute inset-0 rounded-2xl -z-10"
+                      style={{ backgroundColor: '#ee3536' }}
+                      initial={false}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 40
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10 whitespace-nowrap">{tab}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Activity Feed Table or Race Leaderboard */}
+          <Card className="bg-white/5 backdrop-blur-sm border-white/10 rounded-small overflow-hidden">
+            <CardContent className="p-0">
+              <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
+                {activityTab === 'Race Leaderboard' ? (
+                  // Race Leaderboard Table
+                  <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-white/10">
+                            <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Rank</th>
+                            <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Nickname</th>
+                            <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Wagered</th>
+                            <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Prize</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {raceLeaderboardData.map((entry) => (
+                            <tr key={entry.rank} className="border-b border-white/10 hover:bg-white/10 transition-colors">
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-2">
+                                  {entry.medal === 'gold' && <IconTrophy className="w-5 h-5 text-yellow-400" />}
+                                  {entry.medal === 'silver' && <IconTrophy className="w-5 h-5 text-gray-400" />}
+                                  {entry.medal === 'bronze' && <IconTrophy className="w-5 h-5 text-orange-400" />}
+                                  {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-white">{entry.nickname}</td>
+                              <td className="py-3 px-4 text-right text-white">{entry.wagered}</td>
+                              <td className="py-3 px-4 text-right text-white font-semibold">{entry.prize}</td>
+                            </tr>
+                          ))}
+                          {/* User's Position Row */}
+                          <tr className="border-t-2 border-white/20 bg-white/5">
+                            <td className="py-3 px-4">
+                              <span className="text-white text-sm font-semibold">{userRacePosition.rank}th</span>
+                            </td>
+                            <td className="py-3 px-4 text-white font-semibold">{userRacePosition.nickname}</td>
+                            <td className="py-3 px-4 text-right text-white font-semibold">{userRacePosition.wagered}</td>
+                            <td className="py-3 px-4 text-right text-white font-semibold">{userRacePosition.prize}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  // Activity Feed Table
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/10 hover:bg-transparent">
+                        <TableHead className="text-white/70 font-medium text-xs">Event</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Odds</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Bet Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    <AnimatePresence mode="popLayout">
+                      {activityFeed.map((activity, index) => {
+                        const getEventIcon = () => {
+                          switch (activity.icon) {
+                            case 'football':
+                              return <IconBallFootball className="w-4 h-4 text-white/70" />
+                            case 'basketball':
+                              return <IconBallFootball className="w-4 h-4 text-white/70" />
+                            case 'tennis':
+                              return <IconBallFootball className="w-4 h-4 text-white/70" />
+                            case 'esports':
+                              return <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
+                            case 'casino':
+                              return <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
+                            default:
+                              return <IconBallFootball className="w-4 h-4 text-white/70" />
+                          }
+                        }
+                        
+                        return (
+                          <motion.tr
+                            key={activity.id}
+                            layout
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className={cn(
+                              "border-b border-white/10 hover:bg-white/5 transition-colors",
+                              index === 0 && "bg-white/5"
+                            )}
+                          >
+                            <TableCell className="py-3 px-4">
+                              <div className="flex items-center gap-2">
+                                {activity.type === 'casino' && activity.gameImage ? (
+                                  <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
+                                    <Image
+                                      src={activity.gameImage}
+                                      alt={activity.event}
+                                      width={40}
+                                      height={40}
+                                      className="w-full h-full object-cover"
+                                      quality={75}
+                                      unoptimized
+                                    />
+                                  </div>
+                                ) : (
+                                  getEventIcon()
+                                )}
+                                <span 
+                                  className={cn(
+                                    "text-white text-sm truncate max-w-[200px]",
+                                    activity.type === 'casino' && "cursor-pointer hover:text-white/80 transition-colors"
+                                  )}
+                                  onClick={() => {
+                                    if (activity.type === 'casino' && activity.gameImage) {
+                                      setSelectedGame({
+                                        title: activity.event,
+                                        image: activity.gameImage
+                                      })
+                                    }
+                                  }}
+                                >
+                                  {activity.event}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3 px-4">
+                              <span className={cn(
+                                "text-sm",
+                                activity.user === 'Hidden' ? "text-white/50" : "text-white"
+                              )}>
+                                {activity.user}
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-3 px-4">
+                              <span className="text-white/60 text-sm">{activity.time}</span>
+                            </TableCell>
+                            <TableCell className="py-3 px-4">
+                              {activity.odds ? (
+                                <span className="text-white text-sm">{activity.odds}</span>
+                              ) : (
+                                <span className="text-white/30 text-sm">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-3 px-4">
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1.5">
+                                  <IconCoins className="w-3.5 h-3.5 text-green-400" />
+                                  <span className="text-white text-sm font-medium">{activity.betAmount}</span>
+                                </div>
+                                {activity.type === 'casino' && activity.winAmount && (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-green-400 text-xs font-medium">Won: {activity.winAmount}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                          </motion.tr>
+                        )
+                      })}
+                    </AnimatePresence>
+                  </TableBody>
+                </Table>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Game Launcher - Full Screen Overlay */}
