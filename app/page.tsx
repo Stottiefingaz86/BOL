@@ -1185,7 +1185,7 @@ function HomePageContent() {
   const [topEventsScores, setTopEventsScores] = useState<Record<number, { team1: number; team2: number; animating?: { team: number; from: number; to: number } }>>({})
   
   // Activity Leaderboard state
-  const [activityTab, setActivityTab] = useState<'All Bets' | 'High Rollers' | 'Race Leaderboard'>('All Bets')
+  const [activityTab, setActivityTab] = useState<'All Bets' | 'High Rollers' | 'Daily Race'>('All Bets')
   const [activityFeed, setActivityFeed] = useState<Array<{
     id: string
     type: 'sports' | 'casino'
@@ -1219,6 +1219,31 @@ function HomePageContent() {
     wagered: '$1,250.00',
     prize: '0.1%'
   }
+  
+  // Daily Race countdown timer state
+  const [raceHours, setRaceHours] = useState(6)
+  const [raceMinutes, setRaceMinutes] = useState(54)
+  const [raceSeconds, setRaceSeconds] = useState(31)
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRaceSeconds((s) => {
+        if (s === 0) {
+          setRaceMinutes((m) => {
+            if (m === 0) {
+              setRaceHours((h) => (h === 0 ? 23 : h - 1))
+              return 59
+            }
+            return m - 1
+          })
+          return 59
+        }
+        return s - 1
+      })
+    }, 1000)
+    
+    return () => clearInterval(interval)
+  }, [])
   
   // Generate mock activity data - mix sports and casino
   const generateActivity = useCallback(() => {
@@ -2450,10 +2475,10 @@ function HomePageContent() {
           {/* Tabs - Sub Nav Style */}
           <div className="mb-4">
             <div className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex">
-              {['All Bets', 'High Rollers', 'Race Leaderboard'].map((tab) => (
+              {['All Bets', 'High Rollers', 'Daily Race'].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActivityTab(tab as 'All Bets' | 'High Rollers' | 'Race Leaderboard')}
+                  onClick={() => setActivityTab(tab as 'All Bets' | 'High Rollers' | 'Daily Race')}
                   className={cn(
                     "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                     activityTab === tab
@@ -2484,17 +2509,28 @@ function HomePageContent() {
           <Card className="bg-white/5 backdrop-blur-sm border-white/10 rounded-small overflow-hidden">
             <CardContent className="p-0">
               <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
-                {activityTab === 'Race Leaderboard' ? (
-                  // Race Leaderboard Table
+                {activityTab === 'Daily Race' ? (
+                  // Daily Race Table
                   <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
+                    {/* Ends in countdown */}
+                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                      <span className="text-white/70 text-xs">Ends in</span>
+                      <div className="text-sm font-bold text-white flex items-center gap-1 tabular-nums">
+                        <NumberFlow value={raceHours} />
+                        <span className="mx-1">:</span>
+                        <NumberFlow value={raceMinutes} />
+                        <span className="mx-1">:</span>
+                        <NumberFlow value={raceSeconds} />
+                      </div>
+                    </div>
                     <div className="overflow-x-auto">
                       <table className="w-full">
                         <thead>
                           <tr className="border-b border-white/10">
-                            <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Rank</th>
-                            <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Nickname</th>
-                            <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Wagered</th>
-                            <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Prize</th>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Rank</th>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Nickname</th>
+                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Wagered</th>
+                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Prize</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2508,9 +2544,9 @@ function HomePageContent() {
                                   {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
                                 </div>
                               </td>
-                              <td className="py-3 px-4 text-white">{entry.nickname}</td>
-                              <td className="py-3 px-4 text-right text-white">{entry.wagered}</td>
-                              <td className="py-3 px-4 text-right text-white font-semibold">{entry.prize}</td>
+                              <td className="py-3 px-4 text-white text-sm">{entry.nickname}</td>
+                              <td className="py-3 px-4 text-right text-white text-sm">{entry.wagered}</td>
+                              <td className="py-3 px-4 text-right text-white text-sm font-semibold">{entry.prize}</td>
                             </tr>
                           ))}
                           {/* User's Position Row */}
@@ -2518,9 +2554,9 @@ function HomePageContent() {
                             <td className="py-3 px-4">
                               <span className="text-white text-sm font-semibold">{userRacePosition.rank}th</span>
                             </td>
-                            <td className="py-3 px-4 text-white font-semibold">{userRacePosition.nickname}</td>
-                            <td className="py-3 px-4 text-right text-white font-semibold">{userRacePosition.wagered}</td>
-                            <td className="py-3 px-4 text-right text-white font-semibold">{userRacePosition.prize}</td>
+                            <td className="py-3 px-4 text-white text-sm font-semibold">{userRacePosition.nickname}</td>
+                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{userRacePosition.wagered}</td>
+                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{userRacePosition.prize}</td>
                           </tr>
                         </tbody>
                       </table>

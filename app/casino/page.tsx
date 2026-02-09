@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo, useId, Suspense } from 'react'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -11135,7 +11135,9 @@ function ViewTab({
 export default function CasinoPage() {
   return (
     <SidebarProvider>
-      <NavTestPageContent />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-white">Loading...</div></div>}>
+        <NavTestPageContent />
+      </Suspense>
     </SidebarProvider>
   )
 }
