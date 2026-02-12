@@ -112,7 +112,9 @@ import {
   IconCoins,
   IconDownload,
   IconExternalLink,
-  IconMaximize
+  IconMaximize,
+  IconStopwatch,
+  IconRosetteFilled
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
@@ -263,6 +265,7 @@ const getVendorIconPath = (vendorName: string): string => {
     'Twain': 'twain.svg',
     'VIG': 'vig.svg',
     'Wingo': 'wingo.svg',
+    'BetOnline': 'orginals.svg',
   }
   
   // Check if we have a direct mapping
@@ -316,7 +319,7 @@ const originalsTileImages = [
 const mostPlayedGames = [
   { id: 1, title: 'MEGACRUSH HOLD&WIN', provider: 'Betsoft', tag: 'Early', image: '/walk/image 1.png' },
   { id: 2, title: 'MR MAMMOTH', provider: 'Betsoft', tag: null, image: '/walk/image 2.png' },
-  { id: 3, title: 'LIVE BETONLINE ROUETTE', provider: 'Dragon Gaming', tag: '$25 - $100', image: '/walk/image 3.png' },
+  { id: 3, title: 'LIVE BETONLINE ROUETTE', provider: 'VIG', tag: '$25 - $100', image: '/walk/image 3.png' },
   { id: 4, title: 'HOOKED ON FISHING', provider: 'Betsoft', tag: 'Hot', image: '/walk/image 4.png' },
   { id: 5, title: 'MEGACRUSH HOLD&WIN', provider: 'Betsoft', tag: 'Early', image: '/walk/image 1.png' },
   { id: 6, title: 'MR MAMMOTH', provider: 'Betsoft', tag: null, image: '/walk/image 2.png' },
@@ -326,7 +329,7 @@ const mostPlayedGames = [
 const popularGames = [
   { id: 8, title: 'Gold Nugget™ Rush', provider: 'Betsoft', tag: '+ New', image: '/walk/image 1.png' },
   { id: 9, title: 'Stake the BANK', provider: 'Betsoft', tag: 'Exclusive', image: '/walk/image 2.png' },
-  { id: 10, title: 'VIP BLACKJACK', provider: 'Dragon Gaming', tag: '$350 - $500', image: '/walk/image 3.png' },
+  { id: 10, title: 'VIP BLACKJACK', provider: 'Fresh Deck', tag: '$350 - $500', image: '/walk/image 3.png' },
   { id: 11, title: 'MEGACRUSH HOLD&WIN', provider: 'Betsoft', tag: 'Early', image: '/walk/image 4.png' },
 ]
 
@@ -349,6 +352,8 @@ const liveCasinoGames = [
 ]
 
 function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
+  // Map game tag to MetaTag type
+  const metaTag: MetaTag = game.tag === 'Hot' ? 'Hot' : game.tag === 'Early' ? 'Early' : game.tag === 'Exclusive' ? 'Exclusive' : game.tag === '+ New' ? 'New' : getMetaTag(game.id)
   return (
     <div className="relative group cursor-pointer flex-shrink-0">
       <div className="relative w-[160px] aspect-[4/5] rounded-small overflow-hidden bg-gray-200">
@@ -359,19 +364,7 @@ function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
           className="object-cover group-hover:scale-105 transition-transform duration-300"
           sizes="160px"
         />
-        {game.tag && (
-          <div className={cn(
-            "absolute top-2 left-2 px-2 py-0.5 rounded-small text-[10px] font-bold uppercase",
-            game.tag === 'Hot' && "bg-red-500 text-white",
-            game.tag === '+ New' && "bg-green-500 text-white",
-            game.tag === 'Early' && "bg-blue-500 text-white",
-            game.tag === 'Exclusive' && "bg-purple-500 text-white",
-            game.tag?.startsWith('$') && "bg-yellow-500 text-black",
-            !game.tag.match(/^(Hot|\+ New|Early|Exclusive|\$)/) && "bg-white/90 text-black"
-          )}>
-            {game.tag}
-          </div>
-        )}
+        <GameTagBadge tag={metaTag} vendor={getTileVendor(game.id)} />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-2">
           <div className="text-white text-xs font-bold truncate leading-tight mb-0.5">{game.title}</div>
           <div className="text-white/70 text-[10px] truncate">{game.provider}</div>
@@ -397,12 +390,12 @@ function PaymentLogo({ method, className }: { method: string; className?: string
   
   return (
     <div className={`flex items-center justify-center h-8 px-2 ${className || ''}`}>
-      {!imageError ? (
-        <Image
-          src={imagePath}
-          alt={method}
-          width={60}
-          height={20}
+          {!imageError ? (
+            <Image
+              src={imagePath}
+              alt={method}
+              width={60}
+              height={20}
           className="object-contain opacity-80 hover:opacity-100 transition-opacity"
           onError={() => {
             if (!useFallback) {
@@ -411,11 +404,11 @@ function PaymentLogo({ method, className }: { method: string; className?: string
               setImageError(true)
             }
           }}
-        />
-      ) : (
-        <span className="text-xs font-semibold text-white/70">{method}</span>
-      )}
-    </div>
+            />
+          ) : (
+            <span className="text-xs font-semibold text-white/70">{method}</span>
+          )}
+        </div>
   )
 }
 
@@ -425,19 +418,19 @@ function SecurityBadge({ name, iconPath, className }: { name: string; iconPath: 
   
   return (
     <div className={`flex items-center justify-center ${className || ''}`}>
-      {!imageError ? (
-        <Image
-          src={iconPath}
-          alt={name}
+          {!imageError ? (
+            <Image
+              src={iconPath}
+              alt={name}
           width={80}
           height={30}
           className="object-contain opacity-80 hover:opacity-100 transition-opacity"
-          onError={() => setImageError(true)}
-        />
-      ) : (
+              onError={() => setImageError(true)}
+            />
+          ) : (
         <IconShield className="w-6 h-6 text-green-500" />
-      )}
-    </div>
+          )}
+        </div>
   )
 }
 
@@ -529,6 +522,9 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
   ]
   const gameFeatures = features[index % features.length]
 
+  const tag = getMetaTag(index)
+  const tileVendor = getTileVendor(index)
+
   // Use regular div on mobile to avoid layout animation issues - no state, no animations
   if (isMobile) {
     return (
@@ -556,6 +552,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
               priority={index < 12} // Only prioritize first row
             />
           )}
+          <GameTagBadge tag={tag} vendor={tileVendor} />
         </div>
       </div>
     )
@@ -595,6 +592,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
             />
           )}
+          <GameTagBadge tag={tag} vendor={tileVendor} />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
         </div>
       ) : (
@@ -758,6 +756,414 @@ function VendorIcon({ vendor }: { vendor: string }) {
         onError={() => setImageError(true)}
         unoptimized
       />
+    </div>
+  )
+}
+
+// Real vendor names from the carousel (used for random assignment on tiles)
+const tileVendors = [
+  'Dragon Gaming', 'BetSoft', '5 Clover', '777Jacks', 'Arrow\'s Edge',
+  'Blaze', 'DeckFresh', 'Emerald Gate', 'Felix', 'KA Gaming',
+  'Lucky', 'Mascot Gaming', 'Nucleus', 'Onlyplay', 'Popiplay',
+  'Qora', 'Red Sparrow', 'Revolver Gaming', 'Rival', 'Twain',
+  'VIG', 'Wingo',
+]
+
+// Get a vendor deterministically by index
+function getTileVendor(index: number): string {
+  return tileVendors[((index * 7 + 5) % tileVendors.length)]
+}
+
+// Meta tags for casino tiles
+const metaTags = ['Early', 'Hot', 'Exclusive', 'New'] as const
+type MetaTag = typeof metaTags[number] | 'Original'
+
+// Deterministic tag assignment based on index (consistent across renders)
+function getMetaTag(index: number, isOriginals: boolean = false): MetaTag {
+  if (isOriginals) return 'Original'
+  // Use a simple hash to deterministically assign tags
+  const tagIndex = ((index * 7 + 3) % 4)
+  return metaTags[tagIndex]
+}
+
+// Tag icon for each meta tag
+function TagIcon({ tag, className }: { tag: MetaTag; className?: string }) {
+  switch (tag) {
+    case 'Early': return <IconStopwatch className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Hot': return <IconFlame className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Exclusive': return <IconRosetteFilled className={cn("w-3 h-3", className)} />
+    case 'New': return <IconSparkles className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Original': return <span className={cn("text-[9px] font-black leading-none", className)}>B</span>
+    default: return null
+  }
+}
+
+// Tag style config: background fill + border color + icon/text color
+function getTagConfig(tag: MetaTag): { bg: string; border: string; text: string; iconColor: string } {
+  switch (tag) {
+    case 'Early': return { bg: 'bg-emerald-900/80', border: 'border-emerald-500/60', text: 'text-white', iconColor: 'text-emerald-400' }
+    case 'Hot': return { bg: 'bg-red-950/80', border: 'border-red-500/60', text: 'text-white', iconColor: 'text-red-400' }
+    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-white', iconColor: 'text-indigo-300' }
+    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-white', iconColor: 'text-yellow-400' }
+    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-white/80' }
+    default: return { bg: 'bg-white/10', border: 'border-white/20', text: 'text-white', iconColor: 'text-white' }
+  }
+}
+
+// Vendor badge small icon
+function VendorBadge({ vendor }: { vendor: string }) {
+  const [imageError, setImageError] = useState(false)
+  const iconPath = getVendorIconPath(vendor)
+  
+  return (
+    <div className="w-4 h-4 rounded-[3px] bg-black/50 backdrop-blur-sm flex items-center justify-center flex-shrink-0 overflow-hidden">
+      {!imageError ? (
+        <Image
+          src={iconPath}
+          alt={vendor}
+          width={12}
+          height={12}
+          className="object-contain"
+          onError={() => setImageError(true)}
+          unoptimized
+        />
+      ) : (
+        <span className="text-[8px] font-bold text-white/80 leading-none">
+          {vendor.charAt(0).toUpperCase()}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// Game Tag Badge - matches the design reference exactly
+function GameTagBadge({ tag, vendor }: { tag: MetaTag; vendor: string }) {
+  const config = getTagConfig(tag)
+  
+  return (
+    <div className="absolute top-1.5 left-1.5 flex items-center gap-1 z-10">
+      <VendorBadge vendor={vendor} />
+      <div className={cn(
+        "flex items-center gap-0.5 px-1.5 py-[3px] rounded-full border backdrop-blur-sm",
+        config.bg,
+        config.border
+      )}>
+        <TagIcon tag={tag} className={config.iconColor} />
+        <span className={cn("text-[9px] font-semibold leading-none", config.text)}>
+          {tag}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ============ LIVE CASINO TILE COMPONENT ============
+
+// Live casino background images by game type
+const liveBlackjackImages = [
+  '/games/BLACKJACK_SQAURE.png',
+  '/games/BLACKJACK_SQAURE.png',
+  '/games/BLACKJACK_SQAURE.png',
+]
+const liveBlackjackRectImages = [
+  '/games/BLACKJACK RECTANGLE.png',
+  '/games/BLACKJACK RECTANGLE.png',
+]
+const liveBlackjackTallImages = [
+  '/games/BLACKJACK_TALL.png',
+  '/games/BLACKJACK_TALL.png',
+]
+const liveRouletteSquareImages = [
+  '/games/roulette_square.png',
+  '/games/roulette_square.png',
+]
+const liveRouletteRectImages = [
+  '/games/roulette_square.png',
+  '/games/roulette_square.png',
+]
+const liveRouletteTallImages = [
+  '/games/roulette_tall.png',
+  '/games/roulette_tall.png',
+]
+const liveBaccaratRectImages = [
+  '/games/baccartae_rectangle.png',
+  '/games/baccartae_rectangle.png',
+]
+const liveBaccaratTallImages = [
+  '/games/baccartae_rectangle.png',
+  '/games/baccartae_rectangle.png',
+]
+const liveBaccaratSquareImages = [
+  '/games/baccartae_rectangle.png',
+  '/games/baccartae_rectangle.png',
+]
+
+type LiveGameType = 'blackjack' | 'roulette' | 'baccarat' | 'poker'
+type LiveTileShape = 'square' | 'rectangle' | 'tall'
+
+// Roulette number color helper
+const ROULETTE_REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
+function rouletteColor(num: number) {
+  if (num === 0) return "bg-emerald-600"
+  if (ROULETTE_REDS.includes(num)) return "bg-red-600"
+  return "bg-zinc-700"
+}
+
+// All possible roulette numbers for random generation
+const ROULETTE_NUMBERS = Array.from({ length: 37 }, (_, i) => i)
+
+// Animated Roulette history: colored number circles with live updates
+function RouletteHistory({ results: initialResults }: { results: number[] }) {
+  const [items, setItems] = useState(() => initialResults.map((num, i) => ({ id: i, num })))
+  const nextId = useRef(initialResults.length)
+
+  useEffect(() => {
+    // Random interval between 3-8 seconds per tile
+    const delay = 3000 + Math.random() * 5000
+    const interval = setInterval(() => {
+      const newNum = ROULETTE_NUMBERS[Math.floor(Math.random() * ROULETTE_NUMBERS.length)]
+      nextId.current += 1
+      setItems(prev => {
+        const next = [{ id: nextId.current, num: newNum }, ...prev]
+        return next.slice(0, 5) // keep 5 visible
+      })
+    }, delay)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="flex items-center gap-0.5 overflow-hidden">
+      <AnimatePresence initial={false} mode="popLayout">
+        {items.map((item) => (
+          <motion.div
+            key={item.id}
+            initial={{ scale: 0, opacity: 0, width: 0 }}
+            animate={{ scale: 1, opacity: 1, width: 14 }}
+            exit={{ scale: 0, opacity: 0, width: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.8 }}
+            className={cn(
+              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-white flex-shrink-0",
+              rouletteColor(item.num)
+            )}
+          >
+            {item.num}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// Baccarat result options
+const BACCARAT_OPTIONS = ['B', 'B', 'P', 'B', 'P', 'T', 'P', 'B']
+
+// Animated Baccarat history: B/P/T circles with live updates
+function BaccaratHistory({ results: initialResults }: { results: string[] }) {
+  const [items, setItems] = useState(() => initialResults.map((r, i) => ({ id: i, result: r })))
+  const nextId = useRef(initialResults.length)
+
+  useEffect(() => {
+    const delay = 3000 + Math.random() * 5000
+    const interval = setInterval(() => {
+      const newResult = BACCARAT_OPTIONS[Math.floor(Math.random() * BACCARAT_OPTIONS.length)]
+      nextId.current += 1
+      setItems(prev => {
+        const next = [{ id: nextId.current, result: newResult }, ...prev]
+        return next.slice(0, 5)
+      })
+    }, delay)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="flex items-center gap-0.5 overflow-hidden">
+      <AnimatePresence initial={false} mode="popLayout">
+        {items.map((item) => (
+          <motion.div
+            key={item.id}
+            initial={{ scale: 0, opacity: 0, width: 0 }}
+            animate={{ scale: 1, opacity: 1, width: 14 }}
+            exit={{ scale: 0, opacity: 0, width: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.8 }}
+            className={cn(
+              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-white flex-shrink-0",
+              item.result === 'B' ? "bg-red-600" :
+              item.result === 'P' ? "bg-blue-600" :
+              "bg-emerald-600"
+            )}
+          >
+            {item.result}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// Blackjack seat indicator
+function BlackjackSeats({ occupied, total }: { occupied: number; total: number }) {
+  return (
+    <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+      <IconUser className="w-3 h-3 text-white/70" />
+      <span className="text-[10px] font-semibold text-white">{occupied}/{total}</span>
+    </div>
+  )
+}
+
+// Generate deterministic roulette results
+function getRouletteResults(index: number): number[] {
+  const base = [8, 20, 13, 0, 10, 32, 5, 19, 36, 2, 14, 7, 28, 11, 3, 26, 15, 4, 22, 17]
+  const offset = (index * 3) % base.length
+  return [base[(offset) % base.length], base[(offset+1) % base.length], base[(offset+2) % base.length], base[(offset+3) % base.length], base[(offset+4) % base.length]]
+}
+
+// Generate deterministic baccarat results
+function getBaccaratResults(index: number): string[] {
+  const base = ['B', 'B', 'P', 'B', 'P', 'T', 'P', 'B', 'B', 'P', 'B', 'P']
+  const offset = (index * 2) % base.length
+  return [base[(offset) % base.length], base[(offset+1) % base.length], base[(offset+2) % base.length], base[(offset+3) % base.length], base[(offset+4) % base.length]]
+}
+
+// Get live image by game type and shape
+function getLiveImage(gameType: LiveGameType, shape: LiveTileShape, index: number): string {
+  switch (gameType) {
+    case 'blackjack':
+      if (shape === 'tall') return liveBlackjackTallImages[index % liveBlackjackTallImages.length]
+      if (shape === 'rectangle') return liveBlackjackRectImages[index % liveBlackjackRectImages.length]
+      return liveBlackjackImages[index % liveBlackjackImages.length]
+    case 'roulette':
+      if (shape === 'tall') return liveRouletteTallImages[index % liveRouletteTallImages.length]
+      if (shape === 'rectangle') return liveRouletteRectImages[index % liveRouletteRectImages.length]
+      return liveRouletteSquareImages[index % liveRouletteSquareImages.length]
+    case 'baccarat':
+      if (shape === 'tall') return liveBaccaratTallImages[index % liveBaccaratTallImages.length]
+      if (shape === 'square') return liveBaccaratSquareImages[index % liveBaccaratSquareImages.length]
+      return liveBaccaratRectImages[index % liveBaccaratRectImages.length]
+    case 'poker':
+      return liveBlackjackImages[index % liveBlackjackImages.length]
+    default:
+      return liveBlackjackImages[0]
+  }
+}
+
+// Live vendor helpers
+const liveVendors = [
+  { name: 'VIG', logo: '/vendot_logos/vig.svg' },
+  { name: 'Fresh Deck', logo: '/vendot_logos/deckfresh.svg' },
+]
+function getLiveVendor(index: number) {
+  return liveVendors[index % liveVendors.length]
+}
+
+// Main Live Casino Tile Component
+function LiveCasinoTile({ 
+  gameType, 
+  shape = 'rectangle',
+  title, 
+  subtitle,
+  bettingRange, 
+  index, 
+  brandPrimary,
+  seats,
+  onClick,
+  className,
+  style,
+}: { 
+  gameType: LiveGameType
+  shape?: LiveTileShape
+  title: string
+  subtitle?: string
+  bettingRange: string
+  index: number
+  brandPrimary: string
+  seats?: { occupied: number; total: number }
+  onClick?: () => void
+  className?: string
+  style?: React.CSSProperties
+}) {
+  const imageSrc = getLiveImage(gameType, shape, index)
+  const vendor = getLiveVendor(index)
+  
+  return (
+    <div 
+      data-content-item 
+      className={cn(
+        "rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0",
+        className
+      )}
+      style={style}
+      onClick={onClick}
+    >
+      {/* Background Image */}
+      <Image
+        src={imageSrc}
+        alt={title}
+        fill
+        className="object-cover group-hover:scale-105 transition-transform duration-300"
+        sizes={shape === 'tall' ? '200px' : shape === 'rectangle' ? '300px' : '200px'}
+      />
+      
+      {/* Dark gradient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+      
+      {/* Limit Tag - glass pill with record dot */}
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/10 backdrop-blur-md rounded-full px-2 py-0.5 border border-white/15">
+        <div className="relative w-1.5 h-1.5 flex-shrink-0">
+          <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
+          <div className="relative w-1.5 h-1.5 rounded-full bg-red-500" />
+        </div>
+        <span className="text-white text-[10px] font-medium">{bettingRange}</span>
+      </div>
+      
+      {/* Content at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-2.5 z-10">
+        {/* Game Title */}
+        <div className="mb-1.5">
+          {subtitle && (
+            <div className="text-white/60 text-[10px] font-medium uppercase tracking-wider mb-0.5">{subtitle}</div>
+          )}
+          <div className="text-white font-bold text-sm leading-tight">{title}</div>
+        </div>
+        
+        {/* History Tracker / Seats */}
+        <div className="mb-2">
+          {gameType === 'roulette' && (
+            <RouletteHistory results={getRouletteResults(index)} />
+          )}
+          {gameType === 'baccarat' && (
+            <BaccaratHistory results={getBaccaratResults(index)} />
+          )}
+          {gameType === 'blackjack' && seats && (
+            <BlackjackSeats occupied={seats.occupied} total={seats.total} />
+          )}
+          {gameType === 'poker' && seats && (
+            <BlackjackSeats occupied={seats.occupied} total={seats.total} />
+          )}
+        </div>
+        
+        {/* Vendor & Info */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-sm overflow-hidden flex items-center justify-center">
+              <Image
+                src={vendor.logo}
+                alt={vendor.name}
+                width={14}
+                height={14}
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+            <span className="text-white/50 text-[10px] font-medium">{vendor.name}</span>
+          </div>
+          <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center">
+            <IconInfoCircle className="w-3.5 h-3.5 text-white/60" strokeWidth={2} />
+          </div>
+        </div>
+      </div>
+      
+      {/* Hover shimmer */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
     </div>
   )
 }
@@ -4994,9 +5400,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
                   <span className="text-[10px] font-bold text-white">18+</span>
-                </div>
-              </div>
             </div>
+          </div>
+        </div>
 
             <Separator className="bg-white/10 mb-6" />
 
@@ -5015,9 +5421,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         height={28}
                         className="object-contain"
                       />
-                    </div>
-                  ))}
                 </div>
+                  ))}
+              </div>
               </div>
               <div className="flex items-center gap-1.5">
                 {/* Social media icons using Button components */}
@@ -5948,6 +6354,14 @@ function NavTestPageContent() {
   const [casinoPokerCanScrollNext, setCasinoPokerCanScrollNext] = useState(false)
   const [casinoPokerCurrentIndex, setCasinoPokerCurrentIndex] = useState(0)
   
+  const [halloweenCarouselApi, setHalloweenCarouselApi] = useState<CarouselApi>()
+  const [halloweenCanScrollPrev, setHalloweenCanScrollPrev] = useState(false)
+  const [halloweenCanScrollNext, setHalloweenCanScrollNext] = useState(false)
+  
+  const [vipCarouselApi, setVipCarouselApi] = useState<CarouselApi>()
+  const [vipCanScrollPrev, setVipCanScrollPrev] = useState(false)
+  const [vipCanScrollNext, setVipCanScrollNext] = useState(false)
+  
   // For You tab carousels
   const [forYouBlackjackCarouselApi, setForYouBlackjackCarouselApi] = useState<CarouselApi>()
   const [forYouBlackjackCanScrollPrev, setForYouBlackjackCanScrollPrev] = useState(false)
@@ -5963,6 +6377,22 @@ function NavTestPageContent() {
   const [forYouBaccaratCanScrollPrev, setForYouBaccaratCanScrollPrev] = useState(false)
   const [forYouBaccaratCanScrollNext, setForYouBaccaratCanScrollNext] = useState(false)
   const [forYouBaccaratCurrentIndex, setForYouBaccaratCurrentIndex] = useState(0)
+
+  const [popularCarouselApi, setPopularCarouselApi] = useState<CarouselApi>()
+  const [popularCanScrollPrev, setPopularCanScrollPrev] = useState(false)
+  const [popularCanScrollNext, setPopularCanScrollNext] = useState(false)
+
+  const [exclusivesCarouselApi, setExclusivesCarouselApi] = useState<CarouselApi>()
+  const [exclusivesCanScrollPrev, setExclusivesCanScrollPrev] = useState(false)
+  const [exclusivesCanScrollNext, setExclusivesCanScrollNext] = useState(false)
+
+  const [crashCarouselApi, setCrashCarouselApi] = useState<CarouselApi>()
+  const [crashCanScrollPrev, setCrashCanScrollPrev] = useState(false)
+  const [crashCanScrollNext, setCrashCanScrollNext] = useState(false)
+
+  const [instantCarouselApi, setInstantCarouselApi] = useState<CarouselApi>()
+  const [instantCanScrollPrev, setInstantCanScrollPrev] = useState(false)
+  const [instantCanScrollNext, setInstantCanScrollNext] = useState(false)
   
   // Set up carousel scroll state watchers
   useEffect(() => {
@@ -6038,6 +6468,26 @@ function NavTestPageContent() {
   }, [casinoPokerCarouselApi])
   
   useEffect(() => {
+    if (!halloweenCarouselApi) return
+    setHalloweenCanScrollPrev(halloweenCarouselApi.canScrollPrev())
+    setHalloweenCanScrollNext(halloweenCarouselApi.canScrollNext())
+    halloweenCarouselApi.on('select', () => {
+      setHalloweenCanScrollPrev(halloweenCarouselApi.canScrollPrev())
+      setHalloweenCanScrollNext(halloweenCarouselApi.canScrollNext())
+    })
+  }, [halloweenCarouselApi])
+  
+  useEffect(() => {
+    if (!vipCarouselApi) return
+    setVipCanScrollPrev(vipCarouselApi.canScrollPrev())
+    setVipCanScrollNext(vipCarouselApi.canScrollNext())
+    vipCarouselApi.on('select', () => {
+      setVipCanScrollPrev(vipCarouselApi.canScrollPrev())
+      setVipCanScrollNext(vipCarouselApi.canScrollNext())
+    })
+  }, [vipCarouselApi])
+  
+  useEffect(() => {
     if (!forYouBlackjackCarouselApi) return
     setForYouBlackjackCanScrollPrev(forYouBlackjackCarouselApi.canScrollPrev())
     setForYouBlackjackCanScrollNext(forYouBlackjackCarouselApi.canScrollNext())
@@ -6072,6 +6522,47 @@ function NavTestPageContent() {
       setForYouBaccaratCurrentIndex(forYouBaccaratCarouselApi.selectedScrollSnap())
     })
   }, [forYouBaccaratCarouselApi])
+
+  useEffect(() => {
+    if (!popularCarouselApi) return
+    setPopularCanScrollPrev(popularCarouselApi.canScrollPrev())
+    setPopularCanScrollNext(popularCarouselApi.canScrollNext())
+    popularCarouselApi.on('select', () => {
+      setPopularCanScrollPrev(popularCarouselApi.canScrollPrev())
+      setPopularCanScrollNext(popularCarouselApi.canScrollNext())
+    })
+  }, [popularCarouselApi])
+
+  useEffect(() => {
+    if (!exclusivesCarouselApi) return
+    setExclusivesCanScrollPrev(exclusivesCarouselApi.canScrollPrev())
+    setExclusivesCanScrollNext(exclusivesCarouselApi.canScrollNext())
+    exclusivesCarouselApi.on('select', () => {
+      setExclusivesCanScrollPrev(exclusivesCarouselApi.canScrollPrev())
+      setExclusivesCanScrollNext(exclusivesCarouselApi.canScrollNext())
+    })
+  }, [exclusivesCarouselApi])
+
+  useEffect(() => {
+    if (!crashCarouselApi) return
+    setCrashCanScrollPrev(crashCarouselApi.canScrollPrev())
+    setCrashCanScrollNext(crashCarouselApi.canScrollNext())
+    crashCarouselApi.on('select', () => {
+      setCrashCanScrollPrev(crashCarouselApi.canScrollPrev())
+      setCrashCanScrollNext(crashCarouselApi.canScrollNext())
+    })
+  }, [crashCarouselApi])
+
+  useEffect(() => {
+    if (!instantCarouselApi) return
+    setInstantCanScrollPrev(instantCarouselApi.canScrollPrev())
+    setInstantCanScrollNext(instantCarouselApi.canScrollNext())
+    instantCarouselApi.on('select', () => {
+      setInstantCanScrollPrev(instantCarouselApi.canScrollPrev())
+      setInstantCanScrollNext(instantCarouselApi.canScrollNext())
+    })
+  }, [instantCarouselApi])
+
   const [isPageTransitioning, setIsPageTransitioning] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -8135,10 +8626,10 @@ function NavTestPageContent() {
                   isMobile ? "pt-0" : "pt-0"
                 )}
                 style={isMobile ? { 
-                  marginTop: '-12px',
+                  marginTop: '-72px',
                   paddingTop: 0
                 } : {
-                  marginTop: '-6px',
+                  marginTop: '-66px',
                   paddingTop: 0
                 }}
               >
@@ -8157,15 +8648,26 @@ function NavTestPageContent() {
                       )}>
                         <Card 
                           className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                          style={{ width: '200px', height: '140px' }}
+                          style={{ width: '200px', height: '164px' }}
                           onClick={() => {
                             setVipDrawerOpen(true)
                           }}
                         >
-                          <CardContent className="p-4 relative z-10">
+                          <CardContent className="p-4 relative z-10 flex flex-col h-full">
                             <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">VIP Rewards</CardTitle>
                             <div className="text-xs text-gray-600 dark:text-white/50 mb-2 transition-colors duration-300">Gold To Platinum I</div>
                             <VIPProgressBar value={45} />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-auto text-[11px] h-7 px-3 border-white/20 bg-transparent text-white/70 hover:text-white hover:bg-white/10 rounded-small w-full"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setVipDrawerOpen(true)
+                              }}
+                            >
+                              Open Hub
+                            </Button>
                           </CardContent>
                           {/* Sweep effect */}
                           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
@@ -8176,7 +8678,7 @@ function NavTestPageContent() {
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                         <Card 
                           className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                          style={{ width: '300px', height: '140px' }}
+                          style={{ width: '300px', height: '164px' }}
                           onClick={() => {
                             // Save current page state before navigating
                             setPreviousPageState({
@@ -8217,65 +8719,75 @@ function NavTestPageContent() {
                         </Card>
                       </CarouselItem>
                       
-                      {/* Weekly Game Banner */}
+                      {/* Casino Banner 1 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
+                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
                           <Image
-                            src="/banners/weekly.png"
-                            alt="Weekly Game Banner"
-                            width={320}
-                            height={140}
-                            className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                            priority
+                            src="/banners/casino/casino_banner1.svg"
+                            alt="Casino Banner"
+                            width={340}
+                            height={164}
+                            className="object-cover w-full h-full"
                             unoptimized
-                            quality={100}
-                            style={{ imageRendering: 'crisp-edges' }}
                           />
                         </Card>
                       </CarouselItem>
                       
-                      {/* Originals Banner */}
+                      {/* Casino Banner 2 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
+                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
                           <Image
-                            src="/banners/orginals.png"
-                            alt="Originals Banner"
-                            width={320}
-                            height={140}
-                            className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                            priority
+                            src="/banners/casino/casino_banner2.svg"
+                            alt="Casino Banner"
+                            width={340}
+                            height={164}
+                            className="object-cover w-full h-full"
                             unoptimized
-                            quality={100}
-                            style={{ imageRendering: 'crisp-edges' }}
                           />
                         </Card>
                       </CarouselItem>
                       
-                      {/* Free Spins Banner */}
+                      {/* Casino Banner 3 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
+                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
                           <Image
-                            src="/banners/freespins.png"
-                            alt="Free Spins Banner"
-                            width={320}
-                            height={140}
-                            className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                            priority
+                            src="/banners/casino/casino_banner 3.svg"
+                            alt="Casino Banner"
+                            width={340}
+                            height={164}
+                            className="object-cover w-full h-full"
                             unoptimized
-                            quality={100}
-                            style={{ imageRendering: 'crisp-edges' }}
                           />
                         </Card>
                       </CarouselItem>
                       
-                      {/* Placeholder Banners to fill gaps on large screens */}
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <CarouselItem key={`banner-placeholder-${index}`} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                          <Card className="border-0 relative overflow-hidden flex-shrink-0" style={{ width: '320px', height: '140px' }}>
-                            <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
+                      {/* Casino Banner 4 */}
+                      <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
+                          <Image
+                            src="/banners/casino/casino_banner4.svg"
+                            alt="Casino Banner"
+                            width={340}
+                            height={164}
+                            className="object-cover w-full h-full"
+                            unoptimized
+                          />
                           </Card>
                         </CarouselItem>
-                      ))}
+                      
+                      {/* Casino Banner 5 */}
+                      <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
+                          <Image
+                            src="/banners/casino/casino_Banner5.svg"
+                            alt="Casino Banner"
+                            width={340}
+                            height={164}
+                            className="object-cover w-full h-full"
+                            unoptimized
+                          />
+                        </Card>
+                      </CarouselItem>
                     </CarouselContent>
                   </Carousel>
                 </div>
@@ -8663,7 +9175,7 @@ function NavTestPageContent() {
                         style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}
                       >
                         {/* Live Game Category Carousels */}
-                        <div className="space-y-8 relative pt-40" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}>
+                        <div className="space-y-8 relative" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}>
                         {/* Blackjack Section */}
                         <div>
                           <div className={cn(
@@ -8726,53 +9238,34 @@ function NavTestPageContent() {
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setBlackjackCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                                {Array.from({ length: 7 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const bjNames = ['Classic Blackjack', 'VIP Blackjack', 'Speed Blackjack', 'Blackjack Party', 'Lightning Blackjack', 'Infinite Blackjack', 'Blackjack VIP', 'Perfect Pairs', 'European Blackjack', 'Double Exposure']
+                                  const bjLimits = ['$25 - $500', '$350 - $5,000', '$100 - $1,000', '$50 - $250', '$25 - $100', '$10 - $500', '$500 - $5,000', '$25 - $250', '$50 - $500', '$100 - $2,000']
+                                  const bjSeats = [{o:2,t:7},{o:4,t:6},{o:5,t:7},{o:3,t:6},{o:6,t:7},{o:1,t:7},{o:4,t:7},{o:3,t:6},{o:5,t:7},{o:2,t:6}]
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
-                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
                                     )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[240px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                      <LiveCasinoTile
+                                        gameType="blackjack"
+                                        shape="square"
+                                        title={bjNames[index % bjNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={bjLimits[index % bjLimits.length]}
+                                        index={index}
+                                        brandPrimary={brandPrimary}
+                                        seats={{ occupied: bjSeats[index % bjSeats.length].o, total: bjSeats[index % bjSeats.length].t }}
+                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
                                           setSelectedGame({
-                                            title: 'VIP BLACKJACK',
-                                            image: imageSrc,
-                                            provider: 'Dragon Gaming',
+                                            title: bjNames[index % bjNames.length],
+                                            image: getLiveImage('blackjack', 'square', index),
+                                            provider: getLiveVendor(index).name,
                                             features: ['Live Dealer Experience', 'High Stakes Betting', 'Multiple Table Options']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`VIP BLACKJACK ${index + 1}`}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="240px"
-                                          />
-                                        )}
-                                        {/* Red Betting Range Tag */}
-                                        <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: brandPrimary }}>
-                                          $350 - $500
-                                        </div>
-                                        {/* Game Title */}
-                                        <div className="absolute bottom-12 left-2 right-2">
-                                          <div className="text-white font-semibold text-sm mb-1">VIP BLACKJACK</div>
-                                          <div className="flex items-center gap-1.5 text-white/70 text-xs">
-                                            <IconUser className="w-3 h-3" />
-                                            <span>4/6</span>
-                                          </div>
-                                        </div>
-                                        {/* Provider & Info */}
-                                        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                                          <div className="text-white/60 text-[10px] font-medium">Dragon Gaming</div>
-                                          <IconInfoCircle className="w-4 h-4 text-white/70" strokeWidth={2} />
-                                        </div>
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                      </div>
+                                      />
                                     </CarouselItem>
                                   )
                                 })}
@@ -8781,7 +9274,7 @@ function NavTestPageContent() {
                           </div>
                         </div>
                         
-                        {/* Roulette Section */}
+                        {/* Roulette Section - Tall Tiles */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
@@ -8841,54 +9334,32 @@ function NavTestPageContent() {
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setRouletteCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                                {Array.from({ length: 8 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
-                                  const isBaccarat = index % 2 === 0
-                                  const gameTitle = isBaccarat ? 'AUTO BACCARAT' : 'LIVE BETONLINE ROUETTE'
-                                  const bettingRange = isBaccarat ? '$1 - $12.500' : '$25 - $100'
-                                  const gameInfo = isBaccarat ? 'B B B P P' : '8 20 13 0 10'
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const rouletteNames = ['Live Roulette', 'Speed Roulette', 'Lightning Roulette', 'Auto Roulette', 'VIP Roulette', 'French Roulette', 'European Roulette', 'Mega Roulette', 'Double Ball', 'Immersive Roulette']
+                                  const rouletteLimits = ['$25 - $100', '$10 - $500', '$50 - $1,000', '$1 - $100', '$100 - $5,000', '$25 - $250', '$5 - $500', '$50 - $2,000', '$25 - $500', '$10 - $1,000']
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
-                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
                                     )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[240px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                      <LiveCasinoTile
+                                        gameType="roulette"
+                                        shape="tall"
+                                        title={rouletteNames[index % rouletteNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={rouletteLimits[index % rouletteLimits.length]}
+                                        index={index}
+                                        brandPrimary={brandPrimary}
+                                        className="w-[160px] h-[280px]"
                                         onClick={() => {
                                           setSelectedGame({
-                                            title: gameTitle,
-                                            image: imageSrc,
-                                            provider: 'Dragon Gaming',
+                                            title: rouletteNames[index % rouletteNames.length],
+                                            image: getLiveImage('roulette', 'tall', index),
+                                            provider: getLiveVendor(index).name,
                                             features: ['Live Casino Experience', 'Real-Time Gameplay', 'Professional Dealers']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={gameTitle}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="240px"
-                                          />
-                                        )}
-                                        {/* Red Betting Range Tag */}
-                                        <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: brandPrimary }}>
-                                          {bettingRange}
-                                        </div>
-                                        {/* Game Title */}
-                                        <div className="absolute bottom-12 left-2 right-2">
-                                          <div className="text-white font-semibold text-sm mb-1">{gameTitle}</div>
-                                          <div className="text-white/70 text-xs">{gameInfo}</div>
-                                        </div>
-                                        {/* Provider & Info */}
-                                        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                                          <div className="text-white/60 text-[10px] font-medium">Dragon Gaming</div>
-                                          <IconInfoCircle className="w-4 h-4 text-white/70" strokeWidth={2} />
-                                        </div>
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                      </div>
+                                      />
                                     </CarouselItem>
                                   )
                                 })}
@@ -8897,7 +9368,7 @@ function NavTestPageContent() {
                           </div>
                         </div>
                         
-                        {/* Baccarat Section - Grid Layout with Large Tile */}
+                        {/* Baccarat Section - Rectangle Tiles Carousel */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
@@ -8917,105 +9388,174 @@ function NavTestPageContent() {
                               >
                                 All Games
                               </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                      onClick={() => {
+                                      if (baccaratCarouselApi) {
+                                        const currentIndex = baccaratCarouselApi.selectedScrollSnap()
+                                        const targetIndex = Math.max(0, currentIndex - 2)
+                                        baccaratCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!baccaratCarouselApi || !baccaratCanScrollPrev}
+                                  >
+                                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      if (baccaratCarouselApi) {
+                                        const currentIndex = baccaratCarouselApi.selectedScrollSnap()
+                                        const slideCount = baccaratCarouselApi.scrollSnapList().length
+                                        const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                                        baccaratCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!baccaratCarouselApi || !baccaratCanScrollNext}
+                                  >
+                                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </div>
-                          <div className="relative px-6" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
-                            <div className="grid grid-cols-4 gap-2" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
-                              {/* Large VIP BLACKJACK Tile - Spans 2 rows */}
-                              <div className="row-span-2">
-                                    <div 
-                                      data-content-item 
-                                      className="w-full h-full rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0" 
-                                      style={{ minHeight: '320px' }}
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setBaccaratCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 8 }).map((_, index) => {
+                                  const baccaratNames = ['VIP Baccarat', 'Auto Baccarat', 'Speed Baccarat', 'Lightning Baccarat', 'Baccarat Squeeze', 'No Commission', 'Dragon Tiger', 'Golden Baccarat']
+                                  const baccaratLimits = ['$350 - $5,000', '$1 - $12,500', '$25 - $100', '$50 - $1,000', '$5 - $500', '$10 - $1,000', '$25 - $250', '$100 - $5,000']
+                                return (
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
+                                    )}>
+                                      <LiveCasinoTile
+                                        gameType="baccarat"
+                                        shape="rectangle"
+                                        title={baccaratNames[index % baccaratNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={baccaratLimits[index % baccaratLimits.length]}
+                                        index={index}
+                                        brandPrimary={brandPrimary}
+                                        className="w-[240px] h-[160px]"
                                       onClick={() => {
                                         setSelectedGame({
-                                          title: 'VIP BLACKJACK',
-                                          image: squareTileImages[0],
-                                          provider: 'Dragon Gaming',
+                                            title: baccaratNames[index % baccaratNames.length],
+                                            image: getLiveImage('baccarat', 'rectangle', index),
+                                          provider: getLiveVendor(index).name,
                                           features: ['Live Dealer Experience', 'High Stakes Betting', 'Multiple Table Options']
                                         })
                                       }}
-                                    >
-                                  {squareTileImages[0] && (
-                                    <Image
-                                      src={squareTileImages[0]}
-                                      alt="VIP BLACKJACK"
-                                      fill
-                                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                      sizes="(max-width: 768px) 50vw, 25vw"
-                                    />
-                                  )}
-                                  {/* Red Betting Range Tag */}
-                                  <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: brandPrimary }}>
-                                    $350 - $500
+                                      />
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
                                   </div>
-                                  {/* Game Title */}
-                                  <div className="absolute bottom-12 left-2 right-2">
-                                    <div className="text-white font-semibold text-sm mb-1">VIP BLACKJACK</div>
-                                    <div className="flex items-center gap-1.5 text-white/70 text-xs">
-                                      <IconUser className="w-3 h-3" />
-                                      <span>4/6</span>
                                     </div>
+                        
+                        {/* VIP Tables Section - Rectangle Tiles */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-6 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>VIP Tables (18)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('VIP')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('Live')
+                                }}
+                              >
+                                All Games
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      if (vipCarouselApi) {
+                                        const currentIndex = vipCarouselApi.selectedScrollSnap()
+                                        const targetIndex = Math.max(0, currentIndex - 2)
+                                        vipCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!vipCarouselApi || !vipCanScrollPrev}
+                                  >
+                                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      if (vipCarouselApi) {
+                                        const currentIndex = vipCarouselApi.selectedScrollSnap()
+                                        const slideCount = vipCarouselApi.scrollSnapList().length
+                                        const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                                        vipCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!vipCarouselApi || !vipCanScrollNext}
+                                  >
+                                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                </>
+                              )}
                                   </div>
-                                  {/* Provider & Info */}
-                                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                                    <div className="text-white/60 text-[10px] font-medium">Dragon Gaming</div>
-                                    <IconInfoCircle className="w-4 h-4 text-white/70" strokeWidth={2} />
                                   </div>
-                                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                </div>
-                              </div>
-                              
-                              {/* Smaller Tiles Grid */}
-                              {Array.from({ length: 7 }).map((_, index) => {
-                                const imageSrc = squareTileImages[(index + 1) % squareTileImages.length]
-                                const isBaccarat = index % 2 === 0
-                                const gameTitle = isBaccarat ? 'AUTO BACCARAT' : 'LIVE BETONLINE ROUETTE'
-                                const bettingRange = isBaccarat ? '$1 - $12.500' : '$25 - $100'
-                                const gameInfo = isBaccarat ? 'B B B P P' : '8 20 13 0 10'
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setVipCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const vipNames = ['VIP Blackjack Elite', 'VIP Roulette', 'VIP Baccarat', 'VIP Speed BJ', 'VIP Lightning', 'VIP Unlimited BJ', 'VIP Auto Roulette', 'VIP Dragon Tiger', 'VIP Squeeze', 'VIP Gold BJ']
+                                  const vipLimits = ['$500 - $10,000', '$350 - $5,000', '$1,000 - $25,000', '$250 - $5,000', '$500 - $15,000', '$100 - $5,000', '$500 - $10,000', '$250 - $7,500', '$1,000 - $20,000', '$350 - $5,000']
+                                  const vipTypes: LiveGameType[] = ['blackjack', 'roulette', 'baccarat', 'blackjack', 'roulette', 'blackjack', 'roulette', 'baccarat', 'blackjack', 'roulette']
+                                  const type = vipTypes[index % vipTypes.length]
                                 return (
-                                  <div key={index} className="aspect-square">
-                                    <div 
-                                      data-content-item 
-                                      className="w-full h-full rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
+                                    )}>
+                                      <LiveCasinoTile
+                                        gameType={type}
+                                        shape="rectangle"
+                                        title={vipNames[index % vipNames.length]}
+                                        subtitle="VIP Live"
+                                        bettingRange={vipLimits[index % vipLimits.length]}
+                                        index={index + 30}
+                                        brandPrimary={brandPrimary}
+                                        seats={type === 'blackjack' || type === 'poker' ? { occupied: 3 + (index % 4), total: 7 } : undefined}
+                                        className="w-[240px] h-[160px]"
                                       onClick={() => {
                                         setSelectedGame({
-                                          title: gameTitle,
-                                          image: imageSrc,
-                                          provider: 'Dragon Gaming',
-                                          features: ['Live Casino Experience', 'Real-Time Gameplay', 'Professional Dealers']
-                                        })
-                                      }}
-                                    >
-                                      {imageSrc && (
-                                        <Image
-                                          src={imageSrc}
-                                          alt={gameTitle}
-                                          fill
-                                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                          sizes="(max-width: 768px) 25vw, 20vw"
-                                        />
-                                      )}
-                                      {/* Red Betting Range Tag */}
-                                      <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: brandPrimary }}>
-                                        {bettingRange}
-                                      </div>
-                                      {/* Game Title */}
-                                      <div className="absolute bottom-12 left-2 right-2">
-                                        <div className="text-white font-semibold text-xs mb-1">{gameTitle}</div>
-                                        <div className="text-white/70 text-[10px]">{gameInfo}</div>
-                                      </div>
-                                      {/* Provider & Info */}
-                                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                                        <div className="text-white/60 text-[10px] font-medium">Dragon Gaming</div>
-                                        <IconInfoCircle className="w-3.5 h-3.5 text-white/70" strokeWidth={2} />
-                                      </div>
-                                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
+                                            title: vipNames[index % vipNames.length],
+                                            image: getLiveImage(type, 'rectangle', index + 30),
+                                            provider: getLiveVendor(index + 30).name,
+                                            features: ['VIP Experience', 'High Stakes', 'Exclusive Tables']
+                                          })
+                                        }}
+                                      />
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
                           </div>
                         </div>
                         
@@ -9079,46 +9619,34 @@ function NavTestPageContent() {
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setCasinoPokerCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                                {Array.from({ length: 8 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const pokerNames = ['Texas Hold\'em', 'Caribbean Stud', 'Three Card Poker', 'Casino Hold\'em', 'Ultimate Texas', 'Pai Gow Poker', 'Let It Ride', 'Mississippi Stud', 'Oasis Poker', 'Side Bet City']
+                                  const pokerLimits = ['$25 - $500', '$50 - $1,000', '$10 - $250', '$100 - $2,000', '$25 - $500', '$5 - $100', '$50 - $250', '$25 - $1,000', '$10 - $500', '$50 - $2,000']
+                                  const pokerSeats = [{o:3,t:6},{o:5,t:8},{o:2,t:6},{o:4,t:8},{o:6,t:8},{o:1,t:6},{o:3,t:8},{o:5,t:6},{o:2,t:7},{o:4,t:7}]
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
-                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
                                     )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                      <LiveCasinoTile
+                                        gameType="poker"
+                                        shape="square"
+                                        title={pokerNames[index % pokerNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={pokerLimits[index % pokerLimits.length]}
+                                        index={index}
+                                        brandPrimary={brandPrimary}
+                                        seats={{ occupied: pokerSeats[index % pokerSeats.length].o, total: pokerSeats[index % pokerSeats.length].t }}
+                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
-                                          const pokerNames = ['Texas Hold\'em', 'Omaha Poker', 'Seven Card Stud', 'Razz', 'HORSE', 'Pineapple', 'Crazy Pineapple', 'Dealer\'s Choice']
                                           setSelectedGame({
                                             title: pokerNames[index % pokerNames.length],
-                                            image: imageSrc,
-                                            provider: 'Dragon Gaming',
+                                            image: getLiveImage('poker', 'square', index),
+                                            provider: getLiveVendor(index).name,
                                             features: ['Live Poker Tables', 'Tournament Play', 'Cash Game Options']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`Casino Poker ${index + 1}`}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        {/* Red Betting Range Tag */}
-                                        <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: brandPrimary }}>
-                                          $25 - $100
-                                        </div>
-                                        {/* Provider & Info */}
-                                        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                                          <div className="text-white/60 text-[10px] font-medium">Dragon Gaming</div>
-                                          <IconInfoCircle className="w-4 h-4 text-white/70" strokeWidth={2} />
-                                        </div>
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                      </div>
+                                      />
                                     </CarouselItem>
                                   )
                                 })}
@@ -9143,22 +9671,25 @@ function NavTestPageContent() {
                       >
                         {/* Game Category Carousels */}
                         <div className="space-y-8 relative" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}>
-                        {/* BlackJack Section - Wide Rectangles (same height as squares) */}
+
+                        {/* New Games Section - Square Tiles */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
-                          )} style={{ width: '100%', maxWidth: '100%', overflow: 'visible', boxSizing: 'border-box', display: 'flex', minWidth: 0 }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>BlackJack (52)</h2>
-                            <div className="flex items-center gap-2">
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>New Games (128)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                             <Button
                               variant="ghost"
                               className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
-                              style={{ flex: '0 0 auto', flexShrink: 0, visibility: 'visible', opacity: 1, display: 'inline-flex', whiteSpace: 'nowrap' }}
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                               onClick={() => {
-                                setSelectedCategory('BlackJack')
+                                  setSelectedCategory('Slots')
+                                  setSelectedVendor('')
                                 setShowAllGames(true)
-                                setActiveSubNav('For You')
+                                  setActiveSubNav('Slots')
+                                  window.scrollTo({ top: 0, behavior: 'smooth' })
                               }}
                             >
                               All Games
@@ -9170,13 +9701,13 @@ function NavTestPageContent() {
                                     size="icon"
                                     className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
-                                      if (forYouBlackjackCarouselApi) {
-                                        const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
+                                      if (forYouSlotsCarouselApi) {
+                                        const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
                                         const targetIndex = Math.max(0, currentIndex - 2)
-                                        forYouBlackjackCarouselApi.scrollTo(targetIndex)
+                                        forYouSlotsCarouselApi.scrollTo(targetIndex)
                                       }
                                     }}
-                                    disabled={!forYouBlackjackCarouselApi || !forYouBlackjackCanScrollPrev}
+                                    disabled={!forYouSlotsCarouselApi || !forYouSlotsCanScrollPrev}
                                   >
                                     <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
                                   </Button>
@@ -9185,14 +9716,14 @@ function NavTestPageContent() {
                                     size="icon"
                                     className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
-                                      if (forYouBlackjackCarouselApi) {
-                                        const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
-                                        const slideCount = forYouBlackjackCarouselApi.scrollSnapList().length
+                                      if (forYouSlotsCarouselApi) {
+                                        const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
+                                        const slideCount = forYouSlotsCarouselApi.scrollSnapList().length
                                         const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                                        forYouBlackjackCarouselApi.scrollTo(targetIndex)
+                                        forYouSlotsCarouselApi.scrollTo(targetIndex)
                                       }
                                     }}
-                                    disabled={!forYouBlackjackCarouselApi || !forYouBlackjackCanScrollNext}
+                                    disabled={!forYouSlotsCarouselApi || !forYouSlotsCanScrollNext}
                                   >
                                     <IconChevronRight className="h-4 w-4" strokeWidth={2} />
                                   </Button>
@@ -9201,10 +9732,13 @@ function NavTestPageContent() {
                             </div>
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
-                            <Carousel setApi={setForYouBlackjackCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                            <Carousel setApi={setForYouSlotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const imageSrc = squareTileImages[index % squareTileImages.length]
+                                  const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
+                                  const slotTag = getMetaTag(index + 20)
+                                  const slotVendor = getTileVendor(index + 20)
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
@@ -9212,15 +9746,13 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[240px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
-                                          const gameNames = ['BlackJack Classic', 'VIP BlackJack', 'European BlackJack', 'American BlackJack', 'Perfect Pairs', '21+3 BlackJack', 'BlackJack Surrender', 'BlackJack Switch', 'Double Exposure', 'BlackJack Pro']
-                                          const providers = ['BetSoft', 'Evolution Gaming', 'Pragmatic Play', 'NetEnt', 'Microgaming']
                                           setSelectedGame({
-                                            title: gameNames[index % gameNames.length],
+                                            title: slotNames[index % slotNames.length],
                                             image: imageSrc,
-                                            provider: providers[index % providers.length],
-                                            features: ['Classic Card Game', 'Multiple Betting Options', 'Live Dealer Available']
+                                            provider: slotVendor,
+                                            features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
                                           })
                                         }}
                                       >
@@ -9230,32 +9762,21 @@ function NavTestPageContent() {
                                             alt={`Game ${index + 1}`}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="240px"
+                                            sizes="160px"
                                           />
                                         )}
+                                        <GameTagBadge tag={slotTag} vendor={slotVendor} />
                                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                                       </div>
                                     </CarouselItem>
                                   )
                                 })}
-                                
-                                {/* Placeholder Blackjack tiles to fill gaps on large screens */}
-                                {Array.from({ length: 8 }).map((_, index) => (
-                                  <CarouselItem key={`blackjack-placeholder-${index}`} className={cn(
-                                    "pr-0 basis-auto flex-shrink-0",
-                                    "pl-2 md:pl-4"
-                                  )}>
-                                    <div className="w-[240px] h-[160px] rounded-small flex-shrink-0">
-                                      <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
-                                    </div>
-                                  </CarouselItem>
-                                ))}
                               </CarouselContent>
                             </Carousel>
                           </div>
                         </div>
                         
-                        {/* Originals Section - Tall Rectangles */}
+                        {/* Originals Section - Tall Rectangles (moved above Blackjack) */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
@@ -9342,11 +9863,10 @@ function NavTestPageContent() {
                                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                                           sizes="160px"
                                           onError={(e) => {
-                                            // Fallback to a placeholder if image doesn't exist
                                             e.currentTarget.src = squareTileImages[index % squareTileImages.length]
                                           }}
                                         />
-                                        {/* Info Icon - Bottom Right */}
+                                        <GameTagBadge tag="Original" vendor="Originals" />
                                         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                           <IconInfoCircle className="w-4 h-4 text-white drop-shadow-lg" strokeWidth={2} />
                                         </div>
@@ -9355,41 +9875,27 @@ function NavTestPageContent() {
                                     </CarouselItem>
                                   )
                                 })}
-                                
-                                {/* Placeholder Originals to fill gaps on large screens */}
-                                {Array.from({ length: 8 }).map((_, index) => (
-                                  <CarouselItem key={`originals-placeholder-${index}`} className={cn(
-                                    "pr-0 basis-auto flex-shrink-0",
-                                    originalsTileImages.length === 0 && index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
-                                  )}>
-                                    <div className="w-[160px] h-[280px] rounded-small flex-shrink-0">
-                                      <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
-                                    </div>
-                                  </CarouselItem>
-                                ))}
                               </CarouselContent>
                             </Carousel>
                           </div>
                         </div>
                         
-                        {/* Slots Section - Square Tiles */}
+                        {/* BlackJack Section - Square Tiles */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
-                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Slots (128)</h2>
-                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                          )} style={{ width: '100%', maxWidth: '100%', overflow: 'visible', boxSizing: 'border-box', display: 'flex', minWidth: 0 }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>BlackJack (52)</h2>
+                            <div className="flex items-center gap-2">
                               <Button
                                 variant="ghost"
                                 className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
-                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                              style={{ flex: '0 0 auto', flexShrink: 0, visibility: 'visible', opacity: 1, display: 'inline-flex', whiteSpace: 'nowrap' }}
                                 onClick={() => {
-                                  setSelectedCategory('Slots')
-                                  setSelectedVendor('')
+                                setSelectedCategory('BlackJack')
                                   setShowAllGames(true)
-                                  setActiveSubNav('Slots')
-                                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                                setActiveSubNav('For You')
                                 }}
                               >
                                 All Games
@@ -9401,13 +9907,13 @@ function NavTestPageContent() {
                                     size="icon"
                                     className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
-                                      if (forYouSlotsCarouselApi) {
-                                        const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
+                                      if (forYouBlackjackCarouselApi) {
+                                        const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
                                         const targetIndex = Math.max(0, currentIndex - 2)
-                                        forYouSlotsCarouselApi.scrollTo(targetIndex)
+                                        forYouBlackjackCarouselApi.scrollTo(targetIndex)
                                       }
                                     }}
-                                    disabled={!forYouSlotsCarouselApi || !forYouSlotsCanScrollPrev}
+                                    disabled={!forYouBlackjackCarouselApi || !forYouBlackjackCanScrollPrev}
                                   >
                                     <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
                                   </Button>
@@ -9416,14 +9922,14 @@ function NavTestPageContent() {
                                     size="icon"
                                     className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
-                                      if (forYouSlotsCarouselApi) {
-                                        const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
-                                        const slideCount = forYouSlotsCarouselApi.scrollSnapList().length
+                                      if (forYouBlackjackCarouselApi) {
+                                        const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
+                                        const slideCount = forYouBlackjackCarouselApi.scrollSnapList().length
                                         const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                                        forYouSlotsCarouselApi.scrollTo(targetIndex)
+                                        forYouBlackjackCarouselApi.scrollTo(targetIndex)
                                       }
                                     }}
-                                    disabled={!forYouSlotsCarouselApi || !forYouSlotsCanScrollNext}
+                                    disabled={!forYouBlackjackCarouselApi || !forYouBlackjackCanScrollNext}
                                   >
                                     <IconChevronRight className="h-4 w-4" strokeWidth={2} />
                                   </Button>
@@ -9432,61 +9938,45 @@ function NavTestPageContent() {
                             </div>
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
-                            <Carousel setApi={setForYouSlotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                            <Carousel setApi={setForYouBlackjackCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
                                 {Array.from({ length: 10 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
+                                  const gameNames = ['Blackjack Classic', 'VIP Blackjack', 'European Blackjack', 'American Blackjack', 'Perfect Pairs', '21+3 Blackjack', 'Blackjack Surrender', 'Blackjack Switch', 'Double Exposure', 'Blackjack Pro']
+                                  const bjLimits = ['$25 - $500', '$100 - $1,000', '$10 - $250', '$50 - $500', '$25 - $100', '$5 - $250', '$100 - $5,000', '$25 - $500', '$50 - $1,000', '$10 - $500']
+                                  const bjSeats = [{o:3,t:7},{o:5,t:7},{o:2,t:6},{o:4,t:7},{o:6,t:7},{o:1,t:6},{o:4,t:7},{o:3,t:6},{o:5,t:7},{o:2,t:7}]
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
-                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
                                     )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                      <LiveCasinoTile
+                                        gameType="blackjack"
+                                        shape="square"
+                                        title={gameNames[index % gameNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={bjLimits[index % bjLimits.length]}
+                                        index={index + 10}
+                                        brandPrimary={brandPrimary}
+                                        seats={{ occupied: bjSeats[index % bjSeats.length].o, total: bjSeats[index % bjSeats.length].t }}
+                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
-                                          const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
-                                          const providers = ['NetEnt', 'Pragmatic Play', 'Microgaming', 'BetSoft', 'Evolution Gaming']
                                           setSelectedGame({
-                                            title: slotNames[index % slotNames.length],
-                                            image: imageSrc,
-                                            provider: providers[index % providers.length],
-                                            features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
+                                            title: gameNames[index % gameNames.length],
+                                            image: getLiveImage('blackjack', 'square', index + 10),
+                                            provider: getLiveVendor(index).name,
+                                            features: ['Classic Card Game', 'Multiple Betting Options', 'Live Dealer Available']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`Game ${index + 1}`}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                                      </div>
+                                      />
                                     </CarouselItem>
                                   )
                                 })}
-                                
-                                {/* Placeholder Slots tiles to fill gaps on large screens */}
-                                {Array.from({ length: 20 }).map((_, index) => (
-                                  <CarouselItem key={`slots-placeholder-${index}`} className={cn(
-                                    "pr-0 basis-auto flex-shrink-0",
-                                    "pl-2 md:pl-4"
-                                  )}>
-                                    <div className="w-[160px] h-[160px] rounded-small flex-shrink-0">
-                                      <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
-                                    </div>
-                                  </CarouselItem>
-                                ))}
                               </CarouselContent>
                             </Carousel>
                           </div>
                         </div>
 
-                        {/* Vendors Carousel - Under Slots Title */}
+                        {/* Vendors Carousel */}
                         {activeSubNav === 'For You' && !showAllGames && (
                           <div 
                             className="relative w-full mt-6 mb-10 overflow-visible"
@@ -9596,8 +10086,8 @@ function NavTestPageContent() {
                                 Get spooky with our collection of Halloween-themed games! Spin the reels and win big with haunted slots and eerie jackpots.
                               </p>
                               
-                              {/* Action Button */}
-                              <div className="flex items-center gap-3 mb-6 pointer-events-auto">
+                              {/* Action Button + Arrows */}
+                              <div className="flex items-center justify-between mb-6 pointer-events-auto">
                                 <Button
                                   variant="ghost"
                                   className="text-white/70 hover:text-white hover:bg-white/5 text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
@@ -9610,20 +10100,57 @@ function NavTestPageContent() {
                                   <IconGhost className="w-4 h-4" />
                                   All Games
                                 </Button>
+                                {!isMobile && (
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                      onClick={() => {
+                                        if (halloweenCarouselApi) {
+                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
+                                          const targetIndex = Math.max(0, currentIndex - 2)
+                                          halloweenCarouselApi.scrollTo(targetIndex)
+                                        }
+                                      }}
+                                      disabled={!halloweenCarouselApi || !halloweenCanScrollPrev}
+                                    >
+                                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                      onClick={() => {
+                                        if (halloweenCarouselApi) {
+                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
+                                          const slideCount = halloweenCarouselApi.scrollSnapList().length
+                                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                                          halloweenCarouselApi.scrollTo(targetIndex)
+                                        }
+                                      }}
+                                      disabled={!halloweenCarouselApi || !halloweenCanScrollNext}
+                                    >
+                                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                </Button>
+                                  </div>
+                                )}
                               </div>
                               
-                              {/* Game Tiles */}
-                              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6 pointer-events-auto">
+                              {/* Game Tiles Carousel */}
+                              <div className="pointer-events-auto -mx-6">
+                                <Carousel setApi={setHalloweenCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                                  <CarouselContent className="ml-0 -mr-2 md:-mr-4">
                                 {Array.from({ length: 15 }).map((_, index) => {
                                   const imageSrc = squareTileImages[index % squareTileImages.length]
                                   return (
-                                    <div key={index} className="flex-shrink-0">
+                                        <CarouselItem key={index} className={cn(
+                                          "pr-0 basis-auto flex-shrink-0",
+                                          index === 0 ? (isMobile ? "pl-3" : "pl-8") : "pl-2 md:pl-3"
+                                        )}>
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
-                                        style={{ 
-                                          '--hover-bg': `${brandPrimary}33`,
-                                        } as React.CSSProperties}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.backgroundColor = `${brandPrimary}33`
                                         }}
@@ -9632,11 +10159,10 @@ function NavTestPageContent() {
                                         }}
                                         onClick={() => {
                                           const halloweenNames = ['Spooky Slots', 'Haunted Mansion', 'Witch\'s Brew', 'Pumpkin Jack', 'Ghostly Reels', 'Trick or Treat']
-                                          const providers = ['BetSoft', 'Pragmatic Play', 'NetEnt', 'Microgaming']
                                           setSelectedGame({
                                             title: halloweenNames[index % halloweenNames.length],
                                             image: imageSrc,
-                                            provider: providers[index % providers.length],
+                                                provider: getTileVendor(index + 80),
                                             features: ['Halloween Theme', 'Spooky Bonus Features', 'Special Halloween Promotions']
                                           })
                                         }}
@@ -9650,17 +10176,93 @@ function NavTestPageContent() {
                                             sizes="160px"
                                           />
                                         )}
+                                            <GameTagBadge tag={getMetaTag(index + 80)} vendor={getTileVendor(index + 80)} />
                                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `${brandPrimary}1A` }} />
                                       </div>
-                                    </div>
+                                        </CarouselItem>
                                   )
                                 })}
+                                  </CarouselContent>
+                                </Carousel>
                               </div>
                             </div>
                           </RainBackground>
                         </div>
                         
-                        {/* Baccarat Section - Mixed: Rectangles and Squares */}
+                        {/* Most Popular Section - Square Tiles */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-6 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Most Popular (64)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('Popular')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('For You')
+                                }}
+                              >
+                                All Games
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.max(0, popularCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!popularCarouselApi || !popularCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.min(popularCarouselApi.scrollSnapList().length - 1, popularCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!popularCarouselApi || !popularCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setPopularCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 12 }).map((_, index) => {
+                                  const imageSrc = squareTileImages[(index + 5) % squareTileImages.length]
+                                  const popularNames = ['Sweet Bonanza', 'Gates of Olympus', 'Sugar Rush', 'Big Bass Splash', 'Fruit Party', 'Wolf Gold', 'The Dog House', 'Starlight Princess', 'Buffalo King', 'Gems Bonanza', 'Money Train', 'Crystal Caverns']
+                                  const popularTag = getMetaTag(index + 50)
+                                  const popularVendor = getTileVendor(index + 50)
+                                  return (
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                    )}>
+                                      <div 
+                                        data-content-item 
+                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        onClick={() => {
+                                          setSelectedGame({
+                                            title: popularNames[index % popularNames.length],
+                                            image: imageSrc,
+                                            provider: popularVendor,
+                                            features: ['Top Rated', 'High RTP', 'Fan Favorite']
+                                          })
+                                        }}
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={popularNames[index % popularNames.length]}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={popularTag} vendor={popularVendor} />
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                      </div>
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+
+                        {/* Baccarat Section - Rectangle Tiles Carousel */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
@@ -9720,10 +10322,75 @@ function NavTestPageContent() {
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setForYouBaccaratCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                               <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 8 }).map((_, index) => {
+                                  const baccaratNames = ['Baccarat Classic', 'Punto Banco', 'Baccarat Squeeze', 'Speed Baccarat', 'Lightning Baccarat', 'Baccarat Control Squeeze', 'VIP Baccarat', 'Dragon Tiger']
+                                  const baccaratLimits = ['$1 - $12,500', '$25 - $100', '$5 - $500', '$10 - $1,000', '$50 - $5,000', '$1 - $250', '$100 - $10,000', '$25 - $250']
+                                  return (
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
+                                    )}>
+                                      <LiveCasinoTile
+                                        gameType="baccarat"
+                                        shape="rectangle"
+                                        title={baccaratNames[index % baccaratNames.length]}
+                                        subtitle="Live BetOnline"
+                                        bettingRange={baccaratLimits[index % baccaratLimits.length]}
+                                        index={index + 20}
+                                        brandPrimary={brandPrimary}
+                                        className="w-[240px] h-[160px]"
+                                        onClick={() => {
+                                          setSelectedGame({
+                                            title: baccaratNames[index % baccaratNames.length],
+                                            image: getLiveImage('baccarat', 'rectangle', index + 20),
+                                            provider: getLiveVendor(index).name,
+                                            features: ['Live Dealer', 'Multiple Side Bets', 'High Stakes Available']
+                                          })
+                                        }}
+                                      />
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+
+                        {/* Exclusives Section - Square Tiles */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-6 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Exclusives (32)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('Exclusives')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('For You')
+                                }}
+                              >
+                                All Games
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.max(0, exclusivesCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.min(exclusivesCarouselApi.scrollSnapList().length - 1, exclusivesCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setExclusivesCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
                                 {Array.from({ length: 10 }).map((_, index) => {
-                                  // Only first tile is rectangle, rest are squares
-                                  const isRectangle = index === 0
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
+                                  const imageSrc = squareTileImages[(index + 8) % squareTileImages.length]
+                                  const exclusiveNames = ['Golden Dragon', 'Royal Fortune', 'Diamond Heist', 'Mystic Gems', 'Pirate\'s Bounty', 'Phoenix Rising', 'Aztec Treasure', 'Neon Nights', 'Cosmic Cash', 'Wild Safari']
+                                  const exclusiveVendor = getTileVendor(index + 60)
                                   return (
                                     <CarouselItem key={index} className={cn(
                                       "pr-0 basis-auto flex-shrink-0",
@@ -9731,27 +10398,172 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className={isRectangle ? "w-[240px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0" : "w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"}
+                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
-                                          const baccaratNames = ['Baccarat Classic', 'Punto Banco', 'Baccarat Squeeze', 'Speed Baccarat', 'Lightning Baccarat', 'Baccarat Control Squeeze', 'VIP Baccarat', 'Baccarat Dragon Bonus', 'Baccarat Side Bets', 'Baccarat Super 6']
-                                          const providers = ['Evolution Gaming', 'Pragmatic Play', 'BetSoft', 'Dragon Gaming']
                                           setSelectedGame({
-                                            title: baccaratNames[index % baccaratNames.length],
+                                            title: exclusiveNames[index % exclusiveNames.length],
                                             image: imageSrc,
-                                            provider: providers[index % providers.length],
-                                            features: ['Live Dealer', 'Multiple Side Bets', 'High Stakes Available']
+                                            provider: exclusiveVendor,
+                                            features: ['Exclusive to BetOnline', 'Unique Features', 'Special Bonuses']
                                           })
                                         }}
                                       >
                                         {imageSrc && (
                                           <Image
                                             src={imageSrc}
-                                            alt={`Baccarat Game ${index + 1}`}
+                                            alt={exclusiveNames[index % exclusiveNames.length]}
                                             fill
                                             className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes={isRectangle ? "240px" : "160px"}
+                                            sizes="160px"
                                           />
                                         )}
+                                        <GameTagBadge tag="Exclusive" vendor={exclusiveVendor} />
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                      </div>
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+
+                        {/* Crash Games Section - Square Tiles */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-6 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Crash Games (18)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('Crash')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('For You')
+                                }}
+                              >
+                                All Games
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.max(0, crashCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!crashCarouselApi || !crashCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.min(crashCarouselApi.scrollSnapList().length - 1, crashCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!crashCarouselApi || !crashCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setCrashCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const imageSrc = squareTileImages[(index + 12) % squareTileImages.length]
+                                  const crashNames = ['Aviator', 'Spaceman', 'JetX', 'Cash or Crash', 'Rocket Blast', 'Sky High', 'Moon Rider', 'Turbo Crash', 'Lucky Jet', 'Cosmic Crash']
+                                  const crashTag = getMetaTag(index + 70)
+                                  const crashVendor = getTileVendor(index + 70)
+                                  return (
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                    )}>
+                                      <div 
+                                        data-content-item 
+                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        onClick={() => {
+                                          setSelectedGame({
+                                            title: crashNames[index % crashNames.length],
+                                            image: imageSrc,
+                                            provider: crashVendor,
+                                            features: ['Crash Gameplay', 'Multiplier Rewards', 'Fast-Paced Action']
+                                          })
+                                        }}
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={crashNames[index % crashNames.length]}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={crashTag} vendor={crashVendor} />
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                      </div>
+                                    </CarouselItem>
+                                  )
+                                })}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+
+                        {/* Instant Wins Section - Square Tiles */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-6 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Instant Wins (24)</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('Instant Wins')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('For You')
+                                }}
+                              >
+                                All Games
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.max(0, instantCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!instantCarouselApi || !instantCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.min(instantCarouselApi.scrollSnapList().length - 1, instantCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!instantCarouselApi || !instantCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setInstantCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 10 }).map((_, index) => {
+                                  const imageSrc = squareTileImages[(index + 15) % squareTileImages.length]
+                                  const instantNames = ['Scratch & Win', 'Lucky Numbers', 'Gold Rush', 'Cash Spin', 'Diamond Pick', 'Fortune Wheel', 'Treasure Hunt', 'Lucky Stars', 'Instant Millions', 'Quick Hit']
+                                  const instantTag = getMetaTag(index + 90)
+                                  const instantVendor = getTileVendor(index + 90)
+                                  return (
+                                    <CarouselItem key={index} className={cn(
+                                      "pr-0 basis-auto flex-shrink-0",
+                                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                    )}>
+                                      <div 
+                                        data-content-item 
+                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        onClick={() => {
+                                          setSelectedGame({
+                                            title: instantNames[index % instantNames.length],
+                                            image: imageSrc,
+                                            provider: instantVendor,
+                                            features: ['Instant Results', 'Quick Gameplay', 'Guaranteed Prizes']
+                                          })
+                                        }}
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={instantNames[index % instantNames.length]}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={instantTag} vendor={instantVendor} />
                                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                                       </div>
                                     </CarouselItem>
@@ -9885,7 +10697,7 @@ function NavTestPageContent() {
                       <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                       <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
                         <span className="text-[10px] font-bold text-white">18+</span>
-                      </div>
+                          </div>
                     </div>
                   </div>
 
@@ -9906,9 +10718,9 @@ function NavTestPageContent() {
                               height={28}
                               className="object-contain"
                             />
-                          </div>
-                        ))}
                       </div>
+                        ))}
+                    </div>
                     </div>
                     <div className="flex items-center gap-1.5">
                       {/* Social media icons using Button components */}
@@ -9939,7 +10751,7 @@ function NavTestPageContent() {
                       {typeof currentTime !== 'undefined' ? currentTime : ''}
                     </div>
                   </div>
-              </div>
+                </div>
               </footer>
           </SidebarInset>
         </div>
@@ -11136,7 +11948,7 @@ export default function CasinoPage() {
   return (
     <SidebarProvider>
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-white">Loading...</div></div>}>
-        <NavTestPageContent />
+      <NavTestPageContent />
       </Suspense>
     </SidebarProvider>
   )

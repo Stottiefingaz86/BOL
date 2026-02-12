@@ -42,6 +42,11 @@ import {
   IconDeviceGamepad2,
   IconBallFootball,
   IconTrophy,
+  IconLock,
+  IconFlame,
+  IconSparkles,
+  IconStopwatch,
+  IconRosetteFilled,
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
@@ -134,6 +139,7 @@ const getVendorIconPath = (vendorName: string): string => {
     'Twain': 'twain.svg',
     'VIG': 'vig.svg',
     'Wingo': 'wingo.svg',
+    'BetOnline': 'orginals.svg',
   }
   
   if (vendorFileMap[vendorName]) {
@@ -176,6 +182,102 @@ const originalsTileImages = [
   '/games/originals/hilo.png',
   '/games/originals/video_poker.png',
 ]
+
+// Real vendor names from the carousel (used for random assignment on tiles)
+const tileVendors = [
+  'Dragon Gaming', 'BetSoft', '5 Clover', '777Jacks', 'Arrow\'s Edge',
+  'Blaze', 'DeckFresh', 'Emerald Gate', 'Felix', 'KA Gaming',
+  'Lucky', 'Mascot Gaming', 'Nucleus', 'Onlyplay', 'Popiplay',
+  'Qora', 'Red Sparrow', 'Revolver Gaming', 'Rival', 'Twain',
+  'VIG', 'Wingo',
+]
+
+// Get a vendor deterministically by index
+function getTileVendor(index: number): string {
+  return tileVendors[((index * 7 + 5) % tileVendors.length)]
+}
+
+// Meta tags for casino tiles
+const metaTags = ['Early', 'Hot', 'Exclusive', 'New'] as const
+type MetaTag = typeof metaTags[number] | 'Original'
+
+// Deterministic tag assignment based on index
+function getMetaTag(index: number, isOriginals: boolean = false): MetaTag {
+  if (isOriginals) return 'Original'
+  const tagIndex = ((index * 7 + 3) % 4)
+  return metaTags[tagIndex]
+}
+
+// Tag icon for each meta tag
+function TagIcon({ tag, className }: { tag: MetaTag; className?: string }) {
+  switch (tag) {
+    case 'Early': return <IconStopwatch className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Hot': return <IconFlame className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Exclusive': return <IconRosetteFilled className={cn("w-3 h-3", className)} />
+    case 'New': return <IconSparkles className={cn("w-3 h-3", className)} strokeWidth={2.5} />
+    case 'Original': return <span className={cn("text-[9px] font-black leading-none", className)}>B</span>
+    default: return null
+  }
+}
+
+// Tag style config
+function getTagConfig(tag: MetaTag): { bg: string; border: string; text: string; iconColor: string } {
+  switch (tag) {
+    case 'Early': return { bg: 'bg-emerald-900/80', border: 'border-emerald-500/60', text: 'text-white', iconColor: 'text-emerald-400' }
+    case 'Hot': return { bg: 'bg-red-950/80', border: 'border-red-500/60', text: 'text-white', iconColor: 'text-red-400' }
+    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-white', iconColor: 'text-indigo-300' }
+    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-white', iconColor: 'text-yellow-400' }
+    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-white/80' }
+    default: return { bg: 'bg-white/10', border: 'border-white/20', text: 'text-white', iconColor: 'text-white' }
+  }
+}
+
+// Vendor badge small icon
+function VendorBadge({ vendor }: { vendor: string }) {
+  const [imageError, setImageError] = useState(false)
+  const iconPath = getVendorIconPath(vendor)
+  
+  return (
+    <div className="w-4 h-4 rounded-[3px] bg-black/50 backdrop-blur-sm flex items-center justify-center flex-shrink-0 overflow-hidden">
+      {!imageError ? (
+        <Image
+          src={iconPath}
+          alt={vendor}
+          width={12}
+          height={12}
+          className="object-contain"
+          onError={() => setImageError(true)}
+          unoptimized
+        />
+      ) : (
+        <span className="text-[8px] font-bold text-white/80 leading-none">
+          {vendor.charAt(0).toUpperCase()}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// Game Tag Badge - matches the design reference
+function GameTagBadge({ tag, vendor }: { tag: MetaTag; vendor: string }) {
+  const config = getTagConfig(tag)
+  
+  return (
+    <div className="absolute top-1.5 left-1.5 flex items-center gap-1 z-10">
+      <VendorBadge vendor={vendor} />
+      <div className={cn(
+        "flex items-center gap-0.5 px-1.5 py-[3px] rounded-full border backdrop-blur-sm",
+        config.bg,
+        config.border
+      )}>
+        <TagIcon tag={tag} className={config.iconColor} />
+        <span className={cn("text-[9px] font-semibold leading-none", config.text)}>
+          {tag}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 // Payment Logo Component
 function PaymentLogo({ method, className }: { method: string; className?: string }) {
@@ -1224,7 +1326,7 @@ function HomePageContent() {
   const [raceHours, setRaceHours] = useState(6)
   const [raceMinutes, setRaceMinutes] = useState(54)
   const [raceSeconds, setRaceSeconds] = useState(31)
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setRaceSeconds((s) => {
@@ -1465,10 +1567,10 @@ function HomePageContent() {
   }, [gameLauncherMenuOpen])
 
   if (!mounted) {
-    return (
+  return (
       <div className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen flex items-center justify-center">
         <div className="text-white/70">Loading...</div>
-      </div>
+    </div>
     )
   }
 
@@ -1793,7 +1895,7 @@ function HomePageContent() {
         
         {/* Hero Banner Section - Full Width Carousel */}
         <div className={cn("py-4 md:py-6", isMobile ? "px-3" : "px-6")}>
-          <Carousel className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+          <Carousel className="w-full relative" opts={{ align: 'start', loop: false, duration: 15 }}>
             {!isMobile && (
               <>
                 <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
@@ -1801,10 +1903,26 @@ function HomePageContent() {
               </>
             )}
             <CarouselContent className="ml-0 mr-0">
-              <CarouselItem className={cn(isMobile ? "pl-0 pr-3" : "pl-0 pr-4")}>
-                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl" : "rounded-2xl")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
+              {/* Banner 1 - Originals */}
+              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
                   <Image
-                    src="/banners/partners/homepage_banner1.jpg"
+                    src="/banners/ori.svg"
+                    alt="Originals Banner"
+                    fill
+                    className="object-cover"
+                    priority
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
+                  />
+                </div>
+              </CarouselItem>
+              {/* Banner 2 */}
+              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
+                  <Image
+                    src="/banners/banner1.svg"
                     alt="Hero Banner"
                     fill
                     className="object-cover"
@@ -1815,146 +1933,53 @@ function HomePageContent() {
                   />
                 </div>
               </CarouselItem>
-              {/* Banner 2 - Skeleton */}
-              <CarouselItem className={cn(isMobile ? "pl-0 pr-3" : "pl-0 pr-4")}>
-                <div className={cn("relative w-full overflow-hidden", isMobile ? "rounded-xl" : "rounded-2xl")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Skeleton className="w-full h-full bg-white/10" />
+              {/* Banner 3 */}
+              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                <div className={cn("relative w-full overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
+                  <Image
+                    src="/banners/banner12.svg"
+                    alt="Banner 2"
+                    fill
+                    className="object-cover"
+                    priority
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
+                  />
                 </div>
               </CarouselItem>
-              {/* Banner 3 - Skeleton */}
-              <CarouselItem className={cn("pl-0 pr-0", isMobile ? "pl-0 pr-0" : "pl-0 pr-0")}>
-                <div className={cn("relative w-full overflow-hidden", isMobile ? "rounded-xl" : "rounded-2xl")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Skeleton className="w-full h-full bg-white/10" />
+              {/* Banner 4 - Bracket */}
+              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
+                  <Image
+                    src="/banners/bracket.svg"
+                    alt="Bracket Banner"
+                    fill
+                    className="object-cover"
+                    priority
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
+                  />
+                </div>
+              </CarouselItem>
+              {/* Banner 5 */}
+              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
+                  <Image
+                    src="/banners/partners/banner4.svg"
+                    alt="Banner 5"
+                    fill
+                    className="object-cover"
+                    priority
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
+                  />
                 </div>
               </CarouselItem>
             </CarouselContent>
           </Carousel>
-        </div>
-
-        {/* USP Section - Single Block with Separators */}
-        <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
-          {isMobile ? (
-            /* Mobile Carousel */
-            <Carousel className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              <CarouselContent className="ml-0 mr-0">
-                {[
-                  { icon: '/banners/partners/crypto.svg', title: 'DEPOSIT WITH CRYPTO', subtitle: 'FAST, EASY & RELIABLE' },
-                  { icon: '/banners/partners/vip-rewards.svg', title: 'VIP REWARDS', subtitle: 'LEVEL UP BONUSES, BOOSTS & MORE' },
-                  { icon: '/banners/partners/bettingicons-coloured.svg', title: 'BET BIG', subtitle: 'HIGH LIMITS AND RE-BET FUNCTIONALITY' },
-                  { icon: '/banners/partners/live-betting.svg', title: 'FASTEST PAYOUTS', subtitle: 'PAYOUTS WITHIN MINUTES' },
-                ].map((item, index) => (
-                  <CarouselItem key={index} className={cn("pr-2 basis-auto flex-shrink-0", index === 0 ? "pl-0" : "pl-2")}>
-                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-small p-3 min-w-[280px]">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0">
-                          <Image
-                            src={item.icon}
-                            alt={item.title}
-                            width={32}
-                            height={32}
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">{item.title}</h3>
-                          <p className="text-white/60 text-[10px] uppercase leading-tight">{item.subtitle}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          ) : (
-            /* Desktop - Single Block with Small Separators */
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-small overflow-hidden">
-              <div className="grid grid-cols-4">
-                {/* Deposit With Crypto */}
-                <div className="p-3 relative">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <Image
-                        src="/banners/partners/crypto.svg"
-                        alt="Crypto"
-                        width={32}
-                        height={32}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">DEPOSIT WITH CRYPTO</h3>
-                      <p className="text-white/60 text-[10px] uppercase leading-tight">FAST, EASY & RELIABLE</p>
-                    </div>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-px h-8 bg-white/10" />
-                </div>
-
-                {/* VIP Rewards */}
-                <div className="p-3 relative">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <Image
-                        src="/banners/partners/vip-rewards.svg"
-                        alt="VIP Rewards"
-                        width={32}
-                        height={32}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">VIP REWARDS</h3>
-                      <p className="text-white/60 text-[10px] uppercase leading-tight">LEVEL UP BONUSES, BOOSTS & MORE</p>
-                    </div>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-px h-8 bg-white/10" />
-                </div>
-
-                {/* Bet Big */}
-                <div className="p-3 relative">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <Image
-                        src="/banners/partners/bettingicons-coloured.svg"
-                        alt="Bet Big"
-                        width={32}
-                        height={32}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">BET BIG</h3>
-                      <p className="text-white/60 text-[10px] uppercase leading-tight">HIGH LIMITS AND RE-BET FUNCTIONALITY</p>
-                    </div>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-px h-8 bg-white/10" />
-                </div>
-
-                {/* Fastest Payouts */}
-                <div className="p-3 relative">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0">
-                      <Image
-                        src="/banners/partners/live-betting.svg"
-                        alt="Fast Payouts"
-                        width={32}
-                        height={32}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">FASTEST PAYOUTS</h3>
-                      <p className="text-white/60 text-[10px] uppercase leading-tight">PAYOUTS WITHIN MINUTES</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Top Sports Carousel */}
@@ -2022,8 +2047,8 @@ function HomePageContent() {
                   }
                   const initialScore = parseScore(event.score)
                   const currentScore = topEventsScores[event.id] || initialScore
-                  
-                  return (
+
+  return (
                     <CarouselItem key={event.id} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
@@ -2037,7 +2062,7 @@ function HomePageContent() {
                               className="object-contain"
                             />
                             <span className="text-[10px] text-white">{event.league} | {event.country}</span>
-                          </div>
+    </div>
                           <div className="flex items-center gap-1.5">
                             <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
                               <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
@@ -2183,17 +2208,17 @@ function HomePageContent() {
               <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
                 {Array.from({ length: 10 }).map((_, index) => {
                   const imageSrc = squareTileImages[index % squareTileImages.length]
+                  const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
+                  const slotVendor = getTileVendor(index + 20)
                   return (
                     <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div 
                         className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                         onClick={() => {
-                          const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
-                          const providers = ['NetEnt', 'Pragmatic Play', 'Microgaming', 'BetSoft', 'Evolution Gaming']
                           setSelectedGame({
                             title: slotNames[index % slotNames.length],
                             image: imageSrc,
-                            provider: providers[index % providers.length],
+                            provider: slotVendor,
                             features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
                           })
                         }}
@@ -2207,6 +2232,7 @@ function HomePageContent() {
                             sizes="160px"
                           />
                         )}
+                        <GameTagBadge tag={getMetaTag(index + 20)} vendor={slotVendor} />
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                       </div>
                     </CarouselItem>
@@ -2290,6 +2316,7 @@ function HomePageContent() {
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                           sizes="160px"
                         />
+                        <GameTagBadge tag="Original" vendor="Originals" />
                         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <IconInfoCircle className="w-4 h-4 text-white drop-shadow-lg" strokeWidth={2} />
                         </div>
@@ -2464,6 +2491,147 @@ function HomePageContent() {
               </div>
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
             </Card>
+          </div>
+          
+          {/* USP Section - Single Block with Separators */}
+          <div className="mt-6 flex justify-center">
+            {isMobile ? (
+              /* Mobile Carousel */
+              <Carousel className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                <CarouselContent className="ml-0 mr-0">
+                  {[
+                    { icon: '/banners/partners/crypto.svg', title: 'DEPOSIT WITH CRYPTO', subtitle: 'FAST, EASY & RELIABLE' },
+                    { icon: '/banners/partners/vip-rewards.svg', title: 'VIP REWARDS', subtitle: 'LEVEL UP BONUSES, BOOSTS & MORE' },
+                    { icon: '/banners/partners/bettingicons-coloured.svg', title: 'BET BIG', subtitle: 'HIGH LIMITS AND RE-BET FUNCTIONALITY' },
+                    { icon: '/banners/partners/live-betting.svg', title: 'FASTEST PAYOUTS', subtitle: 'PAYOUTS WITHIN MINUTES' },
+                    { icon: 'lock', title: 'SAFE & SECURE', subtitle: 'TRUSTED & PROTECTED' },
+                  ].map((item, index) => (
+                    <CarouselItem key={index} className={cn("pr-2 basis-auto flex-shrink-0", index === 0 ? "pl-0" : "pl-2")}>
+                      <div className="p-3 min-w-[280px] group cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0">
+                            {item.icon === 'lock' ? (
+                              <IconLock size={32} className="text-white/60 group-hover:text-[#dc2626] transition-all duration-300" />
+                            ) : (
+                              <Image
+                                src={item.icon}
+                                alt={item.title}
+                                width={32}
+                                height={32}
+                                className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                                unoptimized
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">{item.title}</h3>
+                            <p className="text-white/60 text-[10px] uppercase leading-tight">{item.subtitle}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+            ) : (
+              /* Desktop - Single Block with Small Separators */
+              <div className="inline-flex">
+                <div className="grid grid-cols-5">
+                  {/* Deposit With Crypto */}
+                  <div className="p-3 group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <Image
+                          src="/banners/partners/crypto.svg"
+                          alt="Crypto"
+                          width={32}
+                          height={32}
+                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                          unoptimized
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">DEPOSIT WITH CRYPTO</h3>
+                        <p className="text-white/60 text-[10px] uppercase leading-tight">FAST, EASY & RELIABLE</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* VIP Rewards */}
+                  <div className="p-3 group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <Image
+                          src="/banners/partners/vip-rewards.svg"
+                          alt="VIP Rewards"
+                          width={32}
+                          height={32}
+                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                          unoptimized
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">VIP REWARDS</h3>
+                        <p className="text-white/60 text-[10px] uppercase leading-tight">LEVEL UP BONUSES, BOOSTS & MORE</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bet Big */}
+                  <div className="p-3 group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <Image
+                          src="/banners/partners/bettingicons-coloured.svg"
+                          alt="Bet Big"
+                          width={32}
+                          height={32}
+                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                          unoptimized
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">BET BIG</h3>
+                        <p className="text-white/60 text-[10px] uppercase leading-tight">HIGH LIMITS AND RE-BET FUNCTIONALITY</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fastest Payouts */}
+                  <div className="p-3 group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <Image
+                          src="/banners/partners/live-betting.svg"
+                          alt="Fast Payouts"
+                          width={32}
+                          height={32}
+                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                          unoptimized
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">FASTEST PAYOUTS</h3>
+                        <p className="text-white/60 text-[10px] uppercase leading-tight">PAYOUTS WITHIN MINUTES</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Safe & Secure */}
+                  <div className="p-3 group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <IconLock size={32} className="text-white/60 group-hover:text-[#dc2626] transition-all duration-300" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">SAFE & SECURE</h3>
+                        <p className="text-white/60 text-[10px] uppercase leading-tight">TRUSTED & PROTECTED</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -2964,10 +3132,9 @@ function HomePageContent() {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {Array.from({ length: 30 }).map((_, index) => {
                   const gameNames = ['Gold Nugget Rush', 'Mega Fortune', 'Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza', 'Razor Shark', 'Sweet Bonanza', 'Gates of Olympus', 'Big Bass Bonanza', 'The Dog House', 'Wolf Gold', 'Fire Strike', 'Chilli Heat', 'Gold Nugget Rush', 'Mega Fortune', 'Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers']
-                  const providers = ['NetEnt', 'Pragmatic Play', 'Microgaming', 'BetSoft', 'Evolution Gaming']
                   const imageSrc = squareTileImages[index % squareTileImages.length]
                   const gameName = gameNames[index % gameNames.length]
-                  const provider = providers[index % providers.length]
+                  const tileVendor = getTileVendor(index)
                   
                   return (
                     <div
@@ -2977,7 +3144,7 @@ function HomePageContent() {
                         setSelectedGame({
                           title: gameName,
                           image: imageSrc,
-                          provider: provider,
+                          provider: tileVendor,
                           features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
                         })
                         setSimilarGamesDrawerOpen(false)
@@ -2992,6 +3159,7 @@ function HomePageContent() {
                           sizes="(max-width: 640px) 50vw, 50vw"
                         />
                       )}
+                      <GameTagBadge tag={getMetaTag(index)} vendor={tileVendor} />
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                     </div>
                   )

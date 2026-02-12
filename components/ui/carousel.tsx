@@ -79,24 +79,11 @@ const Carousel = React.forwardRef<
     }, [])
 
     const scrollPrev = React.useCallback(() => {
-      if (!api) return
-      // Scroll by 2 slides with smooth animation
-      const selectedIndex = api.selectedScrollSnap()
-      const targetIndex = Math.max(0, selectedIndex - 2)
-      if (targetIndex !== selectedIndex) {
-        api.scrollTo(targetIndex)
-      }
+      api?.scrollPrev()
     }, [api])
 
     const scrollNext = React.useCallback(() => {
-      if (!api) return
-      // Scroll by 2 slides with smooth animation
-      const selectedIndex = api.selectedScrollSnap()
-      const slideCount = api.scrollSnapList().length
-      const targetIndex = Math.min(slideCount - 1, selectedIndex + 2)
-      if (targetIndex !== selectedIndex) {
-        api.scrollTo(targetIndex)
-      }
+      api?.scrollNext()
     }, [api])
 
     const handleKeyDown = React.useCallback(
