@@ -64,27 +64,28 @@ const DrawerOverlay = React.forwardRef<
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
 const DrawerHandle = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Handle>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Handle> & {
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & {
     variant?: "default" | "light" | "dark"
   }
 >(({ className, variant = "default", ...props }, ref) => {
   const bgColor = variant === "light" 
-    ? "[&>span]:bg-gray-400/60" 
+    ? "bg-gray-400/60" 
     : variant === "dark" 
-    ? "[&>span]:bg-white/40" 
-    : "[&>span]:bg-gray-300/60"
+    ? "bg-white/40" 
+    : "bg-muted-foreground/20"
 
   return (
-    <DrawerPrimitive.Handle 
+    <div
       ref={ref}
       className={cn(
-        "!mt-0 !mb-0 pt-3 pb-2 flex-shrink-0 cursor-grab active:cursor-grabbing",
-        bgColor,
+        "flex w-full items-center justify-center pt-3 pb-2 flex-shrink-0",
         className
       )}
       {...props}
-    />
+    >
+      <div className={cn("h-1.5 w-[100px] rounded-full", bgColor)} />
+    </div>
   )
 })
 DrawerHandle.displayName = "DrawerHandle"
