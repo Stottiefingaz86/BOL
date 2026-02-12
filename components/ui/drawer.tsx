@@ -63,41 +63,41 @@ const DrawerOverlay = React.forwardRef<
 ))
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 
-const DrawerHandle = ({ 
-  className,
-  variant = "default",
-  ...props 
-}: React.HTMLAttributes<HTMLDivElement> & {
-  variant?: "default" | "light" | "dark"
-}) => {
+const DrawerHandle = React.forwardRef<
+  React.ElementRef<typeof DrawerPrimitive.Handle>,
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Handle> & {
+    variant?: "default" | "light" | "dark"
+  }
+>(({ className, variant = "default", ...props }, ref) => {
   const bgColor = variant === "light" 
-    ? "bg-gray-400/60" 
+    ? "[&>span]:bg-gray-400/60" 
     : variant === "dark" 
-    ? "bg-white/60" 
-    : "bg-white/60"
+    ? "[&>span]:bg-white/40" 
+    : "[&>span]:bg-gray-300/60"
 
   return (
-    <div 
+    <DrawerPrimitive.Handle 
+      ref={ref}
       className={cn(
-        "w-12 h-1.5 rounded-full mx-auto mt-3 mb-2 flex-shrink-0",
+        "!mt-0 !mb-0 pt-3 pb-2 flex-shrink-0 cursor-grab active:cursor-grabbing",
         bgColor,
         className
       )}
-      style={{ display: 'block', visibility: 'visible', opacity: 1, zIndex: 1000, position: 'relative', pointerEvents: 'auto' }}
       {...props}
     />
   )
-}
+})
 DrawerHandle.displayName = "DrawerHandle"
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean }
->(({ className, children, noOverlay = false, ...props }, ref) => {
-  // Never render overlay - always disabled to allow background clicks
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean; showOverlay?: boolean }
+>(({ className, children, noOverlay = false, showOverlay = false, ...props }, ref) => {
   return (
     <DrawerPortal>
-      {/* Overlay completely disabled to allow background interactions */}
+      {showOverlay && (
+        <DrawerOverlay />
+      )}
       <DrawerPrimitive.Content
         ref={ref}
         className={cn(

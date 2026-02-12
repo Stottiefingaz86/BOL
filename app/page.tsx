@@ -1229,6 +1229,16 @@ function HomePageContent() {
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
+
+  // Mutual exclusion helpers — only one drawer open at a time
+  const openAccountDrawer = useCallback(() => {
+    setVipDrawerOpen(false)
+    setAccountDrawerOpen(true)
+  }, [])
+  const openVipDrawer = useCallback(() => {
+    setAccountDrawerOpen(false)
+    setVipDrawerOpen(true)
+  }, [])
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollVipLeft, setCanScrollVipLeft] = useState(false)
@@ -1797,7 +1807,7 @@ function HomePageContent() {
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                setVipDrawerOpen(true)
+                openVipDrawer()
               }}
               className={cn(
                 "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
@@ -1823,7 +1833,7 @@ function HomePageContent() {
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              setAccountDrawerOpen(true)
+              openAccountDrawer()
             }}
             className={cn(
               "flex items-center rounded-small transition-colors group bg-white/5 hover:bg-white/10",
@@ -1848,7 +1858,7 @@ function HomePageContent() {
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                setVipDrawerOpen(true)
+                openVipDrawer()
               }}
               className={cn(
                 "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
@@ -3106,12 +3116,21 @@ function HomePageContent() {
 
         {/* Similar Games Drawer */}
         <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
-          <DrawerContent className={cn(
-            "bg-[#1a1a1a] text-white flex flex-col relative",
-            isMobile 
-              ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[90vh] !max-h-[90vh] overflow-hidden"
-              : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
-          )}>
+          <DrawerContent 
+            showOverlay={isMobile}
+            className={cn(
+              "bg-[#1a1a1a] text-white flex flex-col relative",
+              isMobile 
+                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
+                : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
+            )}
+            style={isMobile ? {
+              height: '80vh',
+              maxHeight: '80vh',
+              top: 'auto',
+              bottom: 0,
+            } : undefined}
+          >
             {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
@@ -3349,14 +3368,21 @@ function HomePageContent() {
           shouldScaleBackground={false}
         >
           <DrawerContent 
+            showOverlay={isMobile}
             className={cn(
               "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
               isMobile 
-                ? "border-t border-gray-200 rounded-t-[10px]"
+                ? "border-t border-gray-200 rounded-t-[10px] !h-[80vh] !max-h-[80vh]"
                 : "border-l border-gray-200"
             )}
+            style={isMobile ? {
+              height: '80vh',
+              maxHeight: '80vh',
+              top: 'auto',
+              bottom: 0,
+            } : undefined}
           >
-            {isMobile && <DrawerHandle />}
+            {isMobile && <DrawerHandle variant="light" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
               <div className="flex items-center justify-between gap-3">
                 {accountDrawerView === 'notifications' ? (
@@ -3505,8 +3531,7 @@ function HomePageContent() {
                       variant="ghost" 
                       className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
                       onClick={() => {
-                        setAccountDrawerOpen(false)
-                        setVipDrawerOpen(true)
+                        openVipDrawer()
                       }}
                     >
                       <IconCrown className="w-5 h-5 mr-3 text-gray-700" />
@@ -3569,15 +3594,16 @@ function HomePageContent() {
           shouldScaleBackground={false}
         >
           <DrawerContent 
+            showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
               isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[90vh] !max-h-[90vh] overflow-hidden"
+                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
                 : "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
-              height: '90vh',
-              maxHeight: '90vh',
+              height: '80vh',
+              maxHeight: '80vh',
               top: 'auto',
               bottom: 0,
               marginTop: 0,

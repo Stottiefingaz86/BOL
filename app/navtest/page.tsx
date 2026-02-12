@@ -5818,6 +5818,23 @@ function NavTestPageContent() {
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
+
+  // Mutual exclusion helpers — only one drawer open at a time
+  const openAccountDrawer = useCallback(() => {
+    setVipDrawerOpen(false)
+    setDepositDrawerOpen(false)
+    setAccountDrawerOpen(true)
+  }, [])
+  const openVipDrawer = useCallback(() => {
+    setAccountDrawerOpen(false)
+    setDepositDrawerOpen(false)
+    setVipDrawerOpen(true)
+  }, [])
+  const openDepositDrawer = useCallback(() => {
+    setAccountDrawerOpen(false)
+    setVipDrawerOpen(false)
+    setDepositDrawerOpen(true)
+  }, [])
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollVipLeft, setCanScrollVipLeft] = useState(false)
@@ -6509,7 +6526,7 @@ function NavTestPageContent() {
                   e.preventDefault()
                   e.stopPropagation()
                   console.log('VIP button clicked')
-                  setVipDrawerOpen(true)
+                  openVipDrawer()
                 }}
                 className={cn(
                   "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
@@ -6536,7 +6553,7 @@ function NavTestPageContent() {
                 e.preventDefault()
                 e.stopPropagation()
                 console.log('Account button clicked')
-                setAccountDrawerOpen(true)
+                openAccountDrawer()
               }}
               className={cn(
                 "flex items-center rounded-small transition-colors group",
@@ -6576,7 +6593,7 @@ function NavTestPageContent() {
                   e.preventDefault()
                   e.stopPropagation()
                   console.log('VIP button clicked')
-                  setVipDrawerOpen(true)
+                  openVipDrawer()
                 }}
                 className={cn(
                   "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
@@ -6599,7 +6616,7 @@ function NavTestPageContent() {
                   e.preventDefault()
                   e.stopPropagation()
                   console.log('Deposit button clicked, setting state to true')
-                  setDepositDrawerOpen(true)
+                  openDepositDrawer()
                 }}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-small transition-colors group",
@@ -6619,15 +6636,16 @@ function NavTestPageContent() {
         {/* Deposit Drawer - Rendered outside header to avoid conflicts */}
         <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
+                showOverlay={isMobile}
                 className={cn(
                   "bg-white text-gray-900 flex flex-col relative",
                   isMobile 
-                    ? "w-full border-t border-gray-200 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[90vh] !max-h-[90vh]"
+                    ? "w-full border-t border-gray-200 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh]"
                     : "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
                 )}
                 style={isMobile ? {
-                  height: '90vh',
-                  maxHeight: '90vh',
+                  height: '80vh',
+                  maxHeight: '80vh',
                   top: 'auto',
                   bottom: 0,
                   marginTop: 0,
@@ -6641,7 +6659,7 @@ function NavTestPageContent() {
                   overflow: 'hidden'
                 }}
               >
-                {isMobile && <DrawerHandle />}
+                {isMobile && <DrawerHandle variant="light" />}
             
                 {!isMobile && (
               <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">
@@ -7436,10 +7454,10 @@ function NavTestPageContent() {
                                         setShowAllGames(true)
                                         setShowSports(false)
                                       } else if (item.label === 'Loyalty Hub') {
-                                        setVipDrawerOpen(true)
+                                        openVipDrawer()
                                         setShowSports(false)
                                       } else if (item.label === 'Banking') {
-                                        setDepositDrawerOpen(true)
+                                        openDepositDrawer()
                                         setShowSports(false)
                                       } else if (item.label === 'Need Help') {
                                         // Handle need help - could open a help modal or navigate
@@ -7914,7 +7932,7 @@ function NavTestPageContent() {
                           className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
                           style={{ width: '200px', height: '140px' }}
                           onClick={() => {
-                            setVipDrawerOpen(true)
+                            openVipDrawer()
                           }}
                         >
                           <CardContent className="p-4 relative z-10">
@@ -9498,31 +9516,33 @@ function NavTestPageContent() {
         <Drawer 
           open={accountDrawerOpen} 
           onOpenChange={(open) => {
-            console.log('Account Drawer onOpenChange:', open, 'Current state:', accountDrawerOpen)
             setAccountDrawerOpen(open)
             if (!open) {
-              // Reset to account view when drawer closes
               setAccountDrawerView('account')
             } else {
-              // Close other drawers when account drawer opens
-              if (isMobile) {
-                setDepositDrawerOpen(false)
-                setVipDrawerOpen(false)
-              }
+              setDepositDrawerOpen(false)
+              setVipDrawerOpen(false)
             }
           }}
           direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
         >
           <DrawerContent 
+            showOverlay={isMobile}
             className={cn(
               "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
               isMobile 
-                ? "border-t border-gray-200 rounded-t-[10px]"
+                ? "border-t border-gray-200 rounded-t-[10px] !h-[80vh] !max-h-[80vh]"
                 : "border-l border-gray-200"
             )}
+            style={isMobile ? {
+              height: '80vh',
+              maxHeight: '80vh',
+              top: 'auto',
+              bottom: 0,
+            } : undefined}
           >
-            {isMobile && <DrawerHandle />}
+            {isMobile && <DrawerHandle variant="light" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
               <div className="flex items-center justify-between gap-3">
                 {accountDrawerView === 'notifications' ? (
@@ -9601,8 +9621,7 @@ function NavTestPageContent() {
                       variant="ghost" 
                       className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
                       onClick={() => {
-                        setAccountDrawerOpen(false)
-                        setDepositDrawerOpen(true)
+                        openDepositDrawer()
                       }}
                     >
                       <IconCreditCard className="w-5 h-5 mr-3 text-gray-700" />
@@ -9759,15 +9778,16 @@ function NavTestPageContent() {
           shouldScaleBackground={false}
         >
           <DrawerContent 
+            showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
               isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[90vh] !max-h-[90vh] overflow-hidden"
+                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
                 : "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
-              height: '90vh',
-              maxHeight: '90vh',
+              height: '80vh',
+              maxHeight: '80vh',
               top: 'auto',
               bottom: 0,
               marginTop: 0,
@@ -10246,7 +10266,7 @@ function NavTestPageContent() {
                             <div className="py-2">
                               <button
                                 onClick={() => {
-                                  setDepositDrawerOpen(true)
+                                  openDepositDrawer()
                                   setGameLauncherMenuOpen(false)
                                 }}
                                 className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
@@ -10441,12 +10461,21 @@ function NavTestPageContent() {
 
         {/* Similar Games Drawer */}
         <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
-          <DrawerContent className={cn(
-            "bg-[#1a1a1a] text-white flex flex-col relative",
-            isMobile 
-              ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[90vh] !max-h-[90vh] overflow-hidden"
-              : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
-          )}>
+          <DrawerContent 
+            showOverlay={isMobile}
+            className={cn(
+              "bg-[#1a1a1a] text-white flex flex-col relative",
+              isMobile 
+                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
+                : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
+            )}
+            style={isMobile ? {
+              height: '80vh',
+              maxHeight: '80vh',
+              top: 'auto',
+              bottom: 0,
+            } : undefined}
+          >
             {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
