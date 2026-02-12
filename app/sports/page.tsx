@@ -8988,7 +8988,8 @@ function NavTestPageContent() {
             
                 {!isMobile && (
               <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">
-                <div className="flex items-center justify-end">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-gray-900">Quick Deposit</h2>
                   <DrawerClose asChild>
                     <button className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
                       <IconX className="h-4 w-4 text-gray-600" />
@@ -11962,9 +11963,10 @@ function NavTestPageContent() {
           >
             {isMobile && <DrawerHandle variant="dark" />}
             
-            {/* Close button for desktop only */}
+            {/* Title + Close button for desktop only */}
             {!isMobile && (
-              <div className="relative px-4 pt-2 pb-2 flex-shrink-0 flex items-center justify-end z-50">
+              <div className="relative px-4 pt-4 pb-2 flex-shrink-0 flex items-center justify-between z-50">
+                <h2 className="text-base font-semibold text-white">VIP Hub</h2>
                 <DrawerClose asChild>
                   <button className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0">
                     <IconX className="h-4 w-4 text-white/70" />

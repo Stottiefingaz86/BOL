@@ -105,6 +105,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { UsageBasedPricing } from '@/components/billingsdk/usage-based-pricing'
+import { Input } from '@/components/ui/input'
 
 // Helper function to get vendor icon path
 const getVendorIconPath = (vendorName: string): string => {
@@ -1229,15 +1231,36 @@ function HomePageContent() {
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
+  const [depositDrawerOpen, setDepositDrawerOpen] = useState(false)
+  const [depositAmount, setDepositAmount] = useState(25)
+  const [useManualAmount, setUseManualAmount] = useState(false)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bitcoin')
+  const [showDepositConfirmation, setShowDepositConfirmation] = useState(false)
+  const [depositStep, setDepositStep] = useState<'started' | 'processing' | 'almost' | 'complete'>('started')
+  const [transactionId, setTransactionId] = useState<string>('')
+  const [isDepositLoading, setIsDepositLoading] = useState(false)
+  const [stepLoading, setStepLoading] = useState<{started: boolean, processing: boolean, almost: boolean, complete: boolean}>({
+    started: false,
+    processing: false,
+    almost: false,
+    complete: false
+  })
 
   // Mutual exclusion helpers — only one drawer open at a time
   const openAccountDrawer = useCallback(() => {
     setVipDrawerOpen(false)
+    setDepositDrawerOpen(false)
     setAccountDrawerOpen(true)
   }, [])
   const openVipDrawer = useCallback(() => {
     setAccountDrawerOpen(false)
+    setDepositDrawerOpen(false)
     setVipDrawerOpen(true)
+  }, [])
+  const openDepositDrawer = useCallback(() => {
+    setAccountDrawerOpen(false)
+    setVipDrawerOpen(false)
+    setDepositDrawerOpen(true)
   }, [])
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
@@ -1256,6 +1279,23 @@ function HomePageContent() {
     setVipDrawerOpen(open)
     if (!open) {
       setVipActiveTab('VIP Hub')
+    } else {
+      setAccountDrawerOpen(false)
+      setDepositDrawerOpen(false)
+    }
+  }, [])
+
+  const handleDepositDrawerOpenChange = useCallback((open: boolean) => {
+    setDepositDrawerOpen(open)
+    if (!open) {
+      setShowDepositConfirmation(false)
+      setDepositStep('started')
+      setTransactionId('')
+      setIsDepositLoading(false)
+      setStepLoading({started: false, processing: false, almost: false, complete: false})
+    } else {
+      setAccountDrawerOpen(false)
+      setVipDrawerOpen(false)
     }
   }, [])
   
@@ -1357,22 +1397,9 @@ function HomePageContent() {
     return () => clearInterval(interval)
   }, [])
   
-  // Generate mock activity data - mix sports and casino
+  // Generate mock activity data - casino only
   const generateActivity = useCallback(() => {
     const users = ['Gurvinderdeo', 'Eruyarr4545', 'JadrankaB', 'VUDEMMADHU', 'Dzikiti123', 'Player1', 'GamerX', 'LuckyBet', 'HighRoller', 'CasinoKing']
-    const sportsEvents = [
-      { name: 'Ikorodu City - Plateau United', icon: 'football' as const },
-      { name: 'Borussia Dortmund - Sporting CP', icon: 'football' as const },
-      { name: 'Lakers vs Warriors', icon: 'basketball' as const },
-      { name: 'Alcaraz, Carlos - Nardi, L.', icon: 'tennis' as const },
-      { name: 'Paris Saint-Germain - Stade Rennais', icon: 'football' as const },
-      { name: 'Pakistan - New Zealand', icon: 'football' as const },
-      { name: 'Koby Khalil - Isaac', icon: 'basketball' as const },
-    ]
-    const esportsEvents = [
-      { name: 'BetBoom Team - Shopify Rebellion', icon: 'esports' as const },
-      { name: 'Xtreme Gaming - Heroic', icon: 'esports' as const },
-    ]
     const casinoGames = [
       { name: 'Starburst', icon: 'casino' as const, image: squareTileImages[0] },
       { name: 'Book of Dead', icon: 'casino' as const, image: squareTileImages[1] },
@@ -1387,18 +1414,7 @@ function HomePageContent() {
     const now = new Date()
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
     
-    // Randomly choose sports or casino (70% sports, 30% casino)
-    const isCasino = Math.random() < 0.3
-    const isEsports = !isCasino && Math.random() < 0.2
-    
-    let eventData
-    if (isCasino) {
-      eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
-    } else if (isEsports) {
-      eventData = esportsEvents[Math.floor(Math.random() * esportsEvents.length)]
-    } else {
-      eventData = sportsEvents[Math.floor(Math.random() * sportsEvents.length)]
-    }
+    const eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
     
     const user = users[Math.floor(Math.random() * users.length)]
     const isHidden = Math.random() < 0.6 // 60% chance of being hidden
@@ -1408,24 +1424,22 @@ function HomePageContent() {
       ? (Math.random() * 15000 + 1000).toFixed(2)
       : (Math.random() * 5000 + 10).toFixed(2)
     
-    const odds = isCasino ? undefined : (Math.random() * 2 + 1).toFixed(2)
-    
     // For casino games, calculate win amount (60% chance of winning)
-    const winAmount = isCasino && Math.random() > 0.4
+    const winAmount = Math.random() > 0.4
       ? (parseFloat(betAmount) * (Math.random() * 5 + 1)).toFixed(2)
       : undefined
     
     return {
-      id: `${isCasino ? 'casino' : 'sports'}-${Date.now()}-${Math.random()}`,
-      type: isCasino ? 'casino' as const : 'sports' as const,
+      id: `casino-${Date.now()}-${Math.random()}`,
+      type: 'casino' as const,
       event: eventData.name,
       user: displayUser,
       time: timeStr,
-      odds,
+      odds: undefined,
       betAmount: `$${parseFloat(betAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       winAmount: winAmount ? `$${parseFloat(winAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined,
       icon: eventData.icon,
-      gameImage: isCasino && 'image' in eventData ? eventData.image : undefined
+      gameImage: eventData.image
     }
   }, [activityTab])
   
@@ -1661,7 +1675,7 @@ function HomePageContent() {
               { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Live Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { window.location.href = '/poker'; setQuickLinksOpen(false); } },
-              { label: 'VIP Rewards', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
+              { label: 'VIP Rewards', onClick: () => { router.push('/casino?vip=true'); setQuickLinksOpen(false); } },
               { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
             ].map((item) => (
               <button
@@ -1731,6 +1745,14 @@ function HomePageContent() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
+                    onClick={() => window.location.href = '/live-betting'}
+                  >
+                    Live Betting
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
                     className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
                     onClick={() => router.push('/casino')}
                   >
@@ -1740,9 +1762,9 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
-                    onClick={() => window.location.href = '/live-betting'}
+                    onClick={() => router.push('/casino')}
                   >
-                    Live Betting
+                    Live Casino
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -1877,6 +1899,7 @@ function HomePageContent() {
           {!isMobile && (
             <Button
               variant="ghost"
+              onClick={openDepositDrawer}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-small transition-colors group bg-white/5 hover:bg-white/10 text-xs font-semibold text-white cursor-pointer"
               style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
             >
@@ -2773,33 +2796,16 @@ function HomePageContent() {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-white/70 font-medium text-xs">Event</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
                         <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
                         <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Odds</TableHead>
                         <TableHead className="text-white/70 font-medium text-xs">Bet Amount</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Win Amount</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                     <AnimatePresence mode="popLayout">
                       {activityFeed.map((activity, index) => {
-                        const getEventIcon = () => {
-                          switch (activity.icon) {
-                            case 'football':
-                              return <IconBallFootball className="w-4 h-4 text-white/70" />
-                            case 'basketball':
-                              return <IconBallFootball className="w-4 h-4 text-white/70" />
-                            case 'tennis':
-                              return <IconBallFootball className="w-4 h-4 text-white/70" />
-                            case 'esports':
-                              return <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                            case 'casino':
-                              return <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                            default:
-                              return <IconBallFootball className="w-4 h-4 text-white/70" />
-                          }
-                        }
-                        
                         return (
                           <motion.tr
                             key={activity.id}
@@ -2815,7 +2821,7 @@ function HomePageContent() {
                           >
                             <TableCell className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                {activity.type === 'casino' && activity.gameImage ? (
+                                {activity.gameImage ? (
                                   <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
                                     <Image
                                       src={activity.gameImage}
@@ -2828,15 +2834,12 @@ function HomePageContent() {
                                     />
                                   </div>
                                 ) : (
-                                  getEventIcon()
+                                  <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
                                 )}
                                 <span 
-                                  className={cn(
-                                    "text-white text-sm truncate max-w-[200px]",
-                                    activity.type === 'casino' && "cursor-pointer hover:text-white/80 transition-colors"
-                                  )}
+                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
                                   onClick={() => {
-                                    if (activity.type === 'casino' && activity.gameImage) {
+                                    if (activity.gameImage) {
                                       setSelectedGame({
                                         title: activity.event,
                                         image: activity.gameImage
@@ -2860,24 +2863,17 @@ function HomePageContent() {
                               <span className="text-white/60 text-sm">{activity.time}</span>
                             </TableCell>
                             <TableCell className="py-3 px-4">
-                              {activity.odds ? (
-                                <span className="text-white text-sm">{activity.odds}</span>
+                              <div className="flex items-center gap-1.5">
+                                <IconCoins className="w-3.5 h-3.5 text-green-400" />
+                                <span className="text-white text-sm font-medium">{activity.betAmount}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3 px-4">
+                              {activity.winAmount ? (
+                                <span className="text-green-400 text-sm font-medium">{activity.winAmount}</span>
                               ) : (
                                 <span className="text-white/30 text-sm">-</span>
                               )}
-                            </TableCell>
-                            <TableCell className="py-3 px-4">
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-1.5">
-                                  <IconCoins className="w-3.5 h-3.5 text-green-400" />
-                                  <span className="text-white text-sm font-medium">{activity.betAmount}</span>
-                                </div>
-                                {activity.type === 'casino' && activity.winAmount && (
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-green-400 text-xs font-medium">Won: {activity.winAmount}</span>
-                                  </div>
-                                )}
-                              </div>
                             </TableCell>
                           </motion.tr>
                         )
@@ -2952,6 +2948,7 @@ function HomePageContent() {
                               <button
                                 onClick={() => {
                                   setGameLauncherMenuOpen(false)
+                                  openDepositDrawer()
                                 }}
                                 className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
                               >
@@ -3390,6 +3387,9 @@ function HomePageContent() {
             setAccountDrawerOpen(open)
             if (!open) {
               setAccountDrawerView('account')
+            } else {
+              setVipDrawerOpen(false)
+              setDepositDrawerOpen(false)
             }
           }}
           direction={isMobile ? "bottom" : "right"}
@@ -3488,6 +3488,10 @@ function HomePageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        openDepositDrawer()
+                      }}
                     >
                       <IconCreditCard className="w-5 h-5 mr-3 text-gray-700" />
                       <span className="flex-1 text-left text-gray-900">Deposit</span>
@@ -3647,8 +3651,10 @@ function HomePageContent() {
           >
             {isMobile && <DrawerHandle variant="dark" />}
             
+            {/* Title + Close button for desktop only */}
             {!isMobile && (
-              <div className="relative px-4 pt-2 pb-2 flex-shrink-0 flex items-center justify-end z-50">
+              <div className="relative px-4 pt-4 pb-2 flex-shrink-0 flex items-center justify-between z-50">
+                <h2 className="text-base font-semibold text-white">VIP Hub</h2>
                 <DrawerClose asChild>
                   <button className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0">
                     <IconX className="h-4 w-4 text-white/70" />
@@ -3675,6 +3681,424 @@ function HomePageContent() {
               setBoostClaimMessage={setBoostClaimMessage}
               onBoostClaimed={handleBoostClaimed}
             />
+          </DrawerContent>
+        </Drawer>
+
+        {/* Deposit Drawer */}
+        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
+          <DrawerContent 
+                showOverlay={isMobile}
+                className={cn(
+                  "bg-white text-gray-900 flex flex-col relative",
+                  isMobile 
+                    ? "w-full border-t border-gray-200 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh]"
+                    : "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
+                )}
+                style={isMobile ? {
+                  height: '80vh',
+                  maxHeight: '80vh',
+                  top: 'auto',
+                  bottom: 0,
+                  marginTop: 0,
+                  marginBottom: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                } : {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                }}
+              >
+                {isMobile && <DrawerHandle variant="light" />}
+            
+                {!isMobile && (
+              <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-gray-900">Quick Deposit</h2>
+                  <DrawerClose asChild>
+                    <button className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
+                      <IconX className="h-4 w-4 text-gray-600" />
+                    </button>
+                  </DrawerClose>
+              </div>
+            </DrawerHeader>
+            )}
+            <div className={cn("w-full overflow-y-auto flex-1 min-h-0", isMobile ? "px-4 pt-4 pb-6" : "px-4 pt-4 pb-4")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 20px)' : undefined }}>
+              {!showDepositConfirmation ? (
+              <>
+              <Card className="bg-white border border-gray-200 shadow-sm">
+                <CardContent className={cn(isMobile ? "p-4" : "p-5")}>
+                  {/* Saved Methods Dropdown */}
+                  <div className={cn(isMobile ? "mb-4" : "mb-5")}>
+                    <div className={cn("flex items-center justify-between", isMobile ? "mb-3" : "mb-3")}>
+                      <label className="block text-sm font-semibold text-gray-900">
+                        Saved Methods
+                      </label>
+                      <button
+                        onClick={() => {
+                          console.log("Add new deposit method clicked");
+                        }}
+                        className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                      >
+                        + Add Method
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <div className="relative">
+                        <select
+                          value={selectedPaymentMethod}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                          className="w-full px-4 py-3.5 bg-white border-2 border-gray-200 rounded-lg text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 appearance-none cursor-pointer hover:border-gray-300 transition-all shadow-sm pr-12"
+                        >
+                          <option value="bitcoin">Bitcoin</option>
+                          <option value="card1">Mastercard **** 0740</option>
+                          <option value="card2">Visa **** 5234</option>
+                          <option value="card3">American Express **** 1234</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <IconChevronDown className="h-4 w-4 text-gray-600" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator className={cn("bg-gray-200", isMobile ? "my-4" : "my-5")} />
+
+                  {/* Deposit Amount */}
+                  <div>
+                    {!useManualAmount ? (
+                      <>
+                        <UsageBasedPricing
+                          className="w-full"
+                          min={25}
+                          max={10000}
+                          snapTo={25}
+                          currency={currentBrand.symbol}
+                          basePrice={0}
+                          includedCredits={0}
+                          value={depositAmount}
+                          onChange={setDepositAmount}
+                          onChangeEnd={(v) => {
+                            console.log("Deposit amount committed:", v);
+                            setDepositAmount(v);
+                          }}
+                          title=""
+                          subtitle=""
+                        />
+                        <div className="flex items-center justify-end mt-3">
+                          <button
+                            onClick={() => setUseManualAmount(true)}
+                            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                          >
+                            + Add Manual Amount
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className={cn("space-y-3", isMobile && "space-y-2")}>
+                        <div>
+                          <label className={cn("block font-semibold text-gray-900 mb-2", isMobile ? "text-xs" : "text-sm")}>
+                            Deposit Amount
+                          </label>
+                          <Input
+                            type="number"
+                            min={25}
+                            max={10000}
+                            step={0.01}
+                            value={depositAmount}
+                            onChange={(e) => {
+                              const value = parseFloat(e.target.value) || 0;
+                              if (value >= 25 && value <= 10000) {
+                                setDepositAmount(value);
+                              } else if (value > 10000) {
+                                setDepositAmount(10000);
+                              } else if (value < 25 && e.target.value !== '') {
+                                setDepositAmount(25);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const value = parseFloat(e.target.value) || 25;
+                              if (value < 25) {
+                                setDepositAmount(25);
+                              } else if (value > 10000) {
+                                setDepositAmount(10000);
+                              } else {
+                                setDepositAmount(value);
+                              }
+                            }}
+                            className={cn(
+                              "w-full bg-white border-2 border-gray-200 rounded-lg text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 hover:border-gray-300 transition-all",
+                              isMobile ? "px-3 py-2.5 text-sm" : "px-4 py-3 text-base"
+                            )}
+                            placeholder="Enter amount (25 - 10,000)"
+                          />
+                          <p className={cn("text-gray-500 mt-1.5", isMobile ? "text-[10px]" : "text-xs")}>
+                            Min. {currentBrand.symbol}25 / Max. {currentBrand.symbol}10,000
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-end">
+                          <button
+                            onClick={() => setUseManualAmount(false)}
+                            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                          >
+                            Use Slider
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator className={cn("bg-gray-200", isMobile ? "my-6" : "my-8")} />
+
+                  {/* Deposit Summary */}
+                  <div>
+                    <div className={cn("bg-gray-50 rounded-lg", isMobile ? "space-y-2 p-3" : "space-y-2 p-4")}>
+                      <div className={cn("flex justify-between", isMobile ? "text-xs" : "text-sm")}>
+                        <span className="text-gray-600">Deposit Amount:</span>
+                        <span className="text-gray-900 font-medium">{currentBrand.symbol}{depositAmount.toFixed(2)}</span>
+                      </div>
+                      <div className={cn("flex justify-between", isMobile ? "text-xs" : "text-sm")}>
+                        <span className="text-gray-600">Fee (9.75%):</span>
+                        <span className="text-gray-900 font-medium">{currentBrand.symbol}{(depositAmount * 0.0975).toFixed(2)}</span>
+                      </div>
+                      <div className={cn("flex justify-between pt-1.5 border-t border-gray-200", isMobile ? "text-sm" : "text-base")}>
+                        <span className="text-gray-900 font-semibold">Total Amount:</span>
+                        <span className="text-gray-900 font-bold">{currentBrand.symbol}{(depositAmount + depositAmount * 0.0975).toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        console.log("Deposit: Proceed with amount:", depositAmount);
+                        setIsDepositLoading(true)
+                        const txId = Math.floor(Math.random() * 10000000).toString()
+                        setTransactionId(txId)
+                        setTimeout(() => {
+                          setIsDepositLoading(false)
+                          setShowDepositConfirmation(true)
+                          setStepLoading({started: true, processing: false, almost: false, complete: false})
+                          setTimeout(() => {
+                            setDepositStep('started')
+                            setStepLoading({started: false, processing: true, almost: false, complete: false})
+                            setTimeout(() => {
+                              setDepositStep('processing')
+                              setStepLoading({started: false, processing: false, almost: true, complete: false})
+                              setTimeout(() => {
+                                setDepositStep('almost')
+                                setStepLoading({started: false, processing: false, almost: false, complete: true})
+                                setTimeout(() => {
+                                  setDepositStep('complete')
+                                  setStepLoading({started: false, processing: false, almost: false, complete: false})
+                                }, 800)
+                              }, 1500)
+                            }, 800)
+                          }, 500)
+                        }, 1000)
+                      }}
+                      disabled={depositAmount < 25 || depositAmount > 10000 || isDepositLoading}
+                      className={cn("w-full bg-[#8BC34A] text-white hover:bg-[#7CB342] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed rounded-md font-semibold transition-colors cursor-pointer", isMobile ? "h-11 mt-4 text-sm" : "h-12 mt-4")}
+                      style={{ pointerEvents: 'auto', zIndex: 10 }}
+                    >
+                      {isDepositLoading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <IconLoader2 className="w-4 h-4 animate-spin" />
+                          <span>Processing...</span>
+                        </div>
+                      ) : (
+                        `DEPOSIT ${currentBrand.symbol}${depositAmount > 0 ? depositAmount.toFixed(2) : "0.00"}`
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Trust Section */}
+              <div className={cn("border-t border-gray-200", isMobile ? "mt-4 pt-4" : "mt-5 pt-5 pb-4")} style={isMobile ? { paddingBottom: '0px', marginBottom: 0 } : undefined}>
+                <div className={cn("flex flex-col items-center", isMobile ? "gap-2" : "gap-2.5")}>
+                  <div className={cn("flex items-center", isMobile ? "gap-2" : "gap-3")}>
+                    <div className={cn("flex items-center text-gray-600", isMobile ? "gap-1" : "gap-1.5")}>
+                      <IconShield className={cn("text-green-600", isMobile ? "w-3 h-3" : "w-3.5 h-3.5")} />
+                      <span className={cn("font-medium", isMobile ? "text-[10px]" : "text-xs")}>SSL Encrypted</span>
+                    </div>
+                    <div className={cn("bg-gray-300", isMobile ? "w-px h-2.5" : "w-px h-3.5")} />
+                    <div className={cn("flex items-center text-gray-600", isMobile ? "gap-1" : "gap-1.5")}>
+                      <IconLock className={cn("text-blue-600", isMobile ? "w-3 h-3" : "w-3.5 h-3.5")} />
+                      <span className={cn("font-medium", isMobile ? "text-[10px]" : "text-xs")}>Secure Payment</span>
+                    </div>
+                  </div>
+                  <p className={cn("text-gray-500 text-center max-w-sm leading-tight", isMobile ? "text-[10px]" : "text-xs")}>
+                    Your payment information is secure and encrypted. We never store your full card details.
+                  </p>
+                </div>
+              </div>
+              </>
+              ) : (
+                /* Deposit Confirmation Screen */
+                <div className="space-y-6">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-bold text-gray-900">Your deposit is on the way...</h2>
+                    <p className="text-gray-500 text-sm">Transaction ID: {transactionId}</p>
+                  </div>
+
+                  <Card className="bg-gray-50 border border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Deposit Amount</span>
+                          <span className="text-lg font-semibold text-gray-900">{currentBrand.symbol}{depositAmount.toFixed(2)}</span>
+                        </div>
+                        <Separator className="bg-gray-200" />
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Payment Method</span>
+                          <span className="text-sm font-medium text-gray-900">
+                            {selectedPaymentMethod === 'bitcoin' ? 'Bitcoin' : 
+                             selectedPaymentMethod === 'card1' ? 'Mastercard **** 0740' :
+                             selectedPaymentMethod === 'card2' ? 'Visa **** 5234' :
+                             selectedPaymentMethod === 'card3' ? 'American Express **** 1234' : selectedPaymentMethod}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                    
+                    {/* Stepper Progress Card */}
+                    <Card className="bg-white border border-gray-200 shadow-sm">
+                      <CardContent className="p-4">
+                        <div className="relative">
+                          <div className="flex items-start justify-between px-1">
+                            {/* Started Step */}
+                            <div className="flex flex-col items-center flex-1 min-w-0">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all ${
+                                depositStep === 'started' || depositStep === 'processing' || depositStep === 'almost' || depositStep === 'complete'
+                                  ? 'bg-[#8BC34A] shadow-sm' : 'bg-gray-200 border-2 border-gray-300'
+                              }`}>
+                                {stepLoading.started ? (
+                                  <IconLoader2 className="w-4 h-4 text-white animate-spin" />
+                                ) : depositStep === 'started' || depositStep === 'processing' || depositStep === 'almost' || depositStep === 'complete' ? (
+                                  <IconCheck className="w-5 h-5 text-white" />
+                                ) : null}
+                              </div>
+                              <span className="text-gray-900 text-xs font-medium whitespace-nowrap">Started</span>
+                            </div>
+                            
+                            <div className={`flex-1 h-1 mt-5 mx-2 transition-all rounded-full ${
+                              depositStep === 'processing' || depositStep === 'almost' || depositStep === 'complete'
+                                ? 'bg-[#8BC34A]' : 'bg-gray-200'
+                            }`} />
+                            
+                            {/* Processing Step */}
+                            <div className="flex flex-col items-center flex-1 min-w-0">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all ${
+                                depositStep === 'processing'
+                                  ? 'bg-white border-2 border-gray-300 shadow-sm' 
+                                  : depositStep === 'almost' || depositStep === 'complete'
+                                  ? 'bg-[#8BC34A] shadow-sm'
+                                  : 'bg-gray-200 border-2 border-gray-300'
+                              }`}>
+                                {stepLoading.processing ? (
+                                  <IconLoader2 className="w-4 h-4 text-gray-900 animate-spin" />
+                                ) : depositStep === 'processing' ? (
+                                  <IconLoader2 className="w-4 h-4 text-gray-900 animate-spin" />
+                                ) : depositStep === 'almost' || depositStep === 'complete' ? (
+                                  <IconCheck className="w-5 h-5 text-white" />
+                                ) : (
+                                  <span className="text-gray-400 text-xs font-bold">B</span>
+                                )}
+                              </div>
+                              <span className={`text-xs font-medium whitespace-nowrap ${
+                                depositStep === 'processing' || depositStep === 'almost' || depositStep === 'complete'
+                                  ? 'text-gray-900' : 'text-gray-500'
+                              }`}>Processing</span>
+                            </div>
+                            
+                            <div className={`flex-1 h-1 mt-5 mx-2 transition-all rounded-full ${
+                              depositStep === 'almost' || depositStep === 'complete'
+                                ? 'bg-[#8BC34A]' : 'bg-gray-200'
+                            }`} />
+                            
+                            {/* Almost Done Step */}
+                            <div className="flex flex-col items-center flex-1 min-w-0">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all ${
+                                depositStep === 'almost' || depositStep === 'complete'
+                                  ? 'bg-[#8BC34A] shadow-sm' : 'bg-gray-200 border-2 border-gray-300'
+                              }`}>
+                                {stepLoading.almost ? (
+                                  <IconLoader2 className="w-4 h-4 text-white animate-spin" />
+                                ) : depositStep === 'almost' || depositStep === 'complete' ? (
+                                  <IconCheck className="w-5 h-5 text-white" />
+                                ) : null}
+                              </div>
+                              <span className={`text-xs font-medium whitespace-nowrap ${
+                                depositStep === 'almost' || depositStep === 'complete'
+                                  ? 'text-gray-900' : 'text-gray-500'
+                              }`}>Almost Done</span>
+                            </div>
+                            
+                            <div className={`flex-1 h-1 mt-5 mx-2 transition-all rounded-full ${
+                              depositStep === 'complete'
+                                ? 'bg-[#8BC34A]' : 'bg-gray-200'
+                            }`} />
+                            
+                            {/* Complete Step */}
+                            <div className="flex flex-col items-center flex-1 min-w-0">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all ${
+                                depositStep === 'complete'
+                                  ? 'bg-[#8BC34A] shadow-sm' : 'bg-gray-200 border-2 border-gray-300'
+                              }`}>
+                                {stepLoading.complete ? (
+                                  <IconLoader2 className="w-4 h-4 text-white animate-spin" />
+                                ) : depositStep === 'complete' ? (
+                                  <IconCheck className="w-5 h-5 text-white" />
+                                ) : null}
+                              </div>
+                              <span className={`text-xs font-medium whitespace-nowrap ${
+                                depositStep === 'complete'
+                                  ? 'text-gray-900' : 'text-gray-500'
+                              }`}>Complete</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Play Now Button */}
+                    {depositStep === 'complete' && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setShowDepositConfirmation(false)
+                          setDepositDrawerOpen(false)
+                          setDepositStep('started')
+                          setStepLoading({started: false, processing: false, almost: false, complete: false})
+                          setTimeout(() => {
+                            const newBalance = balance + depositAmount
+                            setBalance(newBalance)
+                            const startBalance = displayBalance
+                            const endBalance = newBalance
+                            const duration = 1000
+                            const startTime = Date.now()
+                            const animate = () => {
+                              const elapsed = Date.now() - startTime
+                              const progress = Math.min(elapsed / duration, 1)
+                              const easeOutCubic = 1 - Math.pow(1 - progress, 3)
+                              const currentBalance = Math.round(startBalance + (endBalance - startBalance) * easeOutCubic)
+                              setDisplayBalance(currentBalance)
+                              if (progress < 1) {
+                                requestAnimationFrame(animate)
+                              }
+                            }
+                            requestAnimationFrame(animate)
+                          }, 300)
+                        }}
+                        className="w-full h-11 mt-4 border-2 border-gray-300 text-gray-900 hover:bg-gray-50 hover:border-gray-400 rounded-md font-semibold transition-colors"
+                      >
+                        Play Now
+                      </Button>
+                    )}
+                </div>
+              )}
+            </div>
           </DrawerContent>
         </Drawer>
       </div>
