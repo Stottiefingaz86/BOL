@@ -1903,94 +1903,122 @@ function HomePageContent() {
           style={{ overflow: 'hidden' }}
         />
         
-        {/* Hero Banner Section - Full Width Carousel */}
-        <div className={cn("py-4 md:py-6", isMobile ? "px-3" : "px-6")}>
-          <Carousel className="w-full relative" opts={{ align: 'start', loop: false, duration: 15 }}>
-            {!isMobile && (
-              <>
-                <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-              </>
-            )}
-            <CarouselContent className="ml-0 mr-0">
-              {/* Banner 1 - Originals */}
-              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Image
-                    src="/banners/ori.svg"
-                    alt="Originals Banner"
-                    fill
-                    className="object-cover"
-                    priority
-                    quality={100}
-                    unoptimized
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-              {/* Banner 2 */}
-              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Image
-                    src="/banners/banner1.svg"
-                    alt="Hero Banner"
-                    fill
-                    className="object-cover"
-                    priority
-                    quality={100}
-                    unoptimized
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-              {/* Banner 3 */}
-              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                <div className={cn("relative w-full overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Image
-                    src="/banners/banner12.svg"
-                    alt="Banner 2"
-                    fill
-                    className="object-cover"
-                    priority
-                    quality={100}
-                    unoptimized
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-              {/* Banner 4 - Bracket */}
-              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Image
-                    src="/banners/bracket.svg"
-                    alt="Bracket Banner"
-                    fill
-                    className="object-cover"
-                    priority
-                    quality={100}
-                    unoptimized
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-              {/* Banner 5 */}
-              <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                <div className={cn("relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden", isMobile ? "rounded-xl pr-3" : "rounded-2xl pr-4")} style={{ aspectRatio: '4/1', minHeight: isMobile ? '160px' : '200px' }}>
-                  <Image
-                    src="/banners/partners/banner4.svg"
-                    alt="Banner 5"
-                    fill
-                    className="object-cover"
-                    priority
-                    quality={100}
-                    unoptimized
-                    sizes="100vw"
-                  />
-                </div>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-        </div>
+        {/* Hero Banner Section */}
+        {isMobile ? (
+          /* Mobile: Casino-style SVG banner carousel */
+          <div className="py-4 px-3">
+            <Carousel className="w-full" opts={{ align: 'start', loop: false, duration: 15 }}>
+              <CarouselContent className="-ml-2">
+                {[
+                  { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
+                  { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
+                  { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
+                  { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
+                  { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
+                ].map((banner, i) => (
+                  <CarouselItem key={i} className="pl-2 basis-auto flex-shrink-0">
+                    <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-xl" style={{ width: '300px', height: '148px' }}>
+                      <Image
+                        src={banner.src}
+                        alt={banner.alt}
+                        width={300}
+                        height={148}
+                        className="object-cover w-full h-full"
+                        unoptimized
+                        priority
+                      />
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        ) : (
+          /* Desktop: Full-width banner carousel */
+          <div className="py-4 md:py-6 px-6">
+            <Carousel className="w-full relative" opts={{ align: 'start', loop: false, duration: 15 }}>
+              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselContent className="ml-0 mr-0">
+                {/* Banner 1 - Originals */}
+                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
+                    <Image
+                      src="/banners/ori.svg"
+                      alt="Originals Banner"
+                      fill
+                      className="object-cover"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
+                    />
+                  </div>
+                </CarouselItem>
+                {/* Banner 2 */}
+                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
+                    <Image
+                      src="/banners/banner1.svg"
+                      alt="Hero Banner"
+                      fill
+                      className="object-cover"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
+                    />
+                  </div>
+                </CarouselItem>
+                {/* Banner 3 */}
+                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                  <div className="relative w-full overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
+                    <Image
+                      src="/banners/banner12.svg"
+                      alt="Banner 2"
+                      fill
+                      className="object-cover"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
+                    />
+                  </div>
+                </CarouselItem>
+                {/* Banner 4 - Bracket */}
+                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
+                    <Image
+                      src="/banners/bracket.svg"
+                      alt="Bracket Banner"
+                      fill
+                      className="object-cover"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
+                    />
+                  </div>
+                </CarouselItem>
+                {/* Banner 5 */}
+                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
+                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
+                    <Image
+                      src="/banners/partners/banner4.svg"
+                      alt="Banner 5"
+                      fill
+                      className="object-cover"
+                      priority
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
+                    />
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+            </Carousel>
+          </div>
+        )}
 
         {/* Top Sports Carousel */}
         <div className="mb-6">
