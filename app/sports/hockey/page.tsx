@@ -3008,9 +3008,57 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   // Sample event data with betting markets - Mixed soccer leagues
   const liveEvents = [
-    { id: 1, league: 'NHL', leagueIcon: '/banners/sports_league/NHL.svg', country: 'USA/Canada', team1: 'Toronto Maple Leafs', team2: 'Montreal Canadiens', score: { team1: 3, team2: 2 }, time: 'P2 12:30', isLive: true, markets: [{ title: 'Moneyline', options: [{ label: 'TOR', odds: '-145', trend: 'up' }, { label: 'MTL', odds: '+125', trend: 'down' }] }, { title: 'Puck Line', options: [{ label: 'TOR -1.5', odds: '+155' }, { label: 'MTL +1.5', odds: '-185' }] }, { title: 'Total', options: [{ label: 'O 5.5', odds: '-110' }, { label: 'U 5.5', odds: '-110' }] }] },
-    { id: 2, league: 'NHL', leagueIcon: '/banners/sports_league/NHL.svg', country: 'USA/Canada', team1: 'Boston Bruins', team2: 'Tampa Bay Lightning', score: { team1: 1, team2: 1 }, time: 'P1 8:45', isLive: true, markets: [{ title: 'Moneyline', options: [{ label: 'MTL', odds: '-130', trend: 'up' }, { label: 'TBL', odds: '+110' }] }, { title: 'Puck Line', options: [{ label: 'BOS -1.5', odds: '+170' }, { label: 'TBL +1.5', odds: '-200' }] }, { title: 'Total', options: [{ label: 'O 5.5', odds: '-105' }, { label: 'U 5.5', odds: '-115' }] }] },
-    { id: 3, league: 'NHL', leagueIcon: '/banners/sports_league/NHL.svg', country: 'USA/Canada', team1: 'Colorado Avalanche', team2: 'Edmonton Oilers', score: { team1: 4, team2: 3 }, time: 'P3 5:22', isLive: true, markets: [{ title: 'Moneyline', options: [{ label: 'COL', odds: '-160' }, { label: 'EDM', odds: '+140', trend: 'up' }] }, { title: 'Puck Line', options: [{ label: 'COL -1.5', odds: '+135' }, { label: 'EDM +1.5', odds: '-155' }] }, { title: 'Total', options: [{ label: 'O 6.5', odds: '+100' }, { label: 'U 6.5', odds: '-120' }] }] },
+    { 
+      id: 1, 
+      league: 'NHL', 
+      leagueIcon: '/banners/sports_league/NHL.svg',
+      country: 'USA/Canada',
+      startTime: 'P2', 
+      elapsedSeconds: 1950,
+      isLive: true,
+      team1: 'Toronto Maple Leafs', 
+      team2: 'Montreal Canadiens', 
+      score: { team1: 3, team2: 2 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'TOR', odds: '-145', trend: 'up' }, { label: 'MTL', odds: '+125', trend: 'down' }] },
+        { title: 'Puck Line', options: [{ label: 'TOR -1.5', odds: '+155' }, { label: 'MTL +1.5', odds: '-185' }] },
+        { title: 'Total', options: [{ label: 'O 5.5', odds: '-110' }, { label: 'U 5.5', odds: '-110' }] },
+      ]
+    },
+    { 
+      id: 2, 
+      league: 'NHL', 
+      leagueIcon: '/banners/sports_league/NHL.svg',
+      country: 'USA/Canada',
+      startTime: 'P1', 
+      elapsedSeconds: 525,
+      isLive: true,
+      team1: 'Boston Bruins', 
+      team2: 'Tampa Bay Lightning', 
+      score: { team1: 1, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'BOS', odds: '-130', trend: 'up' }, { label: 'TBL', odds: '+110' }] },
+        { title: 'Puck Line', options: [{ label: 'BOS -1.5', odds: '+170' }, { label: 'TBL +1.5', odds: '-200' }] },
+        { title: 'Total', options: [{ label: 'O 5.5', odds: '-105' }, { label: 'U 5.5', odds: '-115' }] },
+      ]
+    },
+    { 
+      id: 3, 
+      league: 'NHL', 
+      leagueIcon: '/banners/sports_league/NHL.svg',
+      country: 'USA/Canada',
+      startTime: 'P3', 
+      elapsedSeconds: 2878,
+      isLive: true,
+      team1: 'Colorado Avalanche', 
+      team2: 'Edmonton Oilers', 
+      score: { team1: 4, team2: 3 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'COL', odds: '-160' }, { label: 'EDM', odds: '+140', trend: 'up' }] },
+        { title: 'Puck Line', options: [{ label: 'COL -1.5', odds: '+135' }, { label: 'EDM +1.5', odds: '-155' }] },
+        { title: 'Total', options: [{ label: 'O 6.5', odds: '+100' }, { label: 'U 6.5', odds: '-120' }] },
+      ]
+    },
   ]
   
   // Initialize live scores and set up random score updates after liveEvents is defined
@@ -5149,7 +5197,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
                               <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
                             </div>
-                            <span className="text-[10px] text-[#ee3536]">{event.time}</span>
+                            <span className="text-[10px] text-[#ee3536]">{event.startTime}</span>
                           </div>
                         </div>
                         
