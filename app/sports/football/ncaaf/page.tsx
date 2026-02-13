@@ -4513,7 +4513,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               style={item.active ? { backgroundColor: brandPrimary } : undefined}
                             >
                               <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", item.active ? "bg-white/20" : "bg-white/10")}>
-                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" /> : <IconComp strokeWidth={1.5} className="w-4 h-4" />}
+                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" /> : IconComp ? <IconComp strokeWidth={1.5} className="w-4 h-4" /> : null}
                               </div>
                               <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                             </SidebarMenuButton>
@@ -4628,7 +4628,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   )}
                                   style={isActive ? { backgroundColor: brandPrimary } : undefined}
                                 >
-                                  {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                  {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : IconComp ? <IconComp strokeWidth={1.5} className="w-5 h-5" /> : null}
                                   <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   <IconChevronRight className={cn(
                                     "w-4 h-4 ml-auto transition-transform duration-300",
@@ -4747,7 +4747,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 )}
                                 style={isActive ? { backgroundColor: brandPrimary } : undefined}
                               >
-                                {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : IconComp ? <IconComp strokeWidth={1.5} className="w-5 h-5" /> : null}
                                 <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                               </SidebarMenuButton>
                             </TooltipTrigger>
@@ -4787,7 +4787,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               }}
                               className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
                             >
-                              {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                              {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : IconComp ? <IconComp strokeWidth={1.5} className="w-5 h-5" /> : null}
                               <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                             </SidebarMenuButton>
                           </TooltipTrigger>
@@ -9972,7 +9972,7 @@ function NavTestPageContent() {
                                       }
                                     }}
                                   >
-                                    {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                    <Icon strokeWidth={1.5} className="w-5 h-5" />
                                     <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
