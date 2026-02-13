@@ -9378,7 +9378,7 @@ function NavTestPageContent() {
                                     }}
                                   >
                                     <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                    <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
+                                    <span className="flex items-center gap-1.5">{item.label}</span>
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
                                 {sidebarState === 'collapsed' && (
