@@ -2937,7 +2937,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     { icon: IconTrophy, label: 'Mega Parlays' },
   ]
   
-  const sportsCategories: Array<{ icon: any; label: string; href?: string; active?: boolean; expandable?: boolean }> = [
+  const sportsCategories: Array<{ icon: any; label: string; href?: string; active?: boolean; expandable?: boolean; subItems?: Array<{ label: string; subItems?: Array<{ label: string }> }> }> = [
     { icon: IconTrophy, label: 'Top Leagues' },
     { icon: IconBallBaseball, label: 'Baseball' },
     { icon: IconBallBasketball, label: 'Basketball' },
