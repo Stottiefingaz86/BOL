@@ -6041,7 +6041,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
                                 <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
                               </div>
-                              <span className="text-[10px] text-[#ee3536]">{boost.liveTime}</span>
+                              <span className="text-[10px] text-[#ee3536]">{boost.time}</span>
                             </div>
                           ) : (
                           <span className="text-[10px] text-white">{boost.time}</span>
