@@ -849,56 +849,14 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
   z-index: 120 !important;
 }
 
-/* Ensure Drawer (vaul) overlays and content are properly layered - above everything */
-/* Overlay should never block clicks - completely remove it from interaction */
-[data-vaul-overlay],
-[data-vaul-overlay][data-state="open"],
-[data-vaul-overlay][data-state="closed"],
-div[data-vaul-overlay],
-div[data-vaul-overlay][data-state="open"],
-*[data-vaul-overlay] {
-  z-index: -1 !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  display: none !important;
-  pointer-events: none !important;
-  position: fixed !important;
-  touch-action: none !important;
-  user-select: none !important;
-  height: 0 !important;
-  width: 0 !important;
-}
+/* ─── Vaul Drawer Minimal Overrides ─── */
+/* Let vaul handle its own layout. We only add z-index for layering
+   and prevent body scroll-lock for non-modal drawers. */
 
-[data-vaul-drawer-wrapper] {
-  z-index: 9999 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: flex !important;
-  pointer-events: none !important;
-  position: fixed !important;
-  inset: 0 !important; /* Cover full screen but allow clicks through */
-  background: transparent !important;
-}
-
-/* Ensure vaul drawer wrapper doesn't block clicks - only content is interactive
-   EXCLUDE #chat-portal-root, #overlay-portal-root and their children so they stay interactive */
-[data-vaul-drawer-wrapper] > *:not([data-vaul-drawer-direction]):not(#chat-portal-root):not(#overlay-portal-root) {
-  pointer-events: none !important;
-}
-
-/* Ensure all elements inside wrapper except drawer content + chat/overlay portals are non-interactive */
-[data-vaul-drawer-wrapper] *:not([data-vaul-drawer-direction]):not([data-vaul-drawer-direction] *):not(#chat-portal-root):not(#chat-portal-root *):not(#overlay-portal-root):not(#overlay-portal-root *) {
-  pointer-events: none !important;
-}
-
-/* Ensure vaul drawer content appears above everything */
+/* Drawer content should appear above page content */
 [data-vaul-drawer-direction] {
   z-index: 9999 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: flex !important;
   pointer-events: auto !important;
-  position: fixed !important;
 }
 
 /* Prevent body scroll lock when drawer is open (non-modal) */
@@ -906,21 +864,6 @@ body[data-vaul-drawer-open="true"],
 html[data-vaul-drawer-open="true"] {
   overflow: auto !important;
   position: static !important;
-}
-
-/* Ensure vaul portal doesn't block clicks */
-[data-vaul-portal] {
-  pointer-events: none !important;
-}
-
-[data-vaul-portal] [data-vaul-drawer-direction] {
-  pointer-events: auto !important;
-}
-
-/* Remove any focus trap or aria-hidden that might block interaction — exclude chat/overlay portals */
-[data-vaul-drawer-wrapper][aria-hidden="true"],
-[data-vaul-drawer-wrapper] [aria-hidden="true"]:not([data-vaul-drawer-direction]):not(#chat-portal-root):not(#chat-portal-root *):not(#overlay-portal-root):not(#overlay-portal-root *) {
-  pointer-events: none !important;
 }
 
 /* Ensure sub nav is fixed - positioned right below the header at 64px, after sidebar */
