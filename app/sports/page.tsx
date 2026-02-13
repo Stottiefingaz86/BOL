@@ -7937,14 +7937,14 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
-  const [activeSport, setActiveSport] = useState<string>(() => {
+  const [activeSport, setActiveSport] = useState<'Soccer' | 'Football'>(() => {
     return 'Soccer'
   })
   
   // Read sport from URL query param (e.g. /sports?sport=Football)
   useEffect(() => {
     const sportParam = searchParams.get('sport')
-    if (sportParam) {
+    if (sportParam === 'Soccer' || sportParam === 'Football') {
       setActiveSport(sportParam)
     }
   }, [searchParams])
@@ -8899,7 +8899,7 @@ function NavTestPageContent() {
                           router.push('/sports/soccer')
                           return
                         }
-                        setActiveSport(sport.label)
+                        setActiveSport(sport.label as 'Soccer' | 'Football')
                       }}
                       className={cn(
                         "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative",
