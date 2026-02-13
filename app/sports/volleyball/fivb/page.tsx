@@ -2413,7 +2413,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                         )}
                         style={isActive ? { backgroundColor: brandPrimary } : undefined}
                       >
-                        {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                        {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
                         <span className="flex-1">{item.label}</span>
                         {item.linkTo && (
                           <IconExternalLink className="w-4 h-4 text-white/50" />
@@ -9977,7 +9977,7 @@ function NavTestPageContent() {
                                       }
                                     }}
                                   >
-                                    {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                    {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
                                     <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
