@@ -306,6 +306,42 @@ header.bg-\[#2d2d2d\] {
   height: calc(100vh - 64px) !important;
 }
 
+/* Fix sidebar feature items when collapsed - proper icon display and hidden text */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"] {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 2rem;
+  padding: 1px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+/* Hide text labels and extra icons in collapsed sidebar menu buttons */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"] > span {
+  display: none !important;
+}
+
+/* Ensure icon containers are not shrunk in collapsed sidebar */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"] > div {
+  flex-shrink: 0;
+}
+
+/* Hide chevron/extra SVG icons (not the first icon) in collapsed sidebar */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"] > svg:not(:first-child) {
+  display: none !important;
+}
+
+/* Hide scrollbar in collapsed sidebar but keep scroll functional */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="content"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="content"]::-webkit-scrollbar {
+  display: none;
+}
+
 /* Ensure sidebar content is dark */
 [data-sidebar="sidebar"],
 [data-sidebar="sidebar"] > div,

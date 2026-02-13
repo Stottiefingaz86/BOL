@@ -90,7 +90,6 @@ import {
   IconRocket,
   IconWorld,
   IconBallFootball,
-  IconBallBasketball,
   IconBallAmericanFootball,
   IconBallTennis,
   IconBallVolleyball,
@@ -2414,7 +2413,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                         )}
                         style={isActive ? { backgroundColor: brandPrimary } : undefined}
                       >
-                        <Icon strokeWidth={1.5} className="w-5 h-5" />
+                        {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
                         <span className="flex-1">{item.label}</span>
                         {item.linkTo && (
                           <IconExternalLink className="w-4 h-4 text-white/50" />
@@ -2658,10 +2657,12 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 }
 
 // Sports Page Component
-function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed, activeSport, setActiveSport }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void; activeSport: 'Soccer' | 'Football'; setActiveSport: (sport: 'Soccer' | 'Football') => void }) {
+function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed, activeSport, setActiveSport }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void; activeSport: string; setActiveSport: (sport: string) => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
   const isMobile = useIsMobile()
   const router = useRouter()
+  const [loadingItem, setLoadingItem] = useState<string | null>(null)
+  const [loadingLeague, setLoadingLeague] = useState<string | null>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showShareTicket, setShowShareTicket] = useState(false)
   const [pendingBets, setPendingBets] = useState<Array<{
@@ -2857,6 +2858,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const [topBetBoostsCarouselApi, setTopBetBoostsCarouselApi] = useState<CarouselApi>()
   const [topBetBoostsCanScrollPrev, setTopBetBoostsCanScrollPrev] = useState(false)
   const [topBetBoostsCanScrollNext, setTopBetBoostsCanScrollNext] = useState(false)
+
+  // Same Game Parlays carousel state
+  const [sgpCarouselApi, setSgpCarouselApi] = useState<CarouselApi>()
+  const [sgpCanScrollPrev, setSgpCanScrollPrev] = useState(false)
+  const [sgpCanScrollNext, setSgpCanScrollNext] = useState(false)
   
   // Live scores state for animation - initialized after liveEvents is defined
   const [liveScores, setLiveScores] = useState<{ [key: number]: { team1: number, team2: number, animating?: { team: 1 | 2, from: number, to: number } } }>({})
@@ -2899,6 +2905,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }, [topBetBoostsCarouselApi])
   
+  // Update SGP carousel scroll state
+  useEffect(() => {
+    if (!sgpCarouselApi) return
+    setSgpCanScrollPrev(sgpCarouselApi.canScrollPrev())
+    setSgpCanScrollNext(sgpCarouselApi.canScrollNext())
+    sgpCarouselApi.on('select', () => {
+      setSgpCanScrollPrev(sgpCarouselApi.canScrollPrev())
+      setSgpCanScrollNext(sgpCarouselApi.canScrollNext())
+    })
+  }, [sgpCarouselApi])
+  
   const sportsTabs = ['Events', 'Outrights', 'Boosts', 'Specials', 'All Leagues']
   
   const eventOrderOptions = [
@@ -2911,22 +2928,53 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // Sports sidebar menu items
   const sportsFeatures = [
     { icon: IconHome, label: 'Home' },
-    { icon: IconHeart, label: 'My Feed', href: '/sports/my-feed' },
+    { icon: '/sports_icons/my-feed.svg', label: 'My Feed', href: '/sports/my-feed' },
     { icon: IconBolt, label: 'Live Betting' },
-    { icon: IconWorld, label: 'World Cup Hub', active: false },
+    { icon: '/sports_icons/World-Cup-2022.svg', label: 'World Cup Hub', active: false },
     { icon: IconRocket, label: 'Odds Boosters' },
-    { icon: IconDice, label: 'Same Game Parlays' },
-    { icon: IconTrophy, label: 'Mega Parlays' },
+    { icon: '/sports_icons/Same Game Parlays.svg', label: 'Same Game Parlays' },
+    { icon: '/sports_icons/Mega Parlays.svg', label: 'Mega Parlays' },
   ]
   
   const sportsCategories: Array<{ icon: any; label: string; href?: string; active?: boolean; expandable?: boolean; subItems?: Array<{ icon?: any; label: string; badge?: any; subItems?: Array<{ icon?: any; label: string; badge?: any }> }> }> = [
-    { icon: IconTrophy, label: 'Top Leagues' },
-    { icon: IconBallBaseball, label: 'Baseball' },
-    { icon: IconBallBasketball, label: 'Basketball' },
-    { icon: IconBallAmericanFootball, label: 'Football' },
-    { icon: IconBallFootball, label: 'Soccer', active: true, href: '/sports/soccer' },
+    { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
+    { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
+    { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', active: true, href: '/sports/soccer' },
   ]
-  
+
+  const topLeaguesList = [
+    { icon: '/banners/sports_league/NFL.svg', label: 'NFL', sport: 'Football', href: '/sports/football/nfl' },
+    { icon: '/banners/sports_league/nba.svg', label: 'NBA', sport: 'Basketball', href: '/sports/basketball/nba' },
+    { icon: '/banners/sports_league/MLB.svg', label: 'MLB', sport: 'Baseball', href: '/sports/baseball/mlb' },
+    { icon: '/banners/sports_league/NHL.svg', label: 'NHL', sport: 'Hockey', href: '/sports/hockey/nhl' },
+    { icon: '/banners/sports_league/prem.svg', label: 'Premier League', sport: 'Soccer', href: '/sports/soccer/premier-league' },
+    { icon: '/banners/sports_league/laliga.svg', label: 'La Liga', sport: 'Soccer', href: '/sports/soccer/la-liga' },
+    { icon: '/banners/sports_league/champions.svg', label: 'Champions League', sport: 'Soccer', href: '/sports/soccer/champions-league' },
+    { icon: '/banners/sports_league/mls.svg', label: 'MLS', sport: 'Soccer', href: '/sports/soccer/mls' },
+    { icon: '/banners/sports_league/ATP.svg', label: 'ATP Tour', sport: 'Tennis', href: '/sports/tennis/atp' },
+    { icon: '/banners/sports_league/f1.svg', label: 'Formula 1', sport: 'Auto Racing', href: '/sports/football/nfl' },
+  ]
+
+  const azSports: Array<{ icon: any; label: string; href: string }> = [
+    { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
+    { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
+    { icon: '/sports_icons/mma.svg', label: 'Boxing', href: '/sports/mma' },
+    { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
+    { icon: '/sports_icons/Golf.svg', label: 'Golf', href: '/sports/pool' },
+    { icon: '/sports_icons/Hockey.svg', label: 'Hockey', href: '/sports/hockey' },
+    { icon: '/sports_icons/Horse-Racing-101.svg', label: 'Horse Racing', href: '/sports/pool' },
+    { icon: '/sports_icons/lacrosse.svg', label: 'Lacrosse', href: '/sports/lacrosse' },
+    { icon: '/sports_icons/mma.svg', label: 'MMA', href: '/sports/mma' },
+    { icon: '/sports_icons/pool.svg', label: 'Pool', href: '/sports/pool' },
+    { icon: '/sports_icons/rugby.svg', label: 'Rugby League', href: '/sports/rugby' },
+    { icon: '/sports_icons/rugby.svg', label: 'Rugby Union', href: '/sports/rugby' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', href: '/sports/soccer' },
+    { icon: '/sports_icons/table_tennis.svg', label: 'Table Tennis', href: '/sports/table-tennis' },
+    { icon: '/sports_icons/tennis.svg', label: 'Tennis', href: '/sports/tennis' },
+    { icon: '/sports_icons/volley.svg', label: 'Volleyball', href: '/sports/volleyball' },
+  ]
+
   const toggleSport = (sport: string) => {
     setExpandedSports(prev => 
       prev.includes(sport) 
@@ -2946,6 +2994,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   const handleFeatureClick = (label: string, href?: string) => {
     if (href) {
+      setLoadingItem(label)
       router.push(href)
       return
     }
@@ -2954,6 +3003,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   const handleSportClick = (label: string, href?: string) => {
     if (href) {
+      setLoadingItem(label)
       router.push(href)
       return
     }
@@ -4497,7 +4547,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsFeatures.map((item, index) => {
-                    const Icon = item.icon
+                    const IconComp = typeof item.icon === 'string' ? null : item.icon
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -4516,8 +4566,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               )}
                               style={item.active ? { backgroundColor: brandPrimary } : undefined}
                             >
-                              <Icon strokeWidth={1.5} className="w-5 h-5" />
-                              <span>{item.label}</span>
+                              <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", item.active ? "bg-white/20" : "bg-white/10")}>
+                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" /> : <IconComp strokeWidth={1.5} className="w-4 h-4" />}
+                              </div>
+                              <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
@@ -4532,13 +4584,82 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            
+
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            {/* Top Leagues Accordion */}
             <SidebarGroup>
-              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">SPORTS</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem className="group/collapsible">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleSport('TopLeagues')
+                          }}
+                          className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                        >
+                          <IconTrophy strokeWidth={1.5} className="w-5 h-5" />
+                          <span>Top Leagues</span>
+                          <IconChevronRight className={cn(
+                            "w-4 h-4 ml-auto transition-transform duration-300",
+                            expandedSports.includes('TopLeagues') && "rotate-90"
+                          )} />
+                        </SidebarMenuButton>
+                      </TooltipTrigger>
+                      {sidebarState === 'collapsed' && (
+                        <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                          <p>Top Leagues</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                    <AnimatePresence>
+                      {expandedSports.includes('TopLeagues') && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <SidebarMenuSub>
+                            {topLeaguesList.map((league, idx) => (
+                              <SidebarMenuSubItem key={idx}>
+                                <SidebarMenuSubButton
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    router.push(league.href)
+                                  }}
+                                  className="pl-4 text-xs text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <img src={league.icon} alt={league.label} width={16} height={16} className="object-contain" decoding="sync" />
+                                    <span>{league.label}</span>
+                                  </div>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">TOP SPORTS</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsCategories.map((sport, index) => {
-                    const Icon = sport.icon
+                    const IconComp = typeof sport.icon === 'string' ? null : sport.icon
                     const isActive = sport.active === true
                     const isExpanded = sport.expandable && expandedSports.includes(sport.label)
                     return (
@@ -4561,8 +4682,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   )}
                                   style={isActive ? { backgroundColor: brandPrimary } : undefined}
                                 >
-                                  <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                  <span>{sport.label}</span>
+                                  {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                  <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   <IconChevronRight className={cn(
                                     "w-4 h-4 ml-auto transition-transform duration-300",
                                     isExpanded && "rotate-90"
@@ -4680,8 +4801,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 )}
                                 style={isActive ? { backgroundColor: brandPrimary } : undefined}
                               >
-                                <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                <span>{sport.label}</span>
+                                {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                               </SidebarMenuButton>
                             </TooltipTrigger>
                             {sidebarState === 'collapsed' && (
@@ -4697,6 +4818,46 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            {/* A-Z Sports */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">A-Z</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {azSports.map((sport, index) => {
+                    const IconComp = typeof sport.icon === 'string' ? null : sport.icon
+                    return (
+                      <SidebarMenuItem key={index}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <SidebarMenuButton
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setLoadingItem(sport.label)
+                                router.push(sport.href)
+                              }}
+                              className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                            >
+                              {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                              <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
+                            </SidebarMenuButton>
+                          </TooltipTrigger>
+                          {sidebarState === 'collapsed' && (
+                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              <p>{sport.label}</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
           </TooltipProvider>
         </SidebarContent>
       </Sidebar>
@@ -4800,8 +4961,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       )}
                       onClick={() => {
                         setSelectedSoccerLeague(league)
-                        // Navigate to the league page (sports page)
-                        router.push('/sports/soccer/premier-league')
+                        // Navigate to the league page
+                        const leagueSlug = league.toLowerCase().replace(/\s+/g, '-')
+                        router.push(`/sports/soccer/${leagueSlug}`)
                       }}
                     >
                       {league}
@@ -4844,15 +5006,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               setSelectedCountry(country.name)
                               setSelectedSoccerLeague(league.name)
                             }
-                            router.push('/sports/soccer/premier-league')
+                            const leagueSlug = league.name.toLowerCase().replace(/\s+/g, '-')
+                            setLoadingLeague(league.name)
+                            router.push(`/sports/soccer/${leagueSlug}`)
                           }}
-                          className="flex items-center gap-2.5 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer"
+                          className={cn("flex items-center gap-2.5 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer", loadingLeague === league.name && "opacity-50 pointer-events-none")}
                         >
                           <div className="w-7 h-7 bg-white/10 rounded-md flex items-center justify-center flex-shrink-0">
                             <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" decoding="sync" />
                           </div>
                           <div className="text-left">
-                            <div className="text-xs font-semibold text-white whitespace-nowrap">{league.name}</div>
+                            <div className="text-xs font-semibold text-white whitespace-nowrap flex items-center gap-1.5">{loadingLeague === league.name ? <><IconLoader2 className="w-3 h-3 animate-spin" /><span className="text-white/50">{league.name}</span></> : league.name}</div>
                             <div className="text-[10px] text-white/50">{league.country}</div>
                           </div>
                           <button
@@ -5032,6 +5196,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                       height={20}
                             className="object-contain"
                             decoding="sync"
+                            onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + teamName.split(' ').map((w: string) => w[0]).join('').slice(0, 3) + '</span>'; t.parentElement?.insertBefore(s, t); }}
                           />
                                   ) : null
                                 }
@@ -5181,7 +5346,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 variant="ghost" 
                   className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
                   onClick={() => {
-                    router.push('/sports/soccer/premier-league')
+                    router.push('/sports/soccer/premier-league') /* View All */
                   }}
               >
                 View All
@@ -5267,14 +5432,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center mb-3">
                           {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <img 
-                              src={'team1Logo' in event ? event.team1Logo : '/team/default.png'}
-                              alt={event.team1}
-                              width={20}
-                              height={20}
-                              className="object-contain flex-shrink-0"
-                              decoding="sync"
-                            />
+                            <img src={event.team1Logo} alt={event.team1} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team1Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
                           
@@ -5389,14 +5547,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                             <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
-                            <img 
-                              src={'team2Logo' in event ? event.team2Logo : '/team/default.png'}
-                              alt={event.team2}
-                              width={20}
-                              height={20}
-                              className="object-contain flex-shrink-0"
-                              decoding="sync"
-                            />
+                            <img src={event.team2Logo} alt={event.team2} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team2Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
                           </div>
                         </div>
                         
@@ -5810,20 +5961,91 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const logoPath = getTeamLogoPath(teamName)
+                  const soccerBadgeMap: { [key: string]: string } = {
+    'Liverpool': '/team/Liverpool FC.png',
+    'Bournemouth': '/team/AFC Bournemouth.png',
+    'Arsenal': '/team/Arsenal FC.png',
+    'Chelsea': '/team/Chelsea FC.png',
+    'Tottenham': '/team/Tottenham Hotspur.png',
+    'Newcastle': '/team/Newcastle United.png',
+    'Manchester City': '/team/Manchester City.png',
+    'Manchester United': '/team/Manchester United.png',
+    'Aston Villa': '/team/Aston Villa.png',
+    'Brentford': '/team/Brentford FC.png',
+    'Brighton': '/team/Brighton & Hove Albion.png',
+    'Burnley': '/team/Burnley FC.png',
+    'Crystal Palace': '/team/Crystal Palace.png',
+    'Everton': '/team/Everton FC.png',
+    'Fulham': '/team/Fulham FC.png',
+    'Leeds': '/team/Leeds United.png',
+    'Nottingham Forest': '/team/Nottingham Forest.png',
+    'Wolves': '/team/Wolverhampton Wanderers.png',
+    'West Ham': '/team/West Ham United.png',
+    'Sunderland': '/team/Sunderland AFC.png',
+    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
+    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
+    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
+    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
+    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
+    'Girona': '/team/Spain - LaLiga/Girona FC.png',
+    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
+    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
+    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
+    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
+    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
+    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
+    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
+    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
+    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
+    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
+    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
+    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
+    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
+    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
+    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
+    'Torino': '/team/Italy - Serie A/Torino FC.png',
+    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
+    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
+    'Lecce': '/team/Italy - Serie A/US Lecce.png',
+    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
+    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
+    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
+    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
+    'Como': '/team/Italy - Serie A/Como 1907.png',
+    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
+    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
+    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
+    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
+    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
+    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
+    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
+    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
+  }
+                  const logoPath = soccerBadgeMap[teamName]
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
                   if (logoPath) {
-                    return (
-                      <img
-                        src={logoPath}
-                        alt={teamName}
-                        width={size}
-                        height={size}
-                        className="object-contain flex-shrink-0"
-                        decoding="sync"
-                      />
-                    )
+                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
                   }
-                  return null
+                  return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -6173,7 +6395,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 variant="ghost" 
                   className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
                   onClick={() => {
-                    router.push('/sports/soccer/premier-league')
+                    router.push('/sports/soccer/premier-league') /* View All */
                   }}
               >
                 View All
@@ -6220,10 +6442,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* Bet Boost Cards */}
                   {([
-                    { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+450', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England' },
-                    { id: 2, marketName: 'Vinicius Jr To Score 2+ Goals Vs Sevilla', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain' },
-                    { id: 3, marketName: 'Vlahovic To Score First Goal Vs AC Milan', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy' },
-                    { id: 4, marketName: 'Salah To Score From Outside Box Vs Chelsea', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England' },
+                    
+                    
+                    { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+450' },
+                    { id: 2, marketName: 'Vinicius Jr To Score 2+ Goals Vs Sevilla', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350' },
+                    { id: 3, marketName: 'Vlahovic To Score First Goal Vs AC Milan', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                    { id: 4, marketName: 'Salah To Score From Outside Box Vs Chelsea', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600' },
                   ]).map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                       <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
@@ -6303,6 +6527,124 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       </div>
                     </CarouselItem>
               ))}
+                </CarouselContent>
+              </Carousel>
+            </div>
+          </div>
+          
+
+          {/* Same Game Parlays Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-white pl-2">Same Game Parlays</h2>
+              <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                  className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
+              >
+                View All
+              </Button>
+                {!isMobile && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        if (sgpCarouselApi) {
+                          const currentIndex = sgpCarouselApi.selectedScrollSnap()
+                          const targetIndex = Math.max(0, currentIndex - 2)
+                          sgpCarouselApi.scrollTo(targetIndex)
+                        }
+                      }}
+                      disabled={!sgpCarouselApi || !sgpCanScrollPrev}
+                    >
+                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        if (sgpCarouselApi) {
+                          const currentIndex = sgpCarouselApi.selectedScrollSnap()
+                          const slideCount = sgpCarouselApi.scrollSnapList().length
+                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                          sgpCarouselApi.scrollTo(targetIndex)
+                        }
+                      }}
+                      disabled={!sgpCarouselApi || !sgpCanScrollNext}
+                    >
+                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
+              <Carousel setApi={setSgpCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                <CarouselContent className="ml-6 mr-0">
+                  {/* SGP Cards */}
+                  {([
+                    { id: 1, match: 'Arsenal vs Chelsea', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'TODAY 3:00PM', legs: ['Arsenal To Win', 'Over 2.5 Goals', 'Both Teams To Score'], combinedOdds: '+850' },
+                    { id: 2, match: 'Real Madrid vs Barcelona', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', time: 'TODAY 8:00PM', legs: ['Real Madrid To Win', 'Vinicius Jr To Score', 'Over 3.5 Goals'], combinedOdds: '+1200' },
+                    { id: 3, match: 'Juventus vs AC Milan', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', time: 'TOMORROW 2:45PM', legs: ['Juventus To Win', 'Under 2.5 Goals', 'Vlahovic To Score First'], combinedOdds: '+950' },
+                    { id: 4, match: 'Liverpool vs Man City', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'SAT 5:30PM', legs: ['Draw', 'Over 2.5 Goals', 'Salah To Score Anytime'], combinedOdds: '+1400' },
+                    { id: 5, match: 'PSG vs Marseille', league: 'Ligue 1', leagueIcon: '/banners/sports_league/prem.svg', country: 'France', time: 'SUN 3:00PM', legs: ['PSG To Win', 'Mbappe 2+ Goals', 'Over 3.5 Goals'], combinedOdds: '+1100' }
+                  ]).map((parlay, index) => (
+                    <CarouselItem key={parlay.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
+                    <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.3) 50%, rgba(255, 255, 255, 0.03) 100%)' }}>
+                      {/* Header: League info and Time */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5">
+                          <img 
+                            src={parlay.leagueIcon} 
+                            alt={parlay.league}
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                            decoding="sync"
+                          />
+                          <span className="text-[10px] text-white">{parlay.league} | {parlay.country}, Soccer</span>
+                        </div>
+                        <span className="text-[10px] text-white/70">{parlay.time}</span>
+                      </div>
+
+                      {/* Match Name */}
+                      <div className="text-sm font-semibold text-white/90 leading-tight mb-3">
+                        {parlay.match}
+                      </div>
+
+                      {/* Parlay Legs with connecting line */}
+                      <div className="relative mb-3 ml-[3px]">
+                        {/* Vertical connecting line */}
+                        <div className="absolute left-[2.5px] top-[5px] bottom-[5px] w-[1px] bg-white/20" />
+                        <div className="space-y-2">
+                          {parlay.legs.map((leg: string, legIndex: number) => (
+                            <div key={legIndex} className="flex items-center gap-2.5 relative">
+                              <div className="w-[6px] h-[6px] rounded-full bg-emerald-400 flex-shrink-0 relative z-10 ring-2 ring-emerald-400/20" />
+                              <span className="text-[11px] text-white/80">{leg}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Combined Odds Button */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-white/50">{parlay.legs.length}-Leg Parlay</span>
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                          }}
+                          className="bg-white/10 hover:bg-white/20 text-white rounded-small h-[34px] flex items-center justify-center px-4 transition-colors cursor-pointer"
+                        >
+                          <span className="text-xs font-bold text-white leading-none">{parlay.combinedOdds}</span>
+                        </button>
+                      </div>
+                    </div>
+                    </CarouselItem>
+                  ))}
                 </CarouselContent>
               </Carousel>
             </div>
@@ -6407,20 +6749,91 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const logoPath = getTeamLogoPath(teamName)
+                  const soccerBadgeMap: { [key: string]: string } = {
+    'Liverpool': '/team/Liverpool FC.png',
+    'Bournemouth': '/team/AFC Bournemouth.png',
+    'Arsenal': '/team/Arsenal FC.png',
+    'Chelsea': '/team/Chelsea FC.png',
+    'Tottenham': '/team/Tottenham Hotspur.png',
+    'Newcastle': '/team/Newcastle United.png',
+    'Manchester City': '/team/Manchester City.png',
+    'Manchester United': '/team/Manchester United.png',
+    'Aston Villa': '/team/Aston Villa.png',
+    'Brentford': '/team/Brentford FC.png',
+    'Brighton': '/team/Brighton & Hove Albion.png',
+    'Burnley': '/team/Burnley FC.png',
+    'Crystal Palace': '/team/Crystal Palace.png',
+    'Everton': '/team/Everton FC.png',
+    'Fulham': '/team/Fulham FC.png',
+    'Leeds': '/team/Leeds United.png',
+    'Nottingham Forest': '/team/Nottingham Forest.png',
+    'Wolves': '/team/Wolverhampton Wanderers.png',
+    'West Ham': '/team/West Ham United.png',
+    'Sunderland': '/team/Sunderland AFC.png',
+    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
+    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
+    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
+    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
+    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
+    'Girona': '/team/Spain - LaLiga/Girona FC.png',
+    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
+    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
+    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
+    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
+    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
+    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
+    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
+    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
+    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
+    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
+    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
+    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
+    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
+    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
+    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
+    'Torino': '/team/Italy - Serie A/Torino FC.png',
+    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
+    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
+    'Lecce': '/team/Italy - Serie A/US Lecce.png',
+    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
+    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
+    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
+    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
+    'Como': '/team/Italy - Serie A/Como 1907.png',
+    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
+    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
+    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
+    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
+    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
+    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
+    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
+    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
+    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
+    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
+    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
+    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
+    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
+  }
+                  const logoPath = soccerBadgeMap[teamName]
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
                   if (logoPath) {
-                    return (
-                      <img
-                        src={logoPath}
-                        alt={teamName}
-                        width={size}
-                        height={size}
-                        className="object-contain flex-shrink-0"
-                        decoding="sync"
-                      />
-                    )
+                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
                   }
-                  return null
+                  return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -7799,6 +8212,7 @@ function VipDrawerContent({
 function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
+  const [loadingNav, setLoadingNav] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
@@ -7854,7 +8268,7 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
-  const [activeSport, setActiveSport] = useState<'Soccer' | 'Football'>('Soccer') // Track active sport type
+  const [activeSport, setActiveSport] = useState<string>('Soccer') // Track active sport type
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
@@ -8784,7 +9198,7 @@ function NavTestPageContent() {
                 } as React.CSSProperties}
               >
                 {[
-                  { icon: '/sports_icons/all sports.svg', label: 'All Sports' },
+                  { icon: '/sports_icons/my-feed.svg', label: 'My Feed' },
                   { icon: '/sports_icons/baseball.svg', label: 'Baseball' },
                   { icon: '/sports_icons/soccer.svg', label: 'Soccer' },
                   { icon: '/sports_icons/tennis.svg', label: 'Tennis' },
@@ -8793,6 +9207,8 @@ function NavTestPageContent() {
                   { icon: '/sports_icons/volley.svg', label: 'Volleyball' },
                   { icon: '/sports_icons/mma.svg', label: 'MMA' },
                   { icon: '/sports_icons/rugby.svg', label: 'Rugby' },
+                  { icon: '/sports_icons/Hockey.svg', label: 'Hockey' },
+                  { icon: '/sports_icons/Basketball.svg', label: 'Basketball' },
                   { icon: '/sports_icons/pool.svg', label: 'Pool' },
                   { icon: '/sports_icons/lacrosse.svg', label: 'Lacrosse' },
                 ].map((sport, index) => {
@@ -8805,15 +9221,31 @@ function NavTestPageContent() {
                         e.preventDefault()
                         e.stopPropagation()
                         
-                        if (sport.label === 'Soccer') {
-                          router.push('/sports/soccer')
+                        const sportRoutes: Record<string, string> = {
+                          'My Feed': '/sports/my-feed',
+                          'Baseball': '/sports/baseball',
+                          'Soccer': '/sports/soccer',
+                          'Tennis': '/sports/tennis',
+                          'Table Tennis': '/sports/table-tennis',
+                          'Football': '/sports/football',
+                          'Volleyball': '/sports/volleyball',
+                          'MMA': '/sports/mma',
+                          'Rugby': '/sports/rugby',
+                          'Hockey': '/sports/hockey',
+                          'Basketball': '/sports/basketball',
+                          'Pool': '/sports/pool',
+                          'Lacrosse': '/sports/lacrosse',
+                        }
+                        const route = sportRoutes[sport.label]
+                        if (route) {
+                          setLoadingNav(sport.label)
+                          router.push(route)
                           return
                         }
-                        // Navigate to main sports page with the selected sport
                         router.push(`/sports?sport=${encodeURIComponent(sport.label)}`)
                       }}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative",
+                        "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative", loadingNav === sport.label && "opacity-40",
                         "hover:bg-white/5 active:bg-white/15",
                         isActive && "bg-white/10",
                         isMobile && "pb-3" // Add extra padding bottom on mobile to accommodate the red line
@@ -8852,6 +9284,11 @@ function NavTestPageContent() {
                       >
                         {sport.label}
                       </span>
+                      {loadingNav === sport.label && (
+                        <div className="absolute inset-0 flex items-center justify-center z-20">
+                          <IconLoader2 className="w-4 h-4 animate-spin text-white" />
+                        </div>
+                      )}
                       <div 
                         className={cn(
                           "absolute left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300 ease-in-out z-10",
@@ -9701,8 +10138,8 @@ function NavTestPageContent() {
                                       }
                                     }}
                                   >
-                                    <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                    <span>{item.label}</span>
+                                    {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                    <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
                                 {sidebarState === 'collapsed' && (
@@ -11580,7 +12017,6 @@ function NavTestPageContent() {
             </AnimatePresence>
           </SidebarInset>
         </div>
-
 
         {/* Account Details Drawer */}
         <Drawer 

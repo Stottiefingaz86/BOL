@@ -2764,7 +2764,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }
   }, [betslipOpen])
   const subNavScrollRef = useRef<HTMLDivElement>(null)
-  const [expandedSports, setExpandedSports] = useState<string[]>(['Soccer'])
+  const [expandedSports, setExpandedSports] = useState<string[]>(['Football'])
   const [currentTime, setCurrentTime] = useState<string>('')
   
   useEffect(() => {
@@ -2779,7 +2779,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }))
   }, [])
   const [eventOrderBy, setEventOrderBy] = useState<string>('Popularity')
-  const [selectedLeague, setSelectedLeague] = useState<number>(1) // Default to Premier League (id: 1)
+  const [selectedLeague, setSelectedLeague] = useState<number>(1) // Default to CFL (id: 1)
   
   // Slots carousel state
   const [sportsSlotsCarouselApi, setSportsSlotsCarouselApi] = useState<CarouselApi>()
@@ -2791,7 +2791,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const [topEventsCanScrollPrev, setTopEventsCanScrollPrev] = useState(false)
   const [topEventsCanScrollNext, setTopEventsCanScrollNext] = useState(false)
   
-  // Premier League table expand state
+  // CFL table expand state
   const [premierLeagueTableExpanded, setPremierLeagueTableExpanded] = useState(false)
   const [premierLeagueActiveTab, setPremierLeagueActiveTab] = useState<'Table' | 'Fixtures' | 'Results' | 'Stats'>('Table')
   
@@ -2815,7 +2815,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }
   
-  const isLeagueFavorited = favoriteLeagues.includes('premier-league')
+  const isLeagueFavorited = favoriteLeagues.includes('cfl')
   
   // Total market price selection state - key: `${eventId}-${marketIndex}`, value: selected price
   const [totalMarketPrices, setTotalMarketPrices] = useState<{ [key: string]: string }>({})
@@ -2906,7 +2906,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
     { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
     { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
-    { icon: '/sports_icons/soccer.svg', label: 'Soccer', active: true, href: '/sports/soccer' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', active: true, href: '/sports/football' },
   ]
 
   const topLeaguesList = [
@@ -2978,72 +2978,70 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   // League data for carousel
   const leagues = [
-    { id: 1, name: 'Premier League', country: 'England', icon: '/banners/sports_league/prem.svg' },
-    { id: 2, name: 'La Liga', country: 'Spain', icon: '/banners/sports_league/laliga.svg' },
-    { id: 3, name: 'Champions League', country: 'Europe', icon: '/banners/sports_league/champions.svg' },
-    { id: 4, name: 'Serie A', country: 'Italy', icon: IconTrophy },
-    { id: 5, name: 'Bundesliga', country: 'Germany', icon: IconTrophy },
-    { id: 6, name: 'Ligue 1', country: 'France', icon: IconTrophy },
-    { id: 7, name: 'MLS', country: 'USA', icon: '/banners/sports_league/mls.svg' },
+    { id: 1, name: 'NFL', country: 'USA', icon: '/banners/sports_league/NFL.svg' },
+    { id: 2, name: 'NCAAF', country: 'USA', icon: '/banners/sports_league/NFL.svg' },
+    { id: 3, name: 'CFL', country: 'Canada', icon: '/banners/sports_league/NFL.svg' },
+    { id: 4, name: 'XFL', country: 'USA', icon: '/banners/sports_league/NFL.svg' },
+    { id: 5, name: 'USFL', country: 'USA', icon: '/banners/sports_league/NFL.svg' }
   ]
   
   // Sample event data with betting markets
   const liveEvents = [
     { 
       id: 1, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H1', 
-      elapsedSeconds: 540,
+      league: 'CFL', 
+      country: 'Canada',
+      startTime: 'Q2', 
+      elapsedSeconds: 1200,
       isLive: true,
-      team1: 'Liverpool', 
-      team2: 'Bournemouth', 
-      score: { team1: 2, team2: 1 },
+      team1: 'Toronto Argonauts', 
+      team2: 'Hamilton Tiger-Cats', 
+      score: { team1: 17, team2: 14 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'LIV', odds: '-140' }, { label: 'Tie', odds: '+280' }, { label: 'BOU', odds: '+120' }] },
-        { title: 'Spread', options: [{ label: 'LIV -1.5', odds: '-110' }, { label: 'BOU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'LIV', odds: '-130' }, { label: 'Tie', odds: '+280' }, { label: 'BOU', odds: '+110' }] },
-        { title: '1H Spread', options: [{ label: 'LIV -0.5', odds: '-110' }, { label: 'BOU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'TOR', odds: '-135' }, { label: 'HAM', odds: '+115' }] },
+        { title: 'Spread', options: [{ label: 'TOR -2.5', odds: '-110' }, { label: 'HAM +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 48.5', odds: '-110' }, { label: 'U 48.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'TOR', odds: '-125' }, { label: 'HAM', odds: '+105' }] },
+        { title: '1H Spread', options: [{ label: 'TOR -1.5', odds: '-110' }, { label: 'HAM +1.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 24.5', odds: '-110' }, { label: 'U 24.5', odds: '-110' }] },
       ]
     },
     { 
       id: 2, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H2', 
-      elapsedSeconds: 4020,
+      league: 'CFL', 
+      country: 'Canada',
+      startTime: 'Q3', 
+      elapsedSeconds: 2400,
       isLive: true,
-      team1: 'Arsenal', 
-      team2: 'Chelsea', 
-      score: { team1: 1, team2: 0 },
+      team1: 'Winnipeg Blue Bombers', 
+      team2: 'BC Lions', 
+      score: { team1: 24, team2: 20 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'ARS', odds: '-155' }, { label: 'Tie', odds: '+280' }, { label: 'CHE', odds: '+135' }] },
-        { title: 'Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'ARS', odds: '-145' }, { label: 'Tie', odds: '+280' }, { label: 'CHE', odds: '+125' }] },
-        { title: '1H Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.3', odds: '-110' }, { label: 'U 1.3', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'WPG', odds: '-150' }, { label: 'BC', odds: '+130' }] },
+        { title: 'Spread', options: [{ label: 'WPG -3.5', odds: '-110' }, { label: 'BC +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 51.5', odds: '-110' }, { label: 'U 51.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'WPG', odds: '-140' }, { label: 'BC', odds: '+120' }] },
+        { title: '1H Spread', options: [{ label: 'WPG -2.5', odds: '-110' }, { label: 'BC +2.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 25.5', odds: '-110' }, { label: 'U 25.5', odds: '-110' }] },
       ]
     },
     { 
       id: 3, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H1', 
-      elapsedSeconds: 1380,
+      league: 'CFL', 
+      country: 'Canada',
+      startTime: 'Q1', 
+      elapsedSeconds: 600,
       isLive: true,
-      team1: 'Manchester City', 
-      team2: 'Newcastle United', 
-      score: { team1: 0, team2: 0 },
+      team1: 'Calgary Stampeders', 
+      team2: 'Saskatchewan Roughriders', 
+      score: { team1: 7, team2: 10 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'MCI', odds: '-170' }, { label: 'Tie', odds: '+280' }, { label: 'NEW', odds: '+150' }] },
-        { title: 'Spread', options: [{ label: 'MCI -1.5', odds: '-110' }, { label: 'NEW +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'MCI', odds: '-160' }, { label: 'Tie', odds: '+280' }, { label: 'NEW', odds: '+140' }] },
-        { title: '1H Spread', options: [{ label: 'MCI -0.5', odds: '-110' }, { label: 'NEW +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.3', odds: '-110' }, { label: 'U 1.3', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'CGY', odds: '+130' }, { label: 'SSK', odds: '-150' }] },
+        { title: 'Spread', options: [{ label: 'CGY +3.5', odds: '-110' }, { label: 'SSK -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 46.5', odds: '-110' }, { label: 'U 46.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'CGY', odds: '+120' }, { label: 'SSK', odds: '-140' }] },
+        { title: '1H Spread', options: [{ label: 'CGY +2.5', odds: '-110' }, { label: 'SSK -2.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 23.5', odds: '-110' }, { label: 'U 23.5', odds: '-110' }] },
       ]
     },
   ]
@@ -3271,86 +3269,46 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   }, [])
   
   const upcomingEvents = [
-    { 
-      id: 4, 
-      league: 'Premier League', 
-      country: 'England',
-      time: 'Today 19:05', 
-      team1: 'Tottenham', 
-      team2: 'Aston Villa', 
-      markets: [
-        { title: 'Moneyline', options: [{ label: 'TOT', odds: '-125' }, { label: 'Tie', odds: '+260' }, { label: 'AVL', odds: '+105' }] },
-        { title: 'Spread', options: [{ label: 'TOT -1.5', odds: '-110' }, { label: 'AVL +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'TOT', odds: '-115' }, { label: 'Tie', odds: '+260' }, { label: 'AVL', odds: '+100' }] },
-        { title: '1H Spread', options: [{ label: 'TOT -0.5', odds: '-110' }, { label: 'AVL +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
-      ]
-    },
-    { 
-      id: 5, 
-      league: 'Premier League', 
-      country: 'England',
-      time: 'Today 19:10', 
-      team1: 'Brighton', 
-      team2: 'West Ham', 
-      markets: [
-        { title: 'Moneyline', options: [{ label: 'BHA', odds: '-135' }, { label: 'Tie', odds: '+280' }, { label: 'WHU', odds: '+115' }] },
-        { title: 'Spread', options: [{ label: 'BHA -1.5', odds: '-110' }, { label: 'WHU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'BHA', odds: '-125' }, { label: 'Tie', odds: '+280' }, { label: 'WHU', odds: '+105' }] },
-        { title: '1H Spread', options: [{ label: 'BHA -0.5', odds: '-110' }, { label: 'WHU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
-      ]
-    },
-    { 
-      id: 6, 
-      league: 'Premier League', 
-      country: 'England',
-      time: 'Today 19:35', 
-      team1: 'Manchester United', 
-      team2: 'Everton', 
-      markets: [
-        { title: 'Moneyline', options: [{ label: 'MUN', odds: '-145' }, { label: 'Tie', odds: '+300' }, { label: 'EVE', odds: '+125' }] },
-        { title: 'Spread', options: [{ label: 'MUN -1.5', odds: '-110' }, { label: 'EVE +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'MUN', odds: '-135' }, { label: 'Tie', odds: '+300' }, { label: 'EVE', odds: '+110' }] },
-        { title: '1H Spread', options: [{ label: 'MUN -0.5', odds: '-110' }, { label: 'EVE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
-      ]
-    },
-    { 
-      id: 7, 
-      league: 'Premier League', 
-      country: 'England',
-      time: 'Tomorrow 18:05', 
-      team1: 'Liverpool', 
-      team2: 'Bournemouth', 
-      markets: [
-        { title: 'Moneyline', options: [{ label: 'LIV', odds: '-155' }, { label: 'Tie', odds: '+320' }, { label: 'BOU', odds: '+135' }] },
-        { title: 'Spread', options: [{ label: 'LIV -1.5', odds: '-110' }, { label: 'BOU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'LIV', odds: '-145' }, { label: 'Tie', odds: '+320' }, { label: 'BOU', odds: '+115' }] },
-        { title: '1H Spread', options: [{ label: 'LIV -0.5', odds: '-110' }, { label: 'BOU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
-      ]
-    },
-    { 
-      id: 8, 
-      league: 'Premier League', 
-      country: 'England',
-      time: 'Tomorrow 19:10', 
-      team1: 'Arsenal', 
-      team2: 'Chelsea', 
-      markets: [
-        { title: 'Moneyline', options: [{ label: 'ARS', odds: '-165' }, { label: 'Tie', odds: '+340' }, { label: 'CHE', odds: '+145' }] },
-        { title: 'Spread', options: [{ label: 'ARS -1.5', odds: '-110' }, { label: 'CHE +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'ARS', odds: '-155' }, { label: 'Tie', odds: '+340' }, { label: 'CHE', odds: '+120' }] },
-        { title: '1H Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
-      ]
-    },
+    { id: 4, league: 'CFL', country: 'Canada', time: 'Fri 19:30', team1: 'Ottawa Redblacks', team2: 'Montreal Alouettes', markets: [
+        { title: 'Moneyline', options: [{ label: 'OTT', odds: '+140' }, { label: 'MTL', odds: '-165' }] },
+        { title: 'Spread', options: [{ label: 'OTT +3.5', odds: '-110' }, { label: 'MTL -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 47.5', odds: '-110' }, { label: 'U 47.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'OTT', odds: '+130' }, { label: 'MTL', odds: '-150' }] },
+        { title: '1H Spread', options: [{ label: 'OTT +2.5', odds: '-110' }, { label: 'MTL -2.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 23.5', odds: '-110' }, { label: 'U 23.5', odds: '-110' }] },
+      ] },
+    { id: 5, league: 'CFL', country: 'Canada', time: 'Sat 16:00', team1: 'Edmonton Elks', team2: 'Winnipeg Blue Bombers', markets: [
+        { title: 'Moneyline', options: [{ label: 'EDM', odds: '+175' }, { label: 'WPG', odds: '-210' }] },
+        { title: 'Spread', options: [{ label: 'EDM +5.5', odds: '-110' }, { label: 'WPG -5.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 45.5', odds: '-110' }, { label: 'U 45.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'EDM', odds: '+160' }, { label: 'WPG', odds: '-190' }] },
+        { title: '1H Spread', options: [{ label: 'EDM +3.5', odds: '-110' }, { label: 'WPG -3.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 22.5', odds: '-110' }, { label: 'U 22.5', odds: '-110' }] },
+      ] },
+    { id: 6, league: 'CFL', country: 'Canada', time: 'Sat 19:00', team1: 'BC Lions', team2: 'Calgary Stampeders', markets: [
+        { title: 'Moneyline', options: [{ label: 'BC', odds: '-120' }, { label: 'CGY', odds: '+100' }] },
+        { title: 'Spread', options: [{ label: 'BC -1.5', odds: '-110' }, { label: 'CGY +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 49.5', odds: '-110' }, { label: 'U 49.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'BC', odds: '-110' }, { label: 'CGY', odds: '-110' }] },
+        { title: '1H Spread', options: [{ label: 'BC -1.5', odds: '-110' }, { label: 'CGY +1.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 24.5', odds: '-110' }, { label: 'U 24.5', odds: '-110' }] },
+      ] },
+    { id: 7, league: 'CFL', country: 'Canada', time: 'Sun 14:00', team1: 'Hamilton Tiger-Cats', team2: 'Saskatchewan Roughriders', markets: [
+        { title: 'Moneyline', options: [{ label: 'HAM', odds: '+105' }, { label: 'SSK', odds: '-125' }] },
+        { title: 'Spread', options: [{ label: 'HAM +1.5', odds: '-110' }, { label: 'SSK -1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 44.5', odds: '-110' }, { label: 'U 44.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'HAM', odds: '+100' }, { label: 'SSK', odds: '-120' }] },
+        { title: '1H Spread', options: [{ label: 'HAM +1.5', odds: '-110' }, { label: 'SSK -1.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 22.5', odds: '-110' }, { label: 'U 22.5', odds: '-110' }] },
+      ] },
+    { id: 8, league: 'CFL', country: 'Canada', time: 'Sun 17:00', team1: 'Toronto Argonauts', team2: 'Ottawa Redblacks', markets: [
+        { title: 'Moneyline', options: [{ label: 'TOR', odds: '-155' }, { label: 'OTT', odds: '+135' }] },
+        { title: 'Spread', options: [{ label: 'TOR -3.5', odds: '-110' }, { label: 'OTT +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 46.5', odds: '-110' }, { label: 'U 46.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'TOR', odds: '-145' }, { label: 'OTT', odds: '+125' }] },
+        { title: '1H Spread', options: [{ label: 'TOR -2.5', odds: '-110' }, { label: 'OTT +2.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 23.5', odds: '-110' }, { label: 'U 23.5', odds: '-110' }] },
+      ] },
   ]
 
   // NFL events (Football) - Live
@@ -4830,7 +4788,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              {activeSport}
+              Football
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
@@ -4842,10 +4800,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   )}
                   onClick={() => {
                     setActiveSport('Soccer')
-                    setSelectedLeague(1) // Premier League id
+                    setSelectedLeague(1) // CFL id
                   }}
                 >
-                  Soccer
+                  Football
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className={cn(
@@ -4891,28 +4849,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              'England'
+              Canada
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
                 <DropdownMenuItem 
                   className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Spain')}
-                >
-                  Spain
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Italy')}
-                >
-                  Italy
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
                   onClick={() => console.log('Selected: USA')}
                 >
                   USA
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  onClick={() => console.log('Selected: Canada')}
+                >
+                  Canada
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -4922,101 +4874,48 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              {activeSport === 'Football' ? 'NFL' : 'Premier League'}
+              CFL
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
-                {activeSport === 'Football' ? (
-                  <>
+                <>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC East')}
+                      onClick={() => console.log('Selected: NFL')}
                     >
-                      AFC East
+                      NFL
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC West')}
+                      onClick={() => console.log('Selected: NCAAF')}
                     >
-                      AFC West
+                      NCAAF
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC North')}
+                      onClick={() => console.log('Selected: CFL')}
                     >
-                      AFC North
+                      CFL
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC South')}
+                      onClick={() => console.log('Selected: XFL')}
                     >
-                      AFC South
+                      XFL
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC East')}
+                      onClick={() => console.log('Selected: USFL')}
                     >
-                      NFC East
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC West')}
-                    >
-                      NFC West
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC North')}
-                    >
-                      NFC North
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC South')}
-                    >
-                      NFC South
+                      USFL
                     </DropdownMenuItem>
                   </>
-                ) : (
-                  <>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Championship')}
-                >
-                  Championship
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League 1')}
-                >
-                  League 1
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League 2')}
-                >
-                  League 2
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: FA Cup')}
-                >
-                  FA Cup
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League Cup')}
-                >
-                  League Cup
-                </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
           
-          {/* Premier League Section - Expandable */}
+          {/* CFL Section - Expandable */}
           <motion.div
             initial={false}
             animate={{ 
@@ -5032,8 +4931,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
-                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
+                src={"/banners/sports_league/NFL.svg"}
+                alt="CFL Background"
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -5045,8 +4944,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
-                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
+                src={"/banners/sports_league/NFL.svg"}
+                alt="CFL Background"
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -5060,7 +4959,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
               <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
                 {(() => {
-                  const leagueName = activeSport === 'Football' ? 'NFL' : 'Premier League'
+                  const leagueName = 'CFL'
                   const leagueData = leagues.find(l => l.name === leagueName)
                   const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                   return isSvgPath ? (
@@ -5078,14 +4977,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 })()}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">{activeSport === 'Football' ? 'NFL' : 'Premier League'}</h1>
+                <h1 className="text-lg font-bold text-white">CFL</h1>
               </div>
               <div className="ml-auto flex items-center gap-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    toggleFavoriteLeague('premier-league')
+                    toggleFavoriteLeague('cfl')
                   }}
                   className="flex items-center justify-center p-1.5 hover:bg-white/10 rounded-full transition-colors"
                   title={isLeagueFavorited ? 'Remove from My Feed' : 'Add to My Feed'}
@@ -5113,7 +5012,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </div>
           </div>
           
-            {/* Premier League Table - Expandable */}
+            {/* CFL Table - Expandable */}
             <AnimatePresence>
               {premierLeagueTableExpanded && (
                 <motion.div
@@ -5692,90 +5591,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const soccerBadgeMap: { [key: string]: string } = {
-    'Liverpool': '/team/Liverpool FC.png',
-    'Bournemouth': '/team/AFC Bournemouth.png',
-    'Arsenal': '/team/Arsenal FC.png',
-    'Chelsea': '/team/Chelsea FC.png',
-    'Tottenham': '/team/Tottenham Hotspur.png',
-    'Newcastle': '/team/Newcastle United.png',
-    'Manchester City': '/team/Manchester City.png',
-    'Manchester United': '/team/Manchester United.png',
-    'Aston Villa': '/team/Aston Villa.png',
-    'Brentford': '/team/Brentford FC.png',
-    'Brighton': '/team/Brighton & Hove Albion.png',
-    'Burnley': '/team/Burnley FC.png',
-    'Crystal Palace': '/team/Crystal Palace.png',
-    'Everton': '/team/Everton FC.png',
-    'Fulham': '/team/Fulham FC.png',
-    'Leeds': '/team/Leeds United.png',
-    'Nottingham Forest': '/team/Nottingham Forest.png',
-    'Wolves': '/team/Wolverhampton Wanderers.png',
-    'West Ham': '/team/West Ham United.png',
-    'Sunderland': '/team/Sunderland AFC.png',
-    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
-    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
-    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
-    'Girona': '/team/Spain - LaLiga/Girona FC.png',
-    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
-    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
-    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
-    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
-    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
-    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
-    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
-    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
-    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
-    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
-    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
-    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
-    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
-    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
-    'Torino': '/team/Italy - Serie A/Torino FC.png',
-    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
-    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
-    'Lecce': '/team/Italy - Serie A/US Lecce.png',
-    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
-    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
-    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
-    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
-    'Como': '/team/Italy - Serie A/Como 1907.png',
-    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
-    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
-    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
-    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
-    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
-  }
-                  const logoPath = soccerBadgeMap[teamName]
                   const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
-                  if (logoPath) {
-                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-                  }
                   return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
@@ -5969,7 +5785,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
-                    {/* Header Section - Premier League | England, Soccer */}
+                    {/* Header Section - CFL | Canada, Football */}
                     <div className="px-2.5 py-1.5 flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         {(() => {
@@ -5992,7 +5808,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <span className="text-[9px] text-white/50">|</span>
                         <span className="text-[9px] text-white/70">{event.country}</span>
                         <span className="text-[9px] text-white/50">,</span>
-                        <span className="text-[9px] text-white/70">{activeSport === 'Football' ? 'Football' : 'Soccer'}</span>
+                        <span className="text-[9px] text-white/70">Football</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -6160,11 +5976,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* Bet Boost Cards */}
                   {([
-                    
-                    { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+450' },
-                    { id: 2, marketName: 'Salah 2+ Goals & Assist Vs Arsenal', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+400', boostedOdds: '+550' },
-                    { id: 3, marketName: 'Palmer To Score First Goal Vs Man City', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+350', boostedOdds: '+475' },
-                    { id: 4, marketName: 'Saka To Score From Outside Box Vs Chelsea', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600' },
+                    { id: 1, marketName: 'Mahomes 300+ Passing Yards & 3+ TDs vs Bills', isLive: true, liveTime: 'Q2 7\'', wasOdds: '+350', boostedOdds: '+450' },
+                    { id: 2, marketName: 'Prescott 2+ Rushing TDs vs Eagles', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350' },
+                    { id: 3, marketName: 'Henry 150+ Rushing Yards & TD vs Bears', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                    { id: 4, marketName: 'McCaffrey 150+ Rushing Yards vs Seahawks', isLive: true, liveTime: 'Q3 12\'', wasOdds: '+450', boostedOdds: '+600' },
                   ]).map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                       <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
@@ -6172,13 +5987,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Image 
-                              src={activeSport === 'Football' ? "/banners/sports_league/NFL.svg" : "/banners/sports_league/prem.svg"} 
-                              alt={activeSport === 'Football' ? "NFL" : "Premier League"}
+                              src={"/banners/sports_league/NFL.svg"} 
+                              alt="CFL"
                               width={16}
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">'Premier League | England, Soccer'</span>
+                            <span className="text-[10px] text-white">CFL | Canada, Football</span>
                   </div>
                           {boost.isLive ? (
                             <div className="flex items-center gap-1.5">
@@ -6302,11 +6117,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* SGP Cards */}
                   {([
-                    { id: 1, match: 'Arsenal vs Chelsea', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'TODAY 3:00PM', legs: ['Arsenal To Win', 'Over 2.5 Goals', 'Both Teams To Score'], combinedOdds: '+850' },
-                    { id: 2, match: 'Real Madrid vs Barcelona', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', time: 'TODAY 8:00PM', legs: ['Real Madrid To Win', 'Vinicius Jr To Score', 'Over 3.5 Goals'], combinedOdds: '+1200' },
-                    { id: 3, match: 'Juventus vs AC Milan', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', time: 'TOMORROW 2:45PM', legs: ['Juventus To Win', 'Under 2.5 Goals', 'Vlahovic To Score First'], combinedOdds: '+950' },
-                    { id: 4, match: 'Liverpool vs Man City', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'SAT 5:30PM', legs: ['Draw', 'Over 2.5 Goals', 'Salah To Score Anytime'], combinedOdds: '+1400' },
-                    { id: 5, match: 'PSG vs Marseille', league: 'Ligue 1', leagueIcon: '/banners/sports_league/prem.svg', country: 'France', time: 'SUN 3:00PM', legs: ['PSG To Win', 'Mbappe 2+ Goals', 'Over 3.5 Goals'], combinedOdds: '+1100' }
+                    { id: 1, match: 'Chiefs vs Bills', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', time: 'SUN 1:00PM', legs: ['Chiefs To Win', 'Mahomes 300+ Pass Yds', 'Over 49.5 Points'], combinedOdds: '+750' },
+                    { id: 2, match: 'Eagles vs Cowboys', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', time: 'SUN 4:25PM', legs: ['Eagles To Win', 'Hurts 2+ Rush TDs', 'Over 45.5 Points'], combinedOdds: '+1100' },
+                    { id: 3, match: '49ers vs Seahawks', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', time: 'MON 8:15PM', legs: ['49ers -6.5', 'McCaffrey Anytime TD', 'Under 44.5 Points'], combinedOdds: '+650' },
+                    { id: 4, match: 'Ravens vs Bengals', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', time: 'THU 8:20PM', legs: ['Ravens To Win', 'Lamar 250+ Pass Yds', 'Henry Anytime TD'], combinedOdds: '+900' },
+                    { id: 5, match: 'Packers vs Vikings', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', time: 'SUN 1:00PM', legs: ['Over 48.5 Points', 'Love 2+ Pass TDs', 'Both Teams 20+ Points'], combinedOdds: '+800' }
                   ]).map((parlay, index) => (
                     <CarouselItem key={parlay.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                     <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.3) 50%, rgba(255, 255, 255, 0.03) 100%)' }}>
@@ -6321,7 +6136,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             className="object-contain"
                             decoding="sync"
                           />
-                          <span className="text-[10px] text-white">{parlay.league} | {parlay.country}, Soccer</span>
+                          <span className="text-[10px] text-white">{parlay.league} | {parlay.country}, Football</span>
                         </div>
                         <span className="text-[10px] text-white/70">{parlay.time}</span>
                       </div>
@@ -6449,90 +6264,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const soccerBadgeMap: { [key: string]: string } = {
-    'Liverpool': '/team/Liverpool FC.png',
-    'Bournemouth': '/team/AFC Bournemouth.png',
-    'Arsenal': '/team/Arsenal FC.png',
-    'Chelsea': '/team/Chelsea FC.png',
-    'Tottenham': '/team/Tottenham Hotspur.png',
-    'Newcastle': '/team/Newcastle United.png',
-    'Manchester City': '/team/Manchester City.png',
-    'Manchester United': '/team/Manchester United.png',
-    'Aston Villa': '/team/Aston Villa.png',
-    'Brentford': '/team/Brentford FC.png',
-    'Brighton': '/team/Brighton & Hove Albion.png',
-    'Burnley': '/team/Burnley FC.png',
-    'Crystal Palace': '/team/Crystal Palace.png',
-    'Everton': '/team/Everton FC.png',
-    'Fulham': '/team/Fulham FC.png',
-    'Leeds': '/team/Leeds United.png',
-    'Nottingham Forest': '/team/Nottingham Forest.png',
-    'Wolves': '/team/Wolverhampton Wanderers.png',
-    'West Ham': '/team/West Ham United.png',
-    'Sunderland': '/team/Sunderland AFC.png',
-    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
-    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
-    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
-    'Girona': '/team/Spain - LaLiga/Girona FC.png',
-    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
-    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
-    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
-    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
-    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
-    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
-    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
-    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
-    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
-    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
-    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
-    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
-    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
-    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
-    'Torino': '/team/Italy - Serie A/Torino FC.png',
-    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
-    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
-    'Lecce': '/team/Italy - Serie A/US Lecce.png',
-    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
-    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
-    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
-    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
-    'Como': '/team/Italy - Serie A/Como 1907.png',
-    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
-    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
-    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
-    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
-    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
-  }
-                  const logoPath = soccerBadgeMap[teamName]
                   const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
-                  if (logoPath) {
-                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-                  }
                   return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
@@ -6749,7 +6481,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
-                    {/* Header Section - Premier League | England, Soccer */}
+                    {/* Header Section - CFL | Canada, Football */}
                     <div className="px-2.5 py-1.5 flex items-center justify-between" style={{ alignItems: 'center' }}>
                       <div className="flex items-center gap-1">
                         {(() => {
@@ -6885,14 +6617,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     { id: 11, team1: 'Pittsburgh Steelers', team2: 'Cleveland Browns', score: '7 - 3', team1Code: 'PIT', team2Code: 'CLE', team1Percent: 55, team2Percent: 45, time: 'Q1 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'PIT', team2NFL: 'CLE' },
                     { id: 12, team1: 'Denver Broncos', team2: 'Las Vegas Raiders', score: '35 - 10', team1Code: 'DEN', team2Code: 'LV', team1Percent: 78, team2Percent: 22, time: 'Q4 9\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DEN', team2NFL: 'LV' },
                   ] : [
-                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
+                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'CFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'Canada', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
                     { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
                     { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
-                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
+                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'CFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'Canada', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
                     { id: 8, team1: 'Inter Milan', team2: 'Napoli', score: '2 - 0', team1Code: 'INT', team2Code: 'NAP', team1Percent: 68, team2Percent: 32, time: 'H1 28\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Inter Milan.png', team2Logo: '/team/Italy - Serie A/SSC Napoli.png' },
                     { id: 9, team1: 'Atletico Madrid', team2: 'Sevilla', score: '1 - 1', team1Code: 'ATM', team2Code: 'SEV', team1Percent: 52, team2Percent: 48, time: 'H1 34\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Atlético de Madrid.png', team2Logo: '/team/Spain - LaLiga/Sevilla FC.png' },
                     { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
-                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
+                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'CFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'Canada', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
                     { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
                   ]).map((event) => (
                     <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
@@ -6922,8 +6654,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center mb-3">
                           {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <img src={event.team1Logo} alt={event.team1} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team1Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-
+                            {activeSport === 'Football' && 'team1NFL' in event && event.team1NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team1NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team1Code}</span></div>
+                            )}
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
                           
@@ -7038,8 +6776,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                             <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
-                            <img src={event.team2Logo} alt={event.team2} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team2Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-
+                            {activeSport === 'Football' && 'team2NFL' in event && event.team2NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team2NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team2Code}</span></div>
+                            )}
                           </div>
                         </div>
                         
@@ -8304,7 +8048,7 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
-  const [activeSport, setActiveSport] = useState<string>('Soccer') // Track active sport type
+  const [activeSport, setActiveSport] = useState<string>('Football') // Track active sport type
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
@@ -10558,7 +10302,7 @@ function NavTestPageContent() {
                 activeTab={sportsActiveTab}
                 onTabChange={setSportsActiveTab}
                 onBack={() => {
-                  router.push('/sports/soccer')
+                  router.push('/sports/football')
                 }}
                 brandPrimary={brandPrimary}
                 brandPrimaryHover={brandPrimaryHover}

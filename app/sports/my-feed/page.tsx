@@ -90,7 +90,6 @@ import {
   IconRocket,
   IconWorld,
   IconBallFootball,
-  IconBallBasketball,
   IconBallAmericanFootball,
   IconBallTennis,
   IconBallVolleyball,
@@ -2417,7 +2416,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                         )}
                         style={isActive ? { backgroundColor: brandPrimary } : undefined}
                       >
-                        <Icon strokeWidth={1.5} className="w-5 h-5" />
+                        {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
                         <span className="flex-1">{item.label}</span>
                         {item.linkTo && (
                           <IconExternalLink className="w-4 h-4 text-white/50" />
@@ -2665,6 +2664,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const { state: sidebarState, toggleSidebar } = useSidebar()
   const isMobile = useIsMobile()
   const router = useRouter()
+  const [loadingItem, setLoadingItem] = useState<string | null>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [showShareTicket, setShowShareTicket] = useState(false)
   const [pendingBets, setPendingBets] = useState<Array<{
@@ -2929,20 +2929,51 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // Sports sidebar menu items
   const sportsFeatures = [
     { icon: IconHome, label: 'Home' },
-    { icon: IconHeart, label: 'My Feed', href: '/sports/my-feed', active: true },
+    { icon: '/sports_icons/my-feed.svg', label: 'My Feed', href: '/sports/my-feed', active: true },
     { icon: IconBolt, label: 'Live Betting' },
-    { icon: IconWorld, label: 'World Cup Hub', active: false },
+    { icon: '/sports_icons/World-Cup-2022.svg', label: 'World Cup Hub', active: false },
     { icon: IconRocket, label: 'Odds Boosters' },
-    { icon: IconDice, label: 'Same Game Parlays' },
-    { icon: IconTrophy, label: 'Mega Parlays' },
+    { icon: '/sports_icons/Same Game Parlays.svg', label: 'Same Game Parlays' },
+    { icon: '/sports_icons/Mega Parlays.svg', label: 'Mega Parlays' },
   ]
   
   const sportsCategories: Array<{ icon: any; label: string; href?: string; active?: boolean; expandable?: boolean; subItems?: Array<{ icon?: any; label: string; badge?: any; subItems?: Array<{ icon?: any; label: string; badge?: any }> }> }> = [
-    { icon: IconTrophy, label: 'Top Leagues' },
-    { icon: IconBallBaseball, label: 'Baseball' },
-    { icon: IconBallBasketball, label: 'Basketball' },
-    { icon: IconBallAmericanFootball, label: 'Football' },
-    { icon: IconBallFootball, label: 'Soccer', href: '/sports/soccer' },
+    { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
+    { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
+    { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', href: '/sports/soccer' },
+  ]
+
+  const topLeaguesList = [
+    { icon: '/banners/sports_league/NFL.svg', label: 'NFL', sport: 'Football', href: '/sports/football/nfl' },
+    { icon: '/banners/sports_league/nba.svg', label: 'NBA', sport: 'Basketball', href: '/sports/basketball/nba' },
+    { icon: '/banners/sports_league/MLB.svg', label: 'MLB', sport: 'Baseball', href: '/sports/baseball/mlb' },
+    { icon: '/banners/sports_league/NHL.svg', label: 'NHL', sport: 'Hockey', href: '/sports/hockey/nhl' },
+    { icon: '/banners/sports_league/prem.svg', label: 'Premier League', sport: 'Soccer', href: '/sports/soccer/premier-league' },
+    { icon: '/banners/sports_league/laliga.svg', label: 'La Liga', sport: 'Soccer', href: '/sports/soccer/la-liga' },
+    { icon: '/banners/sports_league/champions.svg', label: 'Champions League', sport: 'Soccer', href: '/sports/soccer/champions-league' },
+    { icon: '/banners/sports_league/mls.svg', label: 'MLS', sport: 'Soccer', href: '/sports/soccer/mls' },
+    { icon: '/banners/sports_league/ATP.svg', label: 'ATP Tour', sport: 'Tennis', href: '/sports/tennis/atp' },
+    { icon: '/banners/sports_league/f1.svg', label: 'Formula 1', sport: 'Auto Racing', href: '/sports/football/nfl' },
+  ]
+
+  const azSports: Array<{ icon: any; label: string; href: string }> = [
+    { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
+    { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
+    { icon: '/sports_icons/mma.svg', label: 'Boxing', href: '/sports/mma' },
+    { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
+    { icon: '/sports_icons/Golf.svg', label: 'Golf', href: '/sports/pool' },
+    { icon: '/sports_icons/Hockey.svg', label: 'Hockey', href: '/sports/hockey' },
+    { icon: '/sports_icons/Horse-Racing-101.svg', label: 'Horse Racing', href: '/sports/pool' },
+    { icon: '/sports_icons/lacrosse.svg', label: 'Lacrosse', href: '/sports/lacrosse' },
+    { icon: '/sports_icons/mma.svg', label: 'MMA', href: '/sports/mma' },
+    { icon: '/sports_icons/pool.svg', label: 'Pool', href: '/sports/pool' },
+    { icon: '/sports_icons/rugby.svg', label: 'Rugby League', href: '/sports/rugby' },
+    { icon: '/sports_icons/rugby.svg', label: 'Rugby Union', href: '/sports/rugby' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', href: '/sports/soccer' },
+    { icon: '/sports_icons/table_tennis.svg', label: 'Table Tennis', href: '/sports/table-tennis' },
+    { icon: '/sports_icons/tennis.svg', label: 'Tennis', href: '/sports/tennis' },
+    { icon: '/sports_icons/volley.svg', label: 'Volleyball', href: '/sports/volleyball' },
   ]
   
   const toggleSport = (sport: string) => {
@@ -2964,6 +2995,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   const handleFeatureClick = (label: string, href?: string) => {
     if (href) {
+      setLoadingItem(label)
       router.push(href)
       return
     }
@@ -2972,6 +3004,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   const handleSportClick = (label: string, href?: string) => {
     if (href) {
+      setLoadingItem(label)
       router.push(href)
       return
     }
@@ -3352,6 +3385,751 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         { title: 'Spread', options: [{ label: 'EDM +1.5', odds: '-200' }, { label: 'COL -1.5', odds: '+170' }] },
         { title: 'Total', options: [{ label: 'O 6.5', odds: '+100' }, { label: 'U 6.5', odds: '-120' }] },
         { title: 'First Half Moneyline', options: [{ label: 'EDM', odds: '+120' }, { label: 'COL', odds: '-140' }] },
+      ]
+    },
+    // NCAAF Live
+    {
+      id: 701,
+      league: 'NCAAF',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1500,
+      isLive: true,
+      team1: 'Alabama Crimson Tide',
+      team2: 'Georgia Bulldogs',
+      score: { team1: 21, team2: 17 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ALA', odds: '+130' }, { label: 'UGA', odds: '-150' }] },
+        { title: 'Spread', options: [{ label: 'ALA +3.5', odds: '-110' }, { label: 'UGA -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 52.5', odds: '-110' }, { label: 'U 52.5', odds: '-110' }] },
+      ]
+    },
+    {
+      id: 702,
+      league: 'NCAAF',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q2',
+      elapsedSeconds: 720,
+      isLive: true,
+      team1: 'Ohio State Buckeyes',
+      team2: 'Michigan Wolverines',
+      score: { team1: 14, team2: 10 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'OSU', odds: '-120' }, { label: 'MICH', odds: '+100' }] },
+        { title: 'Spread', options: [{ label: 'OSU -2.5', odds: '-110' }, { label: 'MICH +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 48.5', odds: '-110' }, { label: 'U 48.5', odds: '-110' }] },
+      ]
+    },
+    // CFL Live
+    {
+      id: 711,
+      league: 'CFL',
+      country: 'Canada',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1800,
+      isLive: true,
+      team1: 'Toronto Argonauts',
+      team2: 'BC Lions',
+      score: { team1: 17, team2: 14 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'TOR', odds: '-130' }, { label: 'BC', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'TOR -2.5', odds: '-110' }, { label: 'BC +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 44.5', odds: '-110' }, { label: 'U 44.5', odds: '-110' }] },
+      ]
+    },
+    // XFL Live
+    {
+      id: 721,
+      league: 'XFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q2',
+      elapsedSeconds: 900,
+      isLive: true,
+      team1: 'Houston Roughnecks',
+      team2: 'St. Louis Battlehawks',
+      score: { team1: 10, team2: 7 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'HOU', odds: '-140' }, { label: 'STL', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'HOU -3.5', odds: '-110' }, { label: 'STL +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 41.5', odds: '-110' }, { label: 'U 41.5', odds: '-110' }] },
+      ]
+    },
+    // USFL Live
+    {
+      id: 731,
+      league: 'USFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q1',
+      elapsedSeconds: 300,
+      isLive: true,
+      team1: 'Birmingham Stallions',
+      team2: 'Michigan Panthers',
+      score: { team1: 3, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'BIR', odds: '-160' }, { label: 'MIC', odds: '+140' }] },
+        { title: 'Spread', options: [{ label: 'BIR -4.5', odds: '-110' }, { label: 'MIC +4.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 38.5', odds: '-110' }, { label: 'U 38.5', odds: '-110' }] },
+      ]
+    },
+    // WNBA Live
+    {
+      id: 741,
+      league: 'WNBA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'Las Vegas Aces',
+      team2: 'New York Liberty',
+      score: { team1: 56, team2: 52 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'LVA', odds: '-140' }, { label: 'NYL', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'LVA -3.5', odds: '-110' }, { label: 'NYL +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 168.5', odds: '-110' }, { label: 'U 168.5', odds: '-110' }] },
+      ]
+    },
+    // NCAAB Live
+    {
+      id: 751,
+      league: 'NCAAB',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      startTime: 'H2',
+      elapsedSeconds: 1500,
+      isLive: true,
+      team1: 'Duke Blue Devils',
+      team2: 'UNC Tar Heels',
+      score: { team1: 62, team2: 58 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'DUKE', odds: '-150' }, { label: 'UNC', odds: '+130' }] },
+        { title: 'Spread', options: [{ label: 'DUKE -3.5', odds: '-110' }, { label: 'UNC +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 148.5', odds: '-110' }, { label: 'U 148.5', odds: '-110' }] },
+      ]
+    },
+    // EuroLeague Live
+    {
+      id: 761,
+      league: 'EuroLeague',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'Real Madrid',
+      team2: 'FC Barcelona',
+      score: { team1: 58, team2: 55 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'RMA', odds: '-130' }, { label: 'BAR', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'RMA -2.5', odds: '-110' }, { label: 'BAR +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 158.5', odds: '-110' }, { label: 'U 158.5', odds: '-110' }] },
+      ]
+    },
+    // NPB Live
+    {
+      id: 771,
+      league: 'NPB',
+      country: 'Japan',
+      leagueIcon: '/banners/sports_league/MLB.svg',
+      startTime: 'T6',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Yomiuri Giants',
+      team2: 'Hanshin Tigers',
+      score: { team1: 3, team2: 2 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'YOM', odds: '-130' }, { label: 'HAN', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'YOM -1.5', odds: '+140' }, { label: 'HAN +1.5', odds: '-160' }] },
+        { title: 'Total', options: [{ label: 'O 7.5', odds: '-110' }, { label: 'U 7.5', odds: '-110' }] },
+      ]
+    },
+    // KBO Live
+    {
+      id: 781,
+      league: 'KBO',
+      country: 'South Korea',
+      leagueIcon: '/banners/sports_league/MLB.svg',
+      startTime: 'T4',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Samsung Lions',
+      team2: 'KIA Tigers',
+      score: { team1: 2, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SAM', odds: '+110' }, { label: 'KIA', odds: '-130' }] },
+        { title: 'Spread', options: [{ label: 'SAM +1.5', odds: '-180' }, { label: 'KIA -1.5', odds: '+155' }] },
+        { title: 'Total', options: [{ label: 'O 8.5', odds: '-110' }, { label: 'U 8.5', odds: '-110' }] },
+      ]
+    },
+    // Copa America Live
+    {
+      id: 791,
+      league: 'Copa America',
+      country: 'South America',
+      leagueIcon: '/banners/sports_league/copa.svg',
+      startTime: 'H2',
+      elapsedSeconds: 3600,
+      isLive: true,
+      team1: 'Argentina',
+      team2: 'Brazil',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ARG', odds: '-120' }, { label: 'Tie', odds: '+260' }, { label: 'BRA', odds: '+280' }] },
+        { title: 'Spread', options: [{ label: 'ARG -0.5', odds: '-110' }, { label: 'BRA +0.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 2.5', odds: '+100' }, { label: 'U 2.5', odds: '-120' }] },
+      ]
+    },
+    // Ligue 1 Live
+    {
+      id: 801,
+      league: 'Ligue 1',
+      country: 'France',
+      leagueIcon: '/banners/sports_league/prem.svg',
+      startTime: 'H1',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'PSG',
+      team2: 'Marseille',
+      score: { team1: 2, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'PSG', odds: '-250' }, { label: 'Tie', odds: '+350' }, { label: 'OM', odds: '+600' }] },
+        { title: 'Spread', options: [{ label: 'PSG -1.5', odds: '-120' }, { label: 'OM +1.5', odds: '+100' }] },
+        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // UFC Live
+    {
+      id: 811,
+      league: 'UFC',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R3',
+      elapsedSeconds: 600,
+      isLive: true,
+      team1: 'Jon Jones',
+      team2: 'Stipe Miocic',
+      score: { team1: 2, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Jones', odds: '-300' }, { label: 'Miocic', odds: '+250' }] },
+        { title: 'Method', options: [{ label: 'KO/TKO', odds: '+150' }, { label: 'Decision', odds: '-130' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-140' }, { label: 'U 2.5', odds: '+120' }] },
+      ]
+    },
+    // Bellator Live
+    {
+      id: 821,
+      league: 'Bellator',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R2',
+      elapsedSeconds: 300,
+      isLive: true,
+      team1: 'Patricio Pitbull',
+      team2: 'AJ McKee',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Pitbull', odds: '+140' }, { label: 'McKee', odds: '-160' }] },
+        { title: 'Method', options: [{ label: 'KO/TKO', odds: '+200' }, { label: 'Decision', odds: '-110' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-120' }, { label: 'U 2.5', odds: '+100' }] },
+      ]
+    },
+    // PFL Live
+    {
+      id: 831,
+      league: 'PFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R1',
+      elapsedSeconds: 120,
+      isLive: true,
+      team1: 'Kayla Harrison',
+      team2: 'Larissa Pacheco',
+      score: { team1: 0, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Harrison', odds: '-200' }, { label: 'Pacheco', odds: '+170' }] },
+        { title: 'Method', options: [{ label: 'KO/TKO', odds: '+250' }, { label: 'Decision', odds: '-150' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
+      ]
+    },
+    // ATP Tour Live
+    {
+      id: 841,
+      league: 'ATP Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      startTime: 'Set 2',
+      elapsedSeconds: 3600,
+      isLive: true,
+      team1: 'Novak Djokovic',
+      team2: 'Carlos Alcaraz',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Djokovic', odds: '+120' }, { label: 'Alcaraz', odds: '-140' }] },
+        { title: 'Set Spread', options: [{ label: 'Djokovic +1.5', odds: '-200' }, { label: 'Alcaraz -1.5', odds: '+170' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // WTA Tour Live
+    {
+      id: 851,
+      league: 'WTA Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      startTime: 'Set 1',
+      elapsedSeconds: 1800,
+      isLive: true,
+      team1: 'Iga Swiatek',
+      team2: 'Aryna Sabalenka',
+      score: { team1: 0, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Swiatek', odds: '-130' }, { label: 'Sabalenka', odds: '+110' }] },
+        { title: 'Set Spread', options: [{ label: 'Swiatek -1.5', odds: '+140' }, { label: 'Sabalenka +1.5', odds: '-160' }] },
+        { title: 'Total Sets', options: [{ label: 'O 2.5', odds: '+130' }, { label: 'U 2.5', odds: '-150' }] },
+      ]
+    },
+    // Six Nations Live
+    {
+      id: 861,
+      league: 'Six Nations',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'H2',
+      elapsedSeconds: 2400,
+      isLive: true,
+      team1: 'England',
+      team2: 'Ireland',
+      score: { team1: 14, team2: 21 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ENG', odds: '+200' }, { label: 'IRE', odds: '-240' }] },
+        { title: 'Spread', options: [{ label: 'ENG +7.5', odds: '-110' }, { label: 'IRE -7.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 42.5', odds: '-110' }, { label: 'U 42.5', odds: '-110' }] },
+      ]
+    },
+    // Super Rugby Live
+    {
+      id: 871,
+      league: 'Super Rugby',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'H1',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'Crusaders',
+      team2: 'Blues',
+      score: { team1: 10, team2: 7 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'CRU', odds: '-130' }, { label: 'BLU', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'CRU -3.5', odds: '-110' }, { label: 'BLU +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 45.5', odds: '-110' }, { label: 'U 45.5', odds: '-110' }] },
+      ]
+    },
+    // Grand Slams Live
+    {
+      id: 881,
+      league: 'Grand Slams',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      startTime: 'Set 3',
+      elapsedSeconds: 5400,
+      isLive: true,
+      team1: 'Jannik Sinner',
+      team2: 'Alexander Zverev',
+      score: { team1: 1, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Sinner', odds: '-160' }, { label: 'Zverev', odds: '+140' }] },
+        { title: 'Set Spread', options: [{ label: 'Sinner -1.5', odds: '+100' }, { label: 'Zverev +1.5', odds: '-120' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-130' }, { label: 'U 3.5', odds: '+110' }] },
+      ]
+    },
+    // Davis Cup Live
+    {
+      id: 891,
+      league: 'Davis Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      startTime: 'Set 2',
+      elapsedSeconds: 3000,
+      isLive: true,
+      team1: 'Italy',
+      team2: 'Spain',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ITA', odds: '-150' }, { label: 'ESP', odds: '+130' }] },
+        { title: 'Set Spread', options: [{ label: 'ITA -1.5', odds: '+110' }, { label: 'ESP +1.5', odds: '-130' }] },
+        { title: 'Total Sets', options: [{ label: 'O 2.5', odds: '+120' }, { label: 'U 2.5', odds: '-140' }] },
+      ]
+    },
+    // ITF Live
+    {
+      id: 901,
+      league: 'ITF',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      startTime: 'Set 1',
+      elapsedSeconds: 900,
+      isLive: true,
+      team1: 'Player A',
+      team2: 'Player B',
+      score: { team1: 0, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Pl. A', odds: '-120' }, { label: 'Pl. B', odds: '+100' }] },
+        { title: 'Total Sets', options: [{ label: 'O 2.5', odds: '+140' }, { label: 'U 2.5', odds: '-160' }] },
+      ]
+    },
+    // WTT Champions Live
+    {
+      id: 911,
+      league: 'WTT Champions',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'G4',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'Fan Zhendong',
+      team2: 'Ma Long',
+      score: { team1: 2, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Fan', odds: '-140' }, { label: 'Ma', odds: '+120' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '-110' }, { label: 'U 4.5', odds: '-110' }] },
+      ]
+    },
+    // ITTF World Tour Live
+    {
+      id: 921,
+      league: 'ITTF World Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'G3',
+      elapsedSeconds: 900,
+      isLive: true,
+      team1: 'Wang Chuqin',
+      team2: 'Lin Yun-Ju',
+      score: { team1: 1, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Wang', odds: '-130' }, { label: 'Lin', odds: '+110' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '-120' }, { label: 'U 4.5', odds: '+100' }] },
+      ]
+    },
+    // T2 Diamond Live
+    {
+      id: 931,
+      league: 'T2 Diamond',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'G2',
+      elapsedSeconds: 600,
+      isLive: true,
+      team1: 'Tomokazu Harimoto',
+      team2: 'Hugo Calderano',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Harimoto', odds: '-160' }, { label: 'Calderano', odds: '+140' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '+100' }, { label: 'U 4.5', odds: '-120' }] },
+      ]
+    },
+    // FIVB Live
+    {
+      id: 941,
+      league: 'FIVB',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Set 3',
+      elapsedSeconds: 3600,
+      isLive: true,
+      team1: 'Brazil',
+      team2: 'Poland',
+      score: { team1: 1, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'BRA', odds: '-120' }, { label: 'POL', odds: '+100' }] },
+        { title: 'Set Spread', options: [{ label: 'BRA -1.5', odds: '+130' }, { label: 'POL +1.5', odds: '-150' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // CEV Live
+    {
+      id: 951,
+      league: 'CEV',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Set 2',
+      elapsedSeconds: 2400,
+      isLive: true,
+      team1: 'Italy',
+      team2: 'Serbia',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ITA', odds: '-150' }, { label: 'SRB', odds: '+130' }] },
+        { title: 'Set Spread', options: [{ label: 'ITA -1.5', odds: '-110' }, { label: 'SRB +1.5', odds: '-110' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '+110' }, { label: 'U 3.5', odds: '-130' }] },
+      ]
+    },
+    // Serie A1 Live
+    {
+      id: 961,
+      league: 'Serie A1',
+      country: 'Italy',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Set 3',
+      elapsedSeconds: 3000,
+      isLive: true,
+      team1: 'Perugia',
+      team2: 'Trentino',
+      score: { team1: 2, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'PER', odds: '-250' }, { label: 'TRE', odds: '+210' }] },
+        { title: 'Set Spread', options: [{ label: 'PER -2.5', odds: '+100' }, { label: 'TRE +2.5', odds: '-120' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '+130' }, { label: 'U 3.5', odds: '-150' }] },
+      ]
+    },
+    // Superliga Live
+    {
+      id: 971,
+      league: 'Superliga',
+      country: 'Brazil',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Set 2',
+      elapsedSeconds: 1800,
+      isLive: true,
+      team1: 'Sada Cruzeiro',
+      team2: 'Funvic Taubate',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'CRU', odds: '-180' }, { label: 'TAU', odds: '+160' }] },
+        { title: 'Set Spread', options: [{ label: 'CRU -1.5', odds: '-120' }, { label: 'TAU +1.5', odds: '+100' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // LFA Live
+    {
+      id: 981,
+      league: 'LFA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R2',
+      elapsedSeconds: 300,
+      isLive: true,
+      team1: 'Fighter A',
+      team2: 'Fighter B',
+      score: { team1: 1, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Fig. A', odds: '-140' }, { label: 'Fig. B', odds: '+120' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-120' }, { label: 'U 2.5', odds: '+100' }] },
+      ]
+    },
+    // ONE Championship Live
+    {
+      id: 991,
+      league: 'ONE Championship',
+      country: 'Asia',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R3',
+      elapsedSeconds: 600,
+      isLive: true,
+      team1: 'Stamp Fairtex',
+      team2: 'Angela Lee',
+      score: { team1: 2, team2: 0 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Stamp', odds: '-200' }, { label: 'Lee', odds: '+170' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // Premiership (Rugby) Live
+    {
+      id: 1001,
+      league: 'Premiership',
+      country: 'England',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'H2',
+      elapsedSeconds: 3000,
+      isLive: true,
+      team1: 'Saracens',
+      team2: 'Harlequins',
+      score: { team1: 21, team2: 14 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SAR', odds: '-160' }, { label: 'HAR', odds: '+140' }] },
+        { title: 'Spread', options: [{ label: 'SAR -5.5', odds: '-110' }, { label: 'HAR +5.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 40.5', odds: '-110' }, { label: 'U 40.5', odds: '-110' }] },
+      ]
+    },
+    // Top 14 Live
+    {
+      id: 1011,
+      league: 'Top 14',
+      country: 'France',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'H1',
+      elapsedSeconds: 1500,
+      isLive: true,
+      team1: 'Toulouse',
+      team2: 'La Rochelle',
+      score: { team1: 14, team2: 7 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'TOU', odds: '-180' }, { label: 'LR', odds: '+160' }] },
+        { title: 'Spread', options: [{ label: 'TOU -7.5', odds: '-110' }, { label: 'LR +7.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 38.5', odds: '-110' }, { label: 'U 38.5', odds: '-110' }] },
+      ]
+    },
+    // Rugby World Cup Live
+    {
+      id: 1021,
+      league: 'Rugby World Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'H2',
+      elapsedSeconds: 3600,
+      isLive: true,
+      team1: 'New Zealand',
+      team2: 'South Africa',
+      score: { team1: 17, team2: 21 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'NZL', odds: '+150' }, { label: 'RSA', odds: '-170' }] },
+        { title: 'Spread', options: [{ label: 'NZL +3.5', odds: '-110' }, { label: 'RSA -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 44.5', odds: '-110' }, { label: 'U 44.5', odds: '-110' }] },
+      ]
+    },
+    // PLL Live
+    {
+      id: 1031,
+      league: 'PLL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1500,
+      isLive: true,
+      team1: 'Waterdogs LC',
+      team2: 'Chaos LC',
+      score: { team1: 8, team2: 6 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'WAT', odds: '-150' }, { label: 'CHA', odds: '+130' }] },
+        { title: 'Spread', options: [{ label: 'WAT -2.5', odds: '-110' }, { label: 'CHA +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 20.5', odds: '-110' }, { label: 'U 20.5', odds: '-110' }] },
+      ]
+    },
+    // NLL Live
+    {
+      id: 1041,
+      league: 'NLL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q2',
+      elapsedSeconds: 720,
+      isLive: true,
+      team1: 'Buffalo Bandits',
+      team2: 'Toronto Rock',
+      score: { team1: 5, team2: 4 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'BUF', odds: '-130' }, { label: 'TOR', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'BUF -1.5', odds: '-110' }, { label: 'TOR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 22.5', odds: '-110' }, { label: 'U 22.5', odds: '-110' }] },
+      ]
+    },
+    // NCAA (Lacrosse) Live
+    {
+      id: 1051,
+      league: 'NCAA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q3',
+      elapsedSeconds: 1200,
+      isLive: true,
+      team1: 'Virginia Cavaliers',
+      team2: 'Maryland Terrapins',
+      score: { team1: 7, team2: 5 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'UVA', odds: '-160' }, { label: 'UMD', odds: '+140' }] },
+        { title: 'Spread', options: [{ label: 'UVA -2.5', odds: '-110' }, { label: 'UMD +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 18.5', odds: '-110' }, { label: 'U 18.5', odds: '-110' }] },
+      ]
+    },
+    // World Championship (Lacrosse) Live
+    {
+      id: 1061,
+      league: 'World Championship',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Q2',
+      elapsedSeconds: 900,
+      isLive: true,
+      team1: 'USA',
+      team2: 'Canada',
+      score: { team1: 4, team2: 3 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'USA', odds: '-130' }, { label: 'CAN', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'USA -1.5', odds: '-110' }, { label: 'CAN +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 16.5', odds: '-110' }, { label: 'U 16.5', odds: '-110' }] },
+      ]
+    },
+    // WPA Live
+    {
+      id: 1071,
+      league: 'WPA',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'R3',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Shane Van Boening',
+      team2: 'Francisco Sanchez Ruiz',
+      score: { team1: 5, team2: 4 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SVB', odds: '-150' }, { label: 'FSR', odds: '+130' }] },
+        { title: 'Total Racks', options: [{ label: 'O 9.5', odds: '-110' }, { label: 'U 9.5', odds: '-110' }] },
+      ]
+    },
+    // Mosconi Cup Live
+    {
+      id: 1081,
+      league: 'Mosconi Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'Match 3',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Team Europe',
+      team2: 'Team USA',
+      score: { team1: 2, team2: 1 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'EUR', odds: '-130' }, { label: 'USA', odds: '+110' }] },
+        { title: 'Total Matches', options: [{ label: 'O 8.5', odds: '-120' }, { label: 'U 8.5', odds: '+100' }] },
+      ]
+    },
+    // US Open (Pool) Live
+    {
+      id: 1091,
+      league: 'US Open',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'QF',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Jayson Shaw',
+      team2: 'Oscar Dominguez',
+      score: { team1: 7, team2: 5 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Shaw', odds: '-170' }, { label: 'Dominguez', odds: '+150' }] },
+        { title: 'Total Racks', options: [{ label: 'O 12.5', odds: '-110' }, { label: 'U 12.5', odds: '-110' }] },
+      ]
+    },
+    // World Pool Masters Live
+    {
+      id: 1101,
+      league: 'World Pool Masters',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      startTime: 'SF',
+      elapsedSeconds: 0,
+      isLive: true,
+      team1: 'Albin Ouschan',
+      team2: 'Joshua Filler',
+      score: { team1: 4, team2: 3 },
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Ouschan', odds: '+110' }, { label: 'Filler', odds: '-130' }] },
+        { title: 'Total Racks', options: [{ label: 'O 8.5', odds: '-110' }, { label: 'U 8.5', odds: '-110' }] },
       ]
     },
   ]
@@ -3908,6 +4686,608 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         { title: '1H Moneyline', options: [{ label: 'NYC', odds: '+140' }, { label: 'Tie', odds: '+220' }, { label: 'ATL', odds: '+240' }] },
         { title: '1H Spread', options: [{ label: 'NYC -0.5', odds: '+110' }, { label: 'ATL +0.5', odds: '-130' }] },
         { title: '1H Total', options: [{ label: 'O 1.5', odds: '-120' }, { label: 'U 1.5', odds: '+100' }] },
+      ]
+    },
+    // NCAAF Upcoming
+    {
+      id: 710,
+      league: 'NCAAF',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 15:30',
+      team1: 'Texas Longhorns',
+      team2: 'Oklahoma Sooners',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'TEX', odds: '-140' }, { label: 'OU', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'TEX -3.5', odds: '-110' }, { label: 'OU +3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 56.5', odds: '-110' }, { label: 'U 56.5', odds: '-110' }] },
+      ]
+    },
+    // CFL Upcoming
+    {
+      id: 712,
+      league: 'CFL',
+      country: 'Canada',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 19:00',
+      team1: 'Winnipeg Blue Bombers',
+      team2: 'Montreal Alouettes',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'WPG', odds: '+110' }, { label: 'MTL', odds: '-130' }] },
+        { title: 'Spread', options: [{ label: 'WPG +2.5', odds: '-110' }, { label: 'MTL -2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 46.5', odds: '-110' }, { label: 'U 46.5', odds: '-110' }] },
+      ]
+    },
+    // XFL Upcoming
+    {
+      id: 722,
+      league: 'XFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 14:00',
+      team1: 'Arlington Renegades',
+      team2: 'DC Defenders',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ARL', odds: '+130' }, { label: 'DC', odds: '-150' }] },
+        { title: 'Spread', options: [{ label: 'ARL +3.5', odds: '-110' }, { label: 'DC -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 39.5', odds: '-110' }, { label: 'U 39.5', odds: '-110' }] },
+      ]
+    },
+    // USFL Upcoming
+    {
+      id: 732,
+      league: 'USFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 16:00',
+      team1: 'Memphis Showboats',
+      team2: 'Houston Gamblers',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'MEM', odds: '-120' }, { label: 'HOU', odds: '+100' }] },
+        { title: 'Spread', options: [{ label: 'MEM -2.5', odds: '-110' }, { label: 'HOU +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 42.5', odds: '-110' }, { label: 'U 42.5', odds: '-110' }] },
+      ]
+    },
+    // WNBA Upcoming
+    {
+      id: 742,
+      league: 'WNBA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      time: 'Tomorrow 19:30',
+      team1: 'Seattle Storm',
+      team2: 'Connecticut Sun',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SEA', odds: '+120' }, { label: 'CON', odds: '-140' }] },
+        { title: 'Spread', options: [{ label: 'SEA +3.5', odds: '-110' }, { label: 'CON -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 162.5', odds: '-110' }, { label: 'U 162.5', odds: '-110' }] },
+      ]
+    },
+    // NCAAB Upcoming
+    {
+      id: 752,
+      league: 'NCAAB',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      time: 'Tomorrow 21:00',
+      team1: 'Kansas Jayhawks',
+      team2: 'Kentucky Wildcats',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'KU', odds: '-130' }, { label: 'UK', odds: '+110' }] },
+        { title: 'Spread', options: [{ label: 'KU -2.5', odds: '-110' }, { label: 'UK +2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 146.5', odds: '-110' }, { label: 'U 146.5', odds: '-110' }] },
+      ]
+    },
+    // EuroLeague Upcoming
+    {
+      id: 762,
+      league: 'EuroLeague',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/nba.svg',
+      time: 'Tomorrow 20:00',
+      team1: 'Olympiacos',
+      team2: 'Panathinaikos',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'OLY', odds: '+110' }, { label: 'PAN', odds: '-130' }] },
+        { title: 'Spread', options: [{ label: 'OLY +2.5', odds: '-110' }, { label: 'PAN -2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 158.5', odds: '-110' }, { label: 'U 158.5', odds: '-110' }] },
+      ]
+    },
+    // NPB Upcoming
+    {
+      id: 772,
+      league: 'NPB',
+      country: 'Japan',
+      leagueIcon: '/banners/sports_league/MLB.svg',
+      time: 'Tomorrow 05:00',
+      team1: 'Fukuoka SoftBank Hawks',
+      team2: 'Seibu Lions',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SBH', odds: '-160' }, { label: 'SEI', odds: '+140' }] },
+        { title: 'Spread', options: [{ label: 'SBH -1.5', odds: '+110' }, { label: 'SEI +1.5', odds: '-130' }] },
+        { title: 'Total', options: [{ label: 'O 7.5', odds: '-110' }, { label: 'U 7.5', odds: '-110' }] },
+      ]
+    },
+    // KBO Upcoming
+    {
+      id: 782,
+      league: 'KBO',
+      country: 'South Korea',
+      leagueIcon: '/banners/sports_league/MLB.svg',
+      time: 'Tomorrow 04:30',
+      team1: 'LG Twins',
+      team2: 'Doosan Bears',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'LG', odds: '-140' }, { label: 'DOO', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'LG -1.5', odds: '+130' }, { label: 'DOO +1.5', odds: '-150' }] },
+        { title: 'Total', options: [{ label: 'O 8.5', odds: '-110' }, { label: 'U 8.5', odds: '-110' }] },
+      ]
+    },
+    // Copa America Upcoming
+    {
+      id: 792,
+      league: 'Copa America',
+      country: 'South America',
+      leagueIcon: '/banners/sports_league/copa.svg',
+      time: 'Tomorrow 20:00',
+      team1: 'Uruguay',
+      team2: 'Colombia',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'URU', odds: '-110' }, { label: 'Tie', odds: '+240' }, { label: 'COL', odds: '+280' }] },
+        { title: 'Spread', options: [{ label: 'URU -0.5', odds: '+100' }, { label: 'COL +0.5', odds: '-120' }] },
+        { title: 'Total', options: [{ label: 'O 2.5', odds: '+100' }, { label: 'U 2.5', odds: '-120' }] },
+      ]
+    },
+    // Ligue 1 Upcoming
+    {
+      id: 802,
+      league: 'Ligue 1',
+      country: 'France',
+      leagueIcon: '/banners/sports_league/prem.svg',
+      time: 'Saturday 21:00',
+      team1: 'Lyon',
+      team2: 'Monaco',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'LYO', odds: '+180' }, { label: 'Tie', odds: '+240' }, { label: 'MON', odds: '+150' }] },
+        { title: 'Spread', options: [{ label: 'LYO +0.5', odds: '-130' }, { label: 'MON -0.5', odds: '+110' }] },
+        { title: 'Total', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
+      ]
+    },
+    // UFC Upcoming
+    {
+      id: 812,
+      league: 'UFC',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 22:00',
+      team1: 'Islam Makhachev',
+      team2: 'Charles Oliveira',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Makhachev', odds: '-200' }, { label: 'Oliveira', odds: '+170' }] },
+        { title: 'Method', options: [{ label: 'KO/TKO', odds: '+200' }, { label: 'Submission', odds: '+150' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 3.5', odds: '-130' }, { label: 'U 3.5', odds: '+110' }] },
+      ]
+    },
+    // Bellator Upcoming
+    {
+      id: 822,
+      league: 'Bellator',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 21:00',
+      team1: 'Usman Nurmagomedov',
+      team2: 'Benson Henderson',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Nurm.', odds: '-250' }, { label: 'Henderson', odds: '+210' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-130' }, { label: 'U 2.5', odds: '+110' }] },
+      ]
+    },
+    // PFL Upcoming
+    {
+      id: 832,
+      league: 'PFL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 19:00',
+      team1: 'Ray Cooper III',
+      team2: 'Magomed Magomedkerimov',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Cooper', odds: '+140' }, { label: 'Magomed.', odds: '-160' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
+      ]
+    },
+    // ATP Tour Upcoming
+    {
+      id: 842,
+      league: 'ATP Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      time: 'Tomorrow 13:00',
+      team1: 'Daniil Medvedev',
+      team2: 'Stefanos Tsitsipas',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Med.', odds: '-130' }, { label: 'Tsit.', odds: '+110' }] },
+        { title: 'Set Spread', options: [{ label: 'Med. -1.5', odds: '+130' }, { label: 'Tsit. +1.5', odds: '-150' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '+100' }, { label: 'U 3.5', odds: '-120' }] },
+      ]
+    },
+    // WTA Tour Upcoming
+    {
+      id: 852,
+      league: 'WTA Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      time: 'Tomorrow 11:00',
+      team1: 'Coco Gauff',
+      team2: 'Elena Rybakina',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Gauff', odds: '+110' }, { label: 'Rybakina', odds: '-130' }] },
+        { title: 'Set Spread', options: [{ label: 'Gauff +1.5', odds: '-180' }, { label: 'Ryb. -1.5', odds: '+155' }] },
+        { title: 'Total Sets', options: [{ label: 'O 2.5', odds: '+120' }, { label: 'U 2.5', odds: '-140' }] },
+      ]
+    },
+    // Grand Slams Upcoming
+    {
+      id: 882,
+      league: 'Grand Slams',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      time: 'Saturday 09:00',
+      team1: 'Carlos Alcaraz',
+      team2: 'Daniil Medvedev',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Alcaraz', odds: '-160' }, { label: 'Med.', odds: '+140' }] },
+        { title: 'Set Spread', options: [{ label: 'Alcaraz -1.5', odds: '+100' }, { label: 'Med. +1.5', odds: '-120' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-120' }, { label: 'U 3.5', odds: '+100' }] },
+      ]
+    },
+    // Davis Cup Upcoming
+    {
+      id: 892,
+      league: 'Davis Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      time: 'Saturday 14:00',
+      team1: 'Australia',
+      team2: 'Canada',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'AUS', odds: '-120' }, { label: 'CAN', odds: '+100' }] },
+        { title: 'Total Matches', options: [{ label: 'O 3.5', odds: '+120' }, { label: 'U 3.5', odds: '-140' }] },
+      ]
+    },
+    // ITF Upcoming
+    {
+      id: 902,
+      league: 'ITF',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/ATP.svg',
+      time: 'Tomorrow 10:00',
+      team1: 'Player C',
+      team2: 'Player D',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Pl. C', odds: '-110' }, { label: 'Pl. D', odds: '-110' }] },
+        { title: 'Total Sets', options: [{ label: 'O 2.5', odds: '+130' }, { label: 'U 2.5', odds: '-150' }] },
+      ]
+    },
+    // Six Nations Upcoming
+    {
+      id: 862,
+      league: 'Six Nations',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 14:15',
+      team1: 'France',
+      team2: 'Wales',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'FRA', odds: '-300' }, { label: 'WAL', odds: '+250' }] },
+        { title: 'Spread', options: [{ label: 'FRA -10.5', odds: '-110' }, { label: 'WAL +10.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 38.5', odds: '-110' }, { label: 'U 38.5', odds: '-110' }] },
+      ]
+    },
+    // Super Rugby Upcoming
+    {
+      id: 872,
+      league: 'Super Rugby',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 07:05',
+      team1: 'Hurricanes',
+      team2: 'Chiefs',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'HUR', odds: '+140' }, { label: 'CHI', odds: '-160' }] },
+        { title: 'Spread', options: [{ label: 'HUR +4.5', odds: '-110' }, { label: 'CHI -4.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 48.5', odds: '-110' }, { label: 'U 48.5', odds: '-110' }] },
+      ]
+    },
+    // Premiership (Rugby) Upcoming
+    {
+      id: 1002,
+      league: 'Premiership',
+      country: 'England',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 15:00',
+      team1: 'Leicester Tigers',
+      team2: 'Bath Rugby',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'LEI', odds: '+120' }, { label: 'BAT', odds: '-140' }] },
+        { title: 'Spread', options: [{ label: 'LEI +3.5', odds: '-110' }, { label: 'BAT -3.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 42.5', odds: '-110' }, { label: 'U 42.5', odds: '-110' }] },
+      ]
+    },
+    // Top 14 Upcoming
+    {
+      id: 1012,
+      league: 'Top 14',
+      country: 'France',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 21:05',
+      team1: 'Racing 92',
+      team2: 'Stade Francais',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'R92', odds: '-180' }, { label: 'STF', odds: '+160' }] },
+        { title: 'Spread', options: [{ label: 'R92 -6.5', odds: '-110' }, { label: 'STF +6.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 40.5', odds: '-110' }, { label: 'U 40.5', odds: '-110' }] },
+      ]
+    },
+    // Rugby World Cup Upcoming
+    {
+      id: 1022,
+      league: 'Rugby World Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 17:00',
+      team1: 'Australia',
+      team2: 'France',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'AUS', odds: '+180' }, { label: 'FRA', odds: '-200' }] },
+        { title: 'Spread', options: [{ label: 'AUS +5.5', odds: '-110' }, { label: 'FRA -5.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 40.5', odds: '-110' }, { label: 'U 40.5', odds: '-110' }] },
+      ]
+    },
+    // WTT Champions Upcoming
+    {
+      id: 912,
+      league: 'WTT Champions',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Tomorrow 06:00',
+      team1: 'Liang Jingkun',
+      team2: 'Dimitrij Ovtcharov',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Liang', odds: '-180' }, { label: 'Ovtcharov', odds: '+160' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '-110' }, { label: 'U 4.5', odds: '-110' }] },
+      ]
+    },
+    // ITTF World Tour Upcoming
+    {
+      id: 922,
+      league: 'ITTF World Tour',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Tomorrow 07:00',
+      team1: 'Tomokazu Harimoto',
+      team2: 'Hugo Calderano',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Harimoto', odds: '-150' }, { label: 'Calderano', odds: '+130' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '+100' }, { label: 'U 4.5', odds: '-120' }] },
+      ]
+    },
+    // T2 Diamond Upcoming
+    {
+      id: 932,
+      league: 'T2 Diamond',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 08:00',
+      team1: 'Wang Chuqin',
+      team2: 'Fan Zhendong',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Wang', odds: '+120' }, { label: 'Fan', odds: '-140' }] },
+        { title: 'Total Games', options: [{ label: 'O 4.5', odds: '-110' }, { label: 'U 4.5', odds: '-110' }] },
+      ]
+    },
+    // FIVB Upcoming
+    {
+      id: 942,
+      league: 'FIVB',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 12:00',
+      team1: 'France',
+      team2: 'Italy',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'FRA', odds: '+130' }, { label: 'ITA', odds: '-150' }] },
+        { title: 'Set Spread', options: [{ label: 'FRA +1.5', odds: '-180' }, { label: 'ITA -1.5', odds: '+155' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // CEV Upcoming
+    {
+      id: 952,
+      league: 'CEV',
+      country: 'Europe',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 18:00',
+      team1: 'Poland',
+      team2: 'Turkey',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'POL', odds: '-130' }, { label: 'TUR', odds: '+110' }] },
+        { title: 'Set Spread', options: [{ label: 'POL -1.5', odds: '+100' }, { label: 'TUR +1.5', odds: '-120' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // Serie A1 Upcoming
+    {
+      id: 962,
+      league: 'Serie A1',
+      country: 'Italy',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 17:00',
+      team1: 'Modena',
+      team2: 'Civitanova',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'MOD', odds: '+140' }, { label: 'CIV', odds: '-160' }] },
+        { title: 'Set Spread', options: [{ label: 'MOD +1.5', odds: '-150' }, { label: 'CIV -1.5', odds: '+130' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // Superliga Upcoming
+    {
+      id: 972,
+      league: 'Superliga',
+      country: 'Brazil',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 22:00',
+      team1: 'Minas',
+      team2: 'SESI',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'MIN', odds: '-120' }, { label: 'SESI', odds: '+100' }] },
+        { title: 'Set Spread', options: [{ label: 'MIN -1.5', odds: '+110' }, { label: 'SESI +1.5', odds: '-130' }] },
+        { title: 'Total Sets', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
+      ]
+    },
+    // LFA Upcoming
+    {
+      id: 982,
+      league: 'LFA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 20:00',
+      team1: 'Fighter C',
+      team2: 'Fighter D',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Fig. C', odds: '-130' }, { label: 'Fig. D', odds: '+110' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
+      ]
+    },
+    // ONE Championship Upcoming
+    {
+      id: 992,
+      league: 'ONE Championship',
+      country: 'Asia',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Friday 08:30',
+      team1: 'Christian Lee',
+      team2: 'Ok Rae Yoon',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Lee', odds: '-180' }, { label: 'Yoon', odds: '+160' }] },
+        { title: 'Total Rounds', options: [{ label: 'O 3.5', odds: '-120' }, { label: 'U 3.5', odds: '+100' }] },
+      ]
+    },
+    // PLL Upcoming
+    {
+      id: 1032,
+      league: 'PLL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 13:00',
+      team1: 'Archers LC',
+      team2: 'Atlas LC',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'ARC', odds: '+110' }, { label: 'ATL', odds: '-130' }] },
+        { title: 'Spread', options: [{ label: 'ARC +1.5', odds: '-110' }, { label: 'ATL -1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 22.5', odds: '-110' }, { label: 'U 22.5', odds: '-110' }] },
+      ]
+    },
+    // NLL Upcoming
+    {
+      id: 1042,
+      league: 'NLL',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 19:00',
+      team1: 'Philadelphia Wings',
+      team2: 'Georgia Swarm',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'PHI', odds: '+130' }, { label: 'GEO', odds: '-150' }] },
+        { title: 'Spread', options: [{ label: 'PHI +2.5', odds: '-110' }, { label: 'GEO -2.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 24.5', odds: '-110' }, { label: 'U 24.5', odds: '-110' }] },
+      ]
+    },
+    // NCAA (Lacrosse) Upcoming
+    {
+      id: 1052,
+      league: 'NCAA',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 12:00',
+      team1: 'Duke Blue Devils',
+      team2: 'Syracuse Orange',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'DUKE', odds: '-140' }, { label: 'SYR', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'DUKE -1.5', odds: '-110' }, { label: 'SYR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 20.5', odds: '-110' }, { label: 'U 20.5', odds: '-110' }] },
+      ]
+    },
+    // World Championship (Lacrosse) Upcoming
+    {
+      id: 1062,
+      league: 'World Championship',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 15:00',
+      team1: 'Australia',
+      team2: 'Japan',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'AUS', odds: '-250' }, { label: 'JPN', odds: '+210' }] },
+        { title: 'Spread', options: [{ label: 'AUS -4.5', odds: '-110' }, { label: 'JPN +4.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 18.5', odds: '-110' }, { label: 'U 18.5', odds: '-110' }] },
+      ]
+    },
+    // WPA Upcoming
+    {
+      id: 1072,
+      league: 'WPA',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 12:00',
+      team1: 'Efren Reyes',
+      team2: 'Earl Strickland',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Reyes', odds: '-140' }, { label: 'Strickland', odds: '+120' }] },
+        { title: 'Total Racks', options: [{ label: 'O 10.5', odds: '-110' }, { label: 'U 10.5', odds: '-110' }] },
+      ]
+    },
+    // Mosconi Cup Upcoming
+    {
+      id: 1082,
+      league: 'Mosconi Cup',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 20:00',
+      team1: 'Team USA',
+      team2: 'Team Europe',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'USA', odds: '+140' }, { label: 'EUR', odds: '-160' }] },
+        { title: 'Total Matches', options: [{ label: 'O 9.5', odds: '-110' }, { label: 'U 9.5', odds: '-110' }] },
+      ]
+    },
+    // US Open (Pool) Upcoming
+    {
+      id: 1092,
+      league: 'US Open',
+      country: 'USA',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Saturday 15:00',
+      team1: 'Mike Dechaine',
+      team2: 'Skyler Woodward',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'Dechaine', odds: '+110' }, { label: 'Woodward', odds: '-130' }] },
+        { title: 'Total Racks', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+      ]
+    },
+    // World Pool Masters Upcoming
+    {
+      id: 1102,
+      league: 'World Pool Masters',
+      country: 'World',
+      leagueIcon: '/banners/sports_league/NFL.svg',
+      time: 'Sunday 14:00',
+      team1: 'Shane Van Boening',
+      team2: 'Jayson Shaw',
+      markets: [
+        { title: 'Moneyline', options: [{ label: 'SVB', odds: '-120' }, { label: 'Shaw', odds: '+100' }] },
+        { title: 'Total Racks', options: [{ label: 'O 9.5', odds: '-110' }, { label: 'U 9.5', odds: '-110' }] },
       ]
     },
   ]
@@ -4942,7 +6322,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsFeatures.map((item, index) => {
-                    const Icon = item.icon
+                    const IconComp = typeof item.icon === 'string' ? null : item.icon
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -4961,8 +6341,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               )}
                               style={item.active ? { backgroundColor: brandPrimary } : undefined}
                             >
-                              <Icon strokeWidth={1.5} className="w-5 h-5" />
-                              <span>{item.label}</span>
+                              <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", item.active ? "bg-white/20" : "bg-white/10")}>
+                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" /> : <IconComp strokeWidth={1.5} className="w-4 h-4" />}
+                              </div>
+                              <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
@@ -4978,12 +6360,81 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </SidebarGroupContent>
             </SidebarGroup>
             
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            {/* Top Leagues Accordion */}
             <SidebarGroup>
-              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">SPORTS</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem className="group/collapsible">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleSport('TopLeagues')
+                          }}
+                          className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                        >
+                          <IconTrophy strokeWidth={1.5} className="w-5 h-5" />
+                          <span>Top Leagues</span>
+                          <IconChevronRight className={cn(
+                            "w-4 h-4 ml-auto transition-transform duration-300",
+                            expandedSports.includes('TopLeagues') && "rotate-90"
+                          )} />
+                        </SidebarMenuButton>
+                      </TooltipTrigger>
+                      {sidebarState === 'collapsed' && (
+                        <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                          <p>Top Leagues</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                    <AnimatePresence>
+                      {expandedSports.includes('TopLeagues') && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <SidebarMenuSub>
+                            {topLeaguesList.map((league, idx) => (
+                              <SidebarMenuSubItem key={idx}>
+                                <SidebarMenuSubButton
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    router.push(league.href)
+                                  }}
+                                  className="pl-4 text-xs text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <img src={league.icon} alt={league.label} width={16} height={16} className="object-contain" decoding="sync" />
+                                    <span>{league.label}</span>
+                                  </div>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            ))}
+                          </SidebarMenuSub>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">TOP SPORTS</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsCategories.map((sport, index) => {
-                    const Icon = sport.icon
+                    const IconComp = typeof sport.icon === 'string' ? null : sport.icon
                     const isActive = sport.active === true
                     const isExpanded = sport.expandable && expandedSports.includes(sport.label)
                     return (
@@ -5006,8 +6457,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   )}
                                   style={isActive ? { backgroundColor: brandPrimary } : undefined}
                                 >
-                                  <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                  <span>{sport.label}</span>
+                                  {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                  <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   <IconChevronRight className={cn(
                                     "w-4 h-4 ml-auto transition-transform duration-300",
                                     isExpanded && "rotate-90"
@@ -5125,8 +6576,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 )}
                                 style={isActive ? { backgroundColor: brandPrimary } : undefined}
                               >
-                                <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                <span>{sport.label}</span>
+                                {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                               </SidebarMenuButton>
                             </TooltipTrigger>
                             {sidebarState === 'collapsed' && (
@@ -5142,6 +6593,46 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            <div className="border-b border-white/10 mx-3 my-1" />
+
+            {/* A-Z Sports */}
+            <SidebarGroup>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">A-Z</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {azSports.map((sport, index) => {
+                    const IconComp = typeof sport.icon === 'string' ? null : sport.icon
+                    return (
+                      <SidebarMenuItem key={index}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <SidebarMenuButton
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setLoadingItem(sport.label)
+                                router.push(sport.href)
+                              }}
+                              className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                            >
+                              {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                              <span className="flex items-center gap-1.5">{sport.label}{loadingItem === sport.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
+                            </SidebarMenuButton>
+                          </TooltipTrigger>
+                          {sidebarState === 'collapsed' && (
+                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              <p>{sport.label}</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
           </TooltipProvider>
         </SidebarContent>
       </Sidebar>
@@ -5172,6 +6663,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 'premier-league': 'Premier League', 'la-liga': 'La Liga', 'champions-league': 'Champions League',
                 'mls': 'MLS', 'serie-a': 'Serie A', 'bundesliga': 'Bundesliga',
                 'nfl': 'NFL', 'nba': 'NBA', 'mlb': 'MLB', 'nhl': 'NHL',
+                'ncaaf': 'NCAAF', 'cfl': 'CFL', 'xfl': 'XFL', 'usfl': 'USFL',
+                'wnba': 'WNBA', 'ncaab': 'NCAAB', 'euroleague': 'EuroLeague',
+                'npb': 'NPB', 'kbo': 'KBO',
+                'copa-america': 'Copa America', 'ligue-1': 'Ligue 1',
+                'ufc': 'UFC', 'bellator': 'Bellator', 'pfl': 'PFL', 'lfa': 'LFA', 'one-championship': 'ONE Championship',
+                'atp-tour': 'ATP Tour', 'wta-tour': 'WTA Tour', 'grand-slams': 'Grand Slams', 'davis-cup': 'Davis Cup', 'itf': 'ITF',
+                'wtt-champions': 'WTT Champions', 'ittf-world-tour': 'ITTF World Tour', 't2-diamond': 'T2 Diamond',
+                'fivb': 'FIVB', 'cev': 'CEV', 'serie-a1': 'Serie A1', 'superliga': 'Superliga',
+                'six-nations': 'Six Nations', 'super-rugby': 'Super Rugby', 'premiership': 'Premiership', 'top-14': 'Top 14', 'rugby-world-cup': 'Rugby World Cup',
+                'pll': 'PLL', 'nll': 'NLL', 'ncaa': 'NCAA', 'world-championship': 'World Championship',
+                'wpa': 'WPA', 'mosconi-cup': 'Mosconi Cup', 'us-open': 'US Open', 'world-pool-masters': 'World Pool Masters',
               }
               const activeCount = favoriteLeagues.filter(slug => {
                 const match = leagueMatchMap[slug]
@@ -5236,8 +6738,52 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         { slug: 'champions-league', name: 'Champions League', leagueMatch: 'Champions League' },
                         { slug: 'mls', name: 'MLS', leagueMatch: 'MLS' },
                         { slug: 'serie-a', name: 'Serie A', leagueMatch: 'Serie A' },
+                        { slug: 'bundesliga', name: 'Bundesliga', leagueMatch: 'Bundesliga' },
                         { slug: 'nfl', name: 'NFL', leagueMatch: 'NFL' },
                         { slug: 'nba', name: 'NBA', leagueMatch: 'NBA' },
+                        { slug: 'mlb', name: 'MLB', leagueMatch: 'MLB' },
+                        { slug: 'nhl', name: 'NHL', leagueMatch: 'NHL' },
+                        { slug: 'ncaaf', name: 'NCAAF', leagueMatch: 'NCAAF' },
+                        { slug: 'cfl', name: 'CFL', leagueMatch: 'CFL' },
+                        { slug: 'xfl', name: 'XFL', leagueMatch: 'XFL' },
+                        { slug: 'usfl', name: 'USFL', leagueMatch: 'USFL' },
+                        { slug: 'wnba', name: 'WNBA', leagueMatch: 'WNBA' },
+                        { slug: 'ncaab', name: 'NCAAB', leagueMatch: 'NCAAB' },
+                        { slug: 'euroleague', name: 'EuroLeague', leagueMatch: 'EuroLeague' },
+                        { slug: 'npb', name: 'NPB', leagueMatch: 'NPB' },
+                        { slug: 'kbo', name: 'KBO', leagueMatch: 'KBO' },
+                        { slug: 'copa-america', name: 'Copa America', leagueMatch: 'Copa America' },
+                        { slug: 'ligue-1', name: 'Ligue 1', leagueMatch: 'Ligue 1' },
+                        { slug: 'ufc', name: 'UFC', leagueMatch: 'UFC' },
+                        { slug: 'bellator', name: 'Bellator', leagueMatch: 'Bellator' },
+                        { slug: 'pfl', name: 'PFL', leagueMatch: 'PFL' },
+                        { slug: 'lfa', name: 'LFA', leagueMatch: 'LFA' },
+                        { slug: 'one-championship', name: 'ONE Championship', leagueMatch: 'ONE Championship' },
+                        { slug: 'atp-tour', name: 'ATP Tour', leagueMatch: 'ATP Tour' },
+                        { slug: 'wta-tour', name: 'WTA Tour', leagueMatch: 'WTA Tour' },
+                        { slug: 'grand-slams', name: 'Grand Slams', leagueMatch: 'Grand Slams' },
+                        { slug: 'davis-cup', name: 'Davis Cup', leagueMatch: 'Davis Cup' },
+                        { slug: 'itf', name: 'ITF', leagueMatch: 'ITF' },
+                        { slug: 'wtt-champions', name: 'WTT Champions', leagueMatch: 'WTT Champions' },
+                        { slug: 'ittf-world-tour', name: 'ITTF World Tour', leagueMatch: 'ITTF World Tour' },
+                        { slug: 't2-diamond', name: 'T2 Diamond', leagueMatch: 'T2 Diamond' },
+                        { slug: 'fivb', name: 'FIVB', leagueMatch: 'FIVB' },
+                        { slug: 'cev', name: 'CEV', leagueMatch: 'CEV' },
+                        { slug: 'serie-a1', name: 'Serie A1', leagueMatch: 'Serie A1' },
+                        { slug: 'superliga', name: 'Superliga', leagueMatch: 'Superliga' },
+                        { slug: 'six-nations', name: 'Six Nations', leagueMatch: 'Six Nations' },
+                        { slug: 'super-rugby', name: 'Super Rugby', leagueMatch: 'Super Rugby' },
+                        { slug: 'premiership', name: 'Premiership', leagueMatch: 'Premiership' },
+                        { slug: 'top-14', name: 'Top 14', leagueMatch: 'Top 14' },
+                        { slug: 'rugby-world-cup', name: 'Rugby World Cup', leagueMatch: 'Rugby World Cup' },
+                        { slug: 'pll', name: 'PLL', leagueMatch: 'PLL' },
+                        { slug: 'nll', name: 'NLL', leagueMatch: 'NLL' },
+                        { slug: 'ncaa', name: 'NCAA', leagueMatch: 'NCAA' },
+                        { slug: 'world-championship', name: 'World Championship', leagueMatch: 'World Championship' },
+                        { slug: 'wpa', name: 'WPA', leagueMatch: 'WPA' },
+                        { slug: 'mosconi-cup', name: 'Mosconi Cup', leagueMatch: 'Mosconi Cup' },
+                        { slug: 'us-open', name: 'US Open', leagueMatch: 'US Open' },
+                        { slug: 'world-pool-masters', name: 'World Pool Masters', leagueMatch: 'World Pool Masters' },
                       ]
 
                       favoriteLeagues.forEach(slug => {
@@ -5290,8 +6836,52 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         { slug: 'champions-league', name: 'Champions League', leagueMatch: 'Champions League' },
                         { slug: 'mls', name: 'MLS', leagueMatch: 'MLS' },
                         { slug: 'serie-a', name: 'Serie A', leagueMatch: 'Serie A' },
+                        { slug: 'bundesliga', name: 'Bundesliga', leagueMatch: 'Bundesliga' },
                         { slug: 'nfl', name: 'NFL', leagueMatch: 'NFL' },
                         { slug: 'nba', name: 'NBA', leagueMatch: 'NBA' },
+                        { slug: 'mlb', name: 'MLB', leagueMatch: 'MLB' },
+                        { slug: 'nhl', name: 'NHL', leagueMatch: 'NHL' },
+                        { slug: 'ncaaf', name: 'NCAAF', leagueMatch: 'NCAAF' },
+                        { slug: 'cfl', name: 'CFL', leagueMatch: 'CFL' },
+                        { slug: 'xfl', name: 'XFL', leagueMatch: 'XFL' },
+                        { slug: 'usfl', name: 'USFL', leagueMatch: 'USFL' },
+                        { slug: 'wnba', name: 'WNBA', leagueMatch: 'WNBA' },
+                        { slug: 'ncaab', name: 'NCAAB', leagueMatch: 'NCAAB' },
+                        { slug: 'euroleague', name: 'EuroLeague', leagueMatch: 'EuroLeague' },
+                        { slug: 'npb', name: 'NPB', leagueMatch: 'NPB' },
+                        { slug: 'kbo', name: 'KBO', leagueMatch: 'KBO' },
+                        { slug: 'copa-america', name: 'Copa America', leagueMatch: 'Copa America' },
+                        { slug: 'ligue-1', name: 'Ligue 1', leagueMatch: 'Ligue 1' },
+                        { slug: 'ufc', name: 'UFC', leagueMatch: 'UFC' },
+                        { slug: 'bellator', name: 'Bellator', leagueMatch: 'Bellator' },
+                        { slug: 'pfl', name: 'PFL', leagueMatch: 'PFL' },
+                        { slug: 'lfa', name: 'LFA', leagueMatch: 'LFA' },
+                        { slug: 'one-championship', name: 'ONE Championship', leagueMatch: 'ONE Championship' },
+                        { slug: 'atp-tour', name: 'ATP Tour', leagueMatch: 'ATP Tour' },
+                        { slug: 'wta-tour', name: 'WTA Tour', leagueMatch: 'WTA Tour' },
+                        { slug: 'grand-slams', name: 'Grand Slams', leagueMatch: 'Grand Slams' },
+                        { slug: 'davis-cup', name: 'Davis Cup', leagueMatch: 'Davis Cup' },
+                        { slug: 'itf', name: 'ITF', leagueMatch: 'ITF' },
+                        { slug: 'wtt-champions', name: 'WTT Champions', leagueMatch: 'WTT Champions' },
+                        { slug: 'ittf-world-tour', name: 'ITTF World Tour', leagueMatch: 'ITTF World Tour' },
+                        { slug: 't2-diamond', name: 'T2 Diamond', leagueMatch: 'T2 Diamond' },
+                        { slug: 'fivb', name: 'FIVB', leagueMatch: 'FIVB' },
+                        { slug: 'cev', name: 'CEV', leagueMatch: 'CEV' },
+                        { slug: 'serie-a1', name: 'Serie A1', leagueMatch: 'Serie A1' },
+                        { slug: 'superliga', name: 'Superliga', leagueMatch: 'Superliga' },
+                        { slug: 'six-nations', name: 'Six Nations', leagueMatch: 'Six Nations' },
+                        { slug: 'super-rugby', name: 'Super Rugby', leagueMatch: 'Super Rugby' },
+                        { slug: 'premiership', name: 'Premiership', leagueMatch: 'Premiership' },
+                        { slug: 'top-14', name: 'Top 14', leagueMatch: 'Top 14' },
+                        { slug: 'rugby-world-cup', name: 'Rugby World Cup', leagueMatch: 'Rugby World Cup' },
+                        { slug: 'pll', name: 'PLL', leagueMatch: 'PLL' },
+                        { slug: 'nll', name: 'NLL', leagueMatch: 'NLL' },
+                        { slug: 'ncaa', name: 'NCAA', leagueMatch: 'NCAA' },
+                        { slug: 'world-championship', name: 'World Championship', leagueMatch: 'World Championship' },
+                        { slug: 'wpa', name: 'WPA', leagueMatch: 'WPA' },
+                        { slug: 'mosconi-cup', name: 'Mosconi Cup', leagueMatch: 'Mosconi Cup' },
+                        { slug: 'us-open', name: 'US Open', leagueMatch: 'US Open' },
+                        { slug: 'world-pool-masters', name: 'World Pool Masters', leagueMatch: 'World Pool Masters' },
                       ]
 
                       favoriteLeagues.forEach(slug => {
@@ -5343,6 +6933,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               'premier-league': 'Premier League', 'la-liga': 'La Liga', 'champions-league': 'Champions League',
               'mls': 'MLS', 'serie-a': 'Serie A', 'bundesliga': 'Bundesliga',
               'nfl': 'NFL', 'nba': 'NBA', 'mlb': 'MLB', 'nhl': 'NHL',
+              'ncaaf': 'NCAAF', 'cfl': 'CFL', 'xfl': 'XFL', 'usfl': 'USFL',
+              'wnba': 'WNBA', 'ncaab': 'NCAAB', 'euroleague': 'EuroLeague',
+              'npb': 'NPB', 'kbo': 'KBO',
+              'copa-america': 'Copa America', 'ligue-1': 'Ligue 1',
+              'ufc': 'UFC', 'bellator': 'Bellator', 'pfl': 'PFL', 'lfa': 'LFA', 'one-championship': 'ONE Championship',
+              'atp-tour': 'ATP Tour', 'wta-tour': 'WTA Tour', 'grand-slams': 'Grand Slams', 'davis-cup': 'Davis Cup', 'itf': 'ITF',
+              'wtt-champions': 'WTT Champions', 'ittf-world-tour': 'ITTF World Tour', 't2-diamond': 'T2 Diamond',
+              'fivb': 'FIVB', 'cev': 'CEV', 'serie-a1': 'Serie A1', 'superliga': 'Superliga',
+              'six-nations': 'Six Nations', 'super-rugby': 'Super Rugby', 'premiership': 'Premiership', 'top-14': 'Top 14', 'rugby-world-cup': 'Rugby World Cup',
+              'pll': 'PLL', 'nll': 'NLL', 'ncaa': 'NCAA', 'world-championship': 'World Championship',
+              'wpa': 'WPA', 'mosconi-cup': 'Mosconi Cup', 'us-open': 'US Open', 'world-pool-masters': 'World Pool Masters',
             }
             const hasAnyEvents = favoriteLeagues.some(slug => {
               const match = leagueMatchMap[slug]
@@ -5363,6 +6964,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               { slug: 'nba', name: 'NBA', icon: '/banners/sports_league/nba.svg', sport: 'Basketball' },
               { slug: 'mlb', name: 'MLB', icon: '/banners/sports_league/MLB.svg', sport: 'Baseball' },
               { slug: 'nhl', name: 'NHL', icon: '/banners/sports_league/NHL.svg', sport: 'Hockey' },
+              { slug: 'ufc', name: 'UFC', icon: '/sports_icons/mma.svg', sport: 'MMA' },
+              { slug: 'atp-tour', name: 'ATP Tour', icon: '/banners/sports_league/ATP.svg', sport: 'Tennis' },
+              { slug: 'six-nations', name: 'Six Nations', icon: '/sports_icons/rugby.svg', sport: 'Rugby' },
+              { slug: 'ncaaf', name: 'NCAAF', icon: '/banners/sports_league/NFL.svg', sport: 'Football' },
+              { slug: 'ligue-1', name: 'Ligue 1', icon: '/banners/sports_league/prem.svg', sport: 'Soccer' },
             ]
 
             const toggleOnboardingSelection = (slug: string) => {
@@ -5489,6 +7095,47 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               { slug: 'nba', name: 'NBA', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1d428a 0%, #c8102e 50%, #1d428a 100%)', leagueMatch: 'NBA' },
               { slug: 'mlb', name: 'MLB', icon: '/banners/sports_league/MLB.svg', country: 'USA', gradient: 'linear-gradient(135deg, #002d72 0%, #0a3d8f 50%, #001f4e 100%)', leagueMatch: 'MLB' },
               { slug: 'nhl', name: 'NHL', icon: '/banners/sports_league/NHL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'NHL' },
+              { slug: 'ncaaf', name: 'NCAAF', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #8B0000 0%, #b22222 50%, #660000 100%)', leagueMatch: 'NCAAF' },
+              { slug: 'cfl', name: 'CFL', icon: '/banners/sports_league/NFL.svg', country: 'Canada', gradient: 'linear-gradient(135deg, #c41e3a 0%, #e6273e 50%, #a0182e 100%)', leagueMatch: 'CFL' },
+              { slug: 'xfl', name: 'XFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', leagueMatch: 'XFL' },
+              { slug: 'usfl', name: 'USFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #002855 0%, #003f7f 50%, #001d3d 100%)', leagueMatch: 'USFL' },
+              { slug: 'wnba', name: 'WNBA', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #ff6800 0%, #ff8c00 50%, #cc5500 100%)', leagueMatch: 'WNBA' },
+              { slug: 'ncaab', name: 'NCAAB', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a3c5e 0%, #2a5f8f 50%, #0f2440 100%)', leagueMatch: 'NCAAB' },
+              { slug: 'euroleague', name: 'EuroLeague', icon: '/banners/sports_league/nba.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #ff5722 0%, #e64a19 50%, #bf360c 100%)', leagueMatch: 'EuroLeague' },
+              { slug: 'npb', name: 'NPB', icon: '/banners/sports_league/MLB.svg', country: 'Japan', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'NPB' },
+              { slug: 'kbo', name: 'KBO', icon: '/banners/sports_league/MLB.svg', country: 'South Korea', gradient: 'linear-gradient(135deg, #003b5c 0%, #005a8c 50%, #00293f 100%)', leagueMatch: 'KBO' },
+              { slug: 'copa-america', name: 'Copa America', icon: '/banners/sports_league/copa.svg', country: 'South America', gradient: 'linear-gradient(135deg, #1b4f72 0%, #2980b9 50%, #154360 100%)', leagueMatch: 'Copa America' },
+              { slug: 'ligue-1', name: 'Ligue 1', icon: '/banners/sports_league/prem.svg', country: 'France', gradient: 'linear-gradient(135deg, #003049 0%, #0a4c73 50%, #001f30 100%)', leagueMatch: 'Ligue 1' },
+              { slug: 'ufc', name: 'UFC', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'UFC' },
+              { slug: 'bellator', name: 'Bellator', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #444444 50%, #0d0d0d 100%)', leagueMatch: 'Bellator' },
+              { slug: 'pfl', name: 'PFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #003366 0%, #004d99 50%, #002244 100%)', leagueMatch: 'PFL' },
+              { slug: 'lfa', name: 'LFA', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #2d2d2d 0%, #4a4a4a 50%, #1a1a1a 100%)', leagueMatch: 'LFA' },
+              { slug: 'one-championship', name: 'ONE Championship', icon: '/banners/sports_league/NFL.svg', country: 'Asia', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'ONE Championship' },
+              { slug: 'atp-tour', name: 'ATP Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #003893 0%, #004db3 50%, #002766 100%)', leagueMatch: 'ATP Tour' },
+              { slug: 'wta-tour', name: 'WTA Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #6a1b9a 0%, #8e24aa 50%, #4a148c 100%)', leagueMatch: 'WTA Tour' },
+              { slug: 'grand-slams', name: 'Grand Slams', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'Grand Slams' },
+              { slug: 'davis-cup', name: 'Davis Cup', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'Davis Cup' },
+              { slug: 'itf', name: 'ITF', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #37474f 0%, #546e7a 50%, #263238 100%)', leagueMatch: 'ITF' },
+              { slug: 'wtt-champions', name: 'WTT Champions', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #e65100 0%, #f57c00 50%, #bf360c 100%)', leagueMatch: 'WTT Champions' },
+              { slug: 'ittf-world-tour', name: 'ITTF World Tour', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #006064 0%, #00838f 50%, #004d40 100%)', leagueMatch: 'ITTF World Tour' },
+              { slug: 't2-diamond', name: 'T2 Diamond', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #4e342e 0%, #6d4c41 50%, #3e2723 100%)', leagueMatch: 'T2 Diamond' },
+              { slug: 'fivb', name: 'FIVB', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #f9a825 0%, #fbc02d 50%, #c79100 100%)', leagueMatch: 'FIVB' },
+              { slug: 'cev', name: 'CEV', icon: '/banners/sports_league/NFL.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #0d47a1 100%)', leagueMatch: 'CEV' },
+              { slug: 'serie-a1', name: 'Serie A1', icon: '/banners/sports_league/NFL.svg', country: 'Italy', gradient: 'linear-gradient(135deg, #024494 0%, #0353a4 50%, #002f6c 100%)', leagueMatch: 'Serie A1' },
+              { slug: 'superliga', name: 'Superliga', icon: '/banners/sports_league/NFL.svg', country: 'Brazil', gradient: 'linear-gradient(135deg, #009c3b 0%, #00b843 50%, #007a2e 100%)', leagueMatch: 'Superliga' },
+              { slug: 'six-nations', name: 'Six Nations', icon: '/banners/sports_league/NFL.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #2e7d32 0%, #43a047 50%, #1b5e20 100%)', leagueMatch: 'Six Nations' },
+              { slug: 'super-rugby', name: 'Super Rugby', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #311b92 0%, #4527a0 50%, #1a0a5c 100%)', leagueMatch: 'Super Rugby' },
+              { slug: 'premiership', name: 'Premiership', icon: '/banners/sports_league/NFL.svg', country: 'England', gradient: 'linear-gradient(135deg, #3d1053 0%, #6b1d6e 50%, #2a0a3a 100%)', leagueMatch: 'Premiership' },
+              { slug: 'top-14', name: 'Top 14', icon: '/banners/sports_league/NFL.svg', country: 'France', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'Top 14' },
+              { slug: 'rugby-world-cup', name: 'Rugby World Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'Rugby World Cup' },
+              { slug: 'pll', name: 'PLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'PLL' },
+              { slug: 'nll', name: 'NLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #ff6f00 0%, #ff8f00 50%, #cc5900 100%)', leagueMatch: 'NLL' },
+              { slug: 'ncaa', name: 'NCAA', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'NCAA' },
+              { slug: 'world-championship', name: 'World Championship', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #004d40 0%, #00695c 50%, #003329 100%)', leagueMatch: 'World Championship' },
+              { slug: 'wpa', name: 'WPA', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'WPA' },
+              { slug: 'mosconi-cup', name: 'Mosconi Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #880e4f 0%, #ad1457 50%, #6a0a3d 100%)', leagueMatch: 'Mosconi Cup' },
+              { slug: 'us-open', name: 'US Open', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'US Open' },
+              { slug: 'world-pool-masters', name: 'World Pool Masters', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #4a148c 0%, #6a1b9a 50%, #38006b 100%)', leagueMatch: 'World Pool Masters' },
             ]
 
             // PRO VIEW - Board-style layout split by league
@@ -6127,20 +7774,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const logoPath = getTeamLogoPath(teamName)
-                  if (logoPath) {
-                    return (
-                      <img
-                        src={logoPath}
-                        alt={teamName}
-                        width={size}
-                        height={size}
-                        className="object-contain flex-shrink-0"
-                        decoding="sync"
-                      />
-                    )
-                  }
-                  return null
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
+                  return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -6580,20 +8215,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const logoPath = getTeamLogoPath(teamName)
-                  if (logoPath) {
-                    return (
-                      <img
-                        src={logoPath}
-                        alt={teamName}
-                        width={size}
-                        height={size}
-                        className="object-contain flex-shrink-0"
-                        decoding="sync"
-                      />
-                    )
-                  }
-                  return null
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
+                  return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
                 // Markets carousel - with arrows on desktop
@@ -6885,7 +8508,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             })}
             </>)
           })()}
-
 
         </div>
         
@@ -7892,6 +9514,7 @@ function VipDrawerContent({
 function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
+  const [loadingNav, setLoadingNav] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
@@ -8877,7 +10500,7 @@ function NavTestPageContent() {
                 } as React.CSSProperties}
               >
                 {[
-                  { icon: '/sports_icons/all sports.svg', label: 'All Sports' },
+                  { icon: '/sports_icons/my-feed.svg', label: 'My Feed' },
                   { icon: '/sports_icons/baseball.svg', label: 'Baseball' },
                   { icon: '/sports_icons/soccer.svg', label: 'Soccer' },
                   { icon: '/sports_icons/tennis.svg', label: 'Tennis' },
@@ -8886,41 +10509,43 @@ function NavTestPageContent() {
                   { icon: '/sports_icons/volley.svg', label: 'Volleyball' },
                   { icon: '/sports_icons/mma.svg', label: 'MMA' },
                   { icon: '/sports_icons/rugby.svg', label: 'Rugby' },
+                  { icon: '/sports_icons/Hockey.svg', label: 'Hockey' },
+                  { icon: '/sports_icons/Basketball.svg', label: 'Basketball' },
                   { icon: '/sports_icons/pool.svg', label: 'Pool' },
                   { icon: '/sports_icons/lacrosse.svg', label: 'Lacrosse' },
                 ].map((sport, index) => {
-                  const isActive = sport.label === activeSport
+                  const isActive = sport.label === 'My Feed' ? activeSport === null : sport.label === activeSport
                   return (
                     <button
                       key={sport.label}
                       type="button"
-                      onClick={(e) => {
-                        console.log('=== FOOTBALL CLICK START ===')
-                        console.log('Button clicked:', sport.label)
-                        console.log('Current activeSport:', activeSport)
-                        console.log('Event target:', e.target)
-                        console.log('Event currentTarget:', e.currentTarget)
-                        
-                        e.preventDefault()
-                        e.stopPropagation()
-                        
+                      onClick={() => {
                         // Navigate to sport page or change active sport
-                        if (sport.label === 'Soccer') {
-                          router.push('/sports/soccer')
+                        const sportRoutes: Record<string, string> = {
+                          'My Feed': '/sports/my-feed',
+                          'Baseball': '/sports/baseball',
+                          'Soccer': '/sports/soccer',
+                          'Tennis': '/sports/tennis',
+                          'Table Tennis': '/sports/table-tennis',
+                          'Football': '/sports/football',
+                          'Volleyball': '/sports/volleyball',
+                          'MMA': '/sports/mma',
+                          'Rugby': '/sports/rugby',
+                          'Hockey': '/sports/hockey',
+                          'Basketball': '/sports/basketball',
+                          'Pool': '/sports/pool',
+                          'Lacrosse': '/sports/lacrosse',
+                        }
+                        const route = sportRoutes[sport.label]
+                        if (route) {
+                          setLoadingNav(sport.label)
+                          router.push(route)
                           return
                         }
-                        // Navigate to main sports page with the selected sport
-                        router.push(`/sports?sport=${encodeURIComponent(sport.label)}`)
-                      }}
-                      onMouseDown={(e) => {
-                        console.log('Mouse down on:', sport.label)
-                        // Don't prevent default on mousedown to allow click to fire
-                      }}
-                      onMouseUp={(e) => {
-                        console.log('Mouse up on:', sport.label)
+                        setActiveSport(sport.label as 'Soccer' | 'Football')
                       }}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative",
+                        "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative", loadingNav === sport.label && "opacity-40",
                         "hover:bg-white/5 active:bg-white/15",
                         isActive && "bg-white/10",
                         isMobile && "pb-3" // Add extra padding bottom on mobile to accommodate the red line
@@ -8959,6 +10584,11 @@ function NavTestPageContent() {
                       >
                         {sport.label}
                       </span>
+                      {loadingNav === sport.label && (
+                        <div className="absolute inset-0 flex items-center justify-center z-20">
+                          <IconLoader2 className="w-4 h-4 animate-spin text-white" />
+                        </div>
+                      )}
                       <div 
                         className={cn(
                           "absolute left-1/2 -translate-x-1/2 h-0.5 rounded-full transition-all duration-300 ease-in-out z-10",
@@ -9808,8 +11438,8 @@ function NavTestPageContent() {
                                       }
                                     }}
                                   >
-                                    <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                    <span>{item.label}</span>
+                                    {typeof sport.icon === 'string' ? <img src={sport.icon} alt={sport.label} className="w-5 h-5 object-contain" /> : <IconComp strokeWidth={1.5} className="w-5 h-5" />}
+                                    <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
                                 {sidebarState === 'collapsed' && (
@@ -11687,7 +13317,6 @@ function NavTestPageContent() {
             </AnimatePresence>
           </SidebarInset>
         </div>
-
 
         {/* Account Details Drawer */}
         <Drawer 

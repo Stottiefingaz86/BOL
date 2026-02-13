@@ -2764,7 +2764,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }
   }, [betslipOpen])
   const subNavScrollRef = useRef<HTMLDivElement>(null)
-  const [expandedSports, setExpandedSports] = useState<string[]>(['Soccer'])
+  const [expandedSports, setExpandedSports] = useState<string[]>(['Pool'])
   const [currentTime, setCurrentTime] = useState<string>('')
   
   useEffect(() => {
@@ -2779,7 +2779,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }))
   }, [])
   const [eventOrderBy, setEventOrderBy] = useState<string>('Popularity')
-  const [selectedLeague, setSelectedLeague] = useState<number>(1) // Default to Premier League (id: 1)
+  const [selectedLeague, setSelectedLeague] = useState<number>(1) // Default to Mosconi Cup (id: 1)
   
   // Slots carousel state
   const [sportsSlotsCarouselApi, setSportsSlotsCarouselApi] = useState<CarouselApi>()
@@ -2791,7 +2791,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const [topEventsCanScrollPrev, setTopEventsCanScrollPrev] = useState(false)
   const [topEventsCanScrollNext, setTopEventsCanScrollNext] = useState(false)
   
-  // Premier League table expand state
+  // Mosconi Cup table expand state
   const [premierLeagueTableExpanded, setPremierLeagueTableExpanded] = useState(false)
   const [premierLeagueActiveTab, setPremierLeagueActiveTab] = useState<'Table' | 'Fixtures' | 'Results' | 'Stats'>('Table')
   
@@ -2815,7 +2815,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }
   
-  const isLeagueFavorited = favoriteLeagues.includes('premier-league')
+  const isLeagueFavorited = favoriteLeagues.includes('mosconi-cup')
   
   // Total market price selection state - key: `${eventId}-${marketIndex}`, value: selected price
   const [totalMarketPrices, setTotalMarketPrices] = useState<{ [key: string]: string }>({})
@@ -2906,7 +2906,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     { icon: '/sports_icons/baseball.svg', label: 'Baseball', href: '/sports/baseball' },
     { icon: '/sports_icons/Basketball.svg', label: 'Basketball', href: '/sports/basketball' },
     { icon: '/sports_icons/football.svg', label: 'Football', href: '/sports/football' },
-    { icon: '/sports_icons/soccer.svg', label: 'Soccer', active: true, href: '/sports/soccer' },
+    { icon: '/sports_icons/soccer.svg', label: 'Soccer', active: true, href: '/sports/pool' },
   ]
 
   const topLeaguesList = [
@@ -2978,72 +2978,69 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   // League data for carousel
   const leagues = [
-    { id: 1, name: 'Premier League', country: 'England', icon: '/banners/sports_league/prem.svg' },
-    { id: 2, name: 'La Liga', country: 'Spain', icon: '/banners/sports_league/laliga.svg' },
-    { id: 3, name: 'Champions League', country: 'Europe', icon: '/banners/sports_league/champions.svg' },
-    { id: 4, name: 'Serie A', country: 'Italy', icon: IconTrophy },
-    { id: 5, name: 'Bundesliga', country: 'Germany', icon: IconTrophy },
-    { id: 6, name: 'Ligue 1', country: 'France', icon: IconTrophy },
-    { id: 7, name: 'MLS', country: 'USA', icon: '/banners/sports_league/mls.svg' },
+    { id: 1, name: 'WPA', country: 'Global', icon: '/sports_icons/pool.svg' },
+    { id: 2, name: 'Mosconi Cup', country: 'Europe/USA', icon: '/sports_icons/pool.svg' },
+    { id: 3, name: 'US Open', country: 'USA', icon: '/sports_icons/pool.svg' },
+    { id: 4, name: 'World Pool Masters', country: 'Global', icon: '/sports_icons/pool.svg' }
   ]
   
   // Sample event data with betting markets
   const liveEvents = [
     { 
       id: 1, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H1', 
-      elapsedSeconds: 540,
+      league: 'Mosconi Cup', 
+      country: 'World',
+      startTime: 'Rack 7', 
+      elapsedSeconds: 2400,
       isLive: true,
-      team1: 'Liverpool', 
-      team2: 'Bournemouth', 
-      score: { team1: 2, team2: 1 },
+      team1: 'Team USA', 
+      team2: 'Team Europe', 
+      score: { team1: 4, team2: 3 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'LIV', odds: '-140' }, { label: 'Tie', odds: '+280' }, { label: 'BOU', odds: '+120' }] },
-        { title: 'Spread', options: [{ label: 'LIV -1.5', odds: '-110' }, { label: 'BOU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'LIV', odds: '-130' }, { label: 'Tie', odds: '+280' }, { label: 'BOU', odds: '+110' }] },
-        { title: '1H Spread', options: [{ label: 'LIV -0.5', odds: '-110' }, { label: 'BOU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'USA', odds: '-140' }, { label: 'EUR', odds: '+120' }] },
+        { title: 'Spread', options: [{ label: 'USA -1.5', odds: '-110' }, { label: 'EUR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'USA', odds: '-130' }, { label: 'EUR', odds: '+110' }] },
+        { title: '1H Spread', options: [{ label: 'USA -0.5', odds: '-110' }, { label: 'EUR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
     { 
       id: 2, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H2', 
-      elapsedSeconds: 4020,
+      league: 'Mosconi Cup', 
+      country: 'World',
+      startTime: 'Rack 4', 
+      elapsedSeconds: 1200,
       isLive: true,
-      team1: 'Arsenal', 
-      team2: 'Chelsea', 
-      score: { team1: 1, team2: 0 },
+      team1: 'Shane Van Boening', 
+      team2: 'Francisco Sanchez Ruiz', 
+      score: { team1: 2, team2: 1 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'ARS', odds: '-155' }, { label: 'Tie', odds: '+280' }, { label: 'CHE', odds: '+135' }] },
-        { title: 'Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'ARS', odds: '-145' }, { label: 'Tie', odds: '+280' }, { label: 'CHE', odds: '+125' }] },
-        { title: '1H Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.3', odds: '-110' }, { label: 'U 1.3', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'SVB', odds: '-155' }, { label: 'FSR', odds: '+135' }] },
+        { title: 'Spread', options: [{ label: 'SVB -1.5', odds: '-110' }, { label: 'FSR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 9.5', odds: '-110' }, { label: 'U 9.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'SVB', odds: '-145' }, { label: 'FSR', odds: '+125' }] },
+        { title: '1H Spread', options: [{ label: 'SVB -0.5', odds: '-110' }, { label: 'FSR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 4.8', odds: '-110' }, { label: 'U 4.8', odds: '-110' }] },
       ]
     },
     { 
       id: 3, 
-      league: 'Premier League', 
-      country: 'England',
-      startTime: 'H1', 
-      elapsedSeconds: 1380,
+      league: 'Mosconi Cup', 
+      country: 'World',
+      startTime: 'Rack 9', 
+      elapsedSeconds: 3600,
       isLive: true,
-      team1: 'Manchester City', 
-      team2: 'Newcastle United', 
-      score: { team1: 0, team2: 0 },
+      team1: 'Skyler Woodward', 
+      team2: 'Jayson Shaw', 
+      score: { team1: 5, team2: 4 },
       markets: [
-        { title: 'Moneyline', options: [{ label: 'MCI', odds: '-170' }, { label: 'Tie', odds: '+280' }, { label: 'NEW', odds: '+150' }] },
-        { title: 'Spread', options: [{ label: 'MCI -1.5', odds: '-110' }, { label: 'NEW +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 2.5', odds: '-110' }, { label: 'U 2.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'MCI', odds: '-160' }, { label: 'Tie', odds: '+280' }, { label: 'NEW', odds: '+140' }] },
-        { title: '1H Spread', options: [{ label: 'MCI -0.5', odds: '-110' }, { label: 'NEW +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.3', odds: '-110' }, { label: 'U 1.3', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'SKY', odds: '-170' }, { label: 'JSH', odds: '+150' }] },
+        { title: 'Spread', options: [{ label: 'SKY -1.5', odds: '-110' }, { label: 'JSH +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 12.5', odds: '-110' }, { label: 'U 12.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'SKY', odds: '-160' }, { label: 'JSH', odds: '+140' }] },
+        { title: '1H Spread', options: [{ label: 'SKY -0.5', odds: '-110' }, { label: 'JSH +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 6.3', odds: '-110' }, { label: 'U 6.3', odds: '-110' }] },
       ]
     },
   ]
@@ -3273,82 +3270,82 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   const upcomingEvents = [
     { 
       id: 4, 
-      league: 'Premier League', 
-      country: 'England',
+      league: 'Mosconi Cup', 
+      country: 'World',
       time: 'Today 19:05', 
-      team1: 'Tottenham', 
-      team2: 'Aston Villa', 
+      team1: 'Team USA', 
+      team2: 'Team Europe', 
       markets: [
-        { title: 'Moneyline', options: [{ label: 'TOT', odds: '-125' }, { label: 'Tie', odds: '+260' }, { label: 'AVL', odds: '+105' }] },
-        { title: 'Spread', options: [{ label: 'TOT -1.5', odds: '-110' }, { label: 'AVL +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'TOT', odds: '-115' }, { label: 'Tie', odds: '+260' }, { label: 'AVL', odds: '+100' }] },
-        { title: '1H Spread', options: [{ label: 'TOT -0.5', odds: '-110' }, { label: 'AVL +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'USA', odds: '-125' }, { label: 'EUR', odds: '+105' }] },
+        { title: 'Spread', options: [{ label: 'USA -1.5', odds: '-110' }, { label: 'EUR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'USA', odds: '-115' }, { label: 'EUR', odds: '+100' }] },
+        { title: '1H Spread', options: [{ label: 'USA -0.5', odds: '-110' }, { label: 'EUR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
     { 
       id: 5, 
-      league: 'Premier League', 
-      country: 'England',
+      league: 'Mosconi Cup', 
+      country: 'World',
       time: 'Today 19:10', 
-      team1: 'Brighton', 
-      team2: 'West Ham', 
+      team1: 'Shane Van Boening', 
+      team2: 'Francisco Sanchez Ruiz', 
       markets: [
-        { title: 'Moneyline', options: [{ label: 'BHA', odds: '-135' }, { label: 'Tie', odds: '+280' }, { label: 'WHU', odds: '+115' }] },
-        { title: 'Spread', options: [{ label: 'BHA -1.5', odds: '-110' }, { label: 'WHU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'BHA', odds: '-125' }, { label: 'Tie', odds: '+280' }, { label: 'WHU', odds: '+105' }] },
-        { title: '1H Spread', options: [{ label: 'BHA -0.5', odds: '-110' }, { label: 'WHU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'SVB', odds: '-135' }, { label: 'FSR', odds: '+115' }] },
+        { title: 'Spread', options: [{ label: 'SVB -1.5', odds: '-110' }, { label: 'FSR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'SVB', odds: '-125' }, { label: 'FSR', odds: '+105' }] },
+        { title: '1H Spread', options: [{ label: 'SVB -0.5', odds: '-110' }, { label: 'FSR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
     { 
       id: 6, 
-      league: 'Premier League', 
-      country: 'England',
+      league: 'Mosconi Cup', 
+      country: 'World',
       time: 'Today 19:35', 
-      team1: 'Manchester United', 
-      team2: 'Everton', 
+      team1: 'Skyler Woodward', 
+      team2: 'Jayson Shaw', 
       markets: [
-        { title: 'Moneyline', options: [{ label: 'MUN', odds: '-145' }, { label: 'Tie', odds: '+300' }, { label: 'EVE', odds: '+125' }] },
-        { title: 'Spread', options: [{ label: 'MUN -1.5', odds: '-110' }, { label: 'EVE +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'MUN', odds: '-135' }, { label: 'Tie', odds: '+300' }, { label: 'EVE', odds: '+110' }] },
-        { title: '1H Spread', options: [{ label: 'MUN -0.5', odds: '-110' }, { label: 'EVE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'SKY', odds: '-145' }, { label: 'JSH', odds: '+125' }] },
+        { title: 'Spread', options: [{ label: 'SKY -1.5', odds: '-110' }, { label: 'JSH +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'SKY', odds: '-135' }, { label: 'JSH', odds: '+110' }] },
+        { title: '1H Spread', options: [{ label: 'SKY -0.5', odds: '-110' }, { label: 'JSH +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
     { 
       id: 7, 
-      league: 'Premier League', 
-      country: 'England',
+      league: 'Mosconi Cup', 
+      country: 'World',
       time: 'Tomorrow 18:05', 
-      team1: 'Liverpool', 
-      team2: 'Bournemouth', 
+      team1: 'Team USA', 
+      team2: 'Team Europe', 
       markets: [
-        { title: 'Moneyline', options: [{ label: 'LIV', odds: '-155' }, { label: 'Tie', odds: '+320' }, { label: 'BOU', odds: '+135' }] },
-        { title: 'Spread', options: [{ label: 'LIV -1.5', odds: '-110' }, { label: 'BOU +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'LIV', odds: '-145' }, { label: 'Tie', odds: '+320' }, { label: 'BOU', odds: '+115' }] },
-        { title: '1H Spread', options: [{ label: 'LIV -0.5', odds: '-110' }, { label: 'BOU +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'USA', odds: '-155' }, { label: 'EUR', odds: '+135' }] },
+        { title: 'Spread', options: [{ label: 'USA -1.5', odds: '-110' }, { label: 'EUR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'USA', odds: '-145' }, { label: 'EUR', odds: '+115' }] },
+        { title: '1H Spread', options: [{ label: 'USA -0.5', odds: '-110' }, { label: 'EUR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
     { 
       id: 8, 
-      league: 'Premier League', 
-      country: 'England',
+      league: 'Mosconi Cup', 
+      country: 'World',
       time: 'Tomorrow 19:10', 
-      team1: 'Arsenal', 
-      team2: 'Chelsea', 
+      team1: 'Shane Van Boening', 
+      team2: 'Francisco Sanchez Ruiz', 
       markets: [
-        { title: 'Moneyline', options: [{ label: 'ARS', odds: '-165' }, { label: 'Tie', odds: '+340' }, { label: 'CHE', odds: '+145' }] },
-        { title: 'Spread', options: [{ label: 'ARS -1.5', odds: '-110' }, { label: 'CHE +1.5', odds: '-110' }] },
-        { title: 'Total', options: [{ label: 'O 3.5', odds: '-110' }, { label: 'U 3.5', odds: '-110' }] },
-        { title: '1H Moneyline', options: [{ label: 'ARS', odds: '-155' }, { label: 'Tie', odds: '+340' }, { label: 'CHE', odds: '+120' }] },
-        { title: '1H Spread', options: [{ label: 'ARS -0.5', odds: '-110' }, { label: 'CHE +0.5', odds: '-110' }] },
-        { title: '1H Total', options: [{ label: 'O 1.8', odds: '-110' }, { label: 'U 1.8', odds: '-110' }] },
+        { title: 'Moneyline', options: [{ label: 'SVB', odds: '-165' }, { label: 'FSR', odds: '+145' }] },
+        { title: 'Spread', options: [{ label: 'SVB -1.5', odds: '-110' }, { label: 'FSR +1.5', odds: '-110' }] },
+        { title: 'Total', options: [{ label: 'O 11.5', odds: '-110' }, { label: 'U 11.5', odds: '-110' }] },
+        { title: '1H Moneyline', options: [{ label: 'SVB', odds: '-155' }, { label: 'FSR', odds: '+120' }] },
+        { title: '1H Spread', options: [{ label: 'SVB -0.5', odds: '-110' }, { label: 'FSR +0.5', odds: '-110' }] },
+        { title: '1H Total', options: [{ label: 'O 5.8', odds: '-110' }, { label: 'U 5.8', odds: '-110' }] },
       ]
     },
   ]
@@ -4830,7 +4827,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              {activeSport}
+              Pool
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
@@ -4842,10 +4839,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   )}
                   onClick={() => {
                     setActiveSport('Soccer')
-                    setSelectedLeague(1) // Premier League id
+                    setSelectedLeague(1) // Mosconi Cup id
                   }}
                 >
-                  Soccer
+                  Pool
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className={cn(
@@ -4891,28 +4888,28 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              'England'
+              Europe/USA
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
                 <DropdownMenuItem 
                   className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Spain')}
+                  onClick={() => console.log('Selected: Global')}
                 >
-                  Spain
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Italy')}
-                >
-                  Italy
+                  Global
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
                   onClick={() => console.log('Selected: USA')}
                 >
                   USA
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  onClick={() => console.log('Selected: Europe')}
+                >
+                  Europe
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -4922,101 +4919,42 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <button 
               className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
             >
-              {activeSport === 'Football' ? 'NFL' : 'Premier League'}
+              Mosconi Cup
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
-                {activeSport === 'Football' ? (
-                  <>
+                <>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC East')}
+                      onClick={() => console.log('Selected: WPA')}
                     >
-                      AFC East
+                      WPA
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC West')}
+                      onClick={() => console.log('Selected: Mosconi Cup')}
                     >
-                      AFC West
+                      Mosconi Cup
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC North')}
+                      onClick={() => console.log('Selected: US Open')}
                     >
-                      AFC North
+                      US Open
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: AFC South')}
+                      onClick={() => console.log('Selected: World Pool Masters')}
                     >
-                      AFC South
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC East')}
-                    >
-                      NFC East
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC West')}
-                    >
-                      NFC West
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC North')}
-                    >
-                      NFC North
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                      onClick={() => console.log('Selected: NFC South')}
-                    >
-                      NFC South
+                      World Pool Masters
                     </DropdownMenuItem>
                   </>
-                ) : (
-                  <>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: Championship')}
-                >
-                  Championship
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League 1')}
-                >
-                  League 1
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League 2')}
-                >
-                  League 2
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: FA Cup')}
-                >
-                  FA Cup
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
-                  onClick={() => console.log('Selected: League Cup')}
-                >
-                  League Cup
-                </DropdownMenuItem>
-                  </>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
           
-          {/* Premier League Section - Expandable */}
+          {/* Mosconi Cup Section - Expandable */}
           <motion.div
             initial={false}
             animate={{ 
@@ -5032,8 +4970,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
-                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
+                src={"/sports_icons/pool.svg"}
+                alt="Mosconi Cup Background"
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -5045,8 +4983,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               }`}
             >
               <img
-                src={activeSport === 'Football' ? "/banners/nfl_bg.avif" : "/premierleague background.gif"}
-                alt={activeSport === 'Football' ? "NFL Background" : "Premier League Background"}
+                src={"/sports_icons/pool.svg"}
+                alt="Mosconi Cup Background"
                 className="w-full h-full object-cover"
                 style={{ display: 'block' }}
               />
@@ -5060,7 +4998,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
               <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
                 {(() => {
-                  const leagueName = activeSport === 'Football' ? 'NFL' : 'Premier League'
+                  const leagueName = 'Mosconi Cup'
                   const leagueData = leagues.find(l => l.name === leagueName)
                   const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                   return isSvgPath ? (
@@ -5078,14 +5016,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 })()}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">{activeSport === 'Football' ? 'NFL' : 'Premier League'}</h1>
+                <h1 className="text-lg font-bold text-white">Mosconi Cup</h1>
               </div>
               <div className="ml-auto flex items-center gap-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    toggleFavoriteLeague('premier-league')
+                    toggleFavoriteLeague('mosconi-cup')
                   }}
                   className="flex items-center justify-center p-1.5 hover:bg-white/10 rounded-full transition-colors"
                   title={isLeagueFavorited ? 'Remove from My Feed' : 'Add to My Feed'}
@@ -5113,7 +5051,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </div>
           </div>
           
-            {/* Premier League Table - Expandable */}
+            {/* Mosconi Cup Table - Expandable */}
             <AnimatePresence>
               {premierLeagueTableExpanded && (
                 <motion.div
@@ -5692,90 +5630,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const soccerBadgeMap: { [key: string]: string } = {
-    'Liverpool': '/team/Liverpool FC.png',
-    'Bournemouth': '/team/AFC Bournemouth.png',
-    'Arsenal': '/team/Arsenal FC.png',
-    'Chelsea': '/team/Chelsea FC.png',
-    'Tottenham': '/team/Tottenham Hotspur.png',
-    'Newcastle': '/team/Newcastle United.png',
-    'Manchester City': '/team/Manchester City.png',
-    'Manchester United': '/team/Manchester United.png',
-    'Aston Villa': '/team/Aston Villa.png',
-    'Brentford': '/team/Brentford FC.png',
-    'Brighton': '/team/Brighton & Hove Albion.png',
-    'Burnley': '/team/Burnley FC.png',
-    'Crystal Palace': '/team/Crystal Palace.png',
-    'Everton': '/team/Everton FC.png',
-    'Fulham': '/team/Fulham FC.png',
-    'Leeds': '/team/Leeds United.png',
-    'Nottingham Forest': '/team/Nottingham Forest.png',
-    'Wolves': '/team/Wolverhampton Wanderers.png',
-    'West Ham': '/team/West Ham United.png',
-    'Sunderland': '/team/Sunderland AFC.png',
-    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
-    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
-    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
-    'Girona': '/team/Spain - LaLiga/Girona FC.png',
-    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
-    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
-    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
-    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
-    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
-    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
-    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
-    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
-    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
-    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
-    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
-    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
-    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
-    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
-    'Torino': '/team/Italy - Serie A/Torino FC.png',
-    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
-    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
-    'Lecce': '/team/Italy - Serie A/US Lecce.png',
-    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
-    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
-    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
-    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
-    'Como': '/team/Italy - Serie A/Como 1907.png',
-    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
-    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
-    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
-    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
-    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
-  }
-                  const logoPath = soccerBadgeMap[teamName]
                   const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
-                  if (logoPath) {
-                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-                  }
                   return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
@@ -5969,7 +5824,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
-                    {/* Header Section - Premier League | England, Soccer */}
+                    {/* Header Section - Mosconi Cup | Europe/USA, Pool */}
                     <div className="px-2.5 py-1.5 flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         {(() => {
@@ -5992,7 +5847,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <span className="text-[9px] text-white/50">|</span>
                         <span className="text-[9px] text-white/70">{event.country}</span>
                         <span className="text-[9px] text-white/50">,</span>
-                        <span className="text-[9px] text-white/70">{activeSport === 'Football' ? 'Football' : 'Soccer'}</span>
+                        <span className="text-[9px] text-white/70">Pool</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -6160,11 +6015,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* Bet Boost Cards */}
                   {([
-                    
-                    { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: 'H2 70\'', wasOdds: '+350', boostedOdds: '+450' },
-                    { id: 2, marketName: 'Salah 2+ Goals & Assist Vs Arsenal', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+400', boostedOdds: '+550' },
-                    { id: 3, marketName: 'Palmer To Score First Goal Vs Man City', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+350', boostedOdds: '+475' },
-                    { id: 4, marketName: 'Saka To Score From Outside Box Vs Chelsea', isLive: true, liveTime: 'H1 32\'', wasOdds: '+450', boostedOdds: '+600' },
+                    { id: 1, marketName: 'Van Boening Win 11-5 Or Better vs Shaw', isLive: true, liveTime: 'R8', wasOdds: '+350', boostedOdds: '+475' },
+                    { id: 2, marketName: 'Filler Break & Run In 3+ Racks vs Gorst', isLive: false, time: 'TODAY 3:00PM', wasOdds: '+400', boostedOdds: '+550' },
+                    { id: 3, marketName: 'USA Win Mosconi Cup 11-7 Or Better', isLive: false, time: 'FRI 7:00PM', wasOdds: '+300', boostedOdds: '+420' },
+                    { id: 4, marketName: 'Ko Pin Yi Win From Hill-Hill vs Ouschan', isLive: true, liveTime: 'R6', wasOdds: '+500', boostedOdds: '+680' },
                   ]).map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                       <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
@@ -6172,13 +6026,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <Image 
-                              src={activeSport === 'Football' ? "/banners/sports_league/NFL.svg" : "/banners/sports_league/prem.svg"} 
-                              alt={activeSport === 'Football' ? "NFL" : "Premier League"}
+                              src={"/sports_icons/pool.svg"} 
+                              alt="Mosconi Cup"
                               width={16}
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">'Premier League | England, Soccer'</span>
+                            <span className="text-[10px] text-white">Mosconi Cup | Europe/USA, Pool</span>
                   </div>
                           {boost.isLive ? (
                             <div className="flex items-center gap-1.5">
@@ -6302,11 +6156,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* SGP Cards */}
                   {([
-                    { id: 1, match: 'Arsenal vs Chelsea', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'TODAY 3:00PM', legs: ['Arsenal To Win', 'Over 2.5 Goals', 'Both Teams To Score'], combinedOdds: '+850' },
-                    { id: 2, match: 'Real Madrid vs Barcelona', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', time: 'TODAY 8:00PM', legs: ['Real Madrid To Win', 'Vinicius Jr To Score', 'Over 3.5 Goals'], combinedOdds: '+1200' },
-                    { id: 3, match: 'Juventus vs AC Milan', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', time: 'TOMORROW 2:45PM', legs: ['Juventus To Win', 'Under 2.5 Goals', 'Vlahovic To Score First'], combinedOdds: '+950' },
-                    { id: 4, match: 'Liverpool vs Man City', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', time: 'SAT 5:30PM', legs: ['Draw', 'Over 2.5 Goals', 'Salah To Score Anytime'], combinedOdds: '+1400' },
-                    { id: 5, match: 'PSG vs Marseille', league: 'Ligue 1', leagueIcon: '/banners/sports_league/prem.svg', country: 'France', time: 'SUN 3:00PM', legs: ['PSG To Win', 'Mbappe 2+ Goals', 'Over 3.5 Goals'], combinedOdds: '+1100' }
+                    { id: 1, match: 'SVB vs Filler', league: 'WPA', leagueIcon: '/sports_icons/pool.svg', country: 'World', time: 'TODAY 7:00PM', legs: ['SVB To Win', 'Over 12.5 Racks', 'SVB Break And Run'], combinedOdds: '+850' },
+                    { id: 2, match: 'Ko vs Gorst', league: 'WPA', leagueIcon: '/sports_icons/pool.svg', country: 'World', time: 'TOMORROW 8:00PM', legs: ['Ko To Win', 'Under 15.5 Racks', 'Ko 3+ Breaks'], combinedOdds: '+700' },
+                    { id: 3, match: 'Shaw vs Alcaide', league: 'Mosconi Cup', leagueIcon: '/sports_icons/pool.svg', country: 'World', time: 'SAT 6:00PM', legs: ['Shaw To Win', 'Over 10.5 Racks', 'Shaw 2+ Safety Wins'], combinedOdds: '+650' },
+                    { id: 4, match: 'Ouschan vs Fisher', league: 'WPA', leagueIcon: '/sports_icons/pool.svg', country: 'World', time: 'FRI 9:00PM', legs: ['Ouschan To Win', 'In Final Rack', 'Over 14.5 Racks'], combinedOdds: '+1100' },
+                    { id: 5, match: 'Woodward vs Kazakis', league: 'US Open', leagueIcon: '/sports_icons/pool.svg', country: 'USA', time: 'SUN 5:00PM', legs: ['Woodward To Win', 'Under 13.5 Racks', 'Woodward Break Run'], combinedOdds: '+900' }
                   ]).map((parlay, index) => (
                     <CarouselItem key={parlay.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
                     <div className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.3) 50%, rgba(255, 255, 255, 0.03) 100%)' }}>
@@ -6321,7 +6175,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             className="object-contain"
                             decoding="sync"
                           />
-                          <span className="text-[10px] text-white">{parlay.league} | {parlay.country}, Soccer</span>
+                          <span className="text-[10px] text-white">{parlay.league} | {parlay.country}, Pool</span>
                         </div>
                         <span className="text-[10px] text-white/70">{parlay.time}</span>
                       </div>
@@ -6449,90 +6303,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
-                  const soccerBadgeMap: { [key: string]: string } = {
-    'Liverpool': '/team/Liverpool FC.png',
-    'Bournemouth': '/team/AFC Bournemouth.png',
-    'Arsenal': '/team/Arsenal FC.png',
-    'Chelsea': '/team/Chelsea FC.png',
-    'Tottenham': '/team/Tottenham Hotspur.png',
-    'Newcastle': '/team/Newcastle United.png',
-    'Manchester City': '/team/Manchester City.png',
-    'Manchester United': '/team/Manchester United.png',
-    'Aston Villa': '/team/Aston Villa.png',
-    'Brentford': '/team/Brentford FC.png',
-    'Brighton': '/team/Brighton & Hove Albion.png',
-    'Burnley': '/team/Burnley FC.png',
-    'Crystal Palace': '/team/Crystal Palace.png',
-    'Everton': '/team/Everton FC.png',
-    'Fulham': '/team/Fulham FC.png',
-    'Leeds': '/team/Leeds United.png',
-    'Nottingham Forest': '/team/Nottingham Forest.png',
-    'Wolves': '/team/Wolverhampton Wanderers.png',
-    'West Ham': '/team/West Ham United.png',
-    'Sunderland': '/team/Sunderland AFC.png',
-    'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png',
-    'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atletico Madrid': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Sevilla': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Real Sociedad': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Villarreal': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Athletic Bilbao': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Valencia': '/team/Spain - LaLiga/Valencia CF.png',
-    'Real Betis': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Getafe': '/team/Spain - LaLiga/Getafe CF.png',
-    'Girona': '/team/Spain - LaLiga/Girona FC.png',
-    'Celta Vigo': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Mallorca': '/team/Spain - LaLiga/RCD Mallorca.png',
-    'Osasuna': '/team/Spain - LaLiga/CA Osasuna.png',
-    'Rayo Vallecano': '/team/Spain - LaLiga/Rayo Vallecano.png',
-    'Alaves': '/team/Spain - LaLiga/Deportivo Alavés.png',
-    'Espanyol': '/team/Spain - LaLiga/RCD Espanyol Barcelona.png',
-    'Juventus': '/team/Italy - Serie A/Juventus FC.png',
-    'AC Milan': '/team/Italy - Serie A/AC Milan.png',
-    'Inter Milan': '/team/Italy - Serie A/Inter Milan.png',
-    'Napoli': '/team/Italy - Serie A/SSC Napoli.png',
-    'AS Roma': '/team/Italy - Serie A/AS Roma.png',
-    'Lazio': '/team/Italy - Serie A/SS Lazio.png',
-    'Atalanta': '/team/Italy - Serie A/Atalanta BC.png',
-    'Fiorentina': '/team/Italy - Serie A/ACF Fiorentina.png',
-    'Bologna': '/team/Italy - Serie A/Bologna FC 1909.png',
-    'Torino': '/team/Italy - Serie A/Torino FC.png',
-    'Udinese': '/team/Italy - Serie A/Udinese Calcio.png',
-    'Genoa': '/team/Italy - Serie A/Genoa CFC.png',
-    'Lecce': '/team/Italy - Serie A/US Lecce.png',
-    'Verona': '/team/Italy - Serie A/Hellas Verona.png',
-    'Sassuolo': '/team/Italy - Serie A/US Sassuolo.png',
-    'Cagliari': '/team/Italy - Serie A/Cagliari Calcio.png',
-    'Parma': '/team/Italy - Serie A/Parma Calcio 1913.png',
-    'Como': '/team/Italy - Serie A/Como 1907.png',
-    'PSG': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Lyon': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Marseille': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Monaco': '/team/Spain - LaLiga/Sevilla FC.png',
-    'Lille': '/team/Spain - LaLiga/Valencia CF.png',
-    'Nice': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Bayern Munich': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Borussia Dortmund': '/team/Spain - LaLiga/Villarreal CF.png',
-    'RB Leipzig': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Leverkusen': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Wolfsburg': '/team/Spain - LaLiga/Celta de Vigo.png',
-    'Frankfurt': '/team/Spain - LaLiga/Athletic Bilbao.png',
-    'Inter Miami': '/team/Spain - LaLiga/Real Madrid.png',
-    'LA Galaxy': '/team/Spain - LaLiga/Real Madrid.png',
-    'LAFC': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Atlanta United': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'NY Red Bulls': '/team/Spain - LaLiga/Atlético de Madrid.png',
-    'Seattle Sounders': '/team/Spain - LaLiga/Real Sociedad.png',
-    'Columbus Crew': '/team/Spain - LaLiga/Villarreal CF.png',
-    'Cincinnati': '/team/Spain - LaLiga/FC Barcelona.png',
-    'Celtic': '/team/Spain - LaLiga/Real Betis Balompié.png',
-    'Rangers': '/team/Spain - LaLiga/Atlético de Madrid.png',
-  }
-                  const logoPath = soccerBadgeMap[teamName]
                   const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
-                  if (logoPath) {
-                    return <img src={logoPath} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-                  }
                   return <div className="rounded-full bg-white/20 flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span style={{ fontSize: Math.max(size * 0.35, 5), lineHeight: 1 }} className="font-bold text-white/80">{initials}</span></div>
                 }
                 
@@ -6749,7 +6520,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 return (
                   <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible', width: '100%' }}>
-                    {/* Header Section - Premier League | England, Soccer */}
+                    {/* Header Section - Mosconi Cup | Europe/USA, Pool */}
                     <div className="px-2.5 py-1.5 flex items-center justify-between" style={{ alignItems: 'center' }}>
                       <div className="flex items-center gap-1">
                         {(() => {
@@ -6885,14 +6656,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     { id: 11, team1: 'Pittsburgh Steelers', team2: 'Cleveland Browns', score: '7 - 3', team1Code: 'PIT', team2Code: 'CLE', team1Percent: 55, team2Percent: 45, time: 'Q1 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'PIT', team2NFL: 'CLE' },
                     { id: 12, team1: 'Denver Broncos', team2: 'Las Vegas Raiders', score: '35 - 10', team1Code: 'DEN', team2Code: 'LV', team1Percent: 78, team2Percent: 22, time: 'Q4 9\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DEN', team2NFL: 'LV' },
                   ] : [
-                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
+                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Mosconi Cup', leagueIcon: '/sports_icons/pool.svg', country: 'Europe/USA', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
                     { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
                     { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
-                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
+                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Mosconi Cup', leagueIcon: '/sports_icons/pool.svg', country: 'Europe/USA', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
                     { id: 8, team1: 'Inter Milan', team2: 'Napoli', score: '2 - 0', team1Code: 'INT', team2Code: 'NAP', team1Percent: 68, team2Percent: 32, time: 'H1 28\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Inter Milan.png', team2Logo: '/team/Italy - Serie A/SSC Napoli.png' },
                     { id: 9, team1: 'Atletico Madrid', team2: 'Sevilla', score: '1 - 1', team1Code: 'ATM', team2Code: 'SEV', team1Percent: 52, team2Percent: 48, time: 'H1 34\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Atlético de Madrid.png', team2Logo: '/team/Spain - LaLiga/Sevilla FC.png' },
                     { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
-                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
+                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Mosconi Cup', leagueIcon: '/sports_icons/pool.svg', country: 'Europe/USA', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
                     { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
                   ]).map((event) => (
                     <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
@@ -6922,8 +6693,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center mb-3">
                           {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <img src={event.team1Logo} alt={event.team1} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team1Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-
+                            {activeSport === 'Football' && 'team1NFL' in event && event.team1NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team1NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team1Code}</span></div>
+                            )}
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
                           
@@ -7038,8 +6815,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                             <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
-                            <img src={event.team2Logo} alt={event.team2} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + (event.team2Code || '') + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
-
+                            {activeSport === 'Football' && 'team2NFL' in event && event.team2NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team2NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team2Code}</span></div>
+                            )}
                           </div>
                         </div>
                         
@@ -8304,7 +8087,7 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
-  const [activeSport, setActiveSport] = useState<string>('Soccer') // Track active sport type
+  const [activeSport, setActiveSport] = useState<string>('Pool') // Track active sport type
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
@@ -10558,7 +10341,7 @@ function NavTestPageContent() {
                 activeTab={sportsActiveTab}
                 onTabChange={setSportsActiveTab}
                 onBack={() => {
-                  router.push('/sports/soccer')
+                  router.push('/sports/pool')
                 }}
                 brandPrimary={brandPrimary}
                 brandPrimaryHover={brandPrimaryHover}
