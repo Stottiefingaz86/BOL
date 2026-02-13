@@ -6155,7 +6155,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
                             <img 
-                              src={leagueData.icon as string} 
+                              src={leagueData.icon as unknown as string} 
                               alt={event.league}
                               width={12}
                               height={12}
@@ -6887,7 +6887,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
                             <img 
-                              src={leagueData.icon as string} 
+                              src={leagueData.icon as unknown as string} 
                               alt={event.league}
                               width={12}
                               height={12}
