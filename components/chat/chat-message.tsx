@@ -1,8 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import type { ChatMessage as ChatMessageType, ChatUser } from "@/lib/store/chatStore"
-import { IconStar, IconShield, IconDiamond, IconCoin, IconCloud, IconCopy, IconFlame, IconHandStop, IconMoodSmile } from "@tabler/icons-react"
+import { useChatStore, type ChatMessage as ChatMessageType, type ChatUser } from "@/lib/store/chatStore"
+import { IconStar, IconShield, IconDiamond, IconCoin, IconCloud, IconCopy, IconFlame, IconHandStop, IconMoodSmile, IconCheck } from "@tabler/icons-react"
+import { useState } from "react"
 
 // ─── Badge Component ─────────────────────────────────────
 function UserBadge({ badge, vipLevel }: { badge?: string | null; vipLevel?: number }) {
@@ -90,7 +91,16 @@ function RainMessage({ message }: { message: ChatMessageType }) {
 
 // ─── Bet Share Message ───────────────────────────────────
 function BetShareMessage({ message }: { message: ChatMessageType }) {
+  const [copied, setCopied] = useState(false)
   if (!message.betSlip) return null
+
+  const handleCopyToSlip = () => {
+    if (copied || !message.betSlip) return
+    const { copyBetToSlip } = useChatStore.getState()
+    copyBetToSlip(message.betSlip.legs)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className="px-2 my-1">
@@ -131,8 +141,21 @@ function BetShareMessage({ message }: { message: ChatMessageType }) {
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-              <IconCopy className="w-3.5 h-3.5 text-white/50" />
+            <button
+              onClick={handleCopyToSlip}
+              className={cn(
+                "flex items-center justify-center w-7 h-7 rounded-lg transition-colors",
+                copied
+                  ? "bg-emerald-500/20 border border-emerald-500/30"
+                  : "bg-white/5 hover:bg-white/10"
+              )}
+              title="Copy to betslip"
+            >
+              {copied ? (
+                <IconCheck className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <IconCopy className="w-3.5 h-3.5 text-white/50" />
+              )}
             </button>
             <button className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
               <IconFlame className="w-3.5 h-3.5 text-orange-400/70" />

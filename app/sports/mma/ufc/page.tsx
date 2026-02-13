@@ -114,7 +114,7 @@ import {
   IconExternalLink,
   IconMaximize,
   IconShare
-} from '@tabler/icons-react'
+, IconMessageCircle2} from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -210,9 +210,8 @@ import { InteractiveGridBackground } from '@/components/interactive-grid-backgro
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
 import DynamicIsland from '@/components/dynamic-island'
-import ChatPanel from '@/components/chat/chat-panel'
+import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import { useChatStore } from '@/lib/store/chatStore'
-import { useChatSidebarSync } from '@/hooks/use-chat-sidebar-sync'
 import {
   IconButton,
   type IconButtonProps,
@@ -2663,8 +2662,6 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 // Sports Page Component
 function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed, activeSport, setActiveSport }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void; activeSport: string; setActiveSport: (sport: string) => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
-  useChatSidebarSync()
-  const { isOpen: chatOpen, toggleChat } = useChatStore()
   const isMobile = useIsMobile()
   const router = useRouter()
   const [loadingItem, setLoadingItem] = useState<string | null>(null)
@@ -4373,9 +4370,58 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 setBetslipManuallyClosed(false)
               }}
               className="w-full py-3 px-4 bg-red-500 rounded text-sm font-medium text-white hover:bg-red-600 transition-colors"
-            >
-              DONE
+            >              DONE
             </button>
+            {(() => {
+              const [sharing, setSharing] = React.useState(false)
+              const [shared, setShared] = React.useState(false)
+              return (
+                <button
+                  disabled={sharing || shared}
+                  onClick={() => {
+                    if (pendingBets.length > 0 && !sharing && !shared) {
+                      setSharing(true)
+                      setTimeout(() => {
+                        const { shareBetToChat } = useChatStore.getState()
+                        shareBetToChat(pendingBets.map(b => ({
+                          eventName: b.eventName,
+                          selection: b.selection,
+                          odds: b.odds,
+                          stake: b.stake,
+                        })))
+                        setSharing(false)
+                        setShared(true)
+                      }, 1200)
+                    }
+                  }}
+                  className={cn(
+                    "w-full py-3 px-4 rounded text-sm font-medium transition-all flex items-center justify-center gap-2",
+                    shared
+                      ? "border border-emerald-500/50 bg-emerald-500/20 text-emerald-600 cursor-default"
+                      : sharing
+                      ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 cursor-wait opacity-80"
+                      : "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+                  )}
+                >
+                  {sharing ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
+                      SHARING...
+                    </>
+                  ) : shared ? (
+                    <>
+                      <IconCheck className="w-4 h-4" />
+                      SHARED TO CHAT ✓
+                    </>
+                  ) : (
+                    <>
+                      <IconMessageCircle2 className="w-4 h-4" />
+                      SHARE TO CHAT
+                    </>
+                  )}
+                </button>
+              )
+            })()}
           </div>
           
           {/* Re-use Selections */}
@@ -6611,11 +6657,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           </div>
         </footer>
       </SidebarInset>
-
-      {/* Onsite Chat Panel */}
-      {!isMobile && <ChatPanel />}
-
-      
       {/* Betslip Drawer - Floating from bottom, grows upward */}
       <FamilyDrawerRoot 
         views={betslipViews} 
@@ -7449,7 +7490,6 @@ function NavTestPageContent() {
   const router = useRouter()
   const [loadingNav, setLoadingNav] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const chatStore = useChatStore()
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
   const [gameSortFilter, setGameSortFilter] = useState<string>('popular')
@@ -7489,17 +7529,58 @@ function NavTestPageContent() {
     setVipDrawerOpen(false)
     setDepositDrawerOpen(false)
     setAccountDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
   const openVipDrawer = useCallback(() => {
     setAccountDrawerOpen(false)
     setDepositDrawerOpen(false)
     setVipDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
   const openDepositDrawer = useCallback(() => {
     setAccountDrawerOpen(false)
     setVipDrawerOpen(false)
     setDepositDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
+
+  // Panel exclusivity: when chat opens, close all drawers + collapse sidebar
+  useEffect(() => {
+    const handleChatOpened = () => {
+      setAccountDrawerOpen(false)
+      setVipDrawerOpen(false)
+      setDepositDrawerOpen(false)
+      setOpen(false)
+      setOpenMobile(false)
+    }
+    window.addEventListener('panel:chat-opened', handleChatOpened)
+    return () => window.removeEventListener('panel:chat-opened', handleChatOpened)
+  }, [])
+
+  // Copy parlay from chat to betslip
+  useEffect(() => {
+    const handleCopyBet = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { legs: { event: string; selection: string; odds: string }[] } | undefined
+      if (!detail?.legs?.length) return
+      // Build new bets from the parlay legs
+      const newBets = detail.legs.map((leg, i) => ({
+        id: `chat-copy-${Date.now()}-${i}`,
+        eventId: Date.now() + i,
+        eventName: leg.event,
+        marketTitle: 'Match Result',
+        selection: leg.selection,
+        odds: leg.odds,
+        stake: 0,
+      }))
+      setBets(newBets)
+      setBetslipOpen(true)
+      setBetslipMinimized(false)
+    }
+    window.addEventListener('bet:copy-to-slip', handleCopyBet)
+    return () => window.removeEventListener('bet:copy-to-slip', handleCopyBet)
+  }, [])
+
+
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
@@ -7631,7 +7712,7 @@ function NavTestPageContent() {
   const contentRef = useRef<HTMLDivElement>(null)
   const subNavScrollRef = useRef<HTMLDivElement>(null)
   const [isContentUnderNav, setIsContentUnderNav] = useState(false)
-  const { state: sidebarState, open: sidebarOpen, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
+  const { state: sidebarState, open: sidebarOpen, setOpen, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
   const [showQuickLinksMenu, setShowQuickLinksMenu] = useState(false)
   const [otherDropdownOpen, setOtherDropdownOpen] = useState(false)
 
@@ -7960,7 +8041,12 @@ function NavTestPageContent() {
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 text-white hover:bg-white/5"
-                onClick={toggleSidebar}
+                onClick={() => {
+                  if (sidebarState === 'collapsed') {
+                    useChatStore.getState().setIsOpen(false)
+                  }
+                  toggleSidebar()
+                }}
               >
                 {sidebarOpen ? (
                   <IconX className="h-4 w-4" strokeWidth={1.5} />
@@ -8294,7 +8380,7 @@ function NavTestPageContent() {
               </button>
             )}
             
-            {/* Deposit Button - Desktop only */}
+{/* Deposit Button - Desktop only */}
             {!isMobile && (
               <Button
                 variant="ghost"
@@ -8316,12 +8402,16 @@ function NavTestPageContent() {
                 <span className="text-white">DEPOSIT</span>
               </Button>
             )}
+
+            {/* Chat Toggle - Desktop only, right of deposit */}
+            {!isMobile && <ChatNavToggle />}
           </div>
         </motion.header>
 
         {/* Sports Sub Nav - Sticky with glass effect */}
         {showSports && (
           <motion.div
+            data-sub-nav
             className={cn(
               "fixed z-[100] bg-white/60 dark:bg-[#1a1a1a]/60 backdrop-blur-xl border-b border-white/10 py-3 shadow-sm",
               isMobile ? "left-0 right-0" : "px-6"
@@ -8556,32 +8646,15 @@ function NavTestPageContent() {
         )}
 
         {/* Deposit Drawer - Rendered outside header to avoid conflicts */}
-        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
+        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction="right" shouldScaleBackground={false}>
           <DrawerContent 
                 showOverlay={isMobile}
                 className={cn(
                   "bg-white text-gray-900 flex flex-col relative",
-                  isMobile 
-                    ? "w-full border-t border-gray-200 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh]"
-                    : "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
+                  "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
                 )}
-                style={isMobile ? {
-                  height: '80vh',
-                  maxHeight: '80vh',
-                  top: 'auto',
-                  bottom: 0,
-                  marginTop: 0,
-                  marginBottom: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden'
-                } : {
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden'
-                }}
+                style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
               >
-                {isMobile && <DrawerHandle variant="light" />}
             
                 {!isMobile && (
               <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">
@@ -11280,16 +11353,14 @@ function NavTestPageContent() {
               setVipDrawerOpen(false)
             }
           }}
-          direction={isMobile ? "bottom" : "right"}
+          direction="right"
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
-              isMobile 
-                ? "border-t border-gray-200 rounded-t-[10px] !h-[80vh] !max-h-[80vh]"
-                : "border-l border-gray-200"
+              "border-l border-gray-200"
             )}
             style={isMobile ? {
               height: '80vh',
@@ -11298,7 +11369,6 @@ function NavTestPageContent() {
               bottom: 0,
             } : undefined}
           >
-            {isMobile && <DrawerHandle variant="light" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
               <div className="flex items-center justify-between gap-3">
                 {accountDrawerView === 'notifications' ? (
@@ -11530,34 +11600,17 @@ function NavTestPageContent() {
         <Drawer 
           open={vipDrawerOpen} 
           onOpenChange={handleVipDrawerOpenChange}
-          direction={isMobile ? "bottom" : "right"}
+          direction="right"
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
-              isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
-                : "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
+              "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
             )}
-            style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
-              top: 'auto',
-              bottom: 0,
-              marginTop: 0,
-              marginBottom: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            } : {
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            }}
+            style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
-            {isMobile && <DrawerHandle variant="dark" />}
             
             {/* Title + Close button for desktop only */}
             {!isMobile && (
@@ -12217,14 +12270,12 @@ function NavTestPageContent() {
         </AnimatePresence>
 
         {/* Similar Games Drawer */}
-        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
+        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction="right" shouldScaleBackground={false}>
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
-              isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
-                : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
+              "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
               height: '80vh',
@@ -12233,7 +12284,6 @@ function NavTestPageContent() {
               bottom: 0,
             } : undefined}
           >
-            {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
                 <div className="pt-2">
@@ -12293,7 +12343,6 @@ function NavTestPageContent() {
         {/* Advanced Search Side Drawer */}
         <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction="right" shouldScaleBackground={false}>
           <DrawerContent className="w-full sm:max-w-md bg-[#2d2d2d] border-l border-white/10 text-white z-[210] relative">
-            {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -12419,14 +12468,8 @@ function NavTestPageContent() {
           showBetslip={true}
           betCount={bets.length}
           isSearchActive={searchOverlayOpen}
-          onChatClick={() => chatStore.toggleChat()}
-          showChat={true}
-          isChatActive={chatStore.isOpen}
-        />
+            />
       )}
-
-      {/* Mobile Chat Drawer */}
-      {isMobile && <ChatPanel />}
     </div>
   )
 }

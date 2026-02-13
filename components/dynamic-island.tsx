@@ -4,6 +4,8 @@ import { IconSearch, IconHeart, IconTicket, IconMessageCircle2 } from "@tabler/i
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { useChatStore } from "@/lib/store/chatStore";
+import { useBetslipStore } from "@/lib/store/betslipStore";
 
 export type DynamicIslandProps = {
   onSearchClick?: () => void;
@@ -27,28 +29,50 @@ export default function DynamicIsland({
   className = "",
   isSearchActive = false,
   isFavoriteActive = false,
-  isChatActive = false,
+  isChatActive: isChatActiveProp,
   betCount = 0,
   showBetslip = false,
   showChat = true,
 }: DynamicIslandProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  // Use the global chat store directly — chat is now global
+  const chatStore = useChatStore()
+  const chatActive = isChatActiveProp ?? chatStore.isOpen
+  const handleChatClick = onChatClick ?? (() => chatStore.toggleChat())
+
+  // Global betslip store — shows betslip button on ALL pages when bets exist
+  const globalBets = useBetslipStore((s) => s.bets)
+  const globalBetslipOpen = useBetslipStore((s) => s.isOpen)
+  const globalSetOpen = useBetslipStore((s) => s.setOpen)
+  const globalSetMinimized = useBetslipStore((s) => s.setMinimized)
+
+  // Show betslip button if caller says so (sports pages) OR if there are global bets
+  const shouldShowBetslip = showBetslip || globalBets.length > 0
+  // Bet count: prefer caller's value if provided, otherwise use global
+  const effectiveBetCount = showBetslip ? betCount : globalBets.length
+  // Click handler: prefer caller's if provided (sports pages), otherwise toggle global betslip
+  const handleBetslipClick = onBetslipClick ?? (() => {
+    if (globalBetslipOpen) {
+      globalSetOpen(false)
+    } else {
+      globalSetOpen(true)
+      globalSetMinimized(false)
+    }
+  })
+
+  const [scrollVisible, setScrollVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  // Scroll-based show/hide — independent of chat state
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Show when scrolling down, hide when scrolling up or at top (opposite of quick links)
       if (currentScrollY < 10) {
-        // Hide at top
-        setIsVisible(false);
+        setScrollVisible(true);
       } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Show when scrolling down (after 50px)
-        setIsVisible(true);
+        setScrollVisible(true);
       } else if (currentScrollY < lastScrollY) {
-        // Hide when scrolling up
-        setIsVisible(false);
+        setScrollVisible(false);
       }
       
       setLastScrollY(currentScrollY);
@@ -57,6 +81,9 @@ export default function DynamicIsland({
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  // Dock is visible only when scroll says so AND chat is NOT open
+  const isVisible = scrollVisible && !chatActive;
 
   return (
     <AnimatePresence>
@@ -100,10 +127,10 @@ export default function DynamicIsland({
             {/* Chat Button */}
             {showChat && (
               <button
-                onClick={onChatClick}
+                onClick={handleChatClick}
                 className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                  isChatActive
+                  chatActive
                     ? "bg-[#ee3536] active:bg-[#ee3536]/80"
                     : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
                 )}
@@ -111,19 +138,21 @@ export default function DynamicIsland({
               >
                 <IconMessageCircle2 className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
                 {/* Online pulse indicator */}
-                {!isChatActive && (
+                {!chatActive && (
                   <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 )}
               </button>
             )}
 
             {/* Betslip or Favorites Button */}
-            {showBetslip ? (
+            {shouldShowBetslip ? (
               <button
-                onClick={onBetslipClick}
+                onClick={handleBetslipClick}
                 className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                  "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                  globalBetslipOpen
+                    ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                    : "bg-white/5 hover:bg-white/10 active:bg-white/15"
                 )}
                 aria-label="Betslip"
               >
@@ -131,9 +160,9 @@ export default function DynamicIsland({
                   className="w-4 h-4 relative z-10 text-white"
                   strokeWidth={2} 
                 />
-                {betCount > 0 && (
+                {effectiveBetCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#ee3536] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
-                    {betCount > 99 ? '99+' : betCount}
+                    {effectiveBetCount > 99 ? '99+' : effectiveBetCount}
                   </span>
                 )}
               </button>

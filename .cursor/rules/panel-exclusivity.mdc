@@ -1,0 +1,36 @@
+---
+description: Rules for panel/drawer exclusivity — only one major panel can be open at a time
+globs: app/**/*.tsx,components/chat/**/*.tsx,lib/store/chatStore.ts
+---
+
+# Panel Exclusivity Rule
+
+Only **one** major panel/drawer can be open at a time. The mutually exclusive panels are:
+
+- **Chat** (right side, managed by `useChatStore` in [chatStore.ts](mdc:lib/store/chatStore.ts))
+- **Left Sidebar** (sports pages, managed by `useSidebar()` from [sidebar.tsx](mdc:components/ui/sidebar.tsx))
+- **VIP Hub Drawer** (local state: `vipDrawerOpen`)
+- **My Account Drawer** (local state: `accountDrawerOpen`)
+- **Quick Deposit Drawer** (local state: `depositDrawerOpen`)
+
+## How It Works
+
+### When chat opens → close everything else
+- `chatStore.ts` dispatches `window.dispatchEvent(new CustomEvent('panel:chat-opened'))` whenever the chat is opened (via `setIsOpen(true)`, `toggleChat()`, or `shareBetToChat()`).
+- Each page's `NavTestPageContent` (or `HomePageContent`) has a `useEffect` listener for `'panel:chat-opened'` that:
+  - Calls `setAccountDrawerOpen(false)`, `setVipDrawerOpen(false)`, `setDepositDrawerOpen(false)`
+  - On sidebar pages: also calls `setOpen(false)` and `setOpenMobile(false)` to collapse the sidebar
+
+### When a drawer opens → close chat
+- Each `openAccountDrawer`, `openVipDrawer`, `openDepositDrawer` callback calls `useChatStore.getState().setIsOpen(false)` after opening the drawer.
+
+### When sidebar expands → close chat
+- The sidebar toggle button's `onClick` checks `if (sidebarState === 'collapsed')` (i.e., about to expand) and calls `useChatStore.getState().setIsOpen(false)` before calling `toggleSidebar()`.
+
+## Implementation Checklist for New Panels
+
+If you add a new drawer or panel that should participate in exclusivity:
+
+1. In the opener function, add: `useChatStore.getState().setIsOpen(false)`
+2. In the `panel:chat-opened` event handler, add the new closer (e.g., `setNewDrawerOpen(false)`)
+3. If the new panel should also close drawers/sidebar, dispatch `window.dispatchEvent(new CustomEvent('panel:chat-opened'))` or add a similar event for the new panel.

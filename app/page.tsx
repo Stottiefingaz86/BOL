@@ -2,6 +2,7 @@
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useChatStore } from '@/lib/store/chatStore'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -107,6 +108,7 @@ import {
 } from '@/components/ui/accordion'
 import { UsageBasedPricing } from '@/components/billingsdk/usage-based-pricing'
 import { Input } from '@/components/ui/input'
+import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 
 // Helper function to get vendor icon path
 const getVendorIconPath = (vendorName: string): string => {
@@ -1227,7 +1229,6 @@ function HomePageContent() {
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
   const [currentTime, setCurrentTime] = useState<string>('')
-  const [openMobile, setOpenMobile] = useState(false)
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
@@ -1251,17 +1252,34 @@ function HomePageContent() {
     setVipDrawerOpen(false)
     setDepositDrawerOpen(false)
     setAccountDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
   const openVipDrawer = useCallback(() => {
     setAccountDrawerOpen(false)
     setDepositDrawerOpen(false)
     setVipDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
   const openDepositDrawer = useCallback(() => {
     setAccountDrawerOpen(false)
     setVipDrawerOpen(false)
     setDepositDrawerOpen(true)
+    useChatStore.getState().setIsOpen(false)
   }, [])
+
+  // Panel exclusivity: when chat opens, close all drawers + collapse sidebar
+  useEffect(() => {
+    const handleChatOpened = () => {
+      setAccountDrawerOpen(false)
+      setVipDrawerOpen(false)
+      setDepositDrawerOpen(false)
+      setOpen(false)
+      setSidebarOpenMobile(false)
+    }
+    window.addEventListener('panel:chat-opened', handleChatOpened)
+    return () => window.removeEventListener('panel:chat-opened', handleChatOpened)
+  }, [])
+
   const [vipActiveTab, setVipActiveTab] = useState('VIP Hub')
   const vipTabsContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollVipLeft, setCanScrollVipLeft] = useState(false)
@@ -1269,7 +1287,7 @@ function HomePageContent() {
   const [claimedBoosts, setClaimedBoosts] = useState<Set<string>>(new Set())
   const [boostProcessing, setBoostProcessing] = useState<string | null>(null)
   const [boostClaimMessage, setBoostClaimMessage] = useState<{ amount: number } | null>(null)
-  const { state: sidebarState, toggleSidebar, open: sidebarOpen } = useSidebar()
+  const { state: sidebarState, toggleSidebar, open: sidebarOpen, setOpen, openMobile: sidebarOpenMobile, setOpenMobile: setSidebarOpenMobile } = useSidebar()
   
   const handleBoostClaimed = useCallback((amount: number) => {
     setDisplayBalance(prev => prev + amount)
@@ -1907,6 +1925,9 @@ function HomePageContent() {
               <span className="text-white">DEPOSIT</span>
             </Button>
           )}
+
+          {/* Chat Toggle - Desktop only, right of deposit */}
+          {!isMobile && <ChatNavToggle />}
         </div>
       </motion.header>
 
@@ -3140,14 +3161,12 @@ function HomePageContent() {
         </AnimatePresence>
 
         {/* Similar Games Drawer */}
-        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
+        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction="right" shouldScaleBackground={false}>
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
-              isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
-                : "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
+              "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
               height: '80vh',
@@ -3156,7 +3175,6 @@ function HomePageContent() {
               bottom: 0,
             } : undefined}
           >
-            {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
                 <div className="pt-2">
@@ -3392,16 +3410,14 @@ function HomePageContent() {
               setDepositDrawerOpen(false)
             }
           }}
-          direction={isMobile ? "bottom" : "right"}
+          direction="right"
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
-              isMobile 
-                ? "border-t border-gray-200 rounded-t-[10px] !h-[80vh] !max-h-[80vh]"
-                : "border-l border-gray-200"
+              "border-l border-gray-200"
             )}
             style={isMobile ? {
               height: '80vh',
@@ -3410,7 +3426,6 @@ function HomePageContent() {
               bottom: 0,
             } : undefined}
           >
-            {isMobile && <DrawerHandle variant="light" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
               <div className="flex items-center justify-between gap-3">
                 {accountDrawerView === 'notifications' ? (
@@ -3622,34 +3637,17 @@ function HomePageContent() {
         <Drawer 
           open={vipDrawerOpen} 
           onOpenChange={handleVipDrawerOpenChange}
-          direction={isMobile ? "bottom" : "right"}
+          direction="right"
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
-              isMobile 
-                ? "w-full border-t border-white/10 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh] overflow-hidden"
-                : "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
+              "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
             )}
-            style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
-              top: 'auto',
-              bottom: 0,
-              marginTop: 0,
-              marginBottom: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            } : {
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            }}
+            style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
-            {isMobile && <DrawerHandle variant="dark" />}
             
             {/* Title + Close button for desktop only */}
             {!isMobile && (
@@ -3685,32 +3683,15 @@ function HomePageContent() {
         </Drawer>
 
         {/* Deposit Drawer */}
-        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
+        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction="right" shouldScaleBackground={false}>
           <DrawerContent 
                 showOverlay={isMobile}
                 className={cn(
                   "bg-white text-gray-900 flex flex-col relative",
-                  isMobile 
-                    ? "w-full border-t border-gray-200 rounded-t-[10px] !mt-0 !mb-0 !bottom-0 !h-[80vh] !max-h-[80vh]"
-                    : "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
+                  "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
                 )}
-                style={isMobile ? {
-                  height: '80vh',
-                  maxHeight: '80vh',
-                  top: 'auto',
-                  bottom: 0,
-                  marginTop: 0,
-                  marginBottom: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden'
-                } : {
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden'
-                }}
+                style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
               >
-                {isMobile && <DrawerHandle variant="light" />}
             
                 {!isMobile && (
               <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">

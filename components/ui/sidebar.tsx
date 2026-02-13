@@ -39,6 +39,12 @@ const SIDEBAR_WIDTH_MOBILE = "20rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
+// ─── Persisted sidebar preference ───
+// Module-level variable that survives component remounts during SPA navigation.
+// When the user toggles the sidebar on any page, this stores their preference
+// so it carries over when they navigate to a different page.
+let _persistedSidebarOpen: boolean | undefined = undefined
+
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -81,7 +87,19 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const isMobile = useIsMobile()
-    const [openMobile, setOpenMobile] = React.useState(false)
+    const [openMobile, _setOpenMobile] = React.useState(false)
+
+    // Wrap setOpenMobile to enforce panel exclusivity via events (no direct store import)
+    const setOpenMobile = React.useCallback((value: boolean | ((prev: boolean) => boolean)) => {
+      _setOpenMobile((prev) => {
+        const newVal = typeof value === 'function' ? value(prev) : value
+        // If opening the mobile sidebar, tell other panels to close
+        if (newVal && typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('panel:sidebar-opened'))
+        }
+        return newVal
+      })
+    }, [])
 
     // Lock body scroll when mobile drawer is open
     React.useEffect(() => {
@@ -107,11 +125,24 @@ const SidebarProvider = React.forwardRef<
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
+    // If the user has previously toggled the sidebar, use their persisted preference;
+    // otherwise fall back to defaultOpen.
+    const [_open, _setOpen] = React.useState(
+      _persistedSidebarOpen !== undefined ? _persistedSidebarOpen : defaultOpen
+    )
     const open = openProp ?? _open
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value
+
+        // Persist the preference globally so it carries across page navigations
+        _persistedSidebarOpen = openState
+
+        // Panel exclusivity: opening the sidebar must tell chat to close (via event)
+        if (openState && typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('panel:sidebar-opened'))
+        }
+
         if (setOpenProp) {
           setOpenProp(openState)
         } else {
@@ -130,6 +161,25 @@ const SidebarProvider = React.forwardRef<
         ? setOpenMobile((open) => !open)
         : setOpen((open) => !open)
     }, [isMobile, setOpen, setOpenMobile])
+
+    // Panel exclusivity: when chat opens, collapse the sidebar
+    React.useEffect(() => {
+      const handleChatOpened = () => {
+        _setOpen(false)
+        _persistedSidebarOpen = false
+        _setOpenMobile(false)
+      }
+      window.addEventListener('panel:chat-opened', handleChatOpened)
+      return () => window.removeEventListener('panel:chat-opened', handleChatOpened)
+    }, [])
+
+    // On mount: if sidebar is open, tell chat to close (enforces exclusivity after navigation)
+    React.useEffect(() => {
+      if (open && typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('panel:sidebar-opened'))
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []) // Only on mount
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {

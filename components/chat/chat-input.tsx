@@ -9,7 +9,7 @@ import { IconMoodSmile, IconSend, IconPhoto } from "@tabler/icons-react"
 const QUICK_EMOJIS = ['😀', '😂', '🔥', '💰', '🎰', '🏆', '👏', '🤔', '❤️', '💎', '🎯', '⚡', '🌧️', '🎉', '👀', '😎']
 
 export default function ChatInput() {
-  const { activeRoom, inputMessage, setInputMessage, addMessage, showEmojiPicker, setShowEmojiPicker } = useChatStore()
+  const { inputMessage, setInputMessage, addMessage, showEmojiPicker, setShowEmojiPicker } = useChatStore()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isFocused, setIsFocused] = useState(false)
 
@@ -27,11 +27,11 @@ export default function ChatInput() {
       mentions: trimmed.match(/@\w+/g)?.map(m => m.slice(1)) || undefined,
     }
 
-    addMessage(activeRoom, newMessage)
+    addMessage('sports', newMessage)
     setInputMessage('')
     setShowEmojiPicker(false)
     inputRef.current?.focus()
-  }, [inputMessage, activeRoom, addMessage, setInputMessage, setShowEmojiPicker])
+  }, [inputMessage, addMessage, setInputMessage, setShowEmojiPicker])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

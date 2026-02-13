@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { useChatStore } from "@/lib/store/chatStore"
 import { IconCloudRain, IconClock } from "@tabler/icons-react"
@@ -9,7 +9,24 @@ export default function ChatRainBanner() {
   const { activeRain, joinRain } = useChatStore()
   const [timeLeft, setTimeLeft] = useState(0)
   const [hasJoined, setHasJoined] = useState(false)
+  const lastRainId = useRef<string | null>(null)
 
+  // Reset hasJoined when a new rain event starts
+  useEffect(() => {
+    if (!activeRain) {
+      lastRainId.current = null
+      return
+    }
+
+    if (activeRain.id !== lastRainId.current) {
+      lastRainId.current = activeRain.id
+      // Check if the simulator already auto-joined us
+      setHasJoined(activeRain.participants.includes('current-user'))
+      setTimeLeft(activeRain.countdown)
+    }
+  }, [activeRain])
+
+  // Countdown timer
   useEffect(() => {
     if (!activeRain) return
     setTimeLeft(activeRain.countdown)
@@ -25,7 +42,14 @@ export default function ChatRainBanner() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [activeRain])
+  }, [activeRain?.id])
+
+  // Keep hasJoined in sync with participants (simulator auto-joins us)
+  useEffect(() => {
+    if (activeRain && activeRain.participants.includes('current-user') && !hasJoined) {
+      setHasJoined(true)
+    }
+  }, [activeRain?.participants?.length])
 
   if (!activeRain || !activeRain.isActive) return null
 
@@ -40,15 +64,15 @@ export default function ChatRainBanner() {
       <div className="relative px-3 py-2.5">
         {/* Rain drops decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(6)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-0.5 bg-blue-400/20 rounded-full"
+              className="absolute w-0.5 bg-blue-400/30 rounded-full"
               style={{
                 height: `${8 + Math.random() * 12}px`,
-                left: `${10 + i * 16}%`,
+                left: `${5 + i * 12}%`,
                 top: '-10px',
-                animation: `rain-drop ${1 + Math.random() * 0.5}s linear infinite`,
+                animation: `rain-drop ${0.8 + Math.random() * 0.6}s linear infinite`,
                 animationDelay: `${Math.random() * 1}s`,
               }}
             />
