@@ -1,6 +1,6 @@
 "use client";
 
-import { IconSearch, IconHeart, IconTicket } from "@tabler/icons-react";
+import { IconSearch, IconHeart, IconTicket, IconMessageCircle2 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -9,22 +9,28 @@ export type DynamicIslandProps = {
   onSearchClick?: () => void;
   onFavoriteClick?: () => void;
   onBetslipClick?: () => void;
+  onChatClick?: () => void;
   className?: string;
   isSearchActive?: boolean;
   isFavoriteActive?: boolean;
+  isChatActive?: boolean;
   betCount?: number;
   showBetslip?: boolean;
+  showChat?: boolean;
 };
 
 export default function DynamicIsland({
   onSearchClick,
   onFavoriteClick,
   onBetslipClick,
+  onChatClick,
   className = "",
   isSearchActive = false,
   isFavoriteActive = false,
+  isChatActive = false,
   betCount = 0,
   showBetslip = false,
+  showChat = true,
 }: DynamicIslandProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -90,6 +96,26 @@ export default function DynamicIsland({
             >
               <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
             </button>
+
+            {/* Chat Button */}
+            {showChat && (
+              <button
+                onClick={onChatClick}
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                  isChatActive
+                    ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                    : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                )}
+                aria-label="Chat"
+              >
+                <IconMessageCircle2 className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
+                {/* Online pulse indicator */}
+                {!isChatActive && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                )}
+              </button>
+            )}
 
             {/* Betslip or Favorites Button */}
             {showBetslip ? (

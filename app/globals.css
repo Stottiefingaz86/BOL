@@ -1253,3 +1253,69 @@ button[data-active="true"][class*="SidebarMenuButton"],
   transition: background-color 0.2s ease-in-out !important;
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
+
+/* ─── Chat Component Styles ─────────────────────────────── */
+
+/* Rain drop animation */
+@keyframes rain-drop {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+}
+
+/* Custom scrollbar for chat */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Chat panel slide animation */
+.chat-panel-enter {
+  animation: chat-slide-in 0.3s ease-out;
+}
+
+.chat-panel-exit {
+  animation: chat-slide-out 0.2s ease-in;
+}
+
+@keyframes chat-slide-in {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 340px;
+    opacity: 1;
+  }
+}
+
+@keyframes chat-slide-out {
+  from {
+    width: 340px;
+    opacity: 1;
+  }
+  to {
+    width: 0;
+    opacity: 0;
+  }
+}

@@ -211,6 +211,9 @@ import { InteractiveGridBackground } from '@/components/interactive-grid-backgro
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
 import DynamicIsland from '@/components/dynamic-island'
+import ChatPanel from '@/components/chat/chat-panel'
+import { useChatStore } from '@/lib/store/chatStore'
+import { useChatSidebarSync } from '@/hooks/use-chat-sidebar-sync'
 import {
   IconButton,
   type IconButtonProps,
@@ -6275,6 +6278,8 @@ function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const chatStore = useChatStore()
+  useChatSidebarSync()
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
@@ -10773,6 +10778,9 @@ function NavTestPageContent() {
                 </div>
               </footer>
           </SidebarInset>
+
+          {/* Onsite Chat Panel */}
+          {!isMobile && <ChatPanel />}
         </div>
 
 
@@ -11917,8 +11925,14 @@ function NavTestPageContent() {
           }}
           isSearchActive={searchOverlayOpen}
           isFavoriteActive={activeIconTab === 'favorite' || selectedCategory === 'Favorites'}
+          onChatClick={() => chatStore.toggleChat()}
+          showChat={true}
+          isChatActive={chatStore.isOpen}
         />
       )}
+
+      {/* Mobile Chat Drawer */}
+      {isMobile && <ChatPanel />}
     </div>
   )
 }

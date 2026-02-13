@@ -210,6 +210,9 @@ import { InteractiveGridBackground } from '@/components/interactive-grid-backgro
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
 import DynamicIsland from '@/components/dynamic-island'
+import ChatPanel from '@/components/chat/chat-panel'
+import { useChatStore } from '@/lib/store/chatStore'
+import { useChatSidebarSync } from '@/hooks/use-chat-sidebar-sync'
 import {
   IconButton,
   type IconButtonProps,
@@ -2651,6 +2654,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           </div>
         </div>
       </SidebarInset>
+
       )}
     </div>
   )
@@ -2659,6 +2663,8 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
 // Sports Page Component
 function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimaryHover, onSearchClick, betslipOpen, setBetslipOpen, bets, setBets, setShowToast, setToastMessage, setToastAction, placedBets, setPlacedBets, myBetsAlertCount, setMyBetsAlertCount, betslipManuallyClosed, setBetslipManuallyClosed, activeSport, setActiveSport }: { activeTab: string; onTabChange: (tab: string) => void; onBack: () => void; brandPrimary: string; brandPrimaryHover: string; onSearchClick: () => void; betslipOpen: boolean; setBetslipOpen: (open: boolean) => void; bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>; setBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number }>)) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; placedBets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>; setPlacedBets: (bets: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }> | ((prev: Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>) => Array<{ id: string; eventId: number; eventName: string; marketTitle: string; selection: string; odds: string; stake: number; placedAt: Date }>)) => void; myBetsAlertCount: number; setMyBetsAlertCount: (count: number | ((prev: number) => number)) => void; betslipManuallyClosed: boolean; setBetslipManuallyClosed: (closed: boolean) => void; activeSport: string; setActiveSport: (sport: string) => void }) {
   const { state: sidebarState, toggleSidebar } = useSidebar()
+  useChatSidebarSync()
+  const { isOpen: chatOpen, toggleChat } = useChatStore()
   const isMobile = useIsMobile()
   const router = useRouter()
   const [loadingItem, setLoadingItem] = useState<string | null>(null)
@@ -7416,6 +7422,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           </div>
         </footer>
       </SidebarInset>
+
+      {/* Onsite Chat Panel */}
+      {!isMobile && <ChatPanel />}
+
       
       {/* Betslip Drawer - Floating from bottom, grows upward */}
       <FamilyDrawerRoot 
@@ -8250,6 +8260,7 @@ function NavTestPageContent() {
   const router = useRouter()
   const [loadingNav, setLoadingNav] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const chatStore = useChatStore()
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
   const [gameSortFilter, setGameSortFilter] = useState<string>('popular')
@@ -13219,8 +13230,14 @@ function NavTestPageContent() {
           showBetslip={true}
           betCount={bets.length}
           isSearchActive={searchOverlayOpen}
+          onChatClick={() => chatStore.toggleChat()}
+          showChat={true}
+          isChatActive={chatStore.isOpen}
         />
       )}
+
+      {/* Mobile Chat Drawer */}
+      {isMobile && <ChatPanel />}
     </div>
   )
 }
