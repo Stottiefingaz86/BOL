@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
-import React, { Suspense } from 'react'
+import React from 'react'
 import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -2807,14 +2807,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   
   const toggleFavoriteLeague = (leagueSlug: string) => {
     setFavoriteLeagues(prev => {
-      const next = prev.includes(leagueSlug)
-        ? prev.filter(l => l !== leagueSlug)
+      const next = prev.includes(leagueSlug) 
+        ? prev.filter(s => s !== leagueSlug)
         : [...prev, leagueSlug]
       localStorage.setItem('favoriteLeagues', JSON.stringify(next))
       return next
     })
   }
-
+  
+  const isLeagueFavorited = favoriteLeagues.includes('premier-league')
+  
   // Total market price selection state - key: `${eventId}-${marketIndex}`, value: selected price
   const [totalMarketPrices, setTotalMarketPrices] = useState<{ [key: string]: string }>({})
   
@@ -2889,7 +2891,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     { icon: IconBallBaseball, label: 'Baseball' },
     { icon: IconBallBasketball, label: 'Basketball' },
     { icon: IconBallAmericanFootball, label: 'Football' },
-    { icon: IconBallFootball, label: 'Soccer', href: '/sports/soccer' },
+    { icon: IconBallFootball, label: 'Soccer', active: true, href: '/sports/soccer' },
   ]
   
   const toggleSport = (sport: string) => {
@@ -4496,7 +4498,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <SidebarMenu>
                   {sportsCategories.map((sport, index) => {
                     const Icon = sport.icon
-                    const isActive = sport.label === activeSport || (sport.label === 'Football' && activeSport === 'Football') || (sport.label === 'Soccer' && activeSport === 'Soccer')
+                    const isActive = sport.active === true
                     const isExpanded = sport.expandable && expandedSports.includes(sport.label)
                     return (
                       <SidebarMenuItem key={index} className={sport.expandable ? "group/collapsible" : ""}>
@@ -4932,15 +4934,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    toggleFavoriteLeague(activeSport === 'Football' ? 'nfl' : 'premier-league')
+                    toggleFavoriteLeague('premier-league')
                   }}
                   className="flex items-center justify-center p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                  title={favoriteLeagues.includes(activeSport === 'Football' ? 'nfl' : 'premier-league') ? 'Remove from My Feed' : 'Add to My Feed'}
+                  title={isLeagueFavorited ? 'Remove from My Feed' : 'Add to My Feed'}
                 >
                   <IconHeart 
                     className={cn(
                       "w-5 h-5 transition-all duration-300",
-                      favoriteLeagues.includes(activeSport === 'Football' ? 'nfl' : 'premier-league')
+                      isLeagueFavorited 
                         ? "text-pink-500 fill-pink-500 scale-110" 
                         : "text-white/50 hover:text-white/80"
                     )}
@@ -5245,368 +5247,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </AnimatePresence>
           </motion.div>
           
-          {/* Top Events Section */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white pl-2">Top Events</h2>
-              <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                  className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
-                  onClick={() => {
-                    router.push('/sports')
-                  }}
-              >
-                View All
-              </Button>
-                {!isMobile && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => {
-                        if (topEventsCarouselApi) {
-                          const currentIndex = topEventsCarouselApi.selectedScrollSnap()
-                          const targetIndex = Math.max(0, currentIndex - 2)
-                          topEventsCarouselApi.scrollTo(targetIndex)
-                        }
-                      }}
-                      disabled={!topEventsCarouselApi || !topEventsCanScrollPrev}
-                    >
-                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => {
-                        if (topEventsCarouselApi) {
-                          const currentIndex = topEventsCarouselApi.selectedScrollSnap()
-                          const slideCount = topEventsCarouselApi.scrollSnapList().length
-                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                          topEventsCarouselApi.scrollTo(targetIndex)
-                        }
-                      }}
-                      disabled={!topEventsCarouselApi || !topEventsCanScrollNext}
-                    >
-                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-                    </Button>
-                  </>
-                )}
-                  </div>
-                </div>
-            
-            <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
-              <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                <CarouselContent className="ml-6 mr-0">
-                  {/* Dynamic Top Events */}
-                  {(activeSport === 'Football' ? [
-                    { id: 4, team1: 'Kansas City Chiefs', team2: 'Buffalo Bills', score: '24 - 17', team1Code: 'KC', team2Code: 'BUF', team1Percent: 65, team2Percent: 35, time: 'Q3 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'KC', team2NFL: 'BUF' },
-                    { id: 5, team1: 'Dallas Cowboys', team2: 'Philadelphia Eagles', score: '31 - 28', team1Code: 'DAL', team2Code: 'PHI', team1Percent: 58, team2Percent: 42, time: 'Q4 2\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DAL', team2NFL: 'PHI' },
-                    { id: 6, team1: 'San Francisco 49ers', team2: 'Seattle Seahawks', score: '21 - 14', team1Code: 'SF', team2Code: 'SEA', team1Percent: 68, team2Percent: 32, time: 'Q2 12\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'SF', team2NFL: 'SEA' },
-                    { id: 7, team1: 'Miami Dolphins', team2: 'New York Jets', score: '17 - 10', team1Code: 'MIA', team2Code: 'NYJ', team1Percent: 72, team2Percent: 28, time: 'Q3 5\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'MIA', team2NFL: 'NYJ' },
-                    { id: 8, team1: 'Baltimore Ravens', team2: 'Cincinnati Bengals', score: '28 - 21', team1Code: 'BAL', team2Code: 'CIN', team1Percent: 62, team2Percent: 38, time: 'Q4 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'BAL', team2NFL: 'CIN' },
-                    { id: 9, team1: 'Los Angeles Rams', team2: 'Arizona Cardinals', score: '14 - 14', team1Code: 'LAR', team2Code: 'ARI', team1Percent: 52, team2Percent: 48, time: 'Q2 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'LAR', team2NFL: 'ARI' },
-                    { id: 10, team1: 'Green Bay Packers', team2: 'Chicago Bears', score: '10 - 7', team1Code: 'GB', team2Code: 'CHI', team1Percent: 58, team2Percent: 42, time: 'Q1 11\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'GB', team2NFL: 'CHI' },
-                    { id: 11, team1: 'Pittsburgh Steelers', team2: 'Cleveland Browns', score: '7 - 3', team1Code: 'PIT', team2Code: 'CLE', team1Percent: 55, team2Percent: 45, time: 'Q1 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'PIT', team2NFL: 'CLE' },
-                    { id: 12, team1: 'Denver Broncos', team2: 'Las Vegas Raiders', score: '35 - 10', team1Code: 'DEN', team2Code: 'LV', team1Percent: 78, team2Percent: 22, time: 'Q4 9\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DEN', team2NFL: 'LV' },
-                  ] : [
-                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
-                    { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
-                    { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
-                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
-                    { id: 8, team1: 'Inter Milan', team2: 'Napoli', score: '2 - 0', team1Code: 'INT', team2Code: 'NAP', team1Percent: 68, team2Percent: 32, time: 'H1 28\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Inter Milan.png', team2Logo: '/team/Italy - Serie A/SSC Napoli.png' },
-                    { id: 9, team1: 'Atletico Madrid', team2: 'Sevilla', score: '1 - 1', team1Code: 'ATM', team2Code: 'SEV', team1Percent: 52, team2Percent: 48, time: 'H1 34\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Atlético de Madrid.png', team2Logo: '/team/Spain - LaLiga/Sevilla FC.png' },
-                    { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
-                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
-                    { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
-                  ]).map((event) => (
-                    <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
-                        {/* Header: League info and Live status */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-1.5">
-                            <Image 
-                              src={event.leagueIcon} 
-                              alt={event.league}
-                              width={16}
-                              height={16}
-                              className="object-contain"
-                            />
-                            <span className="text-[10px] text-white">{event.league} | {event.country}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
-                              <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
-                            </div>
-                            <span className="text-[10px] text-[#ee3536]">{event.time}</span>
-                          </div>
-                        </div>
-                        
-                        {/* Teams and Score */}
-                        <div className="flex items-center mb-3">
-                          {/* Team 1 */}
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            {activeSport === 'Football' && 'team1NFL' in event && event.team1NFL ? (
-                              (() => {
-                                const TeamIcon = (NFLIcons as any)[event.team1NFL]
-                                return TeamIcon ? <TeamIcon size={24} /> : null
-                              })()
-                            ) : (
-                            <Image 
-                                src={'team1Logo' in event ? event.team1Logo : '/team/default.png'}
-                                alt={event.team1}
-                                width={20}
-                                height={20}
-                              className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
-                            />
-                            )}
-                            <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
-                          </div>
-                          
-                          {/* Score */}
-                          {(() => {
-                            // Parse score string (e.g., "1 - 0" or "2 - 1")
-                            const parseScore = (scoreStr: string) => {
-                              const parts = scoreStr.split(' - ')
-                              return {
-                                team1: parseInt(parts[0]) || 0,
-                                team2: parseInt(parts[1]) || 0
-                              }
-                            }
-                            
-                            const initialScore = parseScore(event.score)
-                            const currentScore = topEventsScores[event.id] || initialScore
-                            const isAnimatingTeam1 = currentScore?.animating?.team === 1
-                            const isAnimatingTeam2 = currentScore?.animating?.team === 2
-                            
-                            // Animated Score Component for Top Events
-                            const TopEventsAnimatedScore = ({ value, isAnimating, from, to }: { value: number, isAnimating?: boolean, from?: number, to?: number }) => {
-                              const [displayValue, setDisplayValue] = useState(value)
-                              
-                              useEffect(() => {
-                                if (isAnimating && from !== undefined && to !== undefined) {
-                                  // Animate the value smoothly using requestAnimationFrame
-                                  const startValue = from
-                                  const endValue = to
-                                  const duration = 800
-                                  const startTime = Date.now()
-                                  
-                                  const animate = () => {
-                                    const elapsed = Date.now() - startTime
-                                    const progress = Math.min(elapsed / duration, 1)
-                                    const easeOutCubic = 1 - Math.pow(1 - progress, 3)
-                                    const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic)
-                                    setDisplayValue(currentValue)
-                                    
-                                    if (progress < 1) {
-                                      requestAnimationFrame(animate)
-                                    } else {
-                                      setDisplayValue(endValue)
-                                    }
-                                  }
-                                  requestAnimationFrame(animate)
-                                } else {
-                                  setDisplayValue(value)
-                                }
-                              }, [value, isAnimating, from, to])
-                              
-                              // Use NumberFlow with the animated displayValue
-                              return (
-                                <motion.div
-                                  key={displayValue}
-                                  initial={isAnimating ? { scale: 1.2 } : false}
-                                  animate={isAnimating ? { scale: 1 } : {}}
-                                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                                  className="text-[10px] font-bold text-white leading-none"
-                                >
-                                  <NumberFlow value={displayValue} />
-                                </motion.div>
-                              )
-                            }
-                            
-                            return (
-                              <div className="flex items-center justify-center mx-3 flex-shrink-0 gap-1">
-                                <motion.div 
-                          className={cn(
-                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
-                                    isAnimatingTeam1 
-                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
-                                      : ""
-                                  )}
-                                  animate={isAnimatingTeam1 ? { 
-                                    scale: [1, 1.1, 1],
-                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
-                                  } : {}}
-                                  transition={{ duration: 0.6, ease: "easeOut" }}
-                                >
-                                  <TopEventsAnimatedScore 
-                                    value={currentScore.team1} 
-                                    isAnimating={isAnimatingTeam1}
-                                    from={currentScore.animating?.team === 1 ? currentScore.animating.from : undefined}
-                                    to={currentScore.animating?.team === 1 ? currentScore.animating.to : undefined}
-                                  />
-                                </motion.div>
-                                <span className="text-base font-bold text-white leading-none">-</span>
-                                <motion.div 
-                          className={cn(
-                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
-                                    isAnimatingTeam2 
-                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
-                                      : ""
-                                  )}
-                                  animate={isAnimatingTeam2 ? { 
-                                    scale: [1, 1.1, 1],
-                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
-                                  } : {}}
-                                  transition={{ duration: 0.6, ease: "easeOut" }}
-                                >
-                                  <TopEventsAnimatedScore 
-                                    value={currentScore.team2} 
-                                    isAnimating={isAnimatingTeam2}
-                                    from={currentScore.animating?.team === 2 ? currentScore.animating.from : undefined}
-                                    to={currentScore.animating?.team === 2 ? currentScore.animating.to : undefined}
-                                  />
-                                </motion.div>
-                          </div>
-                            )
-                          })()}
-                          
-                          {/* Team 2 */}
-                          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                            <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
-                            {activeSport === 'Football' && 'team2NFL' in event && event.team2NFL ? (
-                              (() => {
-                                const TeamIcon = (NFLIcons as any)[event.team2NFL]
-                                return TeamIcon ? <TeamIcon size={24} /> : null
-                              })()
-                            ) : (
-                            <Image 
-                                src={'team2Logo' in event ? event.team2Logo : '/team/default.png'}
-                                alt={event.team2}
-                                width={20}
-                                height={20}
-                              className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
-                            />
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Moneyline Betting Buttons */}
-                        <div className="flex items-center gap-1.5 mb-3">
-                          <button 
-                            data-event-id={event.id}
-                            data-event-name={`${event.team1} v ${event.team2}`}
-                            data-market-title="Moneyline"
-                            data-selection={event.team1Code}
-                            data-odds="+350"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team1Code, '+350')
-                            }}
-                            className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(event.id, 'Moneyline', event.team1Code) && "bg-red-500"
-                            )}
-                            onMouseEnter={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
-                                e.currentTarget.style.backgroundColor = brandPrimary
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }}
-                          >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team1Code}</div>
-                            <div className="text-xs font-bold leading-none">+350</div>
-                          </button>
-                          <button 
-                            data-event-id={event.id}
-                            data-event-name={`${event.team1} v ${event.team2}`}
-                            data-market-title="Moneyline"
-                            data-selection="Tie"
-                            data-odds="+350"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', 'Tie', '+350')
-                            }}
-                            className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(event.id, 'Moneyline', 'Tie') && "bg-red-500"
-                            )}
-                            onMouseEnter={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
-                                e.currentTarget.style.backgroundColor = brandPrimary
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }}
-                          >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div>
-                            <div className="text-xs font-bold leading-none">+350</div>
-                          </button>
-                          <button 
-                            data-event-id={event.id}
-                            data-event-name={`${event.team1} v ${event.team2}`}
-                            data-market-title="Moneyline"
-                            data-selection={event.team2Code}
-                            data-odds="+350"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team2Code, '+350')
-                            }}
-                            className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
-                              isBetSelected(event.id, 'Moneyline', event.team2Code) && "bg-red-500"
-                            )}
-                            onMouseEnter={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
-                                e.currentTarget.style.backgroundColor = brandPrimary
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                              }
-                            }}
-                          >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team2Code}</div>
-                            <div className="text-xs font-bold leading-none">+350</div>
-                          </button>
-                        </div>
-                        
-                        {/* Popularity Bar */}
-                        <div className="space-y-0.5">
-                          <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
-                          <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div className="bg-[#ee3536] h-full" style={{ width: `${event.team1Percent}%` }}></div>
-                            <div className="bg-white h-full" style={{ width: `${event.team2Percent}%` }}></div>
-                          </div>
-                          <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-white/50">{event.team1Percent}% {event.team1Code}</span>
-                            <span className="text-white/50">{event.team2Percent}% {event.team2Code}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
             
             {/* Sports Sub Nav Tabs - Under Event Cards */}
             <div className="mt-8 mb-4 overflow-x-hidden" style={{ width: '100%', maxWidth: '100%' }}>
@@ -5737,8 +5377,6 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </AnimateTabs>
               </div>
             </div>
-          </div>
-          
           {/* Live Events Section - Exactly matching Figma layout */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -6784,6 +6422,370 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </div>
                 )
               })}
+            </div>
+          </div>
+          
+          {/* Top Events Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-white pl-2">Top Events</h2>
+              <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                  className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
+                  onClick={() => {
+                    router.push('/sports')
+                  }}
+              >
+                View All
+              </Button>
+                {!isMobile && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        if (topEventsCarouselApi) {
+                          const currentIndex = topEventsCarouselApi.selectedScrollSnap()
+                          const targetIndex = Math.max(0, currentIndex - 2)
+                          topEventsCarouselApi.scrollTo(targetIndex)
+                        }
+                      }}
+                      disabled={!topEventsCarouselApi || !topEventsCanScrollPrev}
+                    >
+                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        if (topEventsCarouselApi) {
+                          const currentIndex = topEventsCarouselApi.selectedScrollSnap()
+                          const slideCount = topEventsCarouselApi.scrollSnapList().length
+                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                          topEventsCarouselApi.scrollTo(targetIndex)
+                        }
+                      }}
+                      disabled={!topEventsCarouselApi || !topEventsCanScrollNext}
+                    >
+                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                    </Button>
+                  </>
+                )}
+                  </div>
+                </div>
+            
+            <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
+              <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                <CarouselContent className="ml-6 mr-0">
+                  {/* Dynamic Top Events */}
+                  {(activeSport === 'Football' ? [
+                    { id: 4, team1: 'Kansas City Chiefs', team2: 'Buffalo Bills', score: '24 - 17', team1Code: 'KC', team2Code: 'BUF', team1Percent: 65, team2Percent: 35, time: 'Q3 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'KC', team2NFL: 'BUF' },
+                    { id: 5, team1: 'Dallas Cowboys', team2: 'Philadelphia Eagles', score: '31 - 28', team1Code: 'DAL', team2Code: 'PHI', team1Percent: 58, team2Percent: 42, time: 'Q4 2\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DAL', team2NFL: 'PHI' },
+                    { id: 6, team1: 'San Francisco 49ers', team2: 'Seattle Seahawks', score: '21 - 14', team1Code: 'SF', team2Code: 'SEA', team1Percent: 68, team2Percent: 32, time: 'Q2 12\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'SF', team2NFL: 'SEA' },
+                    { id: 7, team1: 'Miami Dolphins', team2: 'New York Jets', score: '17 - 10', team1Code: 'MIA', team2Code: 'NYJ', team1Percent: 72, team2Percent: 28, time: 'Q3 5\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'MIA', team2NFL: 'NYJ' },
+                    { id: 8, team1: 'Baltimore Ravens', team2: 'Cincinnati Bengals', score: '28 - 21', team1Code: 'BAL', team2Code: 'CIN', team1Percent: 62, team2Percent: 38, time: 'Q4 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'BAL', team2NFL: 'CIN' },
+                    { id: 9, team1: 'Los Angeles Rams', team2: 'Arizona Cardinals', score: '14 - 14', team1Code: 'LAR', team2Code: 'ARI', team1Percent: 52, team2Percent: 48, time: 'Q2 8\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'LAR', team2NFL: 'ARI' },
+                    { id: 10, team1: 'Green Bay Packers', team2: 'Chicago Bears', score: '10 - 7', team1Code: 'GB', team2Code: 'CHI', team1Percent: 58, team2Percent: 42, time: 'Q1 11\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'GB', team2NFL: 'CHI' },
+                    { id: 11, team1: 'Pittsburgh Steelers', team2: 'Cleveland Browns', score: '7 - 3', team1Code: 'PIT', team2Code: 'CLE', team1Percent: 55, team2Percent: 45, time: 'Q1 6\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'PIT', team2NFL: 'CLE' },
+                    { id: 12, team1: 'Denver Broncos', team2: 'Las Vegas Raiders', score: '35 - 10', team1Code: 'DEN', team2Code: 'LV', team1Percent: 78, team2Percent: 22, time: 'Q4 9\'', league: 'NFL', leagueIcon: '/banners/sports_league/NFL.svg', country: 'USA', team1NFL: 'DEN', team2NFL: 'LV' },
+                  ] : [
+                    { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
+                    { id: 5, team1: 'Real Madrid', team2: 'Barcelona', score: '2 - 1', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 58, team2Percent: 42, time: 'H2 71\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
+                    { id: 6, team1: 'Juventus', team2: 'AC Milan', score: '1 - 2', team1Code: 'JUV', team2Code: 'MIL', team1Percent: 48, team2Percent: 52, time: 'H2 78\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Juventus FC.png', team2Logo: '/team/Italy - Serie A/AC Milan.png' },
+                    { id: 7, team1: 'Tottenham', team2: 'Newcastle', score: '2 - 1', team1Code: 'TOT', team2Code: 'NEW', team1Percent: 72, team2Percent: 28, time: 'H2 67\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Tottenham Hotspur.png', team2Logo: '/team/Newcastle United.png' },
+                    { id: 8, team1: 'Inter Milan', team2: 'Napoli', score: '2 - 0', team1Code: 'INT', team2Code: 'NAP', team1Percent: 68, team2Percent: 32, time: 'H1 28\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/Inter Milan.png', team2Logo: '/team/Italy - Serie A/SSC Napoli.png' },
+                    { id: 9, team1: 'Atletico Madrid', team2: 'Sevilla', score: '1 - 1', team1Code: 'ATM', team2Code: 'SEV', team1Percent: 52, team2Percent: 48, time: 'H1 34\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Atlético de Madrid.png', team2Logo: '/team/Spain - LaLiga/Sevilla FC.png' },
+                    { id: 10, team1: 'AS Roma', team2: 'Lazio', score: '0 - 1', team1Code: 'ROM', team2Code: 'LAZ', team1Percent: 42, team2Percent: 58, time: 'H1 18\'', league: 'Serie A', leagueIcon: '/team/Italy - Serie A/serie A.svg', country: 'Italy', team1Logo: '/team/Italy - Serie A/AS Roma.png', team2Logo: '/team/Italy - Serie A/SS Lazio.png' },
+                    { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
+                    { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
+                  ]).map((event) => (
+                    <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                        {/* Header: League info and Live status */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1.5">
+                            <Image 
+                              src={event.leagueIcon} 
+                              alt={event.league}
+                              width={16}
+                              height={16}
+                              className="object-contain"
+                            />
+                            <span className="text-[10px] text-white">{event.league} | {event.country}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                              <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                              <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
+                            </div>
+                            <span className="text-[10px] text-[#ee3536]">{event.time}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Teams and Score */}
+                        <div className="flex items-center mb-3">
+                          {/* Team 1 */}
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {activeSport === 'Football' && 'team1NFL' in event && event.team1NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team1NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <Image 
+                                src={'team1Logo' in event ? event.team1Logo : '/team/default.png'}
+                                alt={event.team1}
+                                width={20}
+                                height={20}
+                              className="object-contain flex-shrink-0"
+                              quality={100}
+                              unoptimized
+                            />
+                            )}
+                            <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
+                          </div>
+                          
+                          {/* Score */}
+                          {(() => {
+                            // Parse score string (e.g., "1 - 0" or "2 - 1")
+                            const parseScore = (scoreStr: string) => {
+                              const parts = scoreStr.split(' - ')
+                              return {
+                                team1: parseInt(parts[0]) || 0,
+                                team2: parseInt(parts[1]) || 0
+                              }
+                            }
+                            
+                            const initialScore = parseScore(event.score)
+                            const currentScore = topEventsScores[event.id] || initialScore
+                            const isAnimatingTeam1 = currentScore?.animating?.team === 1
+                            const isAnimatingTeam2 = currentScore?.animating?.team === 2
+                            
+                            // Animated Score Component for Top Events
+                            const TopEventsAnimatedScore = ({ value, isAnimating, from, to }: { value: number, isAnimating?: boolean, from?: number, to?: number }) => {
+                              const [displayValue, setDisplayValue] = useState(value)
+                              
+                              useEffect(() => {
+                                if (isAnimating && from !== undefined && to !== undefined) {
+                                  // Animate the value smoothly using requestAnimationFrame
+                                  const startValue = from
+                                  const endValue = to
+                                  const duration = 800
+                                  const startTime = Date.now()
+                                  
+                                  const animate = () => {
+                                    const elapsed = Date.now() - startTime
+                                    const progress = Math.min(elapsed / duration, 1)
+                                    const easeOutCubic = 1 - Math.pow(1 - progress, 3)
+                                    const currentValue = Math.round(startValue + (endValue - startValue) * easeOutCubic)
+                                    setDisplayValue(currentValue)
+                                    
+                                    if (progress < 1) {
+                                      requestAnimationFrame(animate)
+                                    } else {
+                                      setDisplayValue(endValue)
+                                    }
+                                  }
+                                  requestAnimationFrame(animate)
+                                } else {
+                                  setDisplayValue(value)
+                                }
+                              }, [value, isAnimating, from, to])
+                              
+                              // Use NumberFlow with the animated displayValue
+                              return (
+                                <motion.div
+                                  key={displayValue}
+                                  initial={isAnimating ? { scale: 1.2 } : false}
+                                  animate={isAnimating ? { scale: 1 } : {}}
+                                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                                  className="text-[10px] font-bold text-white leading-none"
+                                >
+                                  <NumberFlow value={displayValue} />
+                                </motion.div>
+                              )
+                            }
+                            
+                            return (
+                              <div className="flex items-center justify-center mx-3 flex-shrink-0 gap-1">
+                                <motion.div 
+                          className={cn(
+                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
+                                    isAnimatingTeam1 
+                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
+                                      : ""
+                                  )}
+                                  animate={isAnimatingTeam1 ? { 
+                                    scale: [1, 1.1, 1],
+                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                                  } : {}}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                >
+                                  <TopEventsAnimatedScore 
+                                    value={currentScore.team1} 
+                                    isAnimating={isAnimatingTeam1}
+                                    from={currentScore.animating?.team === 1 ? currentScore.animating.from : undefined}
+                                    to={currentScore.animating?.team === 1 ? currentScore.animating.to : undefined}
+                                  />
+                                </motion.div>
+                                <span className="text-base font-bold text-white leading-none">-</span>
+                                <motion.div 
+                          className={cn(
+                                    "border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10 transition-all duration-500",
+                                    isAnimatingTeam2 
+                                      ? "bg-green-500/30 border-green-500/50 shadow-lg shadow-green-500/20" 
+                                      : ""
+                                  )}
+                                  animate={isAnimatingTeam2 ? { 
+                                    scale: [1, 1.1, 1],
+                                    boxShadow: ["0 0 0px rgba(34, 197, 94, 0)", "0 0 20px rgba(34, 197, 94, 0.4)", "0 0 0px rgba(34, 197, 94, 0)"]
+                                  } : {}}
+                                  transition={{ duration: 0.6, ease: "easeOut" }}
+                                >
+                                  <TopEventsAnimatedScore 
+                                    value={currentScore.team2} 
+                                    isAnimating={isAnimatingTeam2}
+                                    from={currentScore.animating?.team === 2 ? currentScore.animating.from : undefined}
+                                    to={currentScore.animating?.team === 2 ? currentScore.animating.to : undefined}
+                                  />
+                                </motion.div>
+                          </div>
+                            )
+                          })()}
+                          
+                          {/* Team 2 */}
+                          <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                            <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
+                            {activeSport === 'Football' && 'team2NFL' in event && event.team2NFL ? (
+                              (() => {
+                                const TeamIcon = (NFLIcons as any)[event.team2NFL]
+                                return TeamIcon ? <TeamIcon size={24} /> : null
+                              })()
+                            ) : (
+                            <Image 
+                                src={'team2Logo' in event ? event.team2Logo : '/team/default.png'}
+                                alt={event.team2}
+                                width={20}
+                                height={20}
+                              className="object-contain flex-shrink-0"
+                              quality={100}
+                              unoptimized
+                            />
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Moneyline Betting Buttons */}
+                        <div className="flex items-center gap-1.5 mb-3">
+                          <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection={event.team1Code}
+                            data-odds="+350"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team1Code, '+350')
+                            }}
+                            className={cn(
+                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              isBetSelected(event.id, 'Moneyline', event.team1Code) && "bg-red-500"
+                            )}
+                            onMouseEnter={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
+                                e.currentTarget.style.backgroundColor = brandPrimary
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team1Code)) {
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team1Code}</div>
+                            <div className="text-xs font-bold leading-none">+350</div>
+                          </button>
+                          <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection="Tie"
+                            data-odds="+350"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', 'Tie', '+350')
+                            }}
+                            className={cn(
+                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              isBetSelected(event.id, 'Moneyline', 'Tie') && "bg-red-500"
+                            )}
+                            onMouseEnter={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
+                                e.currentTarget.style.backgroundColor = brandPrimary
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', 'Tie')) {
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div>
+                            <div className="text-xs font-bold leading-none">+350</div>
+                          </button>
+                          <button 
+                            data-event-id={event.id}
+                            data-event-name={`${event.team1} v ${event.team2}`}
+                            data-market-title="Moneyline"
+                            data-selection={event.team2Code}
+                            data-odds="+350"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team2Code, '+350')
+                            }}
+                            className={cn(
+                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              isBetSelected(event.id, 'Moneyline', event.team2Code) && "bg-red-500"
+                            )}
+                            onMouseEnter={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
+                                e.currentTarget.style.backgroundColor = brandPrimary
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isBetSelected(event.id, 'Moneyline', event.team2Code)) {
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                              }
+                            }}
+                          >
+                            <div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team2Code}</div>
+                            <div className="text-xs font-bold leading-none">+350</div>
+                          </button>
+                        </div>
+                        
+                        {/* Popularity Bar */}
+                        <div className="space-y-0.5">
+                          <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
+                          <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div className="bg-[#ee3536] h-full" style={{ width: `${event.team1Percent}%` }}></div>
+                            <div className="bg-white h-full" style={{ width: `${event.team2Percent}%` }}></div>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-white/50">{event.team1Percent}% {event.team1Code}</span>
+                            <span className="text-white/50">{event.team2Percent}% {event.team2Code}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             </div>
           </div>
           
@@ -7881,7 +7883,6 @@ function VipDrawerContent({
 function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, setActiveSubNav] = useState('For You')
@@ -7937,17 +7938,7 @@ function NavTestPageContent() {
   const [betslipOpen, setBetslipOpen] = useState(false)
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
-  const [activeSport, setActiveSport] = useState<string>(() => {
-    return 'Soccer'
-  })
-  
-  // Read sport from URL query param (e.g. /sports?sport=Football)
-  useEffect(() => {
-    const sportParam = searchParams.get('sport')
-    if (sportParam) {
-      setActiveSport(sportParam)
-    }
-  }, [searchParams])
+  const [activeSport, setActiveSport] = useState<'Soccer' | 'Football'>('Soccer') // Track active sport type
   const [bets, setBets] = useState<Array<{
     id: string
     eventId: number
@@ -8894,12 +8885,30 @@ function NavTestPageContent() {
                     <button
                       key={sport.label}
                       type="button"
-                      onClick={() => {
+                      onClick={(e) => {
+                        console.log('=== FOOTBALL CLICK START ===')
+                        console.log('Button clicked:', sport.label)
+                        console.log('Current activeSport:', activeSport)
+                        console.log('Event target:', e.target)
+                        console.log('Event currentTarget:', e.currentTarget)
+                        
+                        e.preventDefault()
+                        e.stopPropagation()
+                        
+                        // Navigate to sport page or change active sport
                         if (sport.label === 'Soccer') {
                           router.push('/sports/soccer')
                           return
                         }
-                        setActiveSport(sport.label)
+                        // Navigate to main sports page with the selected sport
+                        router.push(`/sports?sport=${encodeURIComponent(sport.label)}`)
+                      }}
+                      onMouseDown={(e) => {
+                        console.log('Mouse down on:', sport.label)
+                        // Don't prevent default on mousedown to allow click to fire
+                      }}
+                      onMouseUp={(e) => {
+                        console.log('Mouse up on:', sport.label)
                       }}
                       className={cn(
                         "flex flex-col items-center justify-center gap-1 min-w-[60px] px-2 py-1.5 rounded-small transition-all duration-300 cursor-pointer flex-shrink-0 relative",
@@ -10159,7 +10168,7 @@ function NavTestPageContent() {
                 activeTab={sportsActiveTab}
                 onTabChange={setSportsActiveTab}
                 onBack={() => {
-                  router.push('/casino')
+                  router.push('/sports/soccer')
                 }}
                 brandPrimary={brandPrimary}
                 brandPrimaryHover={brandPrimaryHover}
@@ -12883,9 +12892,7 @@ function ViewTab({
 export default function NavTestPage() {
   return (
     <SidebarProvider>
-      <Suspense fallback={<div className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen flex items-center justify-center"><div className="text-white/70">Loading...</div></div>}>
-        <NavTestPageContent />
-      </Suspense>
+      <NavTestPageContent />
     </SidebarProvider>
   )
 }
