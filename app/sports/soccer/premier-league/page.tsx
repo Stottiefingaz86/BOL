@@ -4920,6 +4920,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       width={24}
                       height={24}
                       className="object-contain"
+                      decoding="sync"
                     />
                   ) : (
                     <IconTrophy className="w-6 h-6 text-white" />
@@ -5106,6 +5107,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                       width={20}
                                       height={20}
                             className="object-contain"
+                            decoding="sync"
                           />
                                   ) : null
                                 }
@@ -5557,6 +5559,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           width={size}
                           height={size}
                           className="object-contain flex-shrink-0"
+                          decoding="sync"
                         />
                       )
                     }
@@ -5767,6 +5770,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -6137,6 +6141,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           width={size}
                           height={size}
                           className="object-contain flex-shrink-0"
+                          decoding="sync"
                         />
                       )
                     }
@@ -6370,6 +6375,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -8935,6 +8941,7 @@ function NavTestPageContent() {
                           isActive ? "opacity-100" : "opacity-70"
                         )}
                         style={{ pointerEvents: 'none' }}
+                        decoding="sync"
                         onError={(e) => {
                           console.error('Failed to load icon:', sport.icon)
                           e.currentTarget.style.display = 'none'

@@ -163,6 +163,14 @@ body {
   }
 }
 
+/* Prevent team logo images from flashing on mobile scroll */
+img[decoding="sync"] {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* Subtle tile shimmer on hover */
 @keyframes tile-shimmer {
   0% {

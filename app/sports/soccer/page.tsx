@@ -4740,6 +4740,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       width={16} 
                       height={11} 
                       className="rounded-[2px] flex-shrink-0 object-cover"
+                      decoding="sync"
                     />
                   )}
                   {selectedCountry || 'Select Country'}
@@ -4765,6 +4766,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       width={20} 
                       height={14} 
                       className="rounded-sm flex-shrink-0 object-cover"
+                      decoding="sync"
                     />
                     {country.name}
                   </DropdownMenuItem>
@@ -4847,7 +4849,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           className="flex items-center gap-2.5 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer"
                         >
                           <div className="w-7 h-7 bg-white/10 rounded-md flex items-center justify-center flex-shrink-0">
-                            <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
+                            <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" decoding="sync" />
                           </div>
                           <div className="text-left">
                             <div className="text-xs font-semibold text-white whitespace-nowrap">{league.name}</div>
@@ -5029,6 +5031,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                       width={20}
                                       height={20}
                             className="object-contain"
+                            decoding="sync"
                           />
                                   ) : null
                                 }
@@ -5247,6 +5250,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={16}
                               height={16}
                               className="object-contain"
+                              decoding="sync"
                             />
                             <span className="text-[10px] text-white">{event.league} | {event.country}</span>
                           </div>
@@ -5269,6 +5273,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={20}
                               height={20}
                               className="object-contain flex-shrink-0"
+                              decoding="sync"
                             />
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
@@ -5390,6 +5395,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={20}
                               height={20}
                               className="object-contain flex-shrink-0"
+                              decoding="sync"
                             />
                           </div>
                         </div>
@@ -5813,6 +5819,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         width={size}
                         height={size}
                         className="object-contain flex-shrink-0"
+                        decoding="sync"
                       />
                     )
                   }
@@ -6022,6 +6029,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 width={12}
                                 height={12}
                                 className="object-contain"
+                                decoding="sync"
                               />
                             )
                           }
@@ -6034,6 +6042,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -6227,6 +6236,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={16}
                               height={16}
                               className="object-contain"
+                              decoding="sync"
                             />
                             <span className="text-[10px] text-white">{boost.league} | {boost.country}, Soccer</span>
                   </div>
@@ -6406,6 +6416,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         width={size}
                         height={size}
                         className="object-contain flex-shrink-0"
+                        decoding="sync"
                       />
                     )
                   }
@@ -6638,6 +6649,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -8825,6 +8837,7 @@ function NavTestPageContent() {
                           isActive ? "opacity-100" : "opacity-70"
                         )}
                         style={{ pointerEvents: 'none' }}
+                        decoding="sync"
                         onError={(e) => {
                           console.error('Failed to load icon:', sport.icon)
                           e.currentTarget.style.display = 'none'

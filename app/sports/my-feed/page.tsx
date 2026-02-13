@@ -5418,7 +5418,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
                             isSelected ? "bg-white/10" : "bg-white/5 group-hover:bg-white/10"
                           )}>
-                            <img src={league.icon} alt={league.name} width={28} height={28} className="object-contain" />
+                            <img src={league.icon} alt={league.name} width={28} height={28} className="object-contain" decoding="sync" />
                           </div>
                           <div className="text-center">
                             <span className={cn(
@@ -5556,7 +5556,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 }
                 const logoPath = getProTeamLogo(teamName)
                 if (logoPath) {
-                  return <img src={logoPath} alt={teamName} width={16} height={16} className="object-contain flex-shrink-0" />
+                  return <img src={logoPath} alt={teamName} width={16} height={16} className="object-contain flex-shrink-0" decoding="sync" />
                 }
                 return <div className="w-4 h-4 rounded-full bg-white/10 flex-shrink-0" />
               }
@@ -5659,7 +5659,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </button>
                           </div>
 
-                          <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
+                          <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" decoding="sync" />
                           <span className="text-sm font-semibold text-white">{league.name}</span>
                           <span className="text-[10px] text-white/40 ml-0.5">{allEvents.length} game{allEvents.length !== 1 ? 's' : ''}</span>
 
@@ -5935,7 +5935,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <div className="relative mb-4 rounded-lg overflow-hidden h-14" style={{ background: league.gradient }}>
                     <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
                       <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
-                        <img src={league.icon} alt={league.name} width={24} height={24} className="object-contain" />
+                        <img src={league.icon} alt={league.name} width={24} height={24} className="object-contain" decoding="sync" />
                       </div>
                       <div>
                         <h2 className="text-lg font-bold text-white">{league.name}</h2>
@@ -6136,6 +6136,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         width={size}
                         height={size}
                         className="object-contain flex-shrink-0"
+                        decoding="sync"
                       />
                     )
                   }
@@ -6345,6 +6346,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 width={12}
                                 height={12}
                                 className="object-contain"
+                                decoding="sync"
                               />
                             )
                           }
@@ -6357,6 +6359,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -6586,6 +6589,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         width={size}
                         height={size}
                         className="object-contain flex-shrink-0"
+                        decoding="sync"
                       />
                     )
                   }
@@ -6818,6 +6822,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               width={12}
                               height={12}
                               className="object-contain"
+                              decoding="sync"
                             />
                           ) : (
                             <IconTrophy className="w-3 h-3 text-white/70" />
@@ -8939,6 +8944,7 @@ function NavTestPageContent() {
                           isActive ? "opacity-100" : "opacity-70"
                         )}
                         style={{ pointerEvents: 'none' }}
+                        decoding="sync"
                         onError={(e) => {
                           console.error('Failed to load icon:', sport.icon)
                           e.currentTarget.style.display = 'none'
