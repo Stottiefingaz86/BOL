@@ -6144,14 +6144,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             <img 
-                              src={boost.leagueIcon} 
-                              alt={boost.league}
+                              src={"/sports_icons/Hockey.svg"} 
+                              alt="Hockey"
                               width={16}
                               height={16}
                               className="object-contain"
                               decoding="sync"
                             />
-                            <span className="text-[10px] text-white">{boost.league} | {boost.country}, Hockey</span>
+                            <span className="text-[10px] text-white">Hockey | USA/Canada</span>
                   </div>
                           {boost.isLive ? (
                             <div className="flex items-center gap-1.5">
