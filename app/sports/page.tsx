@@ -4912,7 +4912,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const leagueData = leagues.find(l => l.name === leagueName)
                   const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                   return isSvgPath ? (
-                    <Image 
+                    <img 
                       src={leagueData.icon as string} 
                       alt={leagueName}
                       width={24}
@@ -5098,7 +5098,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   }
                                   const logoPath = teamLogoMap[teamName]
                                   return logoPath ? (
-                          <Image 
+                          <img 
                                       src={logoPath}
                                       alt={teamName}
                                       width={20}
@@ -5327,7 +5327,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
-                            <Image 
+                            <img 
                               src={event.leagueIcon} 
                               alt={event.league}
                               width={16}
@@ -5355,14 +5355,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 return TeamIcon ? <TeamIcon size={24} /> : null
                               })()
                             ) : (
-                            <Image 
+                            <img 
                                 src={'team1Logo' in event ? event.team1Logo : '/team/default.png'}
                                 alt={event.team1}
                                 width={20}
                                 height={20}
                               className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
                             />
                             )}
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
@@ -5485,14 +5483,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 return TeamIcon ? <TeamIcon size={24} /> : null
                               })()
                             ) : (
-                            <Image 
+                            <img 
                                 src={'team2Logo' in event ? event.team2Logo : '/team/default.png'}
                                 alt={event.team2}
                                 width={20}
                                 height={20}
                               className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
                             />
                             )}
                           </div>
@@ -5913,7 +5909,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     const logoPath = getTeamLogoPath(teamName)
                     if (logoPath) {
                       return (
-                        <Image
+                        <img
                           src={logoPath}
                           alt={teamName}
                           width={size}
@@ -6123,7 +6119,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -6493,7 +6489,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     const logoPath = getTeamLogoPath(teamName)
                     if (logoPath) {
                       return (
-                        <Image
+                        <img
                           src={logoPath}
                           alt={teamName}
                           width={size}
@@ -6726,7 +6722,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -8916,7 +8912,7 @@ function NavTestPageContent() {
                         WebkitUserSelect: 'none'
                       } as React.CSSProperties}
                     >
-                      <Image
+                      <img
                         src={sport.icon}
                         alt={sport.label}
                         width={20}

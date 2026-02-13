@@ -5418,7 +5418,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
                             isSelected ? "bg-white/10" : "bg-white/5 group-hover:bg-white/10"
                           )}>
-                            <Image src={league.icon} alt={league.name} width={28} height={28} className="object-contain" />
+                            <img src={league.icon} alt={league.name} width={28} height={28} className="object-contain" />
                           </div>
                           <div className="text-center">
                             <span className={cn(
@@ -5556,7 +5556,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 }
                 const logoPath = getProTeamLogo(teamName)
                 if (logoPath) {
-                  return <Image src={logoPath} alt={teamName} width={16} height={16} className="object-contain flex-shrink-0" />
+                  return <img src={logoPath} alt={teamName} width={16} height={16} className="object-contain flex-shrink-0" />
                 }
                 return <div className="w-4 h-4 rounded-full bg-white/10 flex-shrink-0" />
               }
@@ -5659,7 +5659,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </button>
                           </div>
 
-                          <Image src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
+                          <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
                           <span className="text-sm font-semibold text-white">{league.name}</span>
                           <span className="text-[10px] text-white/40 ml-0.5">{allEvents.length} game{allEvents.length !== 1 ? 's' : ''}</span>
 
@@ -5935,7 +5935,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   <div className="relative mb-4 rounded-lg overflow-hidden h-14" style={{ background: league.gradient }}>
                     <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
                       <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
-                        <Image src={league.icon} alt={league.name} width={24} height={24} className="object-contain" />
+                        <img src={league.icon} alt={league.name} width={24} height={24} className="object-contain" />
                       </div>
                       <div>
                         <h2 className="text-lg font-bold text-white">{league.name}</h2>
@@ -6130,7 +6130,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const logoPath = getTeamLogoPath(teamName)
                   if (logoPath) {
                     return (
-                      <Image
+                      <img
                         src={logoPath}
                         alt={teamName}
                         width={size}
@@ -6339,7 +6339,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueIconPath = (event as any).leagueIcon
                           if (leagueIconPath) {
                             return (
-                              <Image 
+                              <img 
                                 src={leagueIconPath} 
                                 alt={event.league}
                                 width={12}
@@ -6351,7 +6351,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -6580,7 +6580,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const logoPath = getTeamLogoPath(teamName)
                   if (logoPath) {
                     return (
-                      <Image
+                      <img
                         src={logoPath}
                         alt={teamName}
                         width={size}
@@ -6812,7 +6812,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -8929,7 +8929,7 @@ function NavTestPageContent() {
                         WebkitUserSelect: 'none'
                       } as React.CSSProperties}
                     >
-                      <Image
+                      <img
                         src={sport.icon}
                         alt={sport.label}
                         width={20}

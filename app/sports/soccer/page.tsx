@@ -4734,13 +4734,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   className="text-sm text-white/70 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
                   {selectedCountry && (
-                    <Image 
+                    <img 
                       src={`/flags/${soccerCountries.find(c => c.name === selectedCountry)?.code}.svg`} 
                       alt={selectedCountry} 
                       width={16} 
                       height={11} 
                       className="rounded-[2px] flex-shrink-0 object-cover"
-                      unoptimized
                     />
                   )}
                   {selectedCountry || 'Select Country'}
@@ -4760,13 +4759,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       setSelectedSoccerLeague(null)
                     }}
                   >
-                    <Image 
+                    <img 
                       src={`/flags/${country.code}.svg`} 
                       alt={country.name} 
                       width={20} 
                       height={14} 
                       className="rounded-sm flex-shrink-0 object-cover"
-                      unoptimized
                     />
                     {country.name}
                   </DropdownMenuItem>
@@ -4849,7 +4847,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           className="flex items-center gap-2.5 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-lg transition-all cursor-pointer"
                         >
                           <div className="w-7 h-7 bg-white/10 rounded-md flex items-center justify-center flex-shrink-0">
-                            <Image src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
+                            <img src={league.icon} alt={league.name} width={18} height={18} className="object-contain" />
                           </div>
                           <div className="text-left">
                             <div className="text-xs font-semibold text-white whitespace-nowrap">{league.name}</div>
@@ -5025,7 +5023,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   }
                                   const logoPath = teamLogoMap[teamName]
                                   return logoPath ? (
-                          <Image 
+                          <img 
                                       src={logoPath}
                                       alt={teamName}
                                       width={20}
@@ -5243,7 +5241,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
-                            <Image 
+                            <img 
                               src={event.leagueIcon} 
                               alt={event.league}
                               width={16}
@@ -5265,14 +5263,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <div className="flex items-center mb-3">
                           {/* Team 1 */}
                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <Image 
+                            <img 
                               src={'team1Logo' in event ? event.team1Logo : '/team/default.png'}
                               alt={event.team1}
                               width={20}
                               height={20}
                               className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
                             />
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
@@ -5388,14 +5384,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
                             <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
-                            <Image 
+                            <img 
                               src={'team2Logo' in event ? event.team2Logo : '/team/default.png'}
                               alt={event.team2}
                               width={20}
                               height={20}
                               className="object-contain flex-shrink-0"
-                              quality={100}
-                              unoptimized
                             />
                           </div>
                         </div>
@@ -5813,7 +5807,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const logoPath = getTeamLogoPath(teamName)
                   if (logoPath) {
                     return (
-                      <Image
+                      <img
                         src={logoPath}
                         alt={teamName}
                         width={size}
@@ -6022,7 +6016,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueIconPath = (event as any).leagueIcon
                           if (leagueIconPath) {
                             return (
-                              <Image 
+                              <img 
                                 src={leagueIconPath} 
                                 alt={event.league}
                                 width={12}
@@ -6034,7 +6028,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -6227,7 +6221,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         {/* Header: League info and Time/Live Status */}
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
-                            <Image 
+                            <img 
                               src={boost.leagueIcon} 
                               alt={boost.league}
                               width={16}
@@ -6406,7 +6400,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const logoPath = getTeamLogoPath(teamName)
                   if (logoPath) {
                     return (
-                      <Image
+                      <img
                         src={logoPath}
                         alt={teamName}
                         width={size}
@@ -6638,7 +6632,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           const leagueData = leagues.find(l => l.name === event.league)
                           const isSvgPath = leagueData && typeof leagueData.icon === 'string'
                           return isSvgPath ? (
-                            <Image 
+                            <img 
                               src={leagueData.icon as string} 
                               alt={event.league}
                               width={12}
@@ -8821,7 +8815,7 @@ function NavTestPageContent() {
                         WebkitUserSelect: 'none'
                       } as React.CSSProperties}
                     >
-                      <Image
+                      <img
                         src={sport.icon}
                         alt={sport.label}
                         width={20}
