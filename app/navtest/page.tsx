@@ -6664,7 +6664,7 @@ function NavTestPageContent() {
         </motion.header>
 
         {/* Deposit Drawer - Rendered outside header to avoid conflicts */}
-        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction="right" shouldScaleBackground={false}>
+        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
                 showOverlay={isMobile}
                 className={cn(
@@ -9538,7 +9538,7 @@ function NavTestPageContent() {
               setVipDrawerOpen(false)
             }
           }}
-          direction="right"
+          direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
         >
           <DrawerContent 
@@ -9785,7 +9785,7 @@ function NavTestPageContent() {
         <Drawer 
           open={vipDrawerOpen} 
           onOpenChange={handleVipDrawerOpenChange}
-          direction="right"
+          direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
         >
           <DrawerContent 
@@ -10455,7 +10455,7 @@ function NavTestPageContent() {
         </AnimatePresence>
 
         {/* Similar Games Drawer */}
-        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction="right" shouldScaleBackground={false}>
+        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
@@ -10526,7 +10526,7 @@ function NavTestPageContent() {
         </Drawer>
 
         {/* Advanced Search Side Drawer */}
-        <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction="right" shouldScaleBackground={false}>
+        <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent className="w-full sm:max-w-md bg-[#2d2d2d] border-l border-white/10 text-white z-[210] relative">
             <DrawerHeader>
               <div className="flex items-center justify-between">

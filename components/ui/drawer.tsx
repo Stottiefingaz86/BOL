@@ -93,7 +93,7 @@ DrawerHandle.displayName = "DrawerHandle"
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean; showOverlay?: boolean }
->(({ className, children, noOverlay = false, showOverlay = false, ...props }, ref) => {
+>(({ className, children, noOverlay = false, showOverlay = false, style, ...props }, ref) => {
   return (
     <DrawerPortal>
       {showOverlay && (
@@ -110,7 +110,8 @@ const DrawerContent = React.forwardRef<
           className
         )}
         style={{
-          ...props.style,
+          ...style,
+          position: 'fixed',
           pointerEvents: 'auto',
           visibility: 'visible',
           opacity: 1,

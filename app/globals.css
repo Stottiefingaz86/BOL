@@ -957,15 +957,8 @@ main[data-sidebar="inset"] > * {
   max-height: none !important;
 }
 
-/* Ensure all parent containers up to body allow sticky — exclude chat portal */
-body > div:not(#chat-portal-root):not(#overlay-portal-root),
-body > div:not(#chat-portal-root):not(#overlay-portal-root) > div,
-body > div:not(#chat-portal-root):not(#overlay-portal-root) > div > div[class*="flex"] {
-  overflow: visible !important;
-  overflow-x: hidden !important;
-  position: relative !important;
-  height: auto !important;
-}
+/* Sticky support is handled by .group/sidebar-wrapper and main[data-sidebar="inset"]
+   rules above. No broad body > div overrides — they break vaul drawer portals. */
 
 /* ─── Chat Portal Root ─── */
 /* This container hosts the chat panel via React portal.
@@ -1218,22 +1211,11 @@ div[class*="rounded-full"][class*="mx-auto"][class*="h-1.5"][class*="bg-white"] 
   pointer-events: auto !important;
 }
 
-/* Betslip - Force white background and black text */
+/* Drawer content — let each drawer control its own theme.
+   Only ensure pointer-events and visibility are correct. */
 [data-vaul-drawer-content] {
-  background: #ffffff !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-}
-
-[data-vaul-drawer-content] * {
-  color: inherit;
-}
-
-[data-vaul-drawer-content] input {
-  color: rgba(0, 0, 0, 0.87) !important;
-}
-
-[data-vaul-drawer-content] button {
-  color: rgba(0, 0, 0, 0.87) !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
 }
 
 @utility -focus-area-x-* {

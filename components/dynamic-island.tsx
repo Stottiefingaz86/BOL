@@ -19,6 +19,8 @@ export type DynamicIslandProps = {
   betCount?: number;
   showBetslip?: boolean;
   showChat?: boolean;
+  showSearch?: boolean;
+  showFavorites?: boolean;
 };
 
 export default function DynamicIsland({
@@ -33,6 +35,8 @@ export default function DynamicIsland({
   betCount = 0,
   showBetslip = false,
   showChat = true,
+  showSearch = true,
+  showFavorites = true,
 }: DynamicIslandProps) {
   // Use the global chat store directly — chat is now global
   const chatStore = useChatStore()
@@ -111,18 +115,20 @@ export default function DynamicIsland({
         >
           <div className="flex items-center justify-center gap-2.5 px-3.5 py-2.5 rounded-full bg-[#2d2d2d]/60 backdrop-blur-2xl border border-white/20 shadow-2xl">
             {/* Search Button */}
-            <button
-              onClick={onSearchClick}
-              className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                isSearchActive 
-                  ? "bg-[#ee3536] active:bg-[#ee3536]/80" 
-                  : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
-              )}
-              aria-label="Search"
-            >
-              <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
-            </button>
+            {showSearch && (
+              <button
+                onClick={onSearchClick}
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                  isSearchActive 
+                    ? "bg-[#ee3536] active:bg-[#ee3536]/80" 
+                    : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                )}
+                aria-label="Search"
+              >
+                <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
+              </button>
+            )}
 
             {/* Chat Button */}
             {showChat && (
@@ -166,7 +172,7 @@ export default function DynamicIsland({
                   </span>
                 )}
               </button>
-            ) : (
+            ) : showFavorites ? (
               <button
                 onClick={onFavoriteClick}
                 className={cn(
@@ -185,7 +191,7 @@ export default function DynamicIsland({
                   strokeWidth={2} 
                 />
               </button>
-            )}
+            ) : null}
           </div>
         </motion.div>
       )}

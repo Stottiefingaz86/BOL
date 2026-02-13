@@ -9177,15 +9177,22 @@ function NavTestPageContent() {
         )}
 
         {/* Deposit Drawer - Rendered outside header to avoid conflicts */}
-        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction="right" shouldScaleBackground={false}>
+        <Drawer open={depositDrawerOpen} onOpenChange={handleDepositDrawerOpenChange} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
                 showOverlay={isMobile}
                 className={cn(
                   "bg-white text-gray-900 flex flex-col relative",
-                  "w-full sm:max-w-md border-l border-gray-200 overflow-hidden"
+                  "w-full sm:max-w-md border-l border-gray-200 overflow-hidden",
+                  isMobile && "rounded-t-[10px]"
                 )}
-                style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
+                style={isMobile ? {
+                  height: '80vh',
+                  maxHeight: '80vh',
+                  top: 'auto',
+                  bottom: 0,
+                } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
               >
+                {isMobile && <DrawerHandle variant="dark" />}
             
                 {!isMobile && (
               <DrawerHeader className="relative flex-shrink-0 px-4 pt-4 pb-2">
@@ -11884,14 +11891,15 @@ function NavTestPageContent() {
               setVipDrawerOpen(false)
             }
           }}
-          direction="right"
+          direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
-              "border-l border-gray-200"
+              "border-l border-gray-200",
+              isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
               height: '80vh',
@@ -11900,6 +11908,7 @@ function NavTestPageContent() {
               bottom: 0,
             } : undefined}
           >
+            {isMobile && <DrawerHandle />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
               <div className="flex items-center justify-between gap-3">
                 {accountDrawerView === 'notifications' ? (
@@ -12131,17 +12140,24 @@ function NavTestPageContent() {
         <Drawer 
           open={vipDrawerOpen} 
           onOpenChange={handleVipDrawerOpenChange}
-          direction="right"
+          direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
         >
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
-              "w-full sm:max-w-md border-l border-white/10 overflow-hidden"
+              "w-full sm:max-w-md border-l border-white/10 overflow-hidden",
+              isMobile && "rounded-t-[10px]"
             )}
-            style={{ display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
+            style={isMobile ? {
+              height: '80vh',
+              maxHeight: '80vh',
+              top: 'auto',
+              bottom: 0,
+            } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
+            {isMobile && <DrawerHandle variant="light" />}
             
             {/* Title + Close button for desktop only */}
             {!isMobile && (
@@ -12801,7 +12817,7 @@ function NavTestPageContent() {
         </AnimatePresence>
 
         {/* Similar Games Drawer */}
-        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction="right" shouldScaleBackground={false}>
+        <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
@@ -12815,6 +12831,7 @@ function NavTestPageContent() {
               bottom: 0,
             } : undefined}
           >
+            {isMobile && <DrawerHandle />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
                 <div className="pt-2">
@@ -12872,7 +12889,7 @@ function NavTestPageContent() {
         </Drawer>
 
         {/* Advanced Search Side Drawer */}
-        <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction="right" shouldScaleBackground={false}>
+        <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent className="w-full sm:max-w-md bg-[#2d2d2d] border-l border-white/10 text-white z-[210] relative">
             <DrawerHeader>
               <div className="flex items-center justify-between">
