@@ -2849,6 +2849,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // View mode: compact (default) or pro (spreadsheet-like)
   const [viewMode, setViewMode] = useState<'compact' | 'pro'>('compact')
   
+  // Per-league active sub-nav tab for compact view
+  const [leagueTabs, setLeagueTabs] = useState<{ [leagueSlug: string]: string }>({})
+  
   // Pro view period selector per league (e.g. 'Game', '1H', '1Q', etc.)
   const [proPeriod, setProPeriod] = useState<{ [leagueSlug: string]: string }>({})
   
@@ -2923,7 +2926,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }, [topBetBoostsCarouselApi])
   
-  const sportsTabs = ['Events', 'Outrights', 'Boosts', 'Specials', 'All Leagues']
+  const sportsTabs = ['Events', 'Outrights', 'Boosts', 'Specials']
   
   const eventOrderOptions = [
     { value: 'Popularity', label: 'Popularity' },
@@ -6757,7 +6760,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   )}
                 >
                   <IconLayoutRows className="w-3.5 h-3.5" />
-                  Normal Mode
+                  Standard View
                 </button>
                 <button
                   onClick={() => setViewMode('pro')}
@@ -6769,7 +6772,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   )}
                 >
                   <IconLayoutList className="w-3.5 h-3.5" />
-                  Pro Mode
+                  Pro View
                 </button>
               </div>
 
@@ -7140,58 +7143,145 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* League Content Sections */}
           {favoriteLeagues.length > 0 && (() => {
             const allLeagueData = [
-              { slug: 'premier-league', name: 'Premier League', icon: '/banners/sports_league/prem.svg', country: 'England', gradient: 'linear-gradient(135deg, #3d1053 0%, #6b1d6e 50%, #38003c 100%)', leagueMatch: 'Premier League' },
-              { slug: 'la-liga', name: 'La Liga', icon: '/banners/sports_league/laliga.svg', country: 'Spain', gradient: 'linear-gradient(135deg, #ee3524 0%, #d42e1f 50%, #b8251a 100%)', leagueMatch: 'La Liga' },
-              { slug: 'champions-league', name: 'Champions League', icon: '/banners/sports_league/champions.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #091442 0%, #1a237e 50%, #0d1b5e 100%)', leagueMatch: 'Champions League' },
-              { slug: 'mls', name: 'MLS', icon: '/banners/sports_league/mls.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a2a1a 0%, #2d5a2d 50%, #1a3a1a 100%)', leagueMatch: 'MLS' },
-              { slug: 'serie-a', name: 'Serie A', icon: '/banners/sports_league/prem.svg', country: 'Italy', gradient: 'linear-gradient(135deg, #024494 0%, #0353a4 50%, #002f6c 100%)', leagueMatch: 'Serie A' },
-              { slug: 'bundesliga', name: 'Bundesliga', icon: '/banners/sports_league/prem.svg', country: 'Germany', gradient: 'linear-gradient(135deg, #c4161c 0%, #e3001b 50%, #a0131a 100%)', leagueMatch: 'Bundesliga' },
-              { slug: 'nfl', name: 'NFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #002244 0%, #013369 50%, #001a33 100%)', leagueMatch: 'NFL' },
-              { slug: 'nba', name: 'NBA', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1d428a 0%, #c8102e 50%, #1d428a 100%)', leagueMatch: 'NBA' },
-              { slug: 'mlb', name: 'MLB', icon: '/banners/sports_league/MLB.svg', country: 'USA', gradient: 'linear-gradient(135deg, #002d72 0%, #0a3d8f 50%, #001f4e 100%)', leagueMatch: 'MLB' },
-              { slug: 'nhl', name: 'NHL', icon: '/banners/sports_league/NHL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'NHL' },
-              { slug: 'ncaaf', name: 'NCAAF', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #8B0000 0%, #b22222 50%, #660000 100%)', leagueMatch: 'NCAAF' },
-              { slug: 'cfl', name: 'CFL', icon: '/banners/sports_league/NFL.svg', country: 'Canada', gradient: 'linear-gradient(135deg, #c41e3a 0%, #e6273e 50%, #a0182e 100%)', leagueMatch: 'CFL' },
-              { slug: 'xfl', name: 'XFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', leagueMatch: 'XFL' },
-              { slug: 'usfl', name: 'USFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #002855 0%, #003f7f 50%, #001d3d 100%)', leagueMatch: 'USFL' },
-              { slug: 'wnba', name: 'WNBA', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #ff6800 0%, #ff8c00 50%, #cc5500 100%)', leagueMatch: 'WNBA' },
-              { slug: 'ncaab', name: 'NCAAB', icon: '/banners/sports_league/nba.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a3c5e 0%, #2a5f8f 50%, #0f2440 100%)', leagueMatch: 'NCAAB' },
-              { slug: 'euroleague', name: 'EuroLeague', icon: '/banners/sports_league/nba.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #ff5722 0%, #e64a19 50%, #bf360c 100%)', leagueMatch: 'EuroLeague' },
-              { slug: 'npb', name: 'NPB', icon: '/banners/sports_league/MLB.svg', country: 'Japan', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'NPB' },
-              { slug: 'kbo', name: 'KBO', icon: '/banners/sports_league/MLB.svg', country: 'South Korea', gradient: 'linear-gradient(135deg, #003b5c 0%, #005a8c 50%, #00293f 100%)', leagueMatch: 'KBO' },
-              { slug: 'copa-america', name: 'Copa America', icon: '/banners/sports_league/copa.svg', country: 'South America', gradient: 'linear-gradient(135deg, #1b4f72 0%, #2980b9 50%, #154360 100%)', leagueMatch: 'Copa America' },
-              { slug: 'ligue-1', name: 'Ligue 1', icon: '/banners/sports_league/prem.svg', country: 'France', gradient: 'linear-gradient(135deg, #003049 0%, #0a4c73 50%, #001f30 100%)', leagueMatch: 'Ligue 1' },
-              { slug: 'ufc', name: 'UFC', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'UFC' },
-              { slug: 'bellator', name: 'Bellator', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #444444 50%, #0d0d0d 100%)', leagueMatch: 'Bellator' },
-              { slug: 'pfl', name: 'PFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #003366 0%, #004d99 50%, #002244 100%)', leagueMatch: 'PFL' },
-              { slug: 'lfa', name: 'LFA', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #2d2d2d 0%, #4a4a4a 50%, #1a1a1a 100%)', leagueMatch: 'LFA' },
-              { slug: 'one-championship', name: 'ONE Championship', icon: '/banners/sports_league/NFL.svg', country: 'Asia', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'ONE Championship' },
-              { slug: 'atp-tour', name: 'ATP Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #003893 0%, #004db3 50%, #002766 100%)', leagueMatch: 'ATP Tour' },
-              { slug: 'wta-tour', name: 'WTA Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #6a1b9a 0%, #8e24aa 50%, #4a148c 100%)', leagueMatch: 'WTA Tour' },
-              { slug: 'grand-slams', name: 'Grand Slams', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'Grand Slams' },
-              { slug: 'davis-cup', name: 'Davis Cup', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'Davis Cup' },
-              { slug: 'itf', name: 'ITF', icon: '/banners/sports_league/ATP.svg', country: 'World', gradient: 'linear-gradient(135deg, #37474f 0%, #546e7a 50%, #263238 100%)', leagueMatch: 'ITF' },
-              { slug: 'wtt-champions', name: 'WTT Champions', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #e65100 0%, #f57c00 50%, #bf360c 100%)', leagueMatch: 'WTT Champions' },
-              { slug: 'ittf-world-tour', name: 'ITTF World Tour', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #006064 0%, #00838f 50%, #004d40 100%)', leagueMatch: 'ITTF World Tour' },
-              { slug: 't2-diamond', name: 'T2 Diamond', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #4e342e 0%, #6d4c41 50%, #3e2723 100%)', leagueMatch: 'T2 Diamond' },
-              { slug: 'fivb', name: 'FIVB', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #f9a825 0%, #fbc02d 50%, #c79100 100%)', leagueMatch: 'FIVB' },
-              { slug: 'cev', name: 'CEV', icon: '/banners/sports_league/NFL.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #0d47a1 100%)', leagueMatch: 'CEV' },
-              { slug: 'serie-a1', name: 'Serie A1', icon: '/banners/sports_league/NFL.svg', country: 'Italy', gradient: 'linear-gradient(135deg, #024494 0%, #0353a4 50%, #002f6c 100%)', leagueMatch: 'Serie A1' },
-              { slug: 'superliga', name: 'Superliga', icon: '/banners/sports_league/NFL.svg', country: 'Brazil', gradient: 'linear-gradient(135deg, #009c3b 0%, #00b843 50%, #007a2e 100%)', leagueMatch: 'Superliga' },
-              { slug: 'six-nations', name: 'Six Nations', icon: '/banners/sports_league/NFL.svg', country: 'Europe', gradient: 'linear-gradient(135deg, #2e7d32 0%, #43a047 50%, #1b5e20 100%)', leagueMatch: 'Six Nations' },
-              { slug: 'super-rugby', name: 'Super Rugby', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #311b92 0%, #4527a0 50%, #1a0a5c 100%)', leagueMatch: 'Super Rugby' },
-              { slug: 'premiership', name: 'Premiership', icon: '/banners/sports_league/NFL.svg', country: 'England', gradient: 'linear-gradient(135deg, #3d1053 0%, #6b1d6e 50%, #2a0a3a 100%)', leagueMatch: 'Premiership' },
-              { slug: 'top-14', name: 'Top 14', icon: '/banners/sports_league/NFL.svg', country: 'France', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'Top 14' },
-              { slug: 'rugby-world-cup', name: 'Rugby World Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'Rugby World Cup' },
-              { slug: 'pll', name: 'PLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'PLL' },
-              { slug: 'nll', name: 'NLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #ff6f00 0%, #ff8f00 50%, #cc5900 100%)', leagueMatch: 'NLL' },
-              { slug: 'ncaa', name: 'NCAA', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'NCAA' },
-              { slug: 'world-championship', name: 'World Championship', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #004d40 0%, #00695c 50%, #003329 100%)', leagueMatch: 'World Championship' },
-              { slug: 'wpa', name: 'WPA', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'WPA' },
-              { slug: 'mosconi-cup', name: 'Mosconi Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #880e4f 0%, #ad1457 50%, #6a0a3d 100%)', leagueMatch: 'Mosconi Cup' },
-              { slug: 'us-open', name: 'US Open', icon: '/banners/sports_league/NFL.svg', country: 'USA', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'US Open' },
-              { slug: 'world-pool-masters', name: 'World Pool Masters', icon: '/banners/sports_league/NFL.svg', country: 'World', gradient: 'linear-gradient(135deg, #4a148c 0%, #6a1b9a 50%, #38006b 100%)', leagueMatch: 'World Pool Masters' },
+              { slug: 'premier-league', name: 'Premier League', icon: '/banners/sports_league/prem.svg', country: 'England', sport: 'Soccer', gradient: 'linear-gradient(135deg, #3d1053 0%, #6b1d6e 50%, #38003c 100%)', leagueMatch: 'Premier League' },
+              { slug: 'la-liga', name: 'La Liga', icon: '/banners/sports_league/laliga.svg', country: 'Spain', sport: 'Soccer', gradient: 'linear-gradient(135deg, #ee3524 0%, #d42e1f 50%, #b8251a 100%)', leagueMatch: 'La Liga' },
+              { slug: 'champions-league', name: 'Champions League', icon: '/banners/sports_league/champions.svg', country: 'Europe', sport: 'Soccer', gradient: 'linear-gradient(135deg, #091442 0%, #1a237e 50%, #0d1b5e 100%)', leagueMatch: 'Champions League' },
+              { slug: 'mls', name: 'MLS', icon: '/banners/sports_league/mls.svg', country: 'USA', sport: 'Soccer', gradient: 'linear-gradient(135deg, #1a2a1a 0%, #2d5a2d 50%, #1a3a1a 100%)', leagueMatch: 'MLS' },
+              { slug: 'serie-a', name: 'Serie A', icon: '/banners/sports_league/prem.svg', country: 'Italy', sport: 'Soccer', gradient: 'linear-gradient(135deg, #024494 0%, #0353a4 50%, #002f6c 100%)', leagueMatch: 'Serie A' },
+              { slug: 'bundesliga', name: 'Bundesliga', icon: '/banners/sports_league/prem.svg', country: 'Germany', sport: 'Soccer', gradient: 'linear-gradient(135deg, #c4161c 0%, #e3001b 50%, #a0131a 100%)', leagueMatch: 'Bundesliga' },
+              { slug: 'nfl', name: 'NFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Football', gradient: 'linear-gradient(135deg, #002244 0%, #013369 50%, #001a33 100%)', leagueMatch: 'NFL' },
+              { slug: 'nba', name: 'NBA', icon: '/banners/sports_league/nba.svg', country: 'USA', sport: 'Basketball', gradient: 'linear-gradient(135deg, #1d428a 0%, #c8102e 50%, #1d428a 100%)', leagueMatch: 'NBA' },
+              { slug: 'mlb', name: 'MLB', icon: '/banners/sports_league/MLB.svg', country: 'USA', sport: 'Baseball', gradient: 'linear-gradient(135deg, #002d72 0%, #0a3d8f 50%, #001f4e 100%)', leagueMatch: 'MLB' },
+              { slug: 'nhl', name: 'NHL', icon: '/banners/sports_league/NHL.svg', country: 'USA', sport: 'Hockey', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'NHL' },
+              { slug: 'ncaaf', name: 'NCAAF', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Football', gradient: 'linear-gradient(135deg, #8B0000 0%, #b22222 50%, #660000 100%)', leagueMatch: 'NCAAF' },
+              { slug: 'cfl', name: 'CFL', icon: '/banners/sports_league/NFL.svg', country: 'Canada', sport: 'Football', gradient: 'linear-gradient(135deg, #c41e3a 0%, #e6273e 50%, #a0182e 100%)', leagueMatch: 'CFL' },
+              { slug: 'xfl', name: 'XFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Football', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', leagueMatch: 'XFL' },
+              { slug: 'usfl', name: 'USFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Football', gradient: 'linear-gradient(135deg, #002855 0%, #003f7f 50%, #001d3d 100%)', leagueMatch: 'USFL' },
+              { slug: 'wnba', name: 'WNBA', icon: '/banners/sports_league/nba.svg', country: 'USA', sport: 'Basketball', gradient: 'linear-gradient(135deg, #ff6800 0%, #ff8c00 50%, #cc5500 100%)', leagueMatch: 'WNBA' },
+              { slug: 'ncaab', name: 'NCAAB', icon: '/banners/sports_league/nba.svg', country: 'USA', sport: 'Basketball', gradient: 'linear-gradient(135deg, #1a3c5e 0%, #2a5f8f 50%, #0f2440 100%)', leagueMatch: 'NCAAB' },
+              { slug: 'euroleague', name: 'EuroLeague', icon: '/banners/sports_league/nba.svg', country: 'Europe', sport: 'Basketball', gradient: 'linear-gradient(135deg, #ff5722 0%, #e64a19 50%, #bf360c 100%)', leagueMatch: 'EuroLeague' },
+              { slug: 'npb', name: 'NPB', icon: '/banners/sports_league/MLB.svg', country: 'Japan', sport: 'Baseball', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'NPB' },
+              { slug: 'kbo', name: 'KBO', icon: '/banners/sports_league/MLB.svg', country: 'South Korea', sport: 'Baseball', gradient: 'linear-gradient(135deg, #003b5c 0%, #005a8c 50%, #00293f 100%)', leagueMatch: 'KBO' },
+              { slug: 'copa-america', name: 'Copa America', icon: '/banners/sports_league/copa.svg', country: 'South America', sport: 'Soccer', gradient: 'linear-gradient(135deg, #1b4f72 0%, #2980b9 50%, #154360 100%)', leagueMatch: 'Copa America' },
+              { slug: 'ligue-1', name: 'Ligue 1', icon: '/banners/sports_league/prem.svg', country: 'France', sport: 'Soccer', gradient: 'linear-gradient(135deg, #003049 0%, #0a4c73 50%, #001f30 100%)', leagueMatch: 'Ligue 1' },
+              { slug: 'ufc', name: 'UFC', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'MMA', gradient: 'linear-gradient(135deg, #c41e3a 0%, #8b0000 50%, #5c0a0a 100%)', leagueMatch: 'UFC' },
+              { slug: 'bellator', name: 'Bellator', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'MMA', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #444444 50%, #0d0d0d 100%)', leagueMatch: 'Bellator' },
+              { slug: 'pfl', name: 'PFL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'MMA', gradient: 'linear-gradient(135deg, #003366 0%, #004d99 50%, #002244 100%)', leagueMatch: 'PFL' },
+              { slug: 'lfa', name: 'LFA', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'MMA', gradient: 'linear-gradient(135deg, #2d2d2d 0%, #4a4a4a 50%, #1a1a1a 100%)', leagueMatch: 'LFA' },
+              { slug: 'one-championship', name: 'ONE Championship', icon: '/banners/sports_league/NFL.svg', country: 'Asia', sport: 'MMA', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'ONE Championship' },
+              { slug: 'atp-tour', name: 'ATP Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', sport: 'Tennis', gradient: 'linear-gradient(135deg, #003893 0%, #004db3 50%, #002766 100%)', leagueMatch: 'ATP Tour' },
+              { slug: 'wta-tour', name: 'WTA Tour', icon: '/banners/sports_league/ATP.svg', country: 'World', sport: 'Tennis', gradient: 'linear-gradient(135deg, #6a1b9a 0%, #8e24aa 50%, #4a148c 100%)', leagueMatch: 'WTA Tour' },
+              { slug: 'grand-slams', name: 'Grand Slams', icon: '/banners/sports_league/ATP.svg', country: 'World', sport: 'Tennis', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'Grand Slams' },
+              { slug: 'davis-cup', name: 'Davis Cup', icon: '/banners/sports_league/ATP.svg', country: 'World', sport: 'Tennis', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'Davis Cup' },
+              { slug: 'itf', name: 'ITF', icon: '/banners/sports_league/ATP.svg', country: 'World', sport: 'Tennis', gradient: 'linear-gradient(135deg, #37474f 0%, #546e7a 50%, #263238 100%)', leagueMatch: 'ITF' },
+              { slug: 'wtt-champions', name: 'WTT Champions', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Table Tennis', gradient: 'linear-gradient(135deg, #e65100 0%, #f57c00 50%, #bf360c 100%)', leagueMatch: 'WTT Champions' },
+              { slug: 'ittf-world-tour', name: 'ITTF World Tour', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Table Tennis', gradient: 'linear-gradient(135deg, #006064 0%, #00838f 50%, #004d40 100%)', leagueMatch: 'ITTF World Tour' },
+              { slug: 't2-diamond', name: 'T2 Diamond', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Table Tennis', gradient: 'linear-gradient(135deg, #4e342e 0%, #6d4c41 50%, #3e2723 100%)', leagueMatch: 'T2 Diamond' },
+              { slug: 'fivb', name: 'FIVB', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Volleyball', gradient: 'linear-gradient(135deg, #f9a825 0%, #fbc02d 50%, #c79100 100%)', leagueMatch: 'FIVB' },
+              { slug: 'cev', name: 'CEV', icon: '/banners/sports_league/NFL.svg', country: 'Europe', sport: 'Volleyball', gradient: 'linear-gradient(135deg, #1565c0 0%, #1976d2 50%, #0d47a1 100%)', leagueMatch: 'CEV' },
+              { slug: 'serie-a1', name: 'Serie A1', icon: '/banners/sports_league/NFL.svg', country: 'Italy', sport: 'Volleyball', gradient: 'linear-gradient(135deg, #024494 0%, #0353a4 50%, #002f6c 100%)', leagueMatch: 'Serie A1' },
+              { slug: 'superliga', name: 'Superliga', icon: '/banners/sports_league/NFL.svg', country: 'Brazil', sport: 'Volleyball', gradient: 'linear-gradient(135deg, #009c3b 0%, #00b843 50%, #007a2e 100%)', leagueMatch: 'Superliga' },
+              { slug: 'six-nations', name: 'Six Nations', icon: '/banners/sports_league/NFL.svg', country: 'Europe', sport: 'Rugby', gradient: 'linear-gradient(135deg, #2e7d32 0%, #43a047 50%, #1b5e20 100%)', leagueMatch: 'Six Nations' },
+              { slug: 'super-rugby', name: 'Super Rugby', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Rugby', gradient: 'linear-gradient(135deg, #311b92 0%, #4527a0 50%, #1a0a5c 100%)', leagueMatch: 'Super Rugby' },
+              { slug: 'premiership', name: 'Premiership', icon: '/banners/sports_league/NFL.svg', country: 'England', sport: 'Rugby', gradient: 'linear-gradient(135deg, #3d1053 0%, #6b1d6e 50%, #2a0a3a 100%)', leagueMatch: 'Premiership' },
+              { slug: 'top-14', name: 'Top 14', icon: '/banners/sports_league/NFL.svg', country: 'France', sport: 'Rugby', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'Top 14' },
+              { slug: 'rugby-world-cup', name: 'Rugby World Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Rugby', gradient: 'linear-gradient(135deg, #b8860b 0%, #daa520 50%, #8b6508 100%)', leagueMatch: 'Rugby World Cup' },
+              { slug: 'pll', name: 'PLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Lacrosse', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 50%, #0d1250 100%)', leagueMatch: 'PLL' },
+              { slug: 'nll', name: 'NLL', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Lacrosse', gradient: 'linear-gradient(135deg, #ff6f00 0%, #ff8f00 50%, #cc5900 100%)', leagueMatch: 'NLL' },
+              { slug: 'ncaa', name: 'NCAA', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Lacrosse', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #08306b 100%)', leagueMatch: 'NCAA' },
+              { slug: 'world-championship', name: 'World Championship', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Pool', gradient: 'linear-gradient(135deg, #004d40 0%, #00695c 50%, #003329 100%)', leagueMatch: 'World Championship' },
+              { slug: 'wpa', name: 'WPA', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Pool', gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 50%, #111111 100%)', leagueMatch: 'WPA' },
+              { slug: 'mosconi-cup', name: 'Mosconi Cup', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Pool', gradient: 'linear-gradient(135deg, #880e4f 0%, #ad1457 50%, #6a0a3d 100%)', leagueMatch: 'Mosconi Cup' },
+              { slug: 'us-open', name: 'US Open', icon: '/banners/sports_league/NFL.svg', country: 'USA', sport: 'Pool', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #0d3311 100%)', leagueMatch: 'US Open' },
+              { slug: 'world-pool-masters', name: 'World Pool Masters', icon: '/banners/sports_league/NFL.svg', country: 'World', sport: 'Pool', gradient: 'linear-gradient(135deg, #4a148c 0%, #6a1b9a 50%, #38006b 100%)', leagueMatch: 'World Pool Masters' },
             ]
+
+            // Shared reorder helper for both views
+            const moveLeague = (slug: string, direction: 'up' | 'down') => {
+              setFavoriteLeagues(prev => {
+                const idx = prev.indexOf(slug)
+                if (idx === -1) return prev
+                const newIdx = direction === 'up' ? idx - 1 : idx + 1
+                if (newIdx < 0 || newIdx >= prev.length) return prev
+                const next = [...prev]
+                ;[next[idx], next[newIdx]] = [next[newIdx], next[idx]]
+                localStorage.setItem('favoriteLeagues', JSON.stringify(next))
+                return next
+              })
+            }
+
+            // Per-league bet boosts data
+            const getLeagueBetBoosts = (leagueName: string, sport: string) => {
+              const boostsByLeague: { [key: string]: Array<{ id: number; marketName: string; isLive: boolean; liveTime?: string; time?: string; wasOdds: string; boostedOdds: string }> } = {
+                'Premier League': [
+                  { id: 1, marketName: 'Haaland To Score From A Header Vs Wolves', isLive: true, liveTime: "H2 70'", wasOdds: '+350', boostedOdds: '+450' },
+                  { id: 2, marketName: 'Salah To Score From Outside Box Vs Chelsea', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+450', boostedOdds: '+600' },
+                  { id: 3, marketName: 'Saka To Score First Goal Vs Newcastle', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                  { id: 101, marketName: 'Palmer To Score & Chelsea Win Vs Everton', isLive: false, time: 'TODAY 3:00PM', wasOdds: '+300', boostedOdds: '+420' },
+                  { id: 102, marketName: 'Watkins 2+ Goals Vs West Ham', isLive: true, liveTime: "H1 25'", wasOdds: '+500', boostedOdds: '+680' },
+                  { id: 103, marketName: 'Son To Score First & Spurs Win', isLive: false, time: 'TOMORROW 12:30PM', wasOdds: '+380', boostedOdds: '+520' },
+                  { id: 104, marketName: 'Bruno Fernandes Anytime Assist Vs Fulham', isLive: false, time: 'SATURDAY 3:00PM', wasOdds: '+220', boostedOdds: '+310' },
+                ],
+                'La Liga': [
+                  { id: 4, marketName: 'Vinicius Jr To Score 2+ Goals Vs Sevilla', isLive: false, time: 'TODAY 10:30PM', wasOdds: '+280', boostedOdds: '+350' },
+                  { id: 5, marketName: 'Lewandowski Anytime Scorer Vs Atletico', isLive: true, liveTime: "H1 32'", wasOdds: '+200', boostedOdds: '+280' },
+                  { id: 105, marketName: 'Bellingham To Score From Outside Box', isLive: false, time: 'TODAY 3:00PM', wasOdds: '+450', boostedOdds: '+600' },
+                  { id: 106, marketName: 'Yamal To Score & Barcelona Win Vs Villarreal', isLive: false, time: 'SATURDAY 8:00PM', wasOdds: '+320', boostedOdds: '+440' },
+                  { id: 107, marketName: 'Griezmann Anytime Scorer Vs Real Betis', isLive: false, time: 'SUNDAY 4:15PM', wasOdds: '+250', boostedOdds: '+350' },
+                  { id: 108, marketName: 'Pedri To Score First Goal Vs Valencia', isLive: true, liveTime: "H2 55'", wasOdds: '+600', boostedOdds: '+800' },
+                ],
+                'Champions League': [
+                  { id: 6, marketName: 'Mbappé To Score First Goal Vs Man City', isLive: false, time: 'TOMORROW 3:00PM', wasOdds: '+350', boostedOdds: '+450' },
+                  { id: 7, marketName: 'Bellingham To Score From Outside Box', isLive: false, time: 'TOMORROW 3:00PM', wasOdds: '+500', boostedOdds: '+650' },
+                  { id: 109, marketName: 'Kane 2+ Goals Vs Arsenal', isLive: false, time: 'WED 8:00PM', wasOdds: '+400', boostedOdds: '+550' },
+                  { id: 110, marketName: 'Haaland Hat-Trick Vs Inter Milan', isLive: false, time: 'WED 8:00PM', wasOdds: '+800', boostedOdds: '+1100' },
+                  { id: 111, marketName: 'Musiala To Score & Bayern Win', isLive: false, time: 'TUE 8:00PM', wasOdds: '+280', boostedOdds: '+380' },
+                ],
+                'Serie A': [
+                  { id: 8, marketName: 'Vlahovic To Score First Goal Vs AC Milan', isLive: false, time: 'TODAY 2:00PM', wasOdds: '+400', boostedOdds: '+500' },
+                  { id: 9, marketName: 'Lautaro Martinez 2+ Goals Vs Roma', isLive: false, time: 'TODAY 5:00PM', wasOdds: '+350', boostedOdds: '+480' },
+                  { id: 112, marketName: 'Osimhen Anytime Scorer Vs Atalanta', isLive: true, liveTime: "H1 18'", wasOdds: '+200', boostedOdds: '+290' },
+                  { id: 113, marketName: 'Leao To Score & AC Milan Win', isLive: false, time: 'SATURDAY 7:45PM', wasOdds: '+350', boostedOdds: '+470' },
+                  { id: 114, marketName: 'Thuram To Score From Header Vs Fiorentina', isLive: false, time: 'SUNDAY 2:00PM', wasOdds: '+450', boostedOdds: '+600' },
+                ],
+                'NFL': [
+                  { id: 10, marketName: 'Mahomes 3+ Passing TDs Vs Raiders', isLive: false, time: 'SUNDAY 1:00PM', wasOdds: '+250', boostedOdds: '+350' },
+                  { id: 11, marketName: 'Henry Over 120.5 Rush Yards Vs Colts', isLive: true, liveTime: 'Q2 8:42', wasOdds: '+180', boostedOdds: '+240' },
+                  { id: 12, marketName: 'Jefferson 100+ Receiving Yards & TD', isLive: false, time: 'SUNDAY 4:25PM', wasOdds: '+300', boostedOdds: '+400' },
+                  { id: 115, marketName: 'Lamar Jackson 2+ Rushing TDs Vs Steelers', isLive: false, time: 'SUNDAY 1:00PM', wasOdds: '+400', boostedOdds: '+550' },
+                  { id: 116, marketName: 'Kelce 100+ Receiving Yards Vs Bills', isLive: false, time: 'MONDAY 8:15PM', wasOdds: '+280', boostedOdds: '+380' },
+                  { id: 117, marketName: 'CeeDee Lamb First TD Scorer Vs Eagles', isLive: false, time: 'SUNDAY 4:25PM', wasOdds: '+500', boostedOdds: '+680' },
+                ],
+                'NBA': [
+                  { id: 13, marketName: 'LeBron Triple Double Vs Celtics', isLive: false, time: 'TONIGHT 7:30PM', wasOdds: '+400', boostedOdds: '+550' },
+                  { id: 14, marketName: 'Curry 5+ Three-Pointers Vs Lakers', isLive: true, liveTime: 'Q3 4:15', wasOdds: '+280', boostedOdds: '+380' },
+                  { id: 118, marketName: 'Jokic Triple Double Vs Suns', isLive: false, time: 'TONIGHT 10:00PM', wasOdds: '+250', boostedOdds: '+350' },
+                  { id: 119, marketName: 'Tatum 40+ Points Vs Heat', isLive: false, time: 'TOMORROW 7:00PM', wasOdds: '+500', boostedOdds: '+680' },
+                  { id: 120, marketName: 'Luka 15+ Assists Vs Rockets', isLive: true, liveTime: 'Q2 6:30', wasOdds: '+600', boostedOdds: '+800' },
+                  { id: 121, marketName: 'Edwards 35+ Points & Wolves Win', isLive: false, time: 'FRIDAY 8:00PM', wasOdds: '+450', boostedOdds: '+620' },
+                ],
+                'MLB': [
+                  { id: 15, marketName: 'Ohtani HR + 8 Strikeouts Vs Giants', isLive: false, time: 'TODAY 7:10PM', wasOdds: '+500', boostedOdds: '+650' },
+                  { id: 16, marketName: 'Judge Anytime HR Vs Red Sox', isLive: false, time: 'TODAY 7:05PM', wasOdds: '+200', boostedOdds: '+280' },
+                  { id: 122, marketName: 'Acuña Jr HR + 2 Stolen Bases Vs Mets', isLive: false, time: 'TODAY 7:10PM', wasOdds: '+700', boostedOdds: '+950' },
+                  { id: 123, marketName: 'Cole 10+ Strikeouts Vs Blue Jays', isLive: true, liveTime: '5th Inning', wasOdds: '+300', boostedOdds: '+420' },
+                  { id: 124, marketName: 'Soto 2+ Hits & Yankees Win', isLive: false, time: 'TONIGHT 7:05PM', wasOdds: '+250', boostedOdds: '+350' },
+                ],
+                'NHL': [
+                  { id: 17, marketName: 'McDavid 3+ Points Vs Flames', isLive: false, time: 'TONIGHT 9:00PM', wasOdds: '+350', boostedOdds: '+460' },
+                  { id: 18, marketName: 'Matthews Anytime Goal Vs Canadiens', isLive: true, liveTime: '2nd 12:30', wasOdds: '+180', boostedOdds: '+250' },
+                  { id: 125, marketName: 'Ovechkin 2+ Goals Vs Rangers', isLive: false, time: 'TONIGHT 7:00PM', wasOdds: '+450', boostedOdds: '+600' },
+                  { id: 126, marketName: 'Makar Anytime Goal & Avs Win', isLive: false, time: 'TOMORROW 9:00PM', wasOdds: '+320', boostedOdds: '+440' },
+                  { id: 127, marketName: 'Panarin 3+ Points Vs Penguins', isLive: false, time: 'SATURDAY 7:00PM', wasOdds: '+400', boostedOdds: '+550' },
+                ],
+              }
+              return boostsByLeague[leagueName] || [
+                { id: 100, marketName: `${leagueName} Featured Boost`, isLive: false, time: 'TODAY', wasOdds: '+300', boostedOdds: '+400' },
+                { id: 200, marketName: `${leagueName} Special Boost`, isLive: false, time: 'TOMORROW', wasOdds: '+250', boostedOdds: '+350' },
+                { id: 201, marketName: `${leagueName} Daily Boost`, isLive: true, liveTime: 'LIVE', wasOdds: '+180', boostedOdds: '+260' },
+                { id: 202, marketName: `${leagueName} Super Boost`, isLive: false, time: 'SATURDAY', wasOdds: '+400', boostedOdds: '+550' },
+              ]
+            }
 
             // PRO VIEW - Board-style layout split by league
             if (viewMode === 'pro') {
@@ -7295,19 +7385,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 return { moneyline: `${period} Moneyline`, spread: `${period} Spread`, total: `${period} Total` }
               }
 
-              // Reorder helper
-              const moveLeague = (slug: string, direction: 'up' | 'down') => {
-                setFavoriteLeagues(prev => {
-                  const idx = prev.indexOf(slug)
-                  if (idx === -1) return prev
-                  const newIdx = direction === 'up' ? idx - 1 : idx + 1
-                  if (newIdx < 0 || newIdx >= prev.length) return prev
-                  const next = [...prev]
-                  ;[next[idx], next[newIdx]] = [next[newIdx], next[idx]]
-                  localStorage.setItem('favoriteLeagues', JSON.stringify(next))
-                  return next
-                })
-              }
+              // moveLeague is now shared above
 
               return (
                 <div className="space-y-6 mb-8">
@@ -7393,8 +7471,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           </button>
                         </div>
 
-                        {/* Board Table */}
-                        <div className="overflow-x-auto rounded-b-lg border border-white/10">
+                        {/* Sub-nav row: Events | Outrights | Boosts | Specials */}
+                        <div className="flex items-center gap-1 px-3 py-1.5 bg-white/[0.02] border-x border-white/10">
+                          {sportsTabs.map((tab) => (
+                            <button
+                              key={tab}
+                              onClick={() => setLeagueTabs(prev => ({ ...prev, [slug]: tab }))}
+                              className={cn(
+                                "px-3 py-1 rounded-md text-[11px] font-medium transition-all duration-200 whitespace-nowrap",
+                                (leagueTabs[slug] || 'Events') === tab
+                                  ? "text-white bg-white/10"
+                                  : "text-white/40 hover:text-white/60 hover:bg-white/5"
+                              )}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Board Table - shown on Events tab */}
+                        {(leagueTabs[slug] || 'Events') === 'Events' && <div className="overflow-x-auto rounded-b-lg border border-white/10">
                     <table className="w-full text-left">
                           <thead>
                               <tr className="bg-white/[0.06] border-b border-white/10">
@@ -7614,7 +7710,66 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         })}
                       </tbody>
                     </table>
+                          </div>}
+
+                        {/* Boosts tab in Pro View */}
+                        {(leagueTabs[slug] || 'Events') === 'Boosts' && (
+                          <div className="rounded-b-lg border border-white/10 p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Bet Boosts</span>
                           </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {getLeagueBetBoosts(league.leagueMatch, league.sport).map((boost) => (
+                                <div key={boost.id} className="bg-white/[0.04] border border-white/10 rounded-md p-2.5 flex items-center justify-between gap-3" style={{ background: 'linear-gradient(to right, rgba(212, 175, 55, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)' }}>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-medium text-white/80 leading-tight truncate">{boost.marketName}</div>
+                                    <div className="flex items-center gap-1 mt-0.5">
+                                      {boost.isLive && (
+                                        <span className="text-[8px] font-bold text-[#ee3536] bg-[#ee3536]/15 px-1 rounded">LIVE</span>
+                                      )}
+                                      <span className="text-[9px] text-white/40">{league.name}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                                    <span className="text-[10px] text-white/30 line-through">{boost.wasOdds}</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        addBetToSlip(boost.id + 90000, boost.marketName, 'Bet Boost', boost.marketName, boost.boostedOdds)
+                                      }}
+                                      className={cn(
+                                        "rounded-md h-7 px-3 text-xs font-bold border transition-colors cursor-pointer",
+                                        bets.some(b => b.eventId === boost.id + 90000)
+                                          ? "border-transparent text-white"
+                                          : "bg-white/10 border-white/15 text-white hover:bg-white/15"
+                                      )}
+                                      style={bets.some(b => b.eventId === boost.id + 90000) ? { backgroundColor: brandPrimary } : {}}
+                                    >
+                                      {boost.boostedOdds}
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Outrights tab in Pro View */}
+                        {(leagueTabs[slug] || 'Events') === 'Outrights' && (
+                          <div className="rounded-b-lg border border-white/10 p-6 text-center">
+                            <IconTrophy className="w-6 h-6 text-white/15 mx-auto mb-1.5" />
+                            <p className="text-xs text-white/30">Outright markets for {league.name} coming soon</p>
+                          </div>
+                        )}
+
+                        {/* Specials tab in Pro View */}
+                        {(leagueTabs[slug] || 'Events') === 'Specials' && (
+                          <div className="rounded-b-lg border border-white/10 p-6 text-center">
+                            <IconStar className="w-6 h-6 text-white/15 mx-auto mb-1.5" />
+                            <p className="text-xs text-white/30">Specials for {league.name} coming soon</p>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -7630,12 +7785,40 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
 
               const leagueLiveEvents = liveEvents.filter(e => e.league === league.leagueMatch)
               const leagueUpcomingEvents = upcomingEvents.filter(e => e.league === league.leagueMatch)
+              const isFirstLeague = leagueIdx === 0
+              const isLastLeague = leagueIdx === favoriteLeagues.length - 1
+              const currentLeagueTab = leagueTabs[slug] || 'Events'
 
               return (
                 <div key={slug}>
-                  {/* League Banner */}
-                  <div className="relative mb-4 rounded-lg overflow-hidden h-14" style={{ background: league.gradient }}>
-                    <div className="relative h-14 flex items-center px-4 gap-4 z-[20]">
+                  {/* League Banner with Reorder Controls */}
+                  <div className="relative mb-0 rounded-lg overflow-hidden h-14" style={{ background: league.gradient }}>
+                    <div className="relative h-14 flex items-center px-4 gap-3 z-[20]">
+                      {/* Reorder arrows */}
+                      <div className="flex flex-col gap-0 -my-1">
+                        <button
+                          onClick={() => moveLeague(slug, 'up')}
+                          disabled={isFirstLeague}
+                          className={cn(
+                            "p-0.5 rounded transition-colors",
+                            isFirstLeague ? "text-white/20 cursor-not-allowed" : "text-white/60 hover:text-white hover:bg-white/20"
+                          )}
+                          title="Move up"
+                        >
+                          <IconChevronUp className="w-3 h-3" strokeWidth={2.5} />
+                        </button>
+                        <button
+                          onClick={() => moveLeague(slug, 'down')}
+                          disabled={isLastLeague}
+                          className={cn(
+                            "p-0.5 rounded transition-colors",
+                            isLastLeague ? "text-white/20 cursor-not-allowed" : "text-white/60 hover:text-white hover:bg-white/20"
+                          )}
+                          title="Move down"
+                        >
+                          <IconChevronDown className="w-3 h-3" strokeWidth={2.5} />
+                        </button>
+                      </div>
                       <div className="w-10 h-10 bg-white/20 rounded flex items-center justify-center">
                         <img src={league.icon} alt={league.name} width={24} height={24} className="object-contain" decoding="sync" />
                       </div>
@@ -7660,6 +7843,29 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </div>
           </div>
           
+                  {/* Sub-nav Tabs */}
+                  <div className="pt-4 pb-2">
+                    <div className="inline-flex bg-white/5 p-0.5 gap-1 rounded-3xl">
+                      {sportsTabs.map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setLeagueTabs(prev => ({ ...prev, [slug]: tab }))}
+                          className={cn(
+                            "relative rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-all duration-200",
+                            currentLeagueTab === tab
+                              ? "text-white"
+                              : "text-white/70 hover:text-white hover:bg-white/5"
+                          )}
+                          style={currentLeagueTab === tab ? { backgroundColor: brandPrimary } : {}}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+          
+          {/* Events Tab Content */}
+          {currentLeagueTab === 'Events' && <>
           {/* Live Events Section - Exactly matching Figma layout */}
           {leagueLiveEvents.length > 0 && <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -7829,6 +8035,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
+                  // Check soccer logos first
+                  const soccerLogo = getTeamLogoPath(teamName)
+                  if (soccerLogo) {
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
+                    return <img src={soccerLogo} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
+                  }
 
                   const mlbCodeMap: { [key: string]: string } = {
                     'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL',
@@ -8196,7 +8408,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <span className="text-[9px] text-white/50">|</span>
                         <span className="text-[9px] text-white/70">{event.country}</span>
                         <span className="text-[9px] text-white/50">,</span>
-                        <span className="text-[9px] text-white/70">Soccer</span>
+                        <span className="text-[9px] text-white/70">{league.sport}</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -8407,6 +8619,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 // Helper component to render team logo
                 const TeamLogoComponent = ({ teamName, size = 12 }: { teamName: string; size?: number }) => {
+                  // Check soccer logos first
+                  const soccerLogo = getTeamLogoPath(teamName)
+                  if (soccerLogo) {
+                  const initials = teamName.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()
+                    return <img src={soccerLogo} alt={teamName} width={size} height={size} className="object-contain flex-shrink-0 rounded-full" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.style.width = size + 'px'; s.style.height = size + 'px'; s.innerHTML = '<span style="font-size:' + Math.max(size * 0.35, 5) + 'px;line-height:1" class="font-bold text-white/80">' + initials + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
+                  }
 
                   const mlbCodeMap: { [key: string]: string } = {
                     'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL',
@@ -8784,7 +9002,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <span className="text-[9px] text-white/50">|</span>
                         <span className="text-[9px] text-white/70">{event.country}</span>
                         <span className="text-[9px] text-white/50">,</span>
-                        <span className="text-[9px] text-white/70">Soccer</span>
+                        <span className="text-[9px] text-white/70">{league.sport}</span>
                       </div>
                     </div>
                     
@@ -8829,6 +9047,221 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               })}
             </div>
           </div>}
+
+          {/* Top Bet Boosts - Below Upcoming */}
+          {(() => {
+            const boosts = getLeagueBetBoosts(league.leagueMatch, league.sport)
+            if (boosts.length === 0) return null
+            
+            const BoostCarouselInner = () => {
+              const boostScrollRef = useRef<HTMLDivElement>(null)
+              const [canBoostScrollLeft, setCanBoostScrollLeft] = useState(false)
+              const [canBoostScrollRight, setCanBoostScrollRight] = useState(false)
+              
+              const checkBoostScroll = useCallback(() => {
+                if (boostScrollRef.current) {
+                  const { scrollLeft, scrollWidth, clientWidth } = boostScrollRef.current
+                  setCanBoostScrollLeft(scrollLeft > 0)
+                  setCanBoostScrollRight(scrollLeft < scrollWidth - clientWidth - 1)
+                }
+              }, [])
+              
+              useEffect(() => {
+                checkBoostScroll()
+                const container = boostScrollRef.current
+                if (container) {
+                  container.addEventListener('scroll', checkBoostScroll)
+                  window.addEventListener('resize', checkBoostScroll)
+                  return () => {
+                    container.removeEventListener('scroll', checkBoostScroll)
+                    window.removeEventListener('resize', checkBoostScroll)
+                  }
+                }
+              }, [checkBoostScroll])
+              
+              return (
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-white">Top Bet Boosts</h2>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
+                        onClick={() => setLeagueTabs(prev => ({ ...prev, [slug]: 'Boosts' }))}
+                      >
+                        View All
+                      </Button>
+                      {!isMobile && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => boostScrollRef.current?.scrollBy({ left: -360, behavior: 'smooth' })}
+                            disabled={!canBoostScrollLeft}
+                          >
+                            <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => boostScrollRef.current?.scrollBy({ left: 360, behavior: 'smooth' })}
+                            disabled={!canBoostScrollRight}
+                          >
+                            <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <div ref={boostScrollRef} className="flex gap-3 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {boosts.map((boost) => (
+                        <div key={boost.id} className="w-[340px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <img src={league.icon} alt={league.name} width={16} height={16} className="object-contain" decoding="sync" />
+                              <span className="text-[10px] text-white">{league.name} | {league.country}, {league.sport}</span>
+                            </div>
+                            {boost.isLive ? (
+                              <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
+                                  <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                                  <span className="text-[9px] font-semibold text-[#ee3536]">LIVE</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-[10px] text-white">{boost.time}</span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between gap-4 mb-2">
+                            <div className="text-sm font-semibold text-white/90 leading-tight flex-1" style={{ lineHeight: '1.3', maxWidth: '200px' }}>
+                              {boost.marketName}
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div>
+                                <div className="text-[10px] text-white/50 mb-1 text-center">Was</div>
+                                <button disabled className="bg-white/10 text-white/50 rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 cursor-not-allowed opacity-60">
+                                  <span className="text-[10px] text-white/50 leading-none line-through">{boost.wasOdds}</span>
+                                </button>
+                              </div>
+                              <div>
+                                <div className="text-[10px] text-white/50 mb-1 text-center">Boosted</div>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    addBetToSlip(boost.id + 90000, boost.marketName, 'Bet Boost', boost.marketName, boost.boostedOdds)
+                                  }}
+                                  className={cn(
+                                    "rounded-small h-[38px] flex items-center justify-center px-3 border transition-colors cursor-pointer",
+                                    bets.some(b => b.eventId === boost.id + 90000)
+                                      ? "border-transparent text-white"
+                                      : "bg-white/10 border-white/20 text-white"
+                                  )}
+                                  style={bets.some(b => b.eventId === boost.id + 90000) ? { backgroundColor: brandPrimary } : {}}
+                                >
+                                  <span className="text-xs font-bold leading-none">{boost.boostedOdds}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-white/10">
+                            <IconInfoCircle className="w-3 h-3 text-white/30 flex-shrink-0" />
+                            <span className="text-[9px] text-white/40">Player Must Play. If No TD&apos;s Are Scored Wager Will Be Graded As A Loss</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+            
+            return (
+              <div className="mb-8">
+                <BoostCarouselInner />
+              </div>
+            )
+          })()}
+          </>}
+
+          {/* Boosts Tab Content - Only boosts in list/row format */}
+          {currentLeagueTab === 'Boosts' && (() => {
+            const boosts = getLeagueBetBoosts(league.leagueMatch, league.sport)
+            if (boosts.length === 0) return (
+              <div className="mb-4 mt-4 p-6 bg-white/[0.03] border border-white/10 rounded-lg text-center">
+                <IconFlame className="w-8 h-8 text-white/20 mx-auto mb-2" />
+                <p className="text-sm text-white/40">No boosts available for {league.name}</p>
+              </div>
+            )
+            return (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-white pl-2">All Bet Boosts</h2>
+                </div>
+                <div className="space-y-1">
+                  {boosts.map((boost) => (
+                    <div key={boost.id} className="flex items-center justify-between gap-3 py-2.5 px-3 bg-white/[0.03] hover:bg-white/[0.06] border-b border-white/[0.06] transition-colors first:rounded-t-lg last:rounded-b-lg last:border-b-0">
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <img src={league.icon} alt={league.name} width={14} height={14} className="object-contain flex-shrink-0" decoding="sync" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[13px] font-medium text-white/90 truncate">{boost.marketName}</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {boost.isLive ? (
+                              <div className="flex items-center gap-0.5">
+                                <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse"></div>
+                                <span className="text-[10px] font-semibold text-[#ee3536]">LIVE {boost.liveTime || ''}</span>
+                              </div>
+                            ) : (
+                              <span className="text-[10px] text-white/40">{boost.time}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-[11px] text-white/40 line-through">{boost.wasOdds}</span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            addBetToSlip(boost.id + 90000, boost.marketName, 'Bet Boost', boost.marketName, boost.boostedOdds)
+                          }}
+                          className={cn(
+                            "rounded-md h-[32px] flex items-center justify-center px-3 border transition-colors cursor-pointer min-w-[60px]",
+                            bets.some(b => b.eventId === boost.id + 90000)
+                              ? "border-transparent text-white"
+                              : "bg-white/10 border-white/20 text-white hover:bg-white/15"
+                          )}
+                          style={bets.some(b => b.eventId === boost.id + 90000) ? { backgroundColor: brandPrimary } : {}}
+                        >
+                          <span className="text-xs font-bold leading-none">{boost.boostedOdds}</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* Outrights Tab Content */}
+          {currentLeagueTab === 'Outrights' && (
+            <div className="mb-4 mt-4 p-6 bg-white/[0.03] border border-white/10 rounded-lg text-center">
+              <IconTrophy className="w-8 h-8 text-white/20 mx-auto mb-2" />
+              <p className="text-sm text-white/40">Outright markets for {league.name} coming soon</p>
+            </div>
+          )}
+
+          {/* Specials Tab Content */}
+          {currentLeagueTab === 'Specials' && (
+            <div className="mb-4 mt-4 p-6 bg-white/[0.03] border border-white/10 rounded-lg text-center">
+              <IconSparkles className="w-8 h-8 text-white/20 mx-auto mb-2" />
+              <p className="text-sm text-white/40">Special markets for {league.name} coming soon</p>
+            </div>
+          )}
+
 
                   {/* Separator below each league */}
                   <div className="border-t border-white/10 my-6" />

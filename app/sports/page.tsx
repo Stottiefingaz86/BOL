@@ -8576,6 +8576,12 @@ function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Redirect /sports to /sports/football by default
+  useEffect(() => {
+    router.replace('/sports/football')
+  }, [router])
+
   const [loadingNav, setLoadingNav] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
@@ -8675,7 +8681,7 @@ function NavTestPageContent() {
   const [betslipMinimized, setBetslipMinimized] = useState(false)
   const [betslipManuallyClosed, setBetslipManuallyClosed] = useState(false)
   const [activeSport, setActiveSport] = useState<string>(() => {
-    return 'Soccer'
+    return 'Football'
   })
   
   // Read sport from URL query param (e.g. /sports?sport=Football)
