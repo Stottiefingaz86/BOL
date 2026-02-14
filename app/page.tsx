@@ -1966,15 +1966,20 @@ function HomePageContent() {
           <div className="py-4 px-3">
             <Carousel className="w-full" opts={{ align: 'start', loop: false, duration: 15 }}>
               <CarouselContent className="-ml-2">
-                {[
-                  { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
-                  { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
-                  { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
-                  { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
-                  { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
-                ].map((banner, i) => (
+                {([
+                  { src: '/banners/mobile bannerBanner.svg', alt: 'Flaame Banner', href: 'https://www.flaame.co/' },
+                  { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1', href: '' },
+                  { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2', href: '' },
+                  { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3', href: '' },
+                  { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4', href: '' },
+                  { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5', href: '' },
+                ]).map((banner, i) => (
                   <CarouselItem key={i} className="pl-2 basis-auto flex-shrink-0">
-                    <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-xl" style={{ width: '300px', height: '148px' }}>
+                    <Card 
+                      className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-xl" 
+                      style={{ width: '300px', height: '148px' }}
+                      onClick={() => { if (banner.href) window.open(banner.href, '_blank') }}
+                    >
                       <Image
                         src={banner.src}
                         alt={banner.alt}
