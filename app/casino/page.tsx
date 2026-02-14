@@ -116,7 +116,10 @@ import {
   IconExternalLink,
   IconMaximize,
   IconStopwatch,
-  IconRosetteFilled
+  IconRosetteFilled,
+  IconUsers,
+  IconArrowsSort,
+  IconRefresh
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
@@ -6274,6 +6277,301 @@ function VipDrawerContent({
   )
 }
 
+// Tournament data for casino section
+const cashTournamentsData = [
+  {
+    id: 1,
+    name: 'Gold Nugget Rush',
+    image: '/games/square/goldNuggetRush.png',
+    provider: 'Betsoft',
+    prizePool: '$15,000',
+    gameType: 'Most Points Won',
+    rounds: 'Time Based',
+    gameId: 14274,
+    startDate: new Date('2026-02-09T00:00:00'),
+    endDate: new Date('2026-02-16T00:00:00'),
+    entryFee: '$5.00',
+    tag: 'Exclusive' as const,
+    betRange: '$0.20 - $10.00',
+    leaderboard: [
+      { rank: 1, user: 'CryptoKing99', points: 48720, prize: '$5,000' },
+      { rank: 2, user: 'SlotMaster', points: 41350, prize: '$3,000' },
+      { rank: 3, user: 'LuckyDraw22', points: 38900, prize: '$2,000' },
+      { rank: 4, user: 'SpinWizard', points: 35100, prize: '$1,500' },
+      { rank: 5, user: 'BetHunter', points: 31200, prize: '$1,000' },
+      { rank: 6, user: 'GoldRush_X', points: 28450, prize: '$500' },
+      { rank: 7, user: 'NuggetFan', points: 25800, prize: '$500' },
+      { rank: 8, user: 'You', points: 22100, prize: '$500', isMe: true },
+      { rank: 9, user: 'ReelKing', points: 19700, prize: '$500' },
+      { rank: 10, user: 'JackpotJoe', points: 17300, prize: '$500' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'MEGACRUSH HOLD&WIN',
+    image: '/games/square/megacrush.png',
+    provider: 'Betsoft',
+    prizePool: '$10,000',
+    gameType: 'Highest Single Win',
+    rounds: 'Spin Based',
+    gameId: 15832,
+    startDate: new Date('2026-02-12T00:00:00'),
+    endDate: new Date('2026-02-18T06:00:00'),
+    entryFee: '$10.00',
+    tag: 'Hot' as const,
+    betRange: '$0.50 - $25.00',
+    leaderboard: [
+      { rank: 1, user: 'MegaWinner', points: 8540, prize: '$3,000' },
+      { rank: 2, user: 'CrushPro', points: 7120, prize: '$2,000' },
+      { rank: 3, user: 'HoldNWin', points: 6800, prize: '$1,500' },
+      { rank: 4, user: 'You', points: 5430, prize: '$1,000', isMe: true },
+      { rank: 5, user: 'SlotChamp', points: 4900, prize: '$750' },
+      { rank: 6, user: 'BetMax99', points: 4200, prize: '$500' },
+      { rank: 7, user: 'SpinElite', points: 3650, prize: '$400' },
+      { rank: 8, user: 'WinStreak', points: 3100, prize: '$350' },
+      { rank: 9, user: 'RollerHi', points: 2800, prize: '$300' },
+      { rank: 10, user: 'CashFlow', points: 2400, prize: '$200' },
+    ],
+  },
+  {
+    id: 3,
+    name: 'Hooked on Fishing',
+    image: '/games/square/hookedOnFishing.png',
+    provider: 'Betsoft',
+    prizePool: '$25,000',
+    gameType: 'Most Points Won',
+    rounds: 'Time Based',
+    gameId: 16501,
+    startDate: new Date('2026-02-10T00:00:00'),
+    endDate: new Date('2026-02-20T00:00:00'),
+    entryFee: '$2.50',
+    tag: 'New' as const,
+    betRange: '$0.10 - $5.00',
+    leaderboard: [
+      { rank: 1, user: 'FishKing', points: 92400, prize: '$8,000' },
+      { rank: 2, user: 'ReelMaster', points: 85300, prize: '$5,000' },
+      { rank: 3, user: 'BigCatch22', points: 78100, prize: '$3,000' },
+      { rank: 4, user: 'HookLine', points: 71200, prize: '$2,000' },
+      { rank: 5, user: 'DeepSea', points: 65000, prize: '$1,500' },
+      { rank: 6, user: 'TideRunner', points: 58700, prize: '$1,000' },
+      { rank: 7, user: 'AquaBet', points: 52400, prize: '$1,000' },
+      { rank: 8, user: 'WaveRider', points: 46100, prize: '$1,000' },
+      { rank: 9, user: 'OceanGold', points: 39800, prize: '$1,000' },
+      { rank: 10, user: 'You', points: 33500, prize: '$1,500', isMe: true },
+    ],
+  },
+  {
+    id: 4,
+    name: 'Mr Mammoth',
+    image: '/games/square/mrMammoth.png',
+    provider: 'Betsoft',
+    prizePool: '$8,000',
+    gameType: 'Biggest Win Multiplier',
+    rounds: 'Spin Based',
+    gameId: 13847,
+    startDate: new Date('2026-02-14T00:00:00'),
+    endDate: new Date('2026-02-19T12:00:00'),
+    entryFee: '$20.00',
+    tag: 'Exclusive' as const,
+    betRange: '$1.00 - $50.00',
+    leaderboard: [
+      { rank: 1, user: 'MammothMax', points: 1250, prize: '$3,000' },
+      { rank: 2, user: 'IceAgeWin', points: 1080, prize: '$2,000' },
+      { rank: 3, user: 'You', points: 940, prize: '$1,200', isMe: true },
+      { rank: 4, user: 'TuskRider', points: 870, prize: '$800' },
+      { rank: 5, user: 'FrostBet', points: 710, prize: '$500' },
+      { rank: 6, user: 'GlacierGold', points: 640, prize: '$500' },
+    ],
+  },
+  {
+    id: 5,
+    name: 'Cocktail Wheel',
+    image: '/games/square/cocktailWheel.png',
+    provider: 'Betsoft',
+    prizePool: '$12,000',
+    gameType: 'Most Points Won',
+    rounds: 'Time Based',
+    gameId: 17203,
+    startDate: new Date('2026-02-11T00:00:00'),
+    endDate: new Date('2026-02-17T14:00:00'),
+    entryFee: '$7.50',
+    tag: 'Early' as const,
+    betRange: '$0.25 - $15.00',
+    leaderboard: [
+      { rank: 1, user: 'MixMaster', points: 54200, prize: '$4,000' },
+      { rank: 2, user: 'ShakerPro', points: 47800, prize: '$2,500' },
+      { rank: 3, user: 'CocktailKing', points: 41300, prize: '$1,800' },
+      { rank: 4, user: 'SpinShaker', points: 35600, prize: '$1,200' },
+      { rank: 5, user: 'You', points: 29400, prize: '$800', isMe: true },
+      { rank: 6, user: 'WheelDeal', points: 24100, prize: '$500' },
+      { rank: 7, user: 'BarStar', points: 19800, prize: '$400' },
+      { rank: 8, user: 'DrinkWin', points: 15500, prize: '$300' },
+      { rank: 9, user: 'MartiniMax', points: 11200, prize: '$300' },
+      { rank: 10, user: 'OliveGold', points: 7800, prize: '$200' },
+    ],
+  },
+  {
+    id: 6,
+    name: 'Take The Bank',
+    image: '/games/square/takeTheBank.png',
+    provider: 'Betsoft',
+    prizePool: '$5,000',
+    gameType: 'Highest Single Win',
+    rounds: 'Spin Based',
+    gameId: 12956,
+    startDate: new Date('2026-02-14T00:00:00'),
+    endDate: new Date('2026-02-21T08:00:00'),
+    entryFee: '$15.00',
+    tag: 'Hot' as const,
+    betRange: '$0.50 - $20.00',
+    leaderboard: [
+      { rank: 1, user: 'BankRobber', points: 4200, prize: '$2,000' },
+      { rank: 2, user: 'VaultBreak', points: 3650, prize: '$1,200' },
+      { rank: 3, user: 'HeistPro', points: 3100, prize: '$800' },
+      { rank: 4, user: 'SafeCrack', points: 2700, prize: '$500' },
+      { rank: 5, user: 'You', points: 2300, prize: '$500', isMe: true },
+    ],
+  },
+]
+
+const freerollTournamentsData = [
+  {
+    id: 101,
+    name: 'Gold Nugget Rush',
+    image: '/games/square/goldNuggetRush2.png',
+    provider: 'Betsoft',
+    prizePool: '$1,000',
+    gameType: 'Most Points Won',
+    rounds: 'Time Based',
+    gameId: 14275,
+    startDate: new Date('2026-02-10T00:00:00'),
+    endDate: new Date('2026-02-17T00:00:00'),
+    entryFee: 'FREE',
+    tag: 'New' as const,
+    betRange: '$0.10 - $1.00',
+    leaderboard: [
+      { rank: 1, user: 'FreeSpinner', points: 32100, prize: '$300' },
+      { rank: 2, user: 'NoCostKing', points: 28700, prize: '$200' },
+      { rank: 3, user: 'GoldFree', points: 25300, prize: '$150' },
+      { rank: 4, user: 'RollMaster', points: 22400, prize: '$100' },
+      { rank: 5, user: 'You', points: 19800, prize: '$75', isMe: true },
+      { rank: 6, user: 'LuckySpin', points: 16500, prize: '$50' },
+      { rank: 7, user: 'ZeroCost', points: 13200, prize: '$50' },
+      { rank: 8, user: 'FreeBet99', points: 10100, prize: '$25' },
+      { rank: 9, user: 'BonusHunt', points: 7400, prize: '$25' },
+      { rank: 10, user: 'WinFree', points: 4900, prize: '$25' },
+    ],
+  },
+  {
+    id: 102,
+    name: 'Hooked on Fishing',
+    image: '/games/square/hookedOnFishing.png',
+    provider: 'Betsoft',
+    prizePool: '$500',
+    gameType: 'Most Points Won',
+    rounds: 'Spin Based',
+    gameId: 16502,
+    startDate: new Date('2026-02-13T00:00:00'),
+    endDate: new Date('2026-02-15T00:00:00'),
+    entryFee: 'FREE',
+    tag: 'Hot' as const,
+    betRange: '$0.05 - $0.50',
+    leaderboard: [
+      { rank: 1, user: 'FreeFish', points: 8200, prize: '$150' },
+      { rank: 2, user: 'CastAway', points: 7100, prize: '$100' },
+      { rank: 3, user: 'You', points: 6300, prize: '$75', isMe: true },
+      { rank: 4, user: 'ReelFree', points: 5400, prize: '$50' },
+      { rank: 5, user: 'HookFree', points: 4600, prize: '$50' },
+      { rank: 6, user: 'TideFree', points: 3800, prize: '$25' },
+      { rank: 7, user: 'WaveFree', points: 3000, prize: '$25' },
+      { rank: 8, user: 'SeaFree', points: 2200, prize: '$25' },
+    ],
+  },
+  {
+    id: 103,
+    name: 'MEGACRUSH HOLD&WIN',
+    image: '/games/square/megacrush.png',
+    provider: 'Betsoft',
+    prizePool: '$2,500',
+    gameType: 'Biggest Win Multiplier',
+    rounds: 'Time Based',
+    gameId: 15833,
+    startDate: new Date('2026-02-08T00:00:00'),
+    endDate: new Date('2026-02-18T00:00:00'),
+    entryFee: 'FREE',
+    tag: 'Exclusive' as const,
+    betRange: '$0.10 - $2.00',
+    leaderboard: [
+      { rank: 1, user: 'CrushFree', points: 52300, prize: '$750' },
+      { rank: 2, user: 'MegaFree', points: 46100, prize: '$500' },
+      { rank: 3, user: 'HoldFree', points: 40200, prize: '$350' },
+      { rank: 4, user: 'WinFreeX', points: 34800, prize: '$250' },
+      { rank: 5, user: 'FreeSpin88', points: 29400, prize: '$200' },
+      { rank: 6, user: 'You', points: 24100, prize: '$150', isMe: true },
+      { rank: 7, user: 'BonusFree', points: 19300, prize: '$100' },
+      { rank: 8, user: 'NoPayWin', points: 14600, prize: '$75' },
+      { rank: 9, user: 'FreeRoller', points: 10200, prize: '$75' },
+      { rank: 10, user: 'ZeroBet', points: 6100, prize: '$50' },
+    ],
+  },
+  {
+    id: 104,
+    name: 'Mr Mammoth',
+    image: '/games/square/mrMammoth.png',
+    provider: 'Betsoft',
+    prizePool: '$750',
+    gameType: 'Highest Single Win',
+    rounds: 'Spin Based',
+    gameId: 13848,
+    startDate: new Date('2026-02-12T00:00:00'),
+    endDate: new Date('2026-02-16T04:00:00'),
+    entryFee: 'FREE',
+    tag: 'Early' as const,
+    betRange: '$0.05 - $1.00',
+    leaderboard: [
+      { rank: 1, user: 'MammothFree', points: 5800, prize: '$225' },
+      { rank: 2, user: 'IceFree', points: 4900, prize: '$150' },
+      { rank: 3, user: 'FrostFree', points: 4100, prize: '$100' },
+      { rank: 4, user: 'You', points: 3400, prize: '$75', isMe: true },
+      { rank: 5, user: 'TuskFree', points: 2700, prize: '$50' },
+      { rank: 6, user: 'FreezeBet', points: 2100, prize: '$50' },
+      { rank: 7, user: 'ColdSpin', points: 1500, prize: '$50' },
+      { rank: 8, user: 'SnowWin', points: 900, prize: '$50' },
+    ],
+  },
+]
+
+// Countdown timer component for tournament cards — NumberFlow style like Daily Races
+function TournamentCountdown({ endDate }: { endDate: Date }) {
+  const [d, setD] = useState(0)
+  const [h, setH] = useState(0)
+  const [m, setM] = useState(0)
+  const [s, setS] = useState(0)
+  useEffect(() => {
+    const tick = () => {
+      const diff = endDate.getTime() - Date.now()
+      if (diff <= 0) { setD(0); setH(0); setM(0); setS(0); return }
+      setD(Math.floor(diff / (1000 * 60 * 60 * 24)))
+      setH(Math.floor((diff / (1000 * 60 * 60)) % 24))
+      setM(Math.floor((diff / (1000 * 60)) % 60))
+      setS(Math.floor((diff / 1000) % 60))
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [endDate])
+  const isExpired = d === 0 && h === 0 && m === 0 && s === 0
+  if (isExpired) return <span className="text-xs font-semibold text-red-400">Ended</span>
+  return (
+    <div className="text-xs font-semibold text-white/60 flex items-center tabular-nums">
+      <NumberFlow value={d} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
+      <NumberFlow value={h} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
+      <NumberFlow value={m} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
+      <NumberFlow value={s} format={{ minimumIntegerDigits: 2 }} />
+    </div>
+  )
+}
+
 function NavTestPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
@@ -6360,6 +6658,9 @@ function NavTestPageContent() {
   const [selectedVendor, setSelectedVendor] = useState<string>('')
   const [showSports, setShowSports] = useState(false) // Always false for casino page
   const [showVipRewards, setShowVipRewards] = useState(false)
+  const [tournamentTab, setTournamentTab] = useState<'cash' | 'freeroll'>('cash')
+  const [tournamentExpandedCard, setTournamentExpandedCard] = useState<number | null>(null)
+  const [leaderboardTournament, setLeaderboardTournament] = useState<typeof cashTournamentsData[0] | null>(null)
   const [initialVipSidebarItem, setInitialVipSidebarItem] = useState<string | null>(null)
   const [previousPageState, setPreviousPageState] = useState<{ showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null>(null)
   const [sportsActiveTab, setSportsActiveTab] = useState('Events')
@@ -6434,6 +6735,10 @@ function NavTestPageContent() {
   const [instantCarouselApi, setInstantCarouselApi] = useState<CarouselApi>()
   const [instantCanScrollPrev, setInstantCanScrollPrev] = useState(false)
   const [instantCanScrollNext, setInstantCanScrollNext] = useState(false)
+
+  const [tournamentCarouselApi, setTournamentCarouselApi] = useState<CarouselApi>()
+  const [tournamentCanScrollPrev, setTournamentCanScrollPrev] = useState(false)
+  const [tournamentCanScrollNext, setTournamentCanScrollNext] = useState(false)
   
   // Set up carousel scroll state watchers
   useEffect(() => {
@@ -6603,6 +6908,16 @@ function NavTestPageContent() {
       setInstantCanScrollNext(instantCarouselApi.canScrollNext())
     })
   }, [instantCarouselApi])
+
+  useEffect(() => {
+    if (!tournamentCarouselApi) return
+    setTournamentCanScrollPrev(tournamentCarouselApi.canScrollPrev())
+    setTournamentCanScrollNext(tournamentCarouselApi.canScrollNext())
+    tournamentCarouselApi.on('select', () => {
+      setTournamentCanScrollPrev(tournamentCarouselApi.canScrollPrev())
+      setTournamentCanScrollNext(tournamentCarouselApi.canScrollNext())
+    })
+  }, [tournamentCarouselApi])
 
   const [isPageTransitioning, setIsPageTransitioning] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
@@ -6890,6 +7205,19 @@ function NavTestPageContent() {
     const vipParam = searchParams.get('vip')
     if (vipParam === 'true') {
       setShowVipRewards(true)
+      // Clean up URL
+      router.replace('/casino', { scroll: false })
+    }
+    
+    // Check for tab query parameter to deep link to specific casino tab (e.g. Live Casino)
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'live') {
+      setActiveSubNav('Live')
+      setShowAllGames(false)
+      setSelectedCategory('')
+      setSelectedVendor('')
+      setShowSports(false)
+      setShowVipRewards(false)
       // Clean up URL
       router.replace('/casino', { scroll: false })
     }
@@ -8129,7 +8457,8 @@ function NavTestPageContent() {
                              (item.label === 'Table Games' && selectedCategory === 'Table Games') ||
                              (item.label === 'My Favorites' && selectedCategory === 'Favorites') ||
                              (item.label === 'Popular Games' && selectedCategory === 'Popular') ||
-                             (item.label === 'Live Casino' && activeSubNav === 'Live' && !selectedCategory)
+                             (item.label === 'Live Casino' && activeSubNav === 'Live' && !selectedCategory) ||
+                             (item.label === 'Tournaments' && selectedCategory === 'Tournaments')
                         return (
                           <React.Fragment key={index}>
                             {showSeparatorAbove && (
@@ -8214,8 +8543,12 @@ function NavTestPageContent() {
                                       } else if (item.label === 'Tournaments') {
                                         setActiveSubNav('For You')
                                         setSelectedCategory('Tournaments')
+                                        setSelectedVendor('')
                                         setShowAllGames(true)
                                         setShowSports(false)
+                                        setTournamentTab('cash')
+                                        setTournamentExpandedCard(null)
+                                        window.scrollTo({ top: 0, behavior: 'smooth' })
                                       } else if (item.label === 'Loyalty Hub') {
                                         openVipDrawer()
                                         setShowSports(false)
@@ -8900,8 +9233,8 @@ function NavTestPageContent() {
                             )}
                           </div>
                           
-                          {/* Filter Icon - Only show on sub pages (not For You or Live) */}
-                          {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && (
+                          {/* Filter Icon - Only show on sub pages (not For You, Live, or Tournaments) */}
+                          {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && selectedCategory !== 'Tournaments' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
@@ -9106,7 +9439,282 @@ function NavTestPageContent() {
                           </div>
                         )}
                         
-                        {(() => {
+                        {/* ============ TOURNAMENTS CONTENT ============ */}
+                        {selectedCategory === 'Tournaments' && (
+                          <div className="px-6 pb-8">
+                            {/* Info Banner */}
+                            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-6">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center">
+                                <IconBell className="w-4 h-4 text-white/50" />
+                              </div>
+                              <p className="text-sm text-white/60">
+                                {tournamentTab === 'cash' 
+                                  ? 'Cash Tournaments are played with real money. Entry fees apply.'
+                                  : 'Freeroll Tournaments are free to enter. No entry fee required!'}
+                              </p>
+                            </div>
+
+                            {/* Cash / Free Rolls Tabs */}
+                            <div className="flex items-center gap-2 mb-8">
+                              <button
+                                onClick={() => { setTournamentTab('cash'); setTournamentExpandedCard(null) }}
+                                className={cn(
+                                  "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                                  tournamentTab === 'cash'
+                                    ? "text-white"
+                                    : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                                )}
+                                style={tournamentTab === 'cash' ? { backgroundColor: brandPrimary || '#ee3536' } : undefined}
+                              >
+                                Cash
+                              </button>
+                              <button
+                                onClick={() => { setTournamentTab('freeroll'); setTournamentExpandedCard(null) }}
+                                className={cn(
+                                  "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                                  tournamentTab === 'freeroll'
+                                    ? "text-white"
+                                    : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                                )}
+                                style={tournamentTab === 'freeroll' ? { backgroundColor: brandPrimary || '#ee3536' } : undefined}
+                              >
+                                Free Rolls
+                              </button>
+                            </div>
+
+                            {/* Tournament Cards Grid */}
+                            <div 
+                              className="grid gap-3"
+                              style={{ gridTemplateColumns: isMobile ? '1fr' : `repeat(auto-fill, minmax(210px, 1fr))` }}
+                            >
+                              {(tournamentTab === 'cash' ? cashTournamentsData : freerollTournamentsData).map((tournament, tIdx) => (
+                                <motion.div
+                                  key={tournament.id}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.4, delay: tIdx * 0.06, type: "spring", bounce: 0.2 }}
+                                  whileHover={{ y: -4 }}
+                                  className="group relative flex flex-col overflow-hidden rounded-xl bg-[#1a1a1a] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+                                >
+                                  {/* Image */}
+                                  <div className="relative h-28 w-full overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-black/40 to-transparent z-10" />
+                                    <Image src={tournament.image} alt={tournament.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 25vw" />
+                                    {/* Overlaid name + prize */}
+                                    <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
+                                      <h3 className="text-[13px] font-bold text-white leading-tight truncate">{tournament.name}</h3>
+                                      <div className="flex items-center gap-1.5 mt-0.5">
+                                        <IconTrophy className="w-3 h-3 text-yellow-400" />
+                                        <span className="text-xs font-bold text-yellow-400">{tournament.prizePool}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Countdown under image */}
+                                  <div className="px-3 pt-2">
+                                    <TournamentCountdown endDate={tournament.endDate} />
+                                  </div>
+
+                                  {/* Details */}
+                                  <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2 flex-1">
+                                    {/* Info rows */}
+                                    <div className="space-y-1">
+                                      {[
+                                        { icon: <IconCoins className="w-3 h-3 shrink-0 text-white/50" />, label: 'Fee', value: tournament.entryFee, bold: true },
+                                        { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
+                                        { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
+                                        { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },
+                                        { icon: <IconClock className="w-3 h-3 shrink-0 text-white/50" />, label: 'Period', value: `${tournament.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${tournament.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, noTruncate: true },
+                                      ].map((row: { icon: React.ReactNode; label: string; value: string; bold?: boolean; noTruncate?: boolean }) => (
+                                        <div key={row.label} className="flex items-center gap-1.5 text-[11px] min-w-0">
+                                          {row.icon}
+                                          <span className="text-white/40 shrink-0">{row.label}</span>
+                                          <span className={cn("ml-auto text-right", row.noTruncate ? "text-[10px]" : "truncate", row.bold ? "font-semibold text-white" : "font-medium text-white/70")}>{row.value}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+
+                                    <div className="flex-1" />
+
+                                    {/* Divider */}
+                                    <div className="w-full border-t border-white/[0.06] my-0.5" />
+
+                                    {/* Bottom: leaderboard + play */}
+                                    <div className="flex items-center gap-2">
+                                      <button 
+                                        onClick={(e) => { e.stopPropagation(); setLeaderboardTournament(tournament) }}
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                                      >
+                                        <IconTrophy className="w-3.5 h-3.5 text-white" />
+                                        {tournament.leaderboard.find(e => e.isMe) && (
+                                          <span className="text-[10px] font-bold text-white/70">
+                                            #{tournament.leaderboard.find(e => e.isMe)?.rank}
+                                          </span>
+                                        )}
+                                      </button>
+                                      <div className="flex-1" />
+                                      <button 
+                                        onClick={() => setSelectedGame({ title: tournament.name, image: tournament.image, provider: tournament.provider, features: [`${tournament.gameType}`, `${tournament.rounds}`, `Prize Pool: ${tournament.prizePool}`] })}
+                                        className="flex-1 py-1.5 rounded-md text-xs font-bold text-white text-center transition-all duration-200 hover:brightness-110 active:scale-95"
+                                        style={{ backgroundColor: brandPrimary || '#ee3536' }}
+                                      >
+                                        Play
+                                      </button>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ============ TOURNAMENT LEADERBOARD MODAL (portaled to body) ============ */}
+                        {typeof document !== 'undefined' && createPortal(
+                          <AnimatePresence>
+                            {leaderboardTournament && (
+                              <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+                                style={{ pointerEvents: 'auto' }}
+                                onClick={() => setLeaderboardTournament(null)}
+                              >
+                                <div className="absolute inset-0 bg-black/85 backdrop-blur-md" />
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.92, y: 20 }}
+                                  transition={{ type: "spring", bounce: 0.25, duration: 0.4 }}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="relative w-full max-w-md rounded-2xl bg-[#1e1e1e] border border-white/[0.08] overflow-hidden shadow-2xl"
+                                >
+                                  {/* Header */}
+                                  <div className="relative p-5 pb-4">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl overflow-hidden relative bg-neutral-800">
+                                          <Image src={leaderboardTournament.image} alt="" fill className="object-cover" sizes="40px" />
+                                        </div>
+                                        <div>
+                                          <h3 className="text-base font-bold text-white">{leaderboardTournament.name}</h3>
+                                          <p className="text-xs text-white/40">Game ID: {leaderboardTournament.gameId} • {leaderboardTournament.gameType}</p>
+                                        </div>
+                                      </div>
+                                      <button 
+                                        onClick={() => setLeaderboardTournament(null)} 
+                                        className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition-colors"
+                                      >
+                                        <IconX className="w-4 h-4 text-white/60" />
+                                      </button>
+                                    </div>
+                                    <div className="mt-3 flex items-center gap-2">
+                                      <IconTrophy className="w-4 h-4 text-yellow-400" />
+                                      <span className="text-sm font-semibold text-yellow-400">{leaderboardTournament.prizePool} Prize Pool</span>
+                                      <span className="text-white/20 mx-1">•</span>
+                                      <span className="text-xs text-white/40">{leaderboardTournament.rounds}</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Column Headers */}
+                                  <div className="flex items-center px-5 py-2 text-[10px] uppercase tracking-wider text-white/30 border-t border-white/[0.06]">
+                                    <span className="w-10 text-center">#</span>
+                                    <span className="flex-1">Player</span>
+                                    <span className="w-20 text-right">Points</span>
+                                    <span className="w-20 text-right">Prize</span>
+                                  </div>
+
+                                  {/* Leaderboard Rows */}
+                                  <div className="max-h-[360px] overflow-y-auto">
+                                    {leaderboardTournament.leaderboard.map((entry, idx) => (
+                                      <motion.div
+                                        key={entry.rank}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.04 }}
+                                        className={cn(
+                                          "flex items-center px-5 py-3 border-b border-white/[0.04] transition-colors",
+                                          entry.isMe 
+                                            ? "bg-white/[0.06]" 
+                                            : "hover:bg-white/[0.02]"
+                                        )}
+                                        style={entry.isMe ? { borderLeft: `3px solid ${brandPrimary || '#ee3536'}` } : undefined}
+                                      >
+                                        <span className={cn(
+                                          "w-10 text-center text-sm font-bold",
+                                          entry.rank === 1 && "text-yellow-400",
+                                          entry.rank === 2 && "text-gray-300",
+                                          entry.rank === 3 && "text-amber-600",
+                                          entry.rank > 3 && !entry.isMe && "text-white/40",
+                                          entry.isMe && "text-white"
+                                        )}>
+                                          {entry.rank <= 3 ? (
+                                            <IconTrophy className={cn(
+                                              "w-4 h-4 mx-auto",
+                                              entry.rank === 1 && "text-yellow-400",
+                                              entry.rank === 2 && "text-gray-300",
+                                              entry.rank === 3 && "text-amber-600"
+                                            )} />
+                                          ) : entry.rank}
+                                        </span>
+                                        <span className={cn(
+                                          "flex-1 text-sm font-medium",
+                                          entry.isMe ? "text-white font-bold" : "text-white/70"
+                                        )}>
+                                          {entry.user}
+                                          {entry.isMe && (
+                                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: (brandPrimary || '#ee3536') + '25', color: brandPrimary || '#ee3536' }}>
+                                              YOU
+                                            </span>
+                                          )}
+                                        </span>
+                                        <span className={cn(
+                                          "w-20 text-right text-sm tabular-nums",
+                                          entry.isMe ? "text-white font-bold" : "text-white/50"
+                                        )}>
+                                          {entry.points.toLocaleString()}
+                                        </span>
+                                        <span className={cn(
+                                          "w-20 text-right text-sm font-semibold",
+                                          entry.isMe ? "text-emerald-400" : "text-emerald-400/70"
+                                        )}>
+                                          {entry.prize}
+                                        </span>
+                                      </motion.div>
+                                    ))}
+                                  </div>
+
+                                  {/* Footer with your position summary */}
+                                  {leaderboardTournament.leaderboard.find(e => e.isMe) && (
+                                    <div className="p-4 border-t border-white/[0.08] bg-white/[0.02]">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: (brandPrimary || '#ee3536') + '20' }}>
+                                            <span className="text-xs font-bold" style={{ color: brandPrimary || '#ee3536' }}>
+                                              #{leaderboardTournament.leaderboard.find(e => e.isMe)?.rank}
+                                            </span>
+                                          </div>
+                                          <div>
+                                            <p className="text-xs font-semibold text-white">Your Position</p>
+                                            <p className="text-[10px] text-white/40">{leaderboardTournament.leaderboard.find(e => e.isMe)?.points.toLocaleString()} points</p>
+                                          </div>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="text-xs text-white/40">Current Prize</p>
+                                          <p className="text-sm font-bold text-emerald-400">{leaderboardTournament.leaderboard.find(e => e.isMe)?.prize}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>,
+                          document.body
+                        )}
+
+                        {/* ============ GAME GRID (non-tournament content) ============ */}
+                        {selectedCategory !== 'Tournaments' && (() => {
                           // Generate game data with sortable properties - memoized to prevent regeneration on scroll
                           const gameNames = ['Gold Nugget Rush', 'Mega Fortune', 'Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza', 'Razor Shark', 'Sweet Bonanza', 'Gates of Olympus', 'Big Bass Bonanza', 'The Dog House', 'Wolf Gold', 'Fire Strike', 'Chilli Heat']
                           // Increase total games to ensure we always have enough tiles to fill the grid (8 columns max, so generate enough for many full rows)
@@ -10542,6 +11150,119 @@ function NavTestPageContent() {
                                     </CarouselItem>
                                   )
                                 })}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+
+                        {/* Cash Tournaments Carousel */}
+                        <div>
+                          <div className={cn(
+                            "flex items-center justify-between mb-4 relative z-10",
+                            isMobile ? "px-3" : "px-6"
+                          )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Cash Tournaments ({cashTournamentsData.length})</h2>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                              <Button
+                                variant="ghost"
+                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                                onClick={() => {
+                                  setSelectedCategory('Tournaments')
+                                  setShowAllGames(true)
+                                  setActiveSubNav('For You')
+                                }}
+                              >
+                                View All
+                              </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.max(0, tournamentCarouselApi.selectedScrollSnap() - 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.min(tournamentCarouselApi.scrollSnapList().length - 1, tournamentCarouselApi.selectedScrollSnap() + 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setTournamentCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {cashTournamentsData.map((tournament, tIdx) => (
+                                  <CarouselItem key={tournament.id} className={cn(
+                                    "pr-0 basis-auto flex-shrink-0",
+                                    tIdx === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
+                                  )}>
+                                    <motion.div
+                                      initial={{ opacity: 0, y: 20 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{ duration: 0.4, delay: tIdx * 0.06, type: "spring", bounce: 0.2 }}
+                                      whileHover={{ y: -4 }}
+                                      className="group relative flex flex-col overflow-hidden rounded-xl bg-[#1a1a1a] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+                                      style={{ width: isMobile ? '260px' : '280px' }}
+                                    >
+                                      {/* Image */}
+                                      <div className="relative h-28 w-full overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-black/40 to-transparent z-10" />
+                                        <Image src={tournament.image} alt={tournament.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="280px" />
+                                        <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
+                                          <h3 className="text-[13px] font-bold text-white leading-tight truncate">{tournament.name}</h3>
+                                          <div className="flex items-center gap-1.5 mt-0.5">
+                                            <IconTrophy className="w-3 h-3 text-yellow-400" />
+                                            <span className="text-xs font-bold text-yellow-400">{tournament.prizePool}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Countdown */}
+                                      <div className="px-3 pt-2">
+                                        <TournamentCountdown endDate={tournament.endDate} />
+                                      </div>
+
+                                      {/* Details */}
+                                      <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2 flex-1">
+                                        <div className="space-y-1">
+                                          {[
+                                            { icon: <IconCoins className="w-3 h-3 shrink-0 text-white/50" />, label: 'Fee', value: tournament.entryFee, bold: true },
+                                            { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
+                                            { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
+                                            { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },
+                                          ].map((row: { icon: React.ReactNode; label: string; value: string; bold?: boolean }) => (
+                                            <div key={row.label} className="flex items-center gap-1.5 text-[11px] min-w-0">
+                                              {row.icon}
+                                              <span className="text-white/40 shrink-0">{row.label}</span>
+                                              <span className={cn("ml-auto text-right truncate", row.bold ? "font-semibold text-white" : "font-medium text-white/70")}>{row.value}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+
+                                        <div className="flex-1" />
+
+                                        <div className="w-full border-t border-white/[0.06] my-0.5" />
+
+                                        <div className="flex items-center gap-2">
+                                          <button 
+                                            onClick={(e) => { e.stopPropagation(); setLeaderboardTournament(tournament) }}
+                                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                                          >
+                                            <IconTrophy className="w-3.5 h-3.5 text-white" />
+                                            {tournament.leaderboard.find(e => e.isMe) && (
+                                              <span className="text-[10px] font-bold text-white/70">
+                                                #{tournament.leaderboard.find(e => e.isMe)?.rank}
+                                              </span>
+                                            )}
+                                          </button>
+                                          <div className="flex-1" />
+                                          <button 
+                                            onClick={() => setSelectedGame({ title: tournament.name, image: tournament.image, provider: tournament.provider, features: [`${tournament.gameType}`, `${tournament.rounds}`, `Prize Pool: ${tournament.prizePool}`] })}
+                                            className="flex-1 py-1.5 rounded-md text-xs font-bold text-white text-center transition-all duration-200 hover:brightness-110 active:scale-95"
+                                            style={{ backgroundColor: brandPrimary || '#ee3536' }}
+                                          >
+                                            Play
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  </CarouselItem>
+                                ))}
                               </CarouselContent>
                             </Carousel>
                           </div>

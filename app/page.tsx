@@ -1704,7 +1704,7 @@ function HomePageContent() {
               { label: 'Sports', onClick: () => { router.push('/sports'); setQuickLinksOpen(false); } },
               { label: 'Live Betting', onClick: () => { window.location.href = '/live-betting'; setQuickLinksOpen(false); } },
               { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
-              { label: 'Live Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
+              { label: 'Live Casino', onClick: () => { router.push('/casino?tab=live'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { window.location.href = '/poker'; setQuickLinksOpen(false); } },
               { label: 'VIP Rewards', onClick: () => { router.push('/casino?vip=true'); setQuickLinksOpen(false); } },
               { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
@@ -1793,7 +1793,7 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
-                    onClick={() => router.push('/casino')}
+                    onClick={() => router.push('/casino?tab=live')}
                   >
                     Live Casino
                   </SidebarMenuButton>

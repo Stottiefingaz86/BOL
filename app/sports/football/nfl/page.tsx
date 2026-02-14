@@ -8959,7 +8959,7 @@ function NavTestPageContent() {
                   { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Live Betting', onClick: () => { window.location.href = '/live-betting'; setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
-                  { label: 'Live Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
+                  { label: 'Live Casino', onClick: () => { router.push('/casino?tab=live'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { window.location.href = '/poker'; setQuickLinksOpen(false); } },
                   { label: 'VIP Rewards', onClick: () => { setShowVipRewards(true); setQuickLinksOpen(false); } },
                   { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
@@ -9162,20 +9162,7 @@ function NavTestPageContent() {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        setIsPageTransitioning(true)
-                        setTimeout(() => {
-                          setShowSports(false)
-                          setShowVipRewards(false)
-                          setActiveSubNav('Live')
-                          setShowAllGames(false)
-                          setSelectedCategory('')
-                          setSelectedVendor('')
-                          setSelectedVendor('')
-                          setTimeout(() => {
-                            setIsPageTransitioning(false)
-                          }, 200)
-                          window.scrollTo({ top: 0, behavior: 'smooth' })
-                        }, 150)
+                        router.push('/casino?tab=live')
                       }}
                     >
                       Live Casino
