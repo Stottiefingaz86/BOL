@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react"
+import React, { useEffect, useState, useRef, useMemo } from "react"
 import { useBetslipStore, BetItem } from "@/lib/store/betslipStore"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -12,12 +12,15 @@ import {
   FamilyDrawerAnimatedContent,
   FamilyDrawerViewContent,
   useFamilyDrawer,
+  type ViewsRegistry,
 } from "@/components/ui/family-drawer"
 import {
   IconX,
   IconChevronUp,
   IconChevronDown,
+  IconChevronRight,
   IconCheck,
+  IconMessageCircle2,
 } from "@tabler/icons-react"
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -43,29 +46,36 @@ function BetslipViewSwitcher() {
   return null
 }
 
-// ─── Confirmation View ───────────────────────────────────
+// ─── Confirmation View (same as sports) ──────────────────
 function BetslipConfirmationView() {
   const { setView } = useFamilyDrawer()
-  const { pendingBets, setShowConfirmation, clearAll, setMyBetsAlertCount } = useBetslipStore()
+  const { pendingBets, setShowConfirmation, clearAll, setMyBetsAlertCount, setBets, setOpen, setManuallyClosed, setPlacedBets } = useBetslipStore()
   const [sharing, setSharing] = useState(false)
   const [shared, setShared] = useState(false)
 
   return (
     <div className="flex flex-col w-full h-full bg-white" style={{ minHeight: '400px' }}>
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Success Icon */}
         <div className="mb-4">
           <div className="w-16 h-16 rounded-full bg-[#8BC34A] flex items-center justify-center">
             <IconCheck className="w-8 h-8 text-white" strokeWidth={3} />
           </div>
         </div>
-        <h3 className="text-lg font-semibold text-black text-center mb-6">Bet Placed Successfully</h3>
+
+        {/* Message */}
+        <h3 className="text-lg font-semibold text-black text-center mb-6">
+          Bet Placed Successfully
+        </h3>
+
+        {/* Buttons */}
         <div className="flex flex-col gap-3 w-full max-w-sm mb-6">
           <button
             onClick={() => {
               setView('default')
               setShowConfirmation(false)
-              setMyBetsAlertCount(0)
               clearAll()
+              setMyBetsAlertCount(0)
             }}
             className="w-full py-3 px-4 border border-black/10 rounded text-sm font-medium text-black hover:bg-black/5 transition-colors"
           >
@@ -81,46 +91,79 @@ function BetslipConfirmationView() {
           >
             DONE
           </button>
+          {(() => {
+            return (
+              <button
+                disabled={sharing || shared}
+                onClick={() => {
+                  if (pendingBets.length > 0 && !sharing && !shared) {
+                    setSharing(true)
+                    setTimeout(() => {
+                      const { shareBetToChat } = useChatStore.getState()
+                      shareBetToChat(pendingBets.map((b) => ({
+                        eventName: b.eventName,
+                        selection: b.selection,
+                        odds: b.odds,
+                        stake: b.stake,
+                      })))
+                      setSharing(false)
+                      setShared(true)
+                    }, 1200)
+                  }
+                }}
+                className={cn(
+                  "w-full py-3 px-4 rounded text-sm font-medium transition-all flex items-center justify-center gap-2",
+                  shared
+                    ? "border border-emerald-500/50 bg-emerald-500/20 text-emerald-600 cursor-default"
+                    : sharing
+                    ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 cursor-wait opacity-80"
+                    : "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+                )}
+              >
+                {sharing ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
+                    SHARING...
+                  </>
+                ) : shared ? (
+                  <>
+                    <IconCheck className="w-4 h-4" />
+                    SHARED TO CHAT ✓
+                  </>
+                ) : (
+                  <>
+                    <IconMessageCircle2 className="w-4 h-4" />
+                    SHARE TO CHAT
+                  </>
+                )}
+              </button>
+            )
+          })()}
+        </div>
+
+        {/* Re-use Selections */}
+        <div className="text-center pt-4 border-t border-black/10 w-full max-w-sm">
+          <p className="text-xs text-black/50 mb-2 leading-tight">
+            Once this window is closed, your betslip will be cleared, or you can
+          </p>
           <button
-            disabled={sharing || shared}
             onClick={() => {
-              if (pendingBets.length > 0 && !sharing && !shared) {
-                setSharing(true)
-                setTimeout(() => {
-                  const { shareBetToChat } = useChatStore.getState()
-                  shareBetToChat(pendingBets.map((b) => ({
-                    eventName: b.eventName,
-                    selection: b.selection,
-                    odds: b.odds,
-                    stake: b.stake,
-                  })))
-                  setSharing(false)
-                  setShared(true)
-                }, 1200)
+              if (pendingBets.length > 0) {
+                setPlacedBets((prev) => {
+                  const newList = [...prev]
+                  newList.splice(-pendingBets.length)
+                  return newList
+                })
+                setMyBetsAlertCount((prev) => Math.max(0, prev - pendingBets.length))
+                setBets([...pendingBets])
               }
+              setView('default')
+              setShowConfirmation(false)
             }}
-            className={cn(
-              "w-full py-3 px-4 rounded text-sm font-medium transition-all flex items-center justify-center gap-2",
-              shared
-                ? "border border-emerald-500/50 bg-emerald-500/20 text-emerald-600 cursor-default"
-                : sharing
-                ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 cursor-wait opacity-80"
-                : "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-            )}
+            className="text-sm font-medium text-black hover:text-black/70 flex items-center justify-center gap-1 mx-auto transition-colors"
           >
-            {sharing ? (
-              <>
-                <span className="w-4 h-4 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                SHARING...
-              </>
-            ) : shared ? (
-              <>
-                <IconCheck className="w-4 h-4" />
-                SHARED TO CHAT
-              </>
-            ) : (
-              "SHARE TO CHAT"
-            )}
+            RE-USE SELECTIONS
+            <IconChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -128,14 +171,12 @@ function BetslipConfirmationView() {
   )
 }
 
-// ─── Default Betslip View ────────────────────────────────
+// ─── Default Betslip View (same as sports) ───────────────
 function BetslipDefaultView() {
   const isMobile = useIsMobile()
   const {
     bets,
     isMinimized,
-    manuallyClosed,
-    isOpen: betslipOpen,
     removeBet,
     updateBetStake,
     clearAll,
@@ -491,6 +532,8 @@ function BetslipDefaultView() {
 }
 
 // ─── Main Global Betslip Component ───────────────────────
+// Uses the exact same FamilyDrawer pattern as sports pages.
+// Mounted at the layout level (layout.tsx) so it's always available.
 export default function GlobalBetslip() {
   const isMobile = useIsMobile()
   const {
@@ -504,12 +547,15 @@ export default function GlobalBetslip() {
     setBets,
   } = useBetslipStore()
 
+  // Only render after mount to avoid SSR "document is not defined" from vaul
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   // On sports pages, sport pages have their own local betslip — hide the global one entirely
   const [isSportsPage, setIsSportsPage] = useState(false)
   useEffect(() => {
     const check = () => setIsSportsPage(window.location.pathname.startsWith('/sports'))
     check()
-    // Re-check on SPA navigation
     window.addEventListener('popstate', check)
     return () => window.removeEventListener('popstate', check)
   }, [])
@@ -522,7 +568,6 @@ export default function GlobalBetslip() {
   }, [isSportsPage])
 
   // Listen for bet:copy-to-slip events (from chat "copy to betslip" button)
-  // On sports pages, the page-specific handler manages this — skip here to avoid double betslips
   useEffect(() => {
     const handleCopyBet = (e: Event) => {
       if (typeof window !== 'undefined' && window.location.pathname.startsWith('/sports')) return
@@ -545,14 +590,15 @@ export default function GlobalBetslip() {
     return () => window.removeEventListener('bet:copy-to-slip', handleCopyBet)
   }, [setBets, setOpen, setMinimized])
 
-  // Don't render on sports pages — they have their own local betslip
-  if (isSportsPage) return null
-
-  // Build views registry
-  const betslipViews = useMemo(() => ({
+  // Build views registry (must be before any early return to keep hook order stable)
+  const betslipViews: ViewsRegistry = useMemo(() => ({
     default: BetslipDefaultView,
     confirmation: BetslipConfirmationView,
   }), [])
+
+  // Don't render on sports pages — they have their own local betslip
+  // Don't render on server — vaul needs document
+  if (!mounted || isSportsPage) return null
 
   return (
     <FamilyDrawerRoot

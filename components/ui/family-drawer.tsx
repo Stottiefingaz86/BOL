@@ -6,7 +6,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useEffect,
   type ReactNode,
 } from "react"
 import { Slot } from "@radix-ui/react-slot"
@@ -223,33 +222,23 @@ function FamilyDrawerContent({
   asChild = false,
 }: FamilyDrawerContentProps) {
   const { bounds } = useFamilyDrawer()
-  const [isMobile, setIsMobile] = useState(false)
-  
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  
+
   // Calculate max height to prevent drawer from going under sub-nav
-  // Sub-nav is at top: 64px (desktop) or 64px/104px (mobile), height ~56px
-  // Top nav is 64px
-  // Max height = viewport height - top nav - sub-nav - margin from sub-nav
   const topNavHeight = 64
   const subNavHeight = 56
-  const marginFromSubNav = 32 // Leave comfortable margin from sub-nav
+  const marginFromSubNav = 32
   const maxHeightValue = typeof window !== 'undefined' 
     ? window.innerHeight - topNavHeight - subNavHeight - marginFromSubNav
     : bounds.height
 
-  // On mobile, force fixed bottom positioning for the drawer.
-  // On desktop, let it render inline (vaul uses modal={false}).
-  const mobileStyle: React.CSSProperties = isMobile
-    ? { position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }
-    : {}
+  // Always fixed at bottom, centered via mx-auto in className
+  const positionStyle: React.CSSProperties = {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+  }
 
   const content = (
     <motion.div
@@ -266,45 +255,25 @@ function FamilyDrawerContent({
         width: '100%',
         maxHeight: typeof window !== 'undefined' ? `${maxHeightValue}px` : 'none',
         overflow: 'hidden',
-        // On desktop, keep relative so it stays in layout flow
-        ...(!isMobile ? { position: 'relative' as const } : {}),
       }}
     >
       {children}
     </motion.div>
   )
 
-  if (asChild) {
-    return (
-      <Drawer.Content
-        asChild
-        className={clsx(
-          "fixed inset-x-0 bottom-0 z-[9999] w-full rounded-t-[8px] bg-background outline-none md:mx-auto md:max-w-[361px]",
-          className
-        )}
-        style={{
-          pointerEvents: 'auto',
-          ...mobileStyle,
-        }}
-      >
-        <Slot>{content}</Slot>
-      </Drawer.Content>
-    )
-  }
-
   return (
     <Drawer.Content
-      asChild
+      asChild={asChild}
       className={clsx(
         "fixed inset-x-0 bottom-0 z-[9999] w-full rounded-t-[8px] bg-background outline-none md:mx-auto md:max-w-[361px]",
         className
       )}
       style={{
         pointerEvents: 'auto',
-        ...mobileStyle,
+        ...positionStyle,
       }}
     >
-      {content}
+      {asChild ? <Slot>{content}</Slot> : content}
     </Drawer.Content>
   )
 }

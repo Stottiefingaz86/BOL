@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Figtree } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import GlobalChatWrapper from '@/components/chat/global-chat-wrapper'
+import GlobalBetslip from '@/components/betslip/global-betslip'
 import './globals.css'
 
 const figtree = Figtree({
@@ -27,6 +28,7 @@ export default function RootLayout({
           <GlobalChatWrapper>
             {children}
           </GlobalChatWrapper>
+          <GlobalBetslip />
         </ThemeProvider>
       </body>
     </html>

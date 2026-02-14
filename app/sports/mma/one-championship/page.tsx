@@ -41,6 +41,8 @@ import {
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import Image from 'next/image'
 import * as NFLIcons from 'react-nfl-logos'
+import * as MLBIcons from 'react-mlb-logos'
+import * as NHLIcons from 'react-nhl-logos'
 import { 
   IconLayoutDashboard, 
   IconFileText, 
@@ -4510,7 +4512,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               style={item.active ? { backgroundColor: brandPrimary } : undefined}
                             >
                               <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", item.active ? "bg-white/20" : "bg-white/10")}>
-                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" /> : IconComp ? <IconComp strokeWidth={1.5} className="w-4 h-4" /> : null}
+                                {typeof item.icon === 'string' ? <img src={item.icon} alt={item.label} className="w-4 h-4 object-contain" style={(item.label === 'Same Game Parlays' || (item.label === 'My Feed' && item.active)) ? { filter: 'brightness(0) invert(1)' } : undefined} /> : IconComp ? <IconComp strokeWidth={1.5} className="w-4 h-4" /> : null}
                               </div>
                               <span className="flex items-center gap-1.5">{item.label}{loadingItem === item.label && <IconLoader2 className="w-3 h-3 animate-spin" />}</span>
                             </SidebarMenuButton>
@@ -5682,14 +5684,20 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                              console.log('Bet Boost clicked:', boost.id)
+                        addBetToSlip(boost.id + 90000, boost.marketName, 'Bet Boost', boost.marketName, boost.boostedOdds)
                       }}
-                                className="bg-white/10 text-white rounded-small h-[38px] flex items-center justify-center px-3 border border-white/20 transition-colors cursor-pointer"
+                                className={cn(
+                                  "rounded-small h-[38px] flex items-center justify-center px-3 border transition-colors cursor-pointer",
+                                  bets.some(b => b.eventId === boost.id + 90000) 
+                                    ? "border-transparent text-white" 
+                                    : "bg-white/10 border-white/20 text-white"
+                                )}
+                                style={bets.some(b => b.eventId === boost.id + 90000) ? { backgroundColor: brandPrimary } : undefined}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = brandPrimary
+                        if (!bets.some(b => b.eventId === boost.id + 90000)) e.currentTarget.style.backgroundColor = brandPrimary
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                        if (!bets.some(b => b.eventId === boost.id + 90000)) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
                       }}
                     >
                                 <span className="text-[10px] font-bold text-white leading-none">{boost.boostedOdds}</span>
@@ -5815,8 +5823,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
+                            addBetToSlip(parlay.id + 80000, parlay.match, 'Same Game Parlay', parlay.legs.join(' + '), parlay.combinedOdds)
                           }}
-                          className="bg-white/10 hover:bg-white/20 text-white rounded-small h-[34px] flex items-center justify-center px-4 transition-colors cursor-pointer"
+                          className={cn(
+                            "rounded-small h-[34px] flex items-center justify-center px-4 transition-colors cursor-pointer border",
+                            bets.some(b => b.eventId === parlay.id + 80000) 
+                              ? "border-transparent text-white" 
+                              : "bg-white/10 hover:bg-white/20 border-transparent text-white"
+                          )}
+                          style={bets.some(b => b.eventId === parlay.id + 80000) ? { backgroundColor: brandPrimary } : undefined}
                         >
                           <span className="text-xs font-bold text-white leading-none">{parlay.combinedOdds}</span>
                         </button>
@@ -5999,7 +6014,35 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 return TeamIcon ? <TeamIcon size={24} /> : null
                               })()
                             ) : (
-                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team1Code}</span></div>
+                            (() => {
+                              const nbaBadgeMap: { [key: string]: string } = {
+                                'Los Angeles Lakers': 'https://a.espncdn.com/i/teamlogos/nba/500/lal.png',
+                                'Boston Celtics': 'https://a.espncdn.com/i/teamlogos/nba/500/bos.png',
+                                'Golden State Warriors': 'https://a.espncdn.com/i/teamlogos/nba/500/gs.png',
+                                'Phoenix Suns': 'https://a.espncdn.com/i/teamlogos/nba/500/phx.png',
+                                'Milwaukee Bucks': 'https://a.espncdn.com/i/teamlogos/nba/500/mil.png',
+                                'Philadelphia 76ers': 'https://a.espncdn.com/i/teamlogos/nba/500/phi.png',
+                                'Denver Nuggets': 'https://a.espncdn.com/i/teamlogos/nba/500/den.png',
+                                'Dallas Mavericks': 'https://a.espncdn.com/i/teamlogos/nba/500/dal.png',
+                                'Miami Heat': 'https://a.espncdn.com/i/teamlogos/nba/500/mia.png',
+                                'New York Knicks': 'https://a.espncdn.com/i/teamlogos/nba/500/ny.png',
+                              }
+                              const nflBadgeMap: { [key: string]: string } = {
+                                'Kansas City Chiefs': 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+                                'Buffalo Bills': 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+                                'Dallas Cowboys': 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+                                'Philadelphia Eagles': 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+                                'San Francisco 49ers': 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+                                'Seattle Seahawks': 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+                              }
+                              const soccerBadgeMap: { [key: string]: string } = {
+                                'Arsenal': '/team/Arsenal FC.png', 'Chelsea': '/team/Chelsea FC.png',
+                                'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png', 'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
+                              }
+                              const logo = nbaBadgeMap[event.team1] || nflBadgeMap[event.team1] || soccerBadgeMap[event.team1] || ('team1Logo' in event ? (event as any).team1Logo : null)
+                              if (logo) return <img src={logo} alt={event.team1} width={20} height={20} className="object-contain flex-shrink-0 rounded-full" decoding="sync" />
+                              return <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team1Code}</span></div>
+                            })()
                             )}
                             <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
                           </div>
@@ -6121,7 +6164,35 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 return TeamIcon ? <TeamIcon size={24} /> : null
                               })()
                             ) : (
-                            <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team2Code}</span></div>
+                            (() => {
+                              const nbaBadgeMap: { [key: string]: string } = {
+                                'Los Angeles Lakers': 'https://a.espncdn.com/i/teamlogos/nba/500/lal.png',
+                                'Boston Celtics': 'https://a.espncdn.com/i/teamlogos/nba/500/bos.png',
+                                'Golden State Warriors': 'https://a.espncdn.com/i/teamlogos/nba/500/gs.png',
+                                'Phoenix Suns': 'https://a.espncdn.com/i/teamlogos/nba/500/phx.png',
+                                'Milwaukee Bucks': 'https://a.espncdn.com/i/teamlogos/nba/500/mil.png',
+                                'Philadelphia 76ers': 'https://a.espncdn.com/i/teamlogos/nba/500/phi.png',
+                                'Denver Nuggets': 'https://a.espncdn.com/i/teamlogos/nba/500/den.png',
+                                'Dallas Mavericks': 'https://a.espncdn.com/i/teamlogos/nba/500/dal.png',
+                                'Miami Heat': 'https://a.espncdn.com/i/teamlogos/nba/500/mia.png',
+                                'New York Knicks': 'https://a.espncdn.com/i/teamlogos/nba/500/ny.png',
+                              }
+                              const nflBadgeMap: { [key: string]: string } = {
+                                'Kansas City Chiefs': 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+                                'Buffalo Bills': 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+                                'Dallas Cowboys': 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+                                'Philadelphia Eagles': 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+                                'San Francisco 49ers': 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+                                'Seattle Seahawks': 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+                              }
+                              const soccerBadgeMap: { [key: string]: string } = {
+                                'Arsenal': '/team/Arsenal FC.png', 'Chelsea': '/team/Chelsea FC.png',
+                                'Real Madrid': '/team/Spain - LaLiga/Real Madrid.png', 'Barcelona': '/team/Spain - LaLiga/FC Barcelona.png',
+                              }
+                              const logo = nbaBadgeMap[event.team2] || nflBadgeMap[event.team2] || soccerBadgeMap[event.team2] || ('team2Logo' in event ? (event as any).team2Logo : null)
+                              if (logo) return <img src={logo} alt={event.team2} width={20} height={20} className="object-contain flex-shrink-0 rounded-full" decoding="sync" />
+                              return <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"><span className="text-[8px] font-bold text-white">{event.team2Code}</span></div>
+                            })()
                             )}
                           </div>
                         </div>

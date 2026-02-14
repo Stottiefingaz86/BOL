@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react"
 import { createPortal } from "react-dom"
 import ChatPanel from "@/components/chat/chat-panel"
-import GlobalBetslip from "@/components/betslip/global-betslip"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { startChatSimulator, stopChatSimulator } from "@/lib/chat-simulator"
@@ -74,10 +73,7 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
     <>
       {children}
       {portalEl && createPortal(
-        <>
-          <ChatPanel />
-          <GlobalBetslip />
-        </>,
+        <ChatPanel />,
         portalEl
       )}
     </>
