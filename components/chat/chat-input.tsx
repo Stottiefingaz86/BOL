@@ -90,7 +90,7 @@ export default function ChatInput() {
           onFocus={() => { setIsFocused(true); setShowEmojiPicker(false) }}
           onBlur={() => setIsFocused(false)}
           placeholder="Type a message..."
-          className="flex-1 bg-transparent text-[13px] text-white/90 placeholder:text-white/25 outline-none min-w-0"
+          className="flex-1 bg-transparent text-[16px] text-white/90 placeholder:text-white/25 outline-none min-w-0"
           maxLength={500}
         />
 

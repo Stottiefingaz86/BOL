@@ -225,9 +225,9 @@ function MobileChatDrawer() {
     }
   }, [openUserProfile])
 
-  // Drag-to-dismiss: if user drags down past threshold, close
+  // Drag-to-dismiss: if user drags down past threshold, close (lowered thresholds for easier dismissal)
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.y > 120 || info.velocity.y > 500) {
+    if (info.offset.y > 60 || info.velocity.y > 300) {
       handleClose()
     }
   }, [handleClose])
@@ -273,8 +273,9 @@ function MobileChatDrawer() {
             {/* Drag handle — swipe down to close (only this area triggers drag) */}
             <div
               onPointerDown={(e) => dragControls.start(e)}
-              className="flex w-full items-center justify-center pt-3 pb-2 flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+              className="flex w-full items-center justify-center pt-4 pb-3 flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
               aria-label="Drag to close chat"
+              onClick={handleClose}
             >
               <div className="h-1.5 w-[100px] rounded-full bg-white/40" />
             </div>
