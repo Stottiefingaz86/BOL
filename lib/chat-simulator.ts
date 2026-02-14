@@ -425,13 +425,7 @@ function triggerRainEvent() {
     triggeredBy: triggeredBy.username,
   })
 
-  // 3. Auto-join the current user after 1-3 seconds
-  setTimeout(() => {
-    const rain = useChatStore.getState().activeRain
-    if (rain) {
-      store.joinRain('current-user')
-    }
-  }, randomBetween(1000, 3000))
+  // 3. User must manually join via the rain banner — no auto-join
 
   // 4. Simulate other users joining throughout the countdown
   let joinCount = 0
@@ -449,12 +443,17 @@ function triggerRainEvent() {
   // 5. After countdown + buffer, reveal winners
   setTimeout(() => {
     clearInterval(joinInterval)
+
+    // Check if the current user actually joined this rain event BEFORE clearing it
+    const lastRain = useChatStore.getState().activeRain
+    const userJoined = lastRain ? lastRain.participants.includes('current-user') : false
+
     store.setActiveRain(null)
 
-    // Decide winners — 30% chance the current user wins a share
+    // Decide winners — 50% chance the current user wins IF they joined
     const numWinners = randomBetween(4, 10)
     const winners: string[] = []
-    const currentUserWins = Math.random() < 0.3
+    const currentUserWins = userJoined && Math.random() < 0.5
 
     if (currentUserWins) {
       winners.push('You')
@@ -486,14 +485,31 @@ function triggerRainEvent() {
       type: 'system',
     })
 
-    // If current user won, show a special system message
+    // If current user won, show a special system message AND update their balance
     if (currentUserWins) {
+      const winAmount = parseFloat(perPerson)
       setTimeout(() => {
         addBoth({
           id: nextId(),
           userId: 'system',
           username: 'System',
           content: `💰 You won $${perPerson} from the rain! Balance updated.`,
+          timestamp: new Date(),
+          type: 'system',
+        })
+        // Dispatch event so pages can update the displayed balance
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('rain:win', { detail: { amount: winAmount } }))
+        }
+      }, 800)
+    } else if (userJoined) {
+      // User joined but didn't win
+      setTimeout(() => {
+        addBoth({
+          id: nextId(),
+          userId: 'system',
+          username: 'System',
+          content: `🌧️ Better luck next time! You didn't win this rain.`,
           timestamp: new Date(),
           type: 'system',
         })

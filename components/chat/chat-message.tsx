@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { useChatStore, type ChatMessage as ChatMessageType, type ChatUser } from "@/lib/store/chatStore"
+import { useBetslipStore } from "@/lib/store/betslipStore"
 import { IconStar, IconShield, IconDiamond, IconCoin, IconCloud, IconCopy, IconFlame, IconHandStop, IconMoodSmile, IconCheck } from "@tabler/icons-react"
 import { useState } from "react"
 
@@ -96,9 +97,21 @@ function BetShareMessage({ message }: { message: ChatMessageType }) {
 
   const handleCopyToSlip = () => {
     if (copied || !message.betSlip) return
-    const { copyBetToSlip } = useChatStore.getState()
+    const { copyBetToSlip, setIsOpen } = useChatStore.getState()
     copyBetToSlip(message.betSlip.legs)
     setCopied(true)
+
+    // Close chat so the user can see the betslip
+    // On sports pages, the local bet:copy-to-slip handler opens the local betslip.
+    // On other pages, open the global betslip store.
+    setTimeout(() => {
+      setIsOpen(false)
+      const isSportsPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/sports')
+      if (!isSportsPage) {
+        useBetslipStore.getState().setOpen(true)
+      }
+    }, 300)
+
     setTimeout(() => setCopied(false), 2000)
   }
 

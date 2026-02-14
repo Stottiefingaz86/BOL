@@ -1,4 +1,5 @@
 'use client'
+import { useRainBalance } from '@/hooks/use-rain-balance'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
@@ -7348,6 +7349,7 @@ function NavTestPageContent() {
   const [isDepositLoading, setIsDepositLoading] = useState(false)
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
+  useRainBalance(setBalance, setDisplayBalance)
   const [claimedBoosts, setClaimedBoosts] = useState<Set<string>>(new Set())
   const [boostProcessing, setBoostProcessing] = useState<string | null>(null)
   const [boostClaimMessage, setBoostClaimMessage] = useState<{ amount: number } | null>(null)

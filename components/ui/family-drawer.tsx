@@ -245,6 +245,12 @@ function FamilyDrawerContent({
     ? window.innerHeight - topNavHeight - subNavHeight - marginFromSubNav
     : bounds.height
 
+  // On mobile, force fixed bottom positioning for the drawer.
+  // On desktop, let it render inline (vaul uses modal={false}).
+  const mobileStyle: React.CSSProperties = isMobile
+    ? { position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }
+    : {}
+
   const content = (
     <motion.div
       animate={{
@@ -260,7 +266,8 @@ function FamilyDrawerContent({
         width: '100%',
         maxHeight: typeof window !== 'undefined' ? `${maxHeightValue}px` : 'none',
         overflow: 'hidden',
-        position: 'relative',
+        // On desktop, keep relative so it stays in layout flow
+        ...(!isMobile ? { position: 'relative' as const } : {}),
       }}
     >
       {children}
@@ -277,6 +284,7 @@ function FamilyDrawerContent({
         )}
         style={{
           pointerEvents: 'auto',
+          ...mobileStyle,
         }}
       >
         <Slot>{content}</Slot>
@@ -293,6 +301,7 @@ function FamilyDrawerContent({
       )}
       style={{
         pointerEvents: 'auto',
+        ...mobileStyle,
       }}
     >
       {content}

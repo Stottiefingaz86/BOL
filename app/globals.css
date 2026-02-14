@@ -976,6 +976,14 @@ main[data-sidebar="inset"] > * {
   z-index: 95 !important;
 }
 
+/* Mobile: Chat drawer is a full-screen overlay that must cover the header
+   and all page content, matching the behaviour of VIP/Account/Deposit drawers. */
+@media (max-width: 768px) {
+  #chat-portal-root {
+    z-index: 9997 !important;
+  }
+}
+
 /* ─── Overlay Portal Root ─── */
 /* Dedicated container for modals/overlays (user profile, tip modal, etc.)
    that need to appear ABOVE everything including the header.

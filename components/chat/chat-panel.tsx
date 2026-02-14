@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from "react"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls, PanInfo } from "framer-motion"
+import { motion, AnimatePresence, useMotionValue, useDragControls, PanInfo } from "framer-motion"
 
 import ChatHeader from "./chat-header"
 import ChatMessage from "./chat-message"
@@ -15,19 +15,19 @@ import ChatUserProfile from "./chat-user-profile"
 
 // ─── Desktop Chat Panel ──────────────────────────────────
 function DesktopChatPanel() {
-  const { isOpen, setIsOpen, casinoMessages, sportsMessages, openUserProfile } = useChatStore()
+  const { isOpen, setIsOpen, activeRoom, casinoMessages, sportsMessages, openUserProfile } = useChatStore()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isNearBottomRef = useRef(true)
   const hasInitScrolled = useRef(false)
 
-  // Merge all messages and sort by timestamp
-  const messages = useMemo(() =>
-    [...casinoMessages, ...sportsMessages].sort(
+  // Show messages for the active room only
+  const messages = useMemo(() => {
+    const roomMessages = activeRoom === 'casino' ? casinoMessages : sportsMessages
+    return [...roomMessages].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    ),
-    [casinoMessages, sportsMessages]
-  )
+    )
+  }, [activeRoom, casinoMessages, sportsMessages])
 
   // Track whether user is scrolled near the bottom
   const handleScroll = useCallback(() => {
@@ -80,9 +80,6 @@ function DesktopChatPanel() {
               className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative custom-scrollbar"
               style={{ overscrollBehavior: 'contain' }}
             >
-              {/* Rain Banner */}
-              <ChatRainBanner />
-
               {/* Messages */}
               <div className="py-1">
                 {messages.map((msg) => (
@@ -108,6 +105,9 @@ function DesktopChatPanel() {
               <ChatUserList onUserClick={(u) => openUserProfile(u)} />
             </div>
 
+            {/* Rain Banner — above input so it's always visible */}
+            <ChatRainBanner />
+
             {/* Input */}
             <ChatInput />
           </div>
@@ -132,22 +132,24 @@ function MobileChatDrawer() {
 
   // Drag-to-dismiss
   const dragY = useMotionValue(0)
-  const backdropOpacity = useTransform(dragY, [0, 300], [1, 0])
   const dragControls = useDragControls()
+
+  const activeRoom = useChatStore((s) => s.activeRoom)
 
   // Only subscribe to messages when the drawer is open to avoid
   // unnecessary re-renders from the chat simulator
   const casinoMessages = useChatStore((s) => isOpen ? s.casinoMessages : [])
   const sportsMessages = useChatStore((s) => isOpen ? s.sportsMessages : [])
 
-  // Limit to last 60 messages on mobile for performance
+  // Show messages for the active room only, limited to last 60 on mobile
   const messages = useMemo(() => {
     if (!isOpen) return []
-    const merged = [...casinoMessages, ...sportsMessages].sort(
+    const roomMessages = activeRoom === 'casino' ? casinoMessages : sportsMessages
+    const sorted = [...roomMessages].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     )
-    return merged.slice(-60)
-  }, [casinoMessages, sportsMessages, isOpen])
+    return sorted.slice(-60)
+  }, [activeRoom, casinoMessages, sportsMessages, isOpen])
 
   // Track whether user is scrolled near the bottom
   const handleScroll = useCallback(() => {
@@ -234,14 +236,14 @@ function MobileChatDrawer() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop — tapping closes chat, opacity follows drag */}
+          {/* Backdrop — tapping closes chat */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[9998] bg-black/60"
-            style={{ pointerEvents: 'auto', opacity: backdropOpacity }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-xl"
+            style={{ pointerEvents: 'auto' }}
             onClick={handleClose}
           />
 
@@ -288,7 +290,6 @@ function MobileChatDrawer() {
               className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative"
               style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
             >
-              <ChatRainBanner />
               <div className="py-1">
                 {messages.map((msg) => (
                   <ChatMessage
@@ -302,6 +303,9 @@ function MobileChatDrawer() {
 
               <ChatUserList onUserClick={(u) => openUserProfile(u)} />
             </div>
+
+            {/* Rain Banner — above input so it's always visible */}
+            <ChatRainBanner />
 
             {/* Input — sits above safe area */}
             <div style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>

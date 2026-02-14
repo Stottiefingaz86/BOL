@@ -1,4 +1,5 @@
 'use client'
+import { useRainBalance } from '@/hooks/use-rain-balance'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -1229,6 +1230,7 @@ function HomePageContent() {
   const [lastScrollY, setLastScrollY] = useState(0)
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
+  useRainBalance(setBalance, setDisplayBalance)
   const [currentTime, setCurrentTime] = useState<string>('')
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)

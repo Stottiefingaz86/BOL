@@ -504,6 +504,23 @@ export default function GlobalBetslip() {
     setBets,
   } = useBetslipStore()
 
+  // On sports pages, sport pages have their own local betslip — hide the global one entirely
+  const [isSportsPage, setIsSportsPage] = useState(false)
+  useEffect(() => {
+    const check = () => setIsSportsPage(window.location.pathname.startsWith('/sports'))
+    check()
+    // Re-check on SPA navigation
+    window.addEventListener('popstate', check)
+    return () => window.removeEventListener('popstate', check)
+  }, [])
+
+  // Close global betslip if we navigate to sports (prevent stale open state)
+  useEffect(() => {
+    if (isSportsPage && isOpen) {
+      setOpen(false)
+    }
+  }, [isSportsPage])
+
   // Listen for bet:copy-to-slip events (from chat "copy to betslip" button)
   // On sports pages, the page-specific handler manages this — skip here to avoid double betslips
   useEffect(() => {
@@ -527,6 +544,9 @@ export default function GlobalBetslip() {
     window.addEventListener('bet:copy-to-slip', handleCopyBet)
     return () => window.removeEventListener('bet:copy-to-slip', handleCopyBet)
   }, [setBets, setOpen, setMinimized])
+
+  // Don't render on sports pages — they have their own local betslip
+  if (isSportsPage) return null
 
   // Build views registry
   const betslipViews = useMemo(() => ({
