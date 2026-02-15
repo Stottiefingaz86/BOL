@@ -247,16 +247,17 @@ function FamilyDrawerContent({
   const isMobile = useIsMobile()
 
   // Calculate max height cap
-  // On mobile: betslip covers everything (sub-nav, header), just leave safe area at top
+  // On mobile: use visualViewport.height (accounts for Safari toolbar) or fallback to innerHeight
   // On desktop: stop before the sub-nav
   const topNavHeight = 64
   const subNavHeight = 56
-  const safeMargin = isMobile ? 200 : 10
-  const maxHeightValue = typeof window !== 'undefined' 
-    ? isMobile
-      ? window.innerHeight - safeMargin
-      : window.innerHeight - topNavHeight - subNavHeight - safeMargin
-    : 600
+  const safeMargin = isMobile ? 120 : 10
+  const viewportHeight = typeof window !== 'undefined'
+    ? (isMobile && window.visualViewport ? window.visualViewport.height : window.innerHeight)
+    : 800
+  const maxHeightValue = isMobile
+    ? viewportHeight - safeMargin
+    : viewportHeight - topNavHeight - subNavHeight - safeMargin
 
   // Always fixed at bottom, centered via mx-auto in className
   const positionStyle: React.CSSProperties = {
@@ -277,7 +278,7 @@ function FamilyDrawerContent({
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        maxHeight: `${maxHeightValue}px`,
+        maxHeight: isMobile ? `min(${maxHeightValue}px, calc(100dvh - 120px))` : `${maxHeightValue}px`,
         overflow: 'clip',
         borderTopLeftRadius: '7px',
         borderTopRightRadius: '7px',

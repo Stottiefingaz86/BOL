@@ -3783,7 +3783,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           display: 'flex', 
           flexDirection: 'column', 
           maxHeight: isMobile
-            ? ('calc(100vh - 200px)')
+            ? ('calc(100dvh - 120px)')
             : 'calc(100vh - 170px)',
         }}
       >

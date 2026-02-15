@@ -351,7 +351,7 @@ function BetslipDefaultView() {
 
   // Expanded state
   return (
-    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100vh - 200px)' : 'calc(100vh - 170px)' }}>
+    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100dvh - 120px)' : 'calc(100vh - 170px)' }}>
       {/* Drag Handle - Mobile Only */}
       {isMobile && (
         <div className="flex justify-center pt-2 pb-0.5 shrink-0 cursor-grab active:cursor-grabbing">

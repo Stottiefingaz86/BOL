@@ -41,7 +41,7 @@ export function BetslipNumberPad({
         backdropFilter: 'blur(40px)',
         WebkitBackdropFilter: 'blur(40px)',
         borderTop: '1px solid rgba(0,0,0,0.08)',
-        paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))',
+        paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))',
       }}
       data-vaul-no-drag=""
       onTouchStart={(e) => e.stopPropagation()}
