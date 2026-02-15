@@ -122,6 +122,7 @@ import {
   IconRefresh
 } from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
+import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -6922,6 +6923,8 @@ function NavTestPageContent() {
   const [gameImageLoaded, setGameImageLoaded] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
+  const [showJackpot, setShowJackpot] = useState(false)
+  const jackpotTimerRef = useRef<NodeJS.Timeout | null>(null)
   const gameLauncherMenuRef = useRef<HTMLDivElement>(null)
   const gameImageRef = useRef<HTMLDivElement>(null)
   
@@ -6961,12 +6964,33 @@ function NavTestPageContent() {
       setGameLauncherMenuOpen(false)
       setGameImageLoaded(false)
       setIsFullscreen(false)
+      setShowJackpot(false)
+      if (jackpotTimerRef.current) {
+        clearTimeout(jackpotTimerRef.current)
+        jackpotTimerRef.current = null
+      }
     } else {
       // Reset image loaded state when new game is selected
       setGameImageLoaded(false)
       setIsFullscreen(false)
+      setShowJackpot(false)
     }
   }, [selectedGame])
+
+  // Jackpot overlay — show 10 seconds after game image loads
+  useEffect(() => {
+    if (gameImageLoaded && selectedGame) {
+      jackpotTimerRef.current = setTimeout(() => {
+        setShowJackpot(true)
+      }, 5000)
+    }
+    return () => {
+      if (jackpotTimerRef.current) {
+        clearTimeout(jackpotTimerRef.current)
+        jackpotTimerRef.current = null
+      }
+    }
+  }, [gameImageLoaded, selectedGame])
   
   // Handle fullscreen change events
   useEffect(() => {
@@ -12454,6 +12478,65 @@ function NavTestPageContent() {
                 </div>
                 )}
               </div>
+
+              {/* Jackpot Win Overlay */}
+              <JackpotOverlay
+                visible={showJackpot}
+                gameName={selectedGame.title}
+                onClose={() => {
+                  setShowJackpot(false)
+                  // Animate balance roll-up with jackpot winnings
+                  const jackpotAmount = 250000
+                  const newBalance = balance + jackpotAmount
+                  setBalance(newBalance)
+                  setTimeout(() => {
+                    const startBal = displayBalance
+                    const endBal = newBalance
+                    const duration = 2000
+                    const startTime = Date.now()
+                    const animateBalance = () => {
+                      const elapsed = Date.now() - startTime
+                      const progress = Math.min(elapsed / duration, 1)
+                      const eased = 1 - Math.pow(1 - progress, 3)
+                      setDisplayBalance(startBal + (endBal - startBal) * eased)
+                      if (progress < 1) requestAnimationFrame(animateBalance)
+                      else setDisplayBalance(endBal)
+                    }
+                    requestAnimationFrame(animateBalance)
+                  }, 400)
+                }}
+                onShareToChat={() => {
+                  setShowJackpot(false)
+                  // Animate balance roll-up with jackpot winnings
+                  const jackpotAmount = 250000
+                  const newBalance = balance + jackpotAmount
+                  setBalance(newBalance)
+                  setTimeout(() => {
+                    const startBal = displayBalance
+                    const endBal = newBalance
+                    const duration = 2000
+                    const startTime = Date.now()
+                    const animateBalance = () => {
+                      const elapsed = Date.now() - startTime
+                      const progress = Math.min(elapsed / duration, 1)
+                      const eased = 1 - Math.pow(1 - progress, 3)
+                      setDisplayBalance(startBal + (endBal - startBal) * eased)
+                      if (progress < 1) requestAnimationFrame(animateBalance)
+                      else setDisplayBalance(endBal)
+                    }
+                    requestAnimationFrame(animateBalance)
+                  }, 400)
+                  // Share jackpot win to chat
+                  const chatStore = useChatStore.getState()
+                  chatStore.setIsOpen(true)
+                  chatStore.shareBetToChat([{
+                    eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
+                    selection: 'Mega Jackpot',
+                    odds: '💰',
+                    stake: 250000,
+                  }])
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -12634,8 +12717,8 @@ function NavTestPageContent() {
         document.body
       )}
 
-      {/* Mobile: Dynamic Island Search - Bottom of screen */}
-      {isMobile && (
+      {/* Mobile: Dynamic Island Search - Bottom of screen (hidden during game launcher) */}
+      {isMobile && !selectedGame && (
         <DynamicIsland
           onSearchClick={() => setSearchOverlayOpen(true)}
           onFavoriteClick={() => {
