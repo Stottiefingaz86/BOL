@@ -6911,6 +6911,131 @@ function NavTestPageContent() {
     })
   }, [tournamentCarouselApi])
 
+  // Activity table state
+  const [casinoActivityTab, setCasinoActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
+  const [casinoActivityFeed, setCasinoActivityFeed] = useState<Array<{
+    id: string
+    type: 'casino'
+    event: string
+    user: string
+    time: string
+    betAmount: string
+    winAmount?: string
+    gameImage?: string
+  }>>([])
+
+  // Daily Race countdown
+  const [casinoRaceHours, setCasinoRaceHours] = useState(6)
+  const [casinoRaceMinutes, setCasinoRaceMinutes] = useState(54)
+  const [casinoRaceSeconds, setCasinoRaceSeconds] = useState(31)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCasinoRaceSeconds((s) => {
+        if (s === 0) {
+          setCasinoRaceMinutes((m) => {
+            if (m === 0) {
+              setCasinoRaceHours((h) => (h === 0 ? 23 : h - 1))
+              return 59
+            }
+            return m - 1
+          })
+          return 59
+        }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const casinoRaceLeaderboardData = [
+    { rank: 1, nickname: 'Hidden', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
+    { rank: 2, nickname: 'Player_5130165', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
+    { rank: 3, nickname: 'Hidden', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
+    { rank: 4, nickname: 'Hidden', wagered: '$6,000.00', prize: '12%' },
+    { rank: 5, nickname: 'Hidden', wagered: '$5,865.00', prize: '10%' },
+    { rank: 6, nickname: 'Hidden', wagered: '$4,986.34', prize: '8%' },
+    { rank: 7, nickname: 'Hidden', wagered: '$4,503.05', prize: '5%' },
+    { rank: 8, nickname: 'Hidden', wagered: '$4,163.80', prize: '3%' },
+    { rank: 9, nickname: 'Hidden', wagered: '$3,123.05', prize: '2%' },
+    { rank: 10, nickname: 'Hidden', wagered: '$2,305.07', prize: '1%' },
+  ]
+
+  const casinoUserRacePosition = {
+    rank: 5708,
+    nickname: 'You',
+    wagered: '$1,250.00',
+    prize: '0.1%'
+  }
+
+  const casinoJackpotWinnersData = [
+    { id: 'jp1', user: 'LuckyBet', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
+    { id: 'jp2', user: 'Hidden', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
+    { id: 'jp3', user: 'CasinoKing', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp4', user: 'Hidden', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp5', user: 'GamerX', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
+    { id: 'jp6', user: 'Hidden', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
+    { id: 'jp7', user: 'HighRoller', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
+    { id: 'jp8', user: 'Hidden', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
+    { id: 'jp9', user: 'Player1', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
+    { id: 'jp10', user: 'Hidden', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
+  ]
+
+  const generateCasinoActivity = useCallback(() => {
+    const users = ['Gurvinderdeo', 'Eruyarr4545', 'JadrankaB', 'VUDEMMADHU', 'Dzikiti123', 'Player1', 'GamerX', 'LuckyBet', 'HighRoller', 'CasinoKing']
+    const casinoGames = [
+      { name: 'Starburst', image: squareTileImages[0] },
+      { name: 'Book of Dead', image: squareTileImages[1] },
+      { name: "Gonzo's Quest", image: squareTileImages[2] },
+      { name: 'Mega Moolah', image: squareTileImages[3] },
+      { name: 'Dead or Alive', image: squareTileImages[4] },
+      { name: 'Razor Shark', image: squareTileImages[5] },
+      { name: 'Big Bass Bonanza', image: squareTileImages[6] },
+      { name: 'Sweet Bonanza', image: squareTileImages[7] },
+    ]
+
+    const now = new Date()
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+
+    const eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
+    const user = users[Math.floor(Math.random() * users.length)]
+    const isHidden = Math.random() < 0.6
+    const displayUser = isHidden ? 'Hidden' : user
+
+    const betAmount = casinoActivityTab === 'High Rollers'
+      ? (Math.random() * 15000 + 1000).toFixed(2)
+      : (Math.random() * 5000 + 10).toFixed(2)
+
+    const winAmount = Math.random() > 0.4
+      ? (parseFloat(betAmount) * (Math.random() * 5 + 1)).toFixed(2)
+      : undefined
+
+    return {
+      id: `casino-${Date.now()}-${Math.random()}`,
+      type: 'casino' as const,
+      event: eventData.name,
+      user: displayUser,
+      time: timeStr,
+      betAmount: `$${parseFloat(betAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      winAmount: winAmount ? `$${parseFloat(winAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined,
+      gameImage: eventData.image
+    }
+  }, [casinoActivityTab])
+
+  useEffect(() => {
+    const initialFeed = Array.from({ length: 10 }, () => generateCasinoActivity())
+    setCasinoActivityFeed(initialFeed)
+
+    const interval = setInterval(() => {
+      setCasinoActivityFeed(prev => {
+        const newActivity = generateCasinoActivity()
+        return [newActivity, ...prev.slice(0, 19)]
+      })
+    }, Math.random() * 2000 + 3000)
+
+    return () => clearInterval(interval)
+  }, [casinoActivityTab, generateCasinoActivity])
+
   const [isPageTransitioning, setIsPageTransitioning] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -10864,6 +10989,263 @@ function NavTestPageContent() {
                           </RainBackground>
                         </div>
                         
+                        {/* Activity Section */}
+                        <div className={cn("mb-8", isMobile ? "px-3" : "px-6")}>
+                          <Separator className="mb-6 bg-white/10" />
+                          <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
+                          
+                          {/* Tabs */}
+                          <div className="mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+                            <div className="bg-white/5 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
+                              {['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race'].map((tab) => (
+                                <button
+                                  key={tab}
+                                  onClick={() => setCasinoActivityTab(tab as 'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race')}
+                                  className={cn(
+                                    "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
+                                    casinoActivityTab === tab
+                                      ? "text-white"
+                                      : "text-white/70 hover:text-white hover:bg-white/5 bg-transparent"
+                                  )}
+                                >
+                                  {casinoActivityTab === tab && (
+                                    <motion.div
+                                      layoutId="casinoActivityTab"
+                                      className="absolute inset-0 rounded-2xl -z-10"
+                                      style={{ backgroundColor: '#ee3536' }}
+                                      initial={false}
+                                      transition={{
+                                        type: "spring",
+                                        stiffness: 400,
+                                        damping: 40
+                                      }}
+                                    />
+                                  )}
+                                  <span className="relative z-10 whitespace-nowrap">{tab}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Activity Feed Table or Race Leaderboard */}
+                          <Card className="bg-white/5 backdrop-blur-sm border-white/10 rounded-small overflow-hidden">
+                            <CardContent className="p-0">
+                              <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
+                                {casinoActivityTab === 'Daily Race' ? (
+                                  <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                                      <span className="text-white/70 text-xs">Ends in</span>
+                                      <div className="text-sm font-bold text-white flex items-center gap-1 tabular-nums">
+                                        <NumberFlow value={casinoRaceHours} />
+                                        <span className="mx-1">:</span>
+                                        <NumberFlow value={casinoRaceMinutes} />
+                                        <span className="mx-1">:</span>
+                                        <NumberFlow value={casinoRaceSeconds} />
+                                      </div>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                      <table className="w-full">
+                                        <thead>
+                                          <tr className="border-b border-white/10">
+                                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Rank</th>
+                                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Nickname</th>
+                                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Wagered</th>
+                                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Prize</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {casinoRaceLeaderboardData.map((entry) => (
+                                            <tr key={entry.rank} className="border-b border-white/10 hover:bg-white/10 transition-colors">
+                                              <td className="py-3 px-4">
+                                                <div className="flex items-center gap-2">
+                                                  {entry.medal === 'gold' && <IconTrophy className="w-5 h-5 text-yellow-400" />}
+                                                  {entry.medal === 'silver' && <IconTrophy className="w-5 h-5 text-gray-400" />}
+                                                  {entry.medal === 'bronze' && <IconTrophy className="w-5 h-5 text-orange-400" />}
+                                                  {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
+                                                </div>
+                                              </td>
+                                              <td className="py-3 px-4 text-white text-sm">{entry.nickname}</td>
+                                              <td className="py-3 px-4 text-right text-white text-sm">{entry.wagered}</td>
+                                              <td className="py-3 px-4 text-right text-white text-sm font-semibold">{entry.prize}</td>
+                                            </tr>
+                                          ))}
+                                          <tr className="border-t-2 border-white/20 bg-white/5">
+                                            <td className="py-3 px-4">
+                                              <span className="text-white text-sm font-semibold">{casinoUserRacePosition.rank}th</span>
+                                            </td>
+                                            <td className="py-3 px-4 text-white text-sm font-semibold">{casinoUserRacePosition.nickname}</td>
+                                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{casinoUserRacePosition.wagered}</td>
+                                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{casinoUserRacePosition.prize}</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                ) : casinoActivityTab === 'Jackpot Winners' ? (
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="border-white/10 hover:bg-transparent">
+                                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">Jackpot Won</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {casinoJackpotWinnersData.map((winner, index) => (
+                                        <TableRow
+                                          key={winner.id}
+                                          className={cn(
+                                            "border-b border-white/10 hover:bg-white/5 transition-colors",
+                                            index === 0 && "bg-amber-500/5"
+                                          )}
+                                        >
+                                          <TableCell className="py-3 px-4">
+                                            <div className="flex items-center gap-2">
+                                              {winner.gameImage ? (
+                                                <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
+                                                  <Image
+                                                    src={winner.gameImage}
+                                                    alt={winner.game}
+                                                    width={40}
+                                                    height={40}
+                                                    className="w-full h-full object-cover"
+                                                    quality={75}
+                                                    unoptimized
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
+                                              )}
+                                              <span
+                                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
+                                                onClick={() => {
+                                                  if (winner.gameImage) {
+                                                    setSelectedGame({
+                                                      title: winner.game,
+                                                      image: winner.gameImage
+                                                    })
+                                                  }
+                                                }}
+                                              >
+                                                {winner.game}
+                                              </span>
+                                            </div>
+                                          </TableCell>
+                                          <TableCell className="py-3 px-4">
+                                            <span className={cn(
+                                              "text-sm",
+                                              winner.user === 'Hidden' ? "text-white/50" : "text-white"
+                                            )}>
+                                              {winner.user}
+                                            </span>
+                                          </TableCell>
+                                          <TableCell className="py-3 px-4">
+                                            <span className="text-white/60 text-sm">{winner.time}</span>
+                                          </TableCell>
+                                          <TableCell className="py-3 px-4">
+                                            <div className="flex items-center gap-1.5">
+                                              <IconTrophy className="w-3.5 h-3.5 text-amber-400" />
+                                              <span className="text-amber-400 text-sm font-semibold">{winner.amount}</span>
+                                            </div>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                ) : (
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="border-white/10 hover:bg-transparent">
+                                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">Bet Amount</TableHead>
+                                        <TableHead className="text-white/70 font-medium text-xs">Win Amount</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      <AnimatePresence mode="popLayout">
+                                        {casinoActivityFeed.map((activity, index) => (
+                                          <motion.tr
+                                            key={activity.id}
+                                            layout
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            transition={{ duration: 0.2, ease: "easeOut" }}
+                                            className={cn(
+                                              "border-b border-white/10 hover:bg-white/5 transition-colors",
+                                              index === 0 && "bg-white/5"
+                                            )}
+                                          >
+                                            <TableCell className="py-3 px-4">
+                                              <div className="flex items-center gap-2">
+                                                {activity.gameImage ? (
+                                                  <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
+                                                    <Image
+                                                      src={activity.gameImage}
+                                                      alt={activity.event}
+                                                      width={40}
+                                                      height={40}
+                                                      className="w-full h-full object-cover"
+                                                      quality={75}
+                                                      unoptimized
+                                                    />
+                                                  </div>
+                                                ) : (
+                                                  <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
+                                                )}
+                                                <span 
+                                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
+                                                  onClick={() => {
+                                                    if (activity.gameImage) {
+                                                      setSelectedGame({
+                                                        title: activity.event,
+                                                        image: activity.gameImage
+                                                      })
+                                                    }
+                                                  }}
+                                                >
+                                                  {activity.event}
+                                                </span>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="py-3 px-4">
+                                              <span className={cn(
+                                                "text-sm",
+                                                activity.user === 'Hidden' ? "text-white/50" : "text-white"
+                                              )}>
+                                                {activity.user}
+                                              </span>
+                                            </TableCell>
+                                            <TableCell className="py-3 px-4">
+                                              <span className="text-white/60 text-sm">{activity.time}</span>
+                                            </TableCell>
+                                            <TableCell className="py-3 px-4">
+                                              <div className="flex items-center gap-1.5">
+                                                <IconCoins className="w-3.5 h-3.5 text-green-400" />
+                                                <span className="text-white text-sm font-medium">{activity.betAmount}</span>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell className="py-3 px-4">
+                                              {activity.winAmount ? (
+                                                <span className="text-green-400 text-sm font-medium">{activity.winAmount}</span>
+                                              ) : (
+                                                <span className="text-white/30 text-sm">-</span>
+                                              )}
+                                            </TableCell>
+                                          </motion.tr>
+                                        ))}
+                                      </AnimatePresence>
+                                    </TableBody>
+                                  </Table>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+
                         {/* Most Popular Section - Square Tiles */}
                         <div>
                           <div className={cn(
@@ -12322,38 +12704,36 @@ function NavTestPageContent() {
                   {selectedGame.title}
                 </h2>
 
-                    {/* Right Icons - Fullscreen (desktop only), Favorite and Close */}
+                    {/* Right Icons - Fullscreen, Favorite and Close */}
                     <div className="flex items-center gap-1">
-                      {!isMobile && (
-                <button
-                          onClick={() => {
-                            if (!gameImageRef.current) return
-                            
-                            if (!isFullscreen) {
-                              if (gameImageRef.current.requestFullscreen) {
-                                gameImageRef.current.requestFullscreen()
-                              } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
-                                (gameImageRef.current as any).webkitRequestFullscreen()
-                              } else if ((gameImageRef.current as any).msRequestFullscreen) {
-                                (gameImageRef.current as any).msRequestFullscreen()
-                              }
-                              setIsFullscreen(true)
-                            } else {
-                              if (document.exitFullscreen) {
-                                document.exitFullscreen()
-                              } else if ((document as any).webkitExitFullscreen) {
-                                (document as any).webkitExitFullscreen()
-                              } else if ((document as any).msExitFullscreen) {
-                                (document as any).msExitFullscreen()
-                              }
-                              setIsFullscreen(false)
+                      <button
+                        onClick={() => {
+                          if (!gameImageRef.current) return
+                          
+                          if (!isFullscreen) {
+                            if (gameImageRef.current.requestFullscreen) {
+                              gameImageRef.current.requestFullscreen()
+                            } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
+                              (gameImageRef.current as any).webkitRequestFullscreen()
+                            } else if ((gameImageRef.current as any).msRequestFullscreen) {
+                              (gameImageRef.current as any).msRequestFullscreen()
                             }
-                          }}
-                          className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                        >
-                          <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
-                        </button>
-                      )}
+                            setIsFullscreen(true)
+                          } else {
+                            if (document.exitFullscreen) {
+                              document.exitFullscreen()
+                            } else if ((document as any).webkitExitFullscreen) {
+                              (document as any).webkitExitFullscreen()
+                            } else if ((document as any).msExitFullscreen) {
+                              (document as any).msExitFullscreen()
+                            }
+                            setIsFullscreen(false)
+                          }
+                        }}
+                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                      >
+                        <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
+                      </button>
                       <button 
                         onClick={() => {
                           // Toggle favorite

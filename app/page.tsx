@@ -111,6 +111,7 @@ import { UsageBasedPricing } from '@/components/billingsdk/usage-based-pricing'
 import { Input } from '@/components/ui/input'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import DynamicIsland from '@/components/dynamic-island'
+import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
 
 // Helper function to get vendor icon path
 const getVendorIconPath = (vendorName: string): string => {
@@ -1329,6 +1330,8 @@ function HomePageContent() {
   const [isLandscape, setIsLandscape] = useState(false)
   const [similarGamesDrawerOpen, setSimilarGamesDrawerOpen] = useState(false)
   const [favoritedGames, setFavoritedGames] = useState<Set<number>>(new Set())
+  const [showJackpot, setShowJackpot] = useState(false)
+  const jackpotTimerRef = useRef<NodeJS.Timeout | null>(null)
   const gameLauncherMenuRef = useRef<HTMLDivElement>(null)
   const gameImageRef = useRef<HTMLDivElement>(null)
   
@@ -1359,7 +1362,7 @@ function HomePageContent() {
   const [topEventsScores, setTopEventsScores] = useState<Record<number, { team1: number; team2: number; animating?: { team: number; from: number; to: number } }>>({})
   
   // Activity Leaderboard state
-  const [activityTab, setActivityTab] = useState<'All Bets' | 'High Rollers' | 'Daily Race'>('All Bets')
+  const [activityTab, setActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
   const [activityFeed, setActivityFeed] = useState<Array<{
     id: string
     type: 'sports' | 'casino'
@@ -1394,6 +1397,20 @@ function HomePageContent() {
     prize: '0.1%'
   }
   
+  // Jackpot Winners data
+  const jackpotWinnersData = [
+    { id: 'jp1', user: 'LuckyBet', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
+    { id: 'jp2', user: 'Hidden', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
+    { id: 'jp3', user: 'CasinoKing', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp4', user: 'Hidden', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp5', user: 'GamerX', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
+    { id: 'jp6', user: 'Hidden', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
+    { id: 'jp7', user: 'HighRoller', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
+    { id: 'jp8', user: 'Hidden', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
+    { id: 'jp9', user: 'Player1', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
+    { id: 'jp10', user: 'Hidden', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
+  ]
+
   // Daily Race countdown timer state
   const [raceHours, setRaceHours] = useState(6)
   const [raceMinutes, setRaceMinutes] = useState(54)
@@ -1572,12 +1589,33 @@ function HomePageContent() {
       setGameLauncherMenuOpen(false)
       setGameImageLoaded(false)
       setIsFullscreen(false)
+      setShowJackpot(false)
+      if (jackpotTimerRef.current) {
+        clearTimeout(jackpotTimerRef.current)
+        jackpotTimerRef.current = null
+      }
     } else {
       // Reset image loaded state when new game is selected
       setGameImageLoaded(false)
       setIsFullscreen(false)
+      setShowJackpot(false)
     }
   }, [selectedGame])
+
+  // Jackpot overlay — show 5 seconds after game image loads
+  useEffect(() => {
+    if (gameImageLoaded && selectedGame) {
+      jackpotTimerRef.current = setTimeout(() => {
+        setShowJackpot(true)
+      }, 5000)
+    }
+    return () => {
+      if (jackpotTimerRef.current) {
+        clearTimeout(jackpotTimerRef.current)
+        jackpotTimerRef.current = null
+      }
+    }
+  }, [gameImageLoaded, selectedGame])
 
   // Handle fullscreen change events
   useEffect(() => {
@@ -2749,12 +2787,12 @@ function HomePageContent() {
           <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
           
           {/* Tabs - Sub Nav Style */}
-          <div className="mb-4">
-            <div className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex">
-              {['All Bets', 'High Rollers', 'Daily Race'].map((tab) => (
+          <div className="mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="bg-white/5 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
+              {['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race'].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActivityTab(tab as 'All Bets' | 'High Rollers' | 'Daily Race')}
+                  onClick={() => setActivityTab(tab as 'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race')}
                   className={cn(
                     "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                     activityTab === tab
@@ -2838,6 +2876,79 @@ function HomePageContent() {
                       </table>
                     </div>
                   </div>
+                ) : activityTab === 'Jackpot Winners' ? (
+                  // Jackpot Winners Table
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/10 hover:bg-transparent">
+                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
+                        <TableHead className="text-white/70 font-medium text-xs">Jackpot Won</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {jackpotWinnersData.map((winner, index) => (
+                        <TableRow
+                          key={winner.id}
+                          className={cn(
+                            "border-b border-white/10 hover:bg-white/5 transition-colors",
+                            index === 0 && "bg-amber-500/5"
+                          )}
+                        >
+                          <TableCell className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              {winner.gameImage ? (
+                                <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
+                                  <Image
+                                    src={winner.gameImage}
+                                    alt={winner.game}
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-cover"
+                                    quality={75}
+                                    unoptimized
+                                  />
+                                </div>
+                              ) : (
+                                <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
+                              )}
+                              <span
+                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
+                                onClick={() => {
+                                  if (winner.gameImage) {
+                                    setSelectedGame({
+                                      title: winner.game,
+                                      image: winner.gameImage
+                                    })
+                                  }
+                                }}
+                              >
+                                {winner.game}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-3 px-4">
+                            <span className={cn(
+                              "text-sm",
+                              winner.user === 'Hidden' ? "text-white/50" : "text-white"
+                            )}>
+                              {winner.user}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-4">
+                            <span className="text-white/60 text-sm">{winner.time}</span>
+                          </TableCell>
+                          <TableCell className="py-3 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <IconTrophy className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="text-amber-400 text-sm font-semibold">{winner.amount}</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 ) : (
                   // Activity Feed Table
                   <Table>
@@ -3027,38 +3138,36 @@ function HomePageContent() {
                       {selectedGame.title}
                     </h2>
 
-                    {/* Right Icons - Fullscreen (desktop only), Favorite and Close */}
+                    {/* Right Icons - Fullscreen, Favorite and Close */}
                     <div className="flex items-center gap-1">
-                      {!isMobile && (
-                        <button
-                          onClick={() => {
-                            if (!gameImageRef.current) return
-                            
-                            if (!isFullscreen) {
-                              if (gameImageRef.current.requestFullscreen) {
-                                gameImageRef.current.requestFullscreen()
-                              } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
-                                (gameImageRef.current as any).webkitRequestFullscreen()
-                              } else if ((gameImageRef.current as any).msRequestFullscreen) {
-                                (gameImageRef.current as any).msRequestFullscreen()
-                              }
-                              setIsFullscreen(true)
-                            } else {
-                              if (document.exitFullscreen) {
-                                document.exitFullscreen()
-                              } else if ((document as any).webkitExitFullscreen) {
-                                (document as any).webkitExitFullscreen()
-                              } else if ((document as any).msExitFullscreen) {
-                                (document as any).msExitFullscreen()
-                              }
-                              setIsFullscreen(false)
+                      <button
+                        onClick={() => {
+                          if (!gameImageRef.current) return
+                          
+                          if (!isFullscreen) {
+                            if (gameImageRef.current.requestFullscreen) {
+                              gameImageRef.current.requestFullscreen()
+                            } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
+                              (gameImageRef.current as any).webkitRequestFullscreen()
+                            } else if ((gameImageRef.current as any).msRequestFullscreen) {
+                              (gameImageRef.current as any).msRequestFullscreen()
                             }
-                          }}
-                          className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                        >
-                          <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
-                        </button>
-                      )}
+                            setIsFullscreen(true)
+                          } else {
+                            if (document.exitFullscreen) {
+                              document.exitFullscreen()
+                            } else if ((document as any).webkitExitFullscreen) {
+                              (document as any).webkitExitFullscreen()
+                            } else if ((document as any).msExitFullscreen) {
+                              (document as any).msExitFullscreen()
+                            }
+                            setIsFullscreen(false)
+                          }
+                        }}
+                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                      >
+                        <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
+                      </button>
                       <button 
                         onClick={() => {
                           const gameId = hashGameTitle(selectedGame.title)
@@ -3182,6 +3291,62 @@ function HomePageContent() {
                   </div>
                 )}
               </div>
+
+              {/* Jackpot Win Overlay */}
+              <JackpotOverlay
+                visible={showJackpot}
+                gameName={selectedGame.title}
+                onClose={() => {
+                  setShowJackpot(false)
+                  const jackpotAmount = 250000
+                  const newBalance = balance + jackpotAmount
+                  setBalance(newBalance)
+                  setTimeout(() => {
+                    const startBal = displayBalance
+                    const endBal = newBalance
+                    const duration = 2000
+                    const startTime = Date.now()
+                    const animateBalance = () => {
+                      const elapsed = Date.now() - startTime
+                      const progress = Math.min(elapsed / duration, 1)
+                      const eased = 1 - Math.pow(1 - progress, 3)
+                      setDisplayBalance(startBal + (endBal - startBal) * eased)
+                      if (progress < 1) requestAnimationFrame(animateBalance)
+                      else setDisplayBalance(endBal)
+                    }
+                    requestAnimationFrame(animateBalance)
+                  }, 400)
+                }}
+                onShareToChat={() => {
+                  setShowJackpot(false)
+                  const jackpotAmount = 250000
+                  const newBalance = balance + jackpotAmount
+                  setBalance(newBalance)
+                  setTimeout(() => {
+                    const startBal = displayBalance
+                    const endBal = newBalance
+                    const duration = 2000
+                    const startTime = Date.now()
+                    const animateBalance = () => {
+                      const elapsed = Date.now() - startTime
+                      const progress = Math.min(elapsed / duration, 1)
+                      const eased = 1 - Math.pow(1 - progress, 3)
+                      setDisplayBalance(startBal + (endBal - startBal) * eased)
+                      if (progress < 1) requestAnimationFrame(animateBalance)
+                      else setDisplayBalance(endBal)
+                    }
+                    requestAnimationFrame(animateBalance)
+                  }, 400)
+                  const chatStore = useChatStore.getState()
+                  chatStore.setIsOpen(true)
+                  chatStore.shareBetToChat([{
+                    eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
+                    selection: 'Mega Jackpot',
+                    odds: '💰',
+                    stake: 250000,
+                  }])
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -4127,8 +4292,8 @@ function HomePageContent() {
           </DrawerContent>
         </Drawer>
 
-      {/* Mobile: Dynamic Island Dock - Bottom of screen */}
-      {isMobile && (
+      {/* Mobile: Dynamic Island Dock - Bottom of screen (hidden during game launcher) */}
+      {isMobile && !selectedGame && (
         <DynamicIsland
           showSearch={false}
           showFavorites={false}
