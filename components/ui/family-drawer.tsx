@@ -3,13 +3,16 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Slot } from "@radix-ui/react-slot"
 import clsx from "clsx"
+import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "motion/react"
 import useMeasure from "react-use-measure"
 import { Drawer } from "vaul"
@@ -115,6 +118,24 @@ function FamilyDrawerRoot({
   const views =
     customViews && Object.keys(customViews).length > 0 ? customViews : undefined
 
+  // CRITICAL: Restore body scroll when drawer closes.
+  // Vaul can leave overflow:hidden on body even with modal=false.
+  useEffect(() => {
+    if (!isOpen) {
+      // Small delay to let vaul finish its cleanup
+      const timer = setTimeout(() => {
+        document.body.style.removeProperty('overflow')
+        document.body.style.removeProperty('pointer-events')
+        document.documentElement.style.removeProperty('overflow')
+        // Also remove vaul data attribute if lingering
+        if (document.body.getAttribute('data-vaul-drawer-open') === 'true') {
+          document.body.removeAttribute('data-vaul-drawer-open')
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
+
   const contextValue: FamilyDrawerContextValue = {
     isOpen,
     view,
@@ -132,7 +153,7 @@ function FamilyDrawerRoot({
         onOpenChange={setIsOpen}
         modal={false}
         shouldScaleBackground={false}
-        dismissible={false}
+        dismissible={true}
       >
         {children}
       </Drawer.Root>
@@ -221,15 +242,21 @@ function FamilyDrawerContent({
   className,
   asChild = false,
 }: FamilyDrawerContentProps) {
-  const { bounds } = useFamilyDrawer()
+  const { isOpen } = useFamilyDrawer()
+  const contentRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
 
-  // Calculate max height to prevent drawer from going under sub-nav
+  // Calculate max height cap
+  // On mobile: betslip covers everything (sub-nav, header), just leave safe area at top
+  // On desktop: stop before the sub-nav
   const topNavHeight = 64
   const subNavHeight = 56
-  const marginFromSubNav = 32
+  const safeMargin = isMobile ? 200 : 10
   const maxHeightValue = typeof window !== 'undefined' 
-    ? window.innerHeight - topNavHeight - subNavHeight - marginFromSubNav
-    : bounds.height
+    ? isMobile
+      ? window.innerHeight - safeMargin
+      : window.innerHeight - topNavHeight - subNavHeight - safeMargin
+    : 600
 
   // Always fixed at bottom, centered via mx-auto in className
   const positionStyle: React.CSSProperties = {
@@ -237,39 +264,42 @@ function FamilyDrawerContent({
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 9999,
+    zIndex: 99999,
   }
 
+  // Let the content determine its own natural height — just cap with maxHeight.
+  // Previous approach used useMeasure → targetHeight feedback loop which caused
+  // the drawer to get stuck at a small height (bounds measured inside the
+  // height-constrained parent would report 0, keeping the drawer collapsed).
   const content = (
-    <motion.div
-      animate={{
-        height: Math.min(bounds.height, maxHeightValue),
-        transition: {
-          duration: 0.27,
-          ease: [0.25, 1, 0.5, 1],
-        },
-      }}
+    <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        maxHeight: typeof window !== 'undefined' ? `${maxHeightValue}px` : 'none',
-        overflow: 'hidden',
+        maxHeight: `${maxHeightValue}px`,
+        overflow: 'clip',
+        borderTopLeftRadius: '7px',
+        borderTopRightRadius: '7px',
       }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 
   return (
     <Drawer.Content
+      ref={contentRef}
       asChild={asChild}
       className={clsx(
-        "fixed inset-x-0 bottom-0 z-[9999] w-full rounded-t-[8px] bg-background outline-none md:mx-auto md:max-w-[361px]",
+        "fixed inset-x-0 bottom-0 z-[99999] w-full rounded-t-[7px] bg-background outline-none md:mx-auto md:max-w-[361px]",
         className
       )}
       style={{
         pointerEvents: 'auto',
+        borderTopLeftRadius: '7px',
+        borderTopRightRadius: '7px',
+        overflow: 'hidden',
         ...positionStyle,
       }}
     >
@@ -296,10 +326,13 @@ function FamilyDrawerAnimatedWrapper({
   return (
     <div
       ref={elementRef}
-      className={clsx("px-6 pb-6 pt-2.5 antialiased w-full", className)}
+      className={cn("px-6 pb-6 pt-2.5 antialiased w-full rounded-t-[7px]", className)}
       style={{
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
+        flex: '1 1 auto',
+        minHeight: 0,
       }}
     >
       {children}
@@ -330,6 +363,12 @@ function FamilyDrawerAnimatedContent({
         transition={{
           duration: opacityDuration,
           ease: [0.26, 0.08, 0.25, 1],
+        }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: '1 1 auto',
+          minHeight: 0,
         }}
       >
         {children}

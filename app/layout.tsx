@@ -16,11 +16,15 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: '#0a0a0a',
 }
 
 export const metadata: Metadata = {
   title: 'AI Agency Studio',
   description: 'Game-like creative agency interface',
+  appleWebApp: {
+    statusBarStyle: 'black-translucent',
+  },
 }
 
 export default function RootLayout({

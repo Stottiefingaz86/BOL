@@ -855,7 +855,7 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 
 /* Drawer content should appear above page content */
 [data-vaul-drawer-direction] {
-  z-index: 9999 !important;
+  z-index: 99999 !important;
   pointer-events: auto !important;
 }
 
@@ -863,7 +863,16 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 body[data-vaul-drawer-open="true"],
 html[data-vaul-drawer-open="true"] {
   overflow: auto !important;
+  overflow-y: auto !important;
   position: static !important;
+  height: auto !important;
+  touch-action: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* CRITICAL: Ensure body never gets stuck with overflow:hidden after betslip closes */
+body {
+  touch-action: manipulation;
 }
 
 /* Ensure sub nav is fixed - positioned right below the header at 64px, after sidebar */
@@ -959,6 +968,45 @@ main[data-sidebar="inset"] > * {
 
 /* Sticky support is handled by .group/sidebar-wrapper and main[data-sidebar="inset"]
    rules above. No broad body > div overrides — they break vaul drawer portals. */
+
+/* ─── Dock Portal Root ─── */
+/* Dedicated container for the DynamicIsland mobile dock.
+   A MutationObserver in dynamic-island.tsx keeps this element as a direct
+   child of <body>, outside vaul's [data-vaul-drawer-wrapper].
+   This prevents any parent transform from breaking position:fixed on iOS Safari. */
+#dock-portal-root {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  z-index: 99990 !important;
+  /* CRITICAL: Prevent any transform/perspective that would create a new
+     containing block for position:fixed descendants on mobile Safari */
+  transform: none !important;
+  -webkit-transform: none !important;
+  will-change: auto !important;
+  contain: none !important;
+  perspective: none !important;
+  -webkit-perspective: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: none !important;
+}
+
+/* Also protect the dock from vaul wrapper styles if it ever ends up inside one */
+[data-vaul-drawer-wrapper] > #dock-portal-root,
+[data-vaul-drawer-wrapper] #dock-portal-root {
+  position: fixed !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
 
 /* ─── Chat Portal Root ─── */
 /* This container hosts the chat panel via React portal.

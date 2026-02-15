@@ -234,6 +234,7 @@ import {
   useFamilyDrawer,
   type ViewsRegistry,
 } from '@/components/ui/family-drawer'
+import { BetslipNumberPad } from '@/components/betslip/number-pad'
 
 // Available square tile images
 const squareTileImages = [
@@ -3560,86 +3561,130 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     return sum + toWin
   }, 0) + parlayPotentialWin
 
-  // Betslip Views - Clean, simple design
-  const BetslipDefaultView = () => {
-    const currencySymbol = '$'
-    const [isScrolled, setIsScrolled] = useState(false)
-    const [nudgeKey, setNudgeKey] = useState(0)
-    const scrollContainerRef = useRef<HTMLDivElement>(null)
-    const previousBetsLengthRef = useRef(bets.length)
-    // Local state for input values to prevent losing focus
-    const [localStakes, setLocalStakes] = useState<Record<string, string>>({})
-    const [localParlayStake, setLocalParlayStake] = useState<string>('')
-    const inputRefs = useRef<Record<string, HTMLInputElement>>({})
-    const focusedInputRef = useRef<string | null>(null)
-    const scrollLockRafRef = useRef<number | null>(null)
-    const savedScrollPositionRef = useRef<{ x: number; y: number } | null>(null)
-    
-    // Restore focus if input was focused before re-render
-    useEffect(() => {
-      if (focusedInputRef.current) {
-        const input = inputRefs.current[focusedInputRef.current]
-        if (input && document.activeElement !== input) {
-          // Use setTimeout to ensure DOM is ready
-          setTimeout(() => {
-            input.focus()
-            // Restore cursor position if possible
-            const length = input.value.length
-            input.setSelectionRange(length, length)
-          }, 0)
-        }
-      }
-    }, [localStakes])
-    
-    useEffect(() => {
-      const container = scrollContainerRef.current
-      if (!container) return
-      
-      const handleScroll = () => {
-        setIsScrolled(container.scrollTop > 0)
-      }
-      
-      container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
-    }, [])
+  // ── Betslip state hoisted to parent so it survives view re-renders ──
+  const currencySymbol = '$'
+  const [bsIsScrolled, setBsIsScrolled] = useState(false)
+  const [nudgeKey, setNudgeKey] = useState(0)
+  const bsScrollContainerRef = useRef<HTMLDivElement>(null)
+  const previousBetsLengthRef = useRef(bets.length)
+  const [localStakes, setLocalStakes] = useState<Record<string, string>>({})
+  const [localParlayStake, setLocalParlayStake] = useState<string>('')
+  const [numpadTarget, _setNumpadTarget] = useState<string | null>(null)
+  const numpadTargetRef = useRef<string | null>(null)
+  const setNumpadTarget = (val: string | null) => { numpadTargetRef.current = val; _setNumpadTarget(val) }
+  const inputRefs = useRef<Record<string, HTMLInputElement>>({})
+  const focusedInputRef = useRef<string | null>(null)
 
-    // Ensure scroll starts at top when bets change or drawer opens
-    useEffect(() => {
-      if (bets.length > 0 && betslipOpen && !betslipMinimized) {
-        // Use requestAnimationFrame to ensure DOM is ready
-        requestAnimationFrame(() => {
-          const container = scrollContainerRef.current
-          if (container) {
-            // Reset scroll to top to ensure first bet is visible
-            container.scrollTop = 0
-          }
-        })
-      }
-    }, [bets.length, betslipOpen, betslipMinimized])
-
-    // Track bets length changes separately
-    useEffect(() => {
-      const prevLength = previousBetsLengthRef.current
-      const newLength = bets.length
-      
-      // Only trigger if length actually increased
-      if (newLength > prevLength) {
-        console.log('🎯 Bets increased!', prevLength, '->', newLength, 'minimized:', betslipMinimized, 'mobile:', isMobile)
-        
-        // Trigger animation if minimized
-        if (betslipMinimized && !isMobile) {
-          console.log('✅✅✅ TRIGGERING NUDGE ANIMATION!')
-          setNudgeKey(prev => {
-            const newKey = prev + 1
-            console.log('🎬 Incrementing nudge key to:', newKey)
-            return newKey
-          })
+  // ── Betslip numpad handlers (parent scope so they survive re-renders) ──
+  const handleNumpadDigit = useCallback((digit: string) => {
+    const target = numpadTargetRef.current
+    if (!target) return
+    if (target === 'parlay') {
+      setLocalParlayStake(prev => {
+        const next = prev + digit
+        if (/^\d*\.?\d{0,2}$/.test(next)) {
+          setParlayStake(parseFloat(next) || 0)
+          return next
         }
+        return prev
+      })
+    } else {
+      setLocalStakes(prev => {
+        const current = prev[target] || ''
+        const next = current + digit
+        if (/^\d*\.?\d{0,2}$/.test(next)) {
+          updateBetStake(target, parseFloat(next) || 0)
+          return { ...prev, [target]: next }
+        }
+        return prev
+      })
+    }
+  }, [])
+
+  const handleNumpadBackspace = useCallback(() => {
+    const target = numpadTargetRef.current
+    if (!target) return
+    if (target === 'parlay') {
+      setLocalParlayStake(prev => {
+        const next = prev.slice(0, -1)
+        setParlayStake(parseFloat(next) || 0)
+        return next
+      })
+    } else {
+      setLocalStakes(prev => {
+        const next = (prev[target] || '').slice(0, -1)
+        updateBetStake(target, parseFloat(next) || 0)
+        return { ...prev, [target]: next }
+      })
+    }
+  }, [])
+
+  const handleNumpadDone = useCallback(() => {
+    const target = numpadTargetRef.current
+    if (!target) return
+    if (target === 'parlay') {
+      setLocalParlayStake('')
+    } else {
+      setLocalStakes(prev => { const n = { ...prev }; delete n[target]; return n })
+    }
+    setNumpadTarget(null)
+  }, [])
+
+  const handleQuickAmount = useCallback((amount: number) => {
+    const target = numpadTargetRef.current
+    if (!target) return
+    const str = amount.toString()
+    if (target === 'parlay') {
+      setLocalParlayStake(str)
+      setParlayStake(amount)
+    } else {
+      setLocalStakes(prev => ({ ...prev, [target]: str }))
+      updateBetStake(target, amount)
+    }
+  }, [])
+
+  // ── Betslip effects (parent scope so they don't re-run on view remount) ──
+  useEffect(() => {
+    const container = bsScrollContainerRef.current
+    if (!container) return
+    const handleScroll = () => setBsIsScrolled(container.scrollTop > 0)
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [betslipOpen])
+
+  useEffect(() => {
+    if (!isMobile || !numpadTarget) return
+    const container = bsScrollContainerRef.current
+    if (!container) return
+    const timer = setTimeout(() => {
+      const inputEl = numpadTarget === 'parlay'
+        ? container.querySelector('input[data-vaul-no-drag]')
+        : inputRefs.current[numpadTarget]
+      if (!inputEl) return
+      const cr = container.getBoundingClientRect()
+      const ir = inputEl.getBoundingClientRect()
+      if (ir.bottom > cr.bottom - 10) {
+        container.scrollBy({ top: ir.bottom - cr.bottom + 30, behavior: 'smooth' })
+      } else if (ir.top < cr.top + 10) {
+        container.scrollBy({ top: ir.top - cr.top - 30, behavior: 'smooth' })
       }
-      
-      // Update ref for next comparison
-      previousBetsLengthRef.current = newLength
-    }, [bets.length, betslipMinimized, isMobile])
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [isMobile, numpadTarget])
+
+  useEffect(() => {
+    const prevLength = previousBetsLengthRef.current
+    const newLength = bets.length
+    if (newLength > prevLength && betslipMinimized && !isMobile) {
+      setNudgeKey(prev => prev + 1)
+    }
+    previousBetsLengthRef.current = newLength
+  }, [bets.length, betslipMinimized, isMobile])
+
+  // Betslip Views — pure render function (called directly, NOT as <Component/>)
+  const renderBetslipDefault = () => {
+    const isScrolled = bsIsScrolled
+    const scrollContainerRef = bsScrollContainerRef
 
     // On mobile, don't show minimized state - just close
     // Minimized state - just header bar (desktop only)
@@ -3664,7 +3709,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         >
           <div className="flex items-center gap-2">
             {bets.length > 0 && (
-              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded">
+              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-md">
                 <span className="text-xs font-semibold text-white leading-none">{bets.length}</span>
               </div>
             )}
@@ -3679,7 +3724,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               e.stopPropagation()
               setBetslipMinimized(false)
             }}
-            className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black flex items-center gap-1"
+            className="text-[10px] font-semibold uppercase tracking-wide text-black/60 hover:text-black/80 flex items-center gap-1 px-2.5 py-1 rounded-md border border-black/20 hover:border-black/30 transition-colors"
           >
             <IconChevronUp className="w-3 h-3" />
             SHOW
@@ -3689,27 +3734,30 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     }
     // Expanded state
     return (
-      <div className="relative flex flex-col w-full" 
+      <div className="flex flex-col w-full" 
         style={{ 
           display: 'flex', 
           flexDirection: 'column', 
-          position: 'relative', 
-          height: '100%',
-          maxHeight: '100%',
-          minHeight: 0,
-          overflow: 'hidden',
-          boxSizing: 'border-box'
+          maxHeight: isMobile
+            ? ('calc(100vh - 200px)')
+            : 'calc(100vh - 170px)',
         }}
       >
+        {/* Drag Handle - Mobile Only */}
+        {isMobile && (
+          <div className="flex justify-center pt-2 pb-0.5 shrink-0 cursor-grab active:cursor-grabbing">
+            <div className="w-10 h-1 bg-black/20 rounded-full" />
+          </div>
+        )}
         {/* Header - Always visible at top - Glass effect when scrolled */}
-        <div className={cn("px-2 py-1.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, flexGrow: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'white' }}>
+        <div className={cn("px-3 py-2.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, flexGrow: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.95)' : 'white' }}>
                 <div className="flex items-center gap-2">
                   {bets.length > 0 && (
-              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded">
+              <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-md">
                 <span className="text-xs font-semibold text-white leading-none">{bets.length}</span>
                     </div>
                   )}
-            <h2 className="text-sm font-medium text-black/90">Betslip</h2>
+            <h2 className="text-sm font-semibold text-black/90">Betslip</h2>
                 </div>
                 {bets.length > 0 && (
                   <button
@@ -3718,25 +3766,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       e.stopPropagation()
                 if (isMobile) {
                   setBetslipOpen(false)
-                  // Mark as manually closed so it won't auto-open again
                   setBetslipManuallyClosed(true)
                 } else {
                   setBetslipMinimized(true)
                 }
               }}
-              className="text-[10px] font-semibold uppercase tracking-wide text-black/70 hover:text-black flex items-center gap-1"
+              className="text-[10px] font-semibold uppercase tracking-wide text-black/60 hover:text-black/80 flex items-center gap-1 px-2.5 py-1 rounded-md border border-black/20 hover:border-black/30 transition-colors"
             >
-              {isMobile ? (
-                <>
-                  <IconX className="w-3 h-3" />
-                  CLOSE
-                </>
-              ) : (
-                <>
-                  <IconChevronDown className="w-3 h-3" />
+              <IconChevronDown className="w-3 h-3" />
                   MINIMIZE
-                </>
-              )}
                   </button>
                 )}
             </div>
@@ -3767,16 +3805,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             ) : (
           <div 
             ref={scrollContainerRef} 
-            className="overscroll-contain" 
+            data-vaul-no-drag=""
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             style={{ 
               flex: '1 1 auto',
               minHeight: 0,
               overflowY: 'auto', 
               overflowX: 'hidden', 
-              WebkitOverflowScrolling: 'touch', 
-              position: 'relative', 
-              zIndex: 1,
-              paddingBottom: '70px' // Space for the fixed button
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+              overscrollBehavior: 'auto',
             }}
           >
               {/* Straight Bets - Scrollable list in middle section - Tighter, cleaner design */}
@@ -3792,6 +3831,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       e.stopPropagation()
                         // Clear all bets - this will trigger re-render and clear highlighting
                         setBets([])
+                        setParlayStake(0)
+                        setLocalParlayStake('')
+                        setLocalStakes({})
+                        setNumpadTarget(null)
                         setBetslipOpen(false)
                         setBetslipMinimized(false)
                         // Reset manually closed flag so next first bet will open betslip
@@ -3864,120 +3907,63 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         </div>
 
                     {/* Stake Input - Smaller, tighter */}
-                    <div className="flex-shrink-0 w-[110px] min-w-[110px]">
-                      <div className="border border-black/5 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
-                          <span className="absolute left-1.5 text-xs text-black/50 z-10">$</span>
+                    <div className="flex-shrink-0 w-[100px] min-w-[100px]">
+                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8BC34A] focus-within:ring-1 focus-within:ring-[#8BC34A]/30 transition-all", numpadTarget === bet.id ? "border-[#8BC34A] ring-1 ring-[#8BC34A]/30" : "border-black/10")}>
+                          <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                           <input
+                            data-vaul-no-drag=""
                             ref={(el) => {
                               if (el) inputRefs.current[bet.id] = el
                             }}
                             type="text"
-                            inputMode="decimal"
-                            value={localStakes[bet.id] !== undefined ? localStakes[bet.id] : (bet.stake > 0 ? bet.stake.toString() : '')}
-                            onChange={(e) => {
-                              // Prevent any scroll during typing
-                              if (savedScrollPositionRef.current) {
-                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                              }
-                              
-                              const val = e.target.value.replace(/[^0-9.]/g, '')
-                              // Allow decimals: allow empty, single dot, or valid decimal number
-                              if (val === '' || val === '.' || /^\d*\.?\d*$/.test(val)) {
-                                // Only update local state - don't update bet.stake to prevent re-renders
-                                // "To Win" will update in real-time because it uses localStakes[bet.id]
-                                setLocalStakes(prev => ({ ...prev, [bet.id]: val }))
-                                
-                                // Re-lock scroll after state update
-                                requestAnimationFrame(() => {
-                                  if (savedScrollPositionRef.current) {
-                                    window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                                  }
-                                })
+                            inputMode={isMobile ? "none" : "decimal"}
+                            enterKeyHint={isMobile ? undefined : "done"}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            readOnly={isMobile}
+                            onClick={() => {
+                              if (isMobile) {
+                                setNumpadTarget(bet.id)
+                                if (localStakes[bet.id] === undefined) {
+                                  setLocalStakes(prev => ({ ...prev, [bet.id]: bet.stake === 0 ? '' : bet.stake.toString() }))
+                                }
                               }
                             }}
+                            value={localStakes[bet.id] !== undefined ? localStakes[bet.id] : (bet.stake > 0 ? bet.stake.toString() : '')}
+                            onChange={(e) => {
+                              if (isMobile) return
+                              const val = e.target.value.replace(/[^0-9.]/g, '')
+                              if (val === '' || val === '.' || /^\d*\.?\d*$/.test(val)) {
+                                setLocalStakes(prev => ({ ...prev, [bet.id]: val }))
+                              }
+                            }}
+                            onPointerDown={(e) => {
+                              if (isMobile) { e.preventDefault(); e.stopPropagation() }
+                            }}
                             onFocus={(e) => {
-                              // Track which input is focused
+                              if (isMobile) {
+                                setNumpadTarget(bet.id)
+                                if (localStakes[bet.id] === undefined) {
+                                  setLocalStakes(prev => ({ ...prev, [bet.id]: bet.stake === 0 ? '' : bet.stake.toString() }))
+                                }
+                                e.target.blur()
+                                return
+                              }
                               focusedInputRef.current = bet.id
-                              // Initialize local state if not set - start empty
                               if (localStakes[bet.id] === undefined) {
                                 setLocalStakes(prev => ({ ...prev, [bet.id]: bet.stake === 0 ? '' : bet.stake.toString() }))
                               }
-                              // Select all text for easy replacement
                               e.target.select()
-                              
-                              // Store current window scroll position in ref so it persists through re-renders
-                              savedScrollPositionRef.current = {
-                                x: window.scrollX,
-                                y: window.scrollY
-                              }
-                              const input = e.target as HTMLInputElement
-                              
-                              // Prevent page scrolling by locking scroll position
-                              const lockScroll = () => {
-                                if (focusedInputRef.current === bet.id && savedScrollPositionRef.current) {
-                                  if (window.scrollY !== savedScrollPositionRef.current.y || window.scrollX !== savedScrollPositionRef.current.x) {
-                                    window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                                  }
-                                }
-                              }
-                              
-                              // Lock scroll position - use requestAnimationFrame for better performance
-                              // Clear any existing scroll lock
-                              if (scrollLockRafRef.current !== null) {
-                                cancelAnimationFrame(scrollLockRafRef.current)
-                              }
-                              
-                              const lockScrollLoop = () => {
-                                if (focusedInputRef.current === bet.id) {
-                                  lockScroll()
-                                  scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
-                                } else {
-                                  scrollLockRafRef.current = null
-                                }
-                              }
-                              scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
-                              
-                              // Only scroll within betslip container if needed
-                              const scrollContainer = scrollContainerRef.current
-                              if (scrollContainer) {
-                                requestAnimationFrame(() => {
-                                  const inputRect = input.getBoundingClientRect()
-                                  const containerRect = scrollContainer.getBoundingClientRect()
-                                  
-                                  if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
-                                    const inputOffsetTop = input.offsetTop - scrollContainer.offsetTop
-                                    scrollContainer.scrollTo({
-                                      top: inputOffsetTop - 10,
-                                      behavior: 'smooth'
-                                    })
-                                  }
-                                })
-                              }
                             }}
                             onBlur={(e) => {
-                              // Clear focused input ref
+                              if (isMobile && numpadTargetRef.current) return
                               if (focusedInputRef.current === bet.id) {
                                 focusedInputRef.current = null
                               }
-                              
-                              // Stop scroll lock
-                              if (scrollLockRafRef.current !== null) {
-                                cancelAnimationFrame(scrollLockRafRef.current)
-                                scrollLockRafRef.current = null
-                              }
-                              
-                              // Restore scroll position one final time
-                              if (savedScrollPositionRef.current) {
-                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                                savedScrollPositionRef.current = null
-                              }
-                              
                               const val = e.target.value
                               const num = val === '' || val === '.' ? 0 : parseFloat(val)
                               const finalVal = isNaN(num) || num < 0 ? 0 : num
-                              // Update the bet stake
                               updateBetStake(bet.id, finalVal)
-                              // Clear local state so it will show the actual saved value
                               setLocalStakes(prev => {
                                 const next = { ...prev }
                                 delete next[bet.id]
@@ -3998,34 +3984,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 e.currentTarget.blur()
                               }
                             }}
-                            className="border-0 bg-transparent text-xs h-full p-0 pl-4 pr-6 text-right focus-visible:outline-none focus-visible:ring-0 text-black w-full overflow-visible placeholder:text-black/40"
-                            placeholder="Enter Risk"
-                            style={{ WebkitAppearance: 'none', MozAppearance: 'textfield', minWidth: 0 }}
+                            className="border-0 bg-transparent h-full p-0 pl-5 pr-1 text-right focus-visible:outline-none focus-visible:ring-0 text-black font-medium w-full overflow-visible placeholder:text-black/30 placeholder:font-normal"
+                            placeholder="0.00"
+                            style={{ fontSize: '16px', WebkitAppearance: 'none', MozAppearance: 'textfield' as any, minWidth: 0 }}
                           />
-                        <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              updateBetStake(bet.id, (bet.stake || 0) + 1)
-                            }}
-                            className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
-                          >
-                            <IconChevronUp className="w-2 h-2 text-black/40" strokeWidth={3} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                                e.preventDefault()
-                              e.stopPropagation()
-                              updateBetStake(bet.id, Math.max(0, (bet.stake || 0) - 1))
-                            }}
-                            className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
-                          >
-                            <IconChevronDown className="w-2 h-2 text-black/40" strokeWidth={3} />
-                          </button>
-                        </div>
+
                       </div>
                       <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
                         To Win {currencySymbol}{toWin.toFixed(2)}
@@ -4065,111 +4028,51 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </div>
 
                   {/* Parlay Stake Input - Smaller */}
-                  <div className="flex-shrink-0 w-[110px] min-w-[110px]">
-                    <div className="border border-black/15 rounded h-[36px] flex items-center justify-end px-1.5 relative bg-white">
-                      <span className="absolute left-1.5 text-xs text-black/50 z-10">$</span>
+                  <div className="flex-shrink-0 w-[100px] min-w-[100px]">
+                    <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8BC34A] focus-within:ring-1 focus-within:ring-[#8BC34A]/30 transition-all", numpadTarget === 'parlay' ? "border-[#8BC34A] ring-1 ring-[#8BC34A]/30" : "border-black/10")}>
+                      <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                       <input
                         type="text"
-                        inputMode="decimal"
+                        inputMode={isMobile ? "none" : "decimal"}
+                        enterKeyHint={isMobile ? undefined : "done"}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        readOnly={isMobile}
                         value={localParlayStake !== '' ? localParlayStake : (parlayStake > 0 ? parlayStake.toString() : '')}
                         onChange={(e) => {
-                          // Prevent any scroll during typing
-                          if (savedScrollPositionRef.current) {
-                            window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                          }
-                          
+                          if (isMobile) return
                           const val = e.target.value.replace(/[^0-9.]/g, '')
-                          // Allow decimals: allow empty, single dot, or valid decimal number
                           if (val === '' || val === '.' || /^\d*\.?\d*$/.test(val)) {
-                            // Only update local state - don't update parlayStake to prevent re-renders
-                            // "To Win" will update in real-time because it uses localParlayStake
                             setLocalParlayStake(val)
-                            
-                            // Re-lock scroll after state update
-                            requestAnimationFrame(() => {
-                              if (savedScrollPositionRef.current) {
-                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                              }
-                            })
+                          }
+                        }}
+                        onPointerDown={(e) => {
+                          if (isMobile) { e.preventDefault(); e.stopPropagation() }
+                        }}
+                        onClick={() => {
+                          if (isMobile) {
+                            setNumpadTarget('parlay')
+                            if (localParlayStake === '') setLocalParlayStake(parlayStake > 0 ? parlayStake.toString() : '')
                           }
                         }}
                         onFocus={(e) => {
-                          // Track that parlay input is focused
+                          if (isMobile) {
+                            setNumpadTarget('parlay')
+                            if (localParlayStake === '') setLocalParlayStake(parlayStake > 0 ? parlayStake.toString() : '')
+                            e.target.blur()
+                            return
+                          }
                           focusedInputRef.current = 'parlay'
-                          // Initialize local state if not set - start empty
                           if (localParlayStake === '') {
                             setLocalParlayStake('')
                           }
-                          // Select all text for easy replacement
                           e.target.select()
-                          
-                          // Store current window scroll position in ref so it persists through re-renders
-                          savedScrollPositionRef.current = {
-                            x: window.scrollX,
-                            y: window.scrollY
-                          }
-                          const input = e.target as HTMLInputElement
-                          
-                          // Prevent page scrolling by locking scroll position
-                          const lockScroll = () => {
-                            if (focusedInputRef.current === 'parlay' && savedScrollPositionRef.current) {
-                              if (window.scrollY !== savedScrollPositionRef.current.y || window.scrollX !== savedScrollPositionRef.current.x) {
-                                window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                              }
-                            }
-                          }
-                          
-                          // Lock scroll position - use requestAnimationFrame for better performance
-                          // Clear any existing scroll lock
-                          if (scrollLockRafRef.current !== null) {
-                            cancelAnimationFrame(scrollLockRafRef.current)
-                          }
-                          
-                          const lockScrollLoop = () => {
-                            if (focusedInputRef.current === 'parlay') {
-                              lockScroll()
-                              scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
-                            } else {
-                              scrollLockRafRef.current = null
-                            }
-                          }
-                          scrollLockRafRef.current = requestAnimationFrame(lockScrollLoop)
-                          
-                          // Only scroll within betslip container if needed
-                          const scrollContainer = scrollContainerRef.current
-                          if (scrollContainer) {
-                            requestAnimationFrame(() => {
-                              const inputRect = input.getBoundingClientRect()
-                              const containerRect = scrollContainer.getBoundingClientRect()
-                              
-                              if (inputRect.top < containerRect.top || inputRect.bottom > containerRect.bottom) {
-                                const inputOffsetTop = input.offsetTop - scrollContainer.offsetTop
-                                scrollContainer.scrollTo({
-                                  top: inputOffsetTop - 10,
-                                  behavior: 'smooth'
-                                })
-                              }
-                            })
-                          }
                         }}
                         onBlur={(e) => {
-                          // Clear focused input ref
+                          if (isMobile && numpadTargetRef.current) return
                           if (focusedInputRef.current === 'parlay') {
                             focusedInputRef.current = null
                           }
-                          
-                          // Stop scroll lock
-                          if (scrollLockRafRef.current !== null) {
-                            cancelAnimationFrame(scrollLockRafRef.current)
-                            scrollLockRafRef.current = null
-                          }
-                          
-                          // Restore scroll position one final time
-                          if (savedScrollPositionRef.current) {
-                            window.scrollTo(savedScrollPositionRef.current.x, savedScrollPositionRef.current.y)
-                            savedScrollPositionRef.current = null
-                          }
-                          
                           const val = e.target.value
                           const num = val === '' || val === '.' ? 0 : parseFloat(val)
                           const finalVal = isNaN(num) || num < 0 ? 0 : num
@@ -4191,34 +4094,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             e.currentTarget.blur()
                           }
                         }}
-                        className="border-0 bg-transparent text-xs h-full p-0 pl-4 pr-6 text-right focus-visible:outline-none focus-visible:ring-0 text-black w-full overflow-visible placeholder:text-black/40"
-                        placeholder="Enter Risk"
-                        style={{ WebkitAppearance: 'none', MozAppearance: 'textfield', minWidth: 0 }}
+                        className="border-0 bg-transparent h-full p-0 pl-5 pr-1 text-right focus-visible:outline-none focus-visible:ring-0 text-black font-medium w-full overflow-visible placeholder:text-black/30 placeholder:font-normal"
+                        placeholder="0.00"
+                        style={{ fontSize: '16px', WebkitAppearance: 'none', MozAppearance: 'textfield' as any, minWidth: 0 }}
                       />
-                      <div className="absolute right-0.5 top-0.5 bottom-0.5 flex flex-col gap-0.5 z-10 pointer-events-none">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                            setParlayStake((prev) => prev + 1)
-                              }}
-                          className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
-                            >
-                          <IconChevronUp className="w-2 h-2 text-black/40" strokeWidth={3} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                            setParlayStake((prev) => Math.max(0, prev - 1))
-                              }}
-                          className="w-2.5 h-2.5 flex items-center justify-center hover:bg-black/5 rounded pointer-events-auto"
-                            >
-                          <IconChevronDown className="w-2 h-2 text-black/40" strokeWidth={3} />
-                            </button>
-                          </div>
+
                         </div>
                     <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
                       To Win {currencySymbol}{currentParlayPotentialWin.toFixed(2)}
@@ -4232,9 +4112,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           </div>
         )}
                 
-        {/* Summary and Place Bet - Always visible at bottom, fixed position */}
+        {/* Summary and Place Bet - Always visible above keyboard */}
                 {bets.length > 0 && (
-          <div className="px-2 pt-2 pb-2 border-t border-black/5 bg-white backdrop-blur-sm" style={{ height: '70px', flexShrink: 0, position: 'absolute', bottom: 0, left: 0, right: 0, width: '100%', zIndex: 30, backgroundColor: 'white' }}>
+          <div className="px-3 pt-2 pb-2 border-t border-white/10 shrink-0" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'saturate(180%) blur(30px)', WebkitBackdropFilter: 'saturate(180%) blur(30px)' }}>
                     <button
                       onClick={() => {
                         if (bets.length === 0 || totalStake === 0) return
@@ -4270,10 +4150,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       }}
                       disabled={totalStake === 0}
                       className={cn(
-                  "w-full py-2 rounded transition-colors flex flex-col items-center justify-center",
+                  "w-full py-3 rounded-lg transition-all flex flex-col items-center justify-center font-medium shadow-sm",
                         totalStake > 0 
-                    ? "bg-[#8BC34A] text-white hover:bg-[#7CB342]" 
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    ? "bg-[#8BC34A] text-white hover:bg-[#7CB342] active:scale-[0.98]" 
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       )}
                     >
                       <span className="text-xs font-medium uppercase tracking-wide">
@@ -4288,6 +4168,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     </button>
                   </div>
                 )}
+
+        {/* Custom Number Pad - Mobile Only - Below Place Bet */}
+        {isMobile && numpadTarget && (
+          <BetslipNumberPad
+            onDigit={handleNumpadDigit}
+            onBackspace={handleNumpadBackspace}
+            onDone={handleNumpadDone}
+            onQuickAmount={handleQuickAmount}
+          />
+        )}
 
       </div>
     )
@@ -4313,8 +4203,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     const { setView } = useFamilyDrawer()
     
     return (
-      <div className="flex flex-col w-full h-full bg-white" style={{ minHeight: '400px' }}>
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+      <div className="flex flex-col w-full bg-white" style={{ maxHeight: 'inherit', overflow: 'auto' }}>
+        <div className="flex flex-col items-center justify-center px-6 py-6">
           {/* Success Icon */}
           <div className="mb-4">
             <div className="w-16 h-16 rounded-full bg-[#8BC34A] flex items-center justify-center">
@@ -4334,6 +4224,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 setView('default')
                 setShowConfirmation(false)
                 setBets([])
+                setParlayStake(0)
+                setLocalParlayStake('')
+                setLocalStakes({})
+                setNumpadTarget(null)
                 setBetslipOpen(false)
                 setMyBetsAlertCount(0)
                 setBetslipManuallyClosed(false)
@@ -4347,6 +4241,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 setView('default')
                 setShowConfirmation(false)
                 setBets([])
+                setParlayStake(0)
+                setLocalParlayStake('')
+                setLocalStakes({})
+                setNumpadTarget(null)
                 setBetslipOpen(false)
                 setBetslipManuallyClosed(false)
               }}
@@ -4437,7 +4335,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   }
 
   const betslipViews: ViewsRegistry = {
-    default: BetslipDefaultView,
+    default: () => <>{renderBetslipDefault()}</>,
     confirmation: BetslipConfirmationView,
   }
 
@@ -5795,7 +5693,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   WebkitOverflowScrolling: 'touch',
                   touchAction: 'pan-x',
                   overscrollBehaviorX: 'contain',
-                  overscrollBehavior: 'contain',
+                  overscrollBehavior: 'auto',
                   scrollSnapType: 'x mandatory',
                   width: '100%',
                   maxWidth: '100%',
@@ -7607,14 +7505,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             setBetslipOpen(false)
             setBetslipMinimized(false)
             setShowConfirmation(false)
-            // On mobile, mark as manually closed so it won't auto-open again
-            // This happens whenever user closes betslip, regardless of bet count
+            // Restore body scroll when betslip closes
+            document.body.style.overflow = 'auto'
+            document.body.style.position = ''
+            document.body.style.touchAction = ''
             if (isMobile) {
               setBetslipManuallyClosed(true)
             }
           } else if (open) {
             setBetslipOpen(true)
-            // When user manually opens, reset the flag
             if (isMobile) {
               setBetslipManuallyClosed(false)
             }
@@ -7622,15 +7521,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         }}
       >
         <FamilyDrawerContent 
-          className="bg-white rounded-t-2xl"
+          className="bg-white rounded-t-[7px] shadow-2xl"
         >
           <FamilyDrawerAnimatedWrapper 
-            key={`betslip-${bets.length}-${betslipMinimized}`}
+            key={`betslip-${betslipMinimized}`}
             className="px-0 py-0"
           >
             <FamilyDrawerAnimatedContent>
               <BetslipViewSwitcher />
-              <FamilyDrawerViewContent />
+              {showConfirmation ? <BetslipConfirmationView /> : renderBetslipDefault()}
             </FamilyDrawerAnimatedContent>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
@@ -8435,7 +8334,7 @@ function NavTestPageContent() {
   const [gameSortFilter, setGameSortFilter] = useState<string>('popular')
   const [activeIconTab, setActiveIconTab] = useState('search')
   const [quickLinksOpen, setQuickLinksOpen] = useState(false)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollYRef = useRef(0)
   const [depositDrawerOpen, setDepositDrawerOpen] = useState(false)
   const [depositAmount, setDepositAmount] = useState(25)
   const [useManualAmount, setUseManualAmount] = useState(false)
@@ -8812,20 +8711,20 @@ function NavTestPageContent() {
       if (currentScrollY < 10) {
         // Show at top
         setQuickLinksOpen(true)
-      } else if (currentScrollY < lastScrollY) {
+      } else if (currentScrollY < lastScrollYRef.current) {
         // Show when scrolling up
         setQuickLinksOpen(true)
-      } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+      } else if (currentScrollY > lastScrollYRef.current && currentScrollY > 50) {
         // Hide when scrolling down (after 50px)
         setQuickLinksOpen(false)
       }
       
-      setLastScrollY(currentScrollY)
+      lastScrollYRef.current = currentScrollY
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isMobile, lastScrollY])
+  }, [isMobile])
 
   // Ensure component is mounted before showing animations
   useEffect(() => {
