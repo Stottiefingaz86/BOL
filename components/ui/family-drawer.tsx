@@ -251,7 +251,7 @@ function FamilyDrawerContent({
   // On desktop: stop before the sub-nav
   const topNavHeight = 64
   const subNavHeight = 56
-  const safeMargin = isMobile ? 120 : 10
+  const safeMargin = isMobile ? 200 : 10
   const viewportHeight = typeof window !== 'undefined'
     ? (isMobile && window.visualViewport ? window.visualViewport.height : window.innerHeight)
     : 800
@@ -278,7 +278,7 @@ function FamilyDrawerContent({
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        maxHeight: isMobile ? `min(${maxHeightValue}px, calc(100dvh - 120px))` : `${maxHeightValue}px`,
+        maxHeight: isMobile ? `min(${maxHeightValue}px, calc(100dvh - 200px))` : `${maxHeightValue}px`,
         overflow: 'clip',
         borderTopLeftRadius: '7px',
         borderTopRightRadius: '7px',

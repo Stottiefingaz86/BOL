@@ -351,7 +351,7 @@ function BetslipDefaultView() {
 
   // Expanded state
   return (
-    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100dvh - 120px)' : 'calc(100vh - 170px)' }}>
+    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100dvh - 200px)' : 'calc(100vh - 170px)' }}>
       {/* Drag Handle - Mobile Only */}
       {isMobile && (
         <div className="flex justify-center pt-2 pb-0.5 shrink-0 cursor-grab active:cursor-grabbing">
@@ -441,7 +441,7 @@ function BetslipDefaultView() {
                 return (
                   <div
                     key={bet.id}
-                    className="relative overflow-hidden border-b border-black/5 last:border-b-0 rounded"
+                    className="relative overflow-hidden rounded-lg mb-1.5 last:mb-0"
                     onTouchStart={(e) => {
                       const touch = e.touches[0]
                       const el = e.currentTarget
@@ -494,7 +494,7 @@ function BetslipDefaultView() {
                         <IconTrash className="w-4 h-4 text-white" />
                       </div>
                     )}
-                    <div data-bet-inner="" className="flex items-start gap-2 py-2 px-2 bg-[#f5f5f5] rounded relative" style={{ zIndex: 1 }}>
+                    <div data-bet-inner="" className="flex items-start gap-2.5 py-2.5 px-2.5 bg-[#f5f5f5] rounded-lg border border-black/[0.04] relative" style={{ zIndex: 1 }}>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeBet(bet.id) }}
                       className="mt-0.5 flex-shrink-0 w-4 h-4 flex items-center justify-center hover:bg-black/5 rounded"
@@ -550,7 +550,9 @@ function BetslipDefaultView() {
                         </>
                       )}
                     </div>
-                    <div className="flex-shrink-0 text-xs font-medium text-black mr-1.5 w-10 text-right">{bet.odds}</div>
+                    <div className="flex-shrink-0 bg-black/[0.06] rounded-md px-2 py-1 mr-1">
+                          <span className="text-[11px] font-semibold text-black/80 whitespace-nowrap">{bet.odds}</span>
+                        </div>
                     <div className="flex-shrink-0 w-[100px] min-w-[100px]">
                       <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8BC34A] focus-within:ring-1 focus-within:ring-[#8BC34A]/30 transition-all", numpadTarget === bet.id ? "border-[#8BC34A] ring-1 ring-[#8BC34A]/30" : "border-black/10")}>
                         <span className="absolute left-2 text-xs text-black/50 z-10">$</span>

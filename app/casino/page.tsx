@@ -6290,7 +6290,6 @@ const cashTournamentsData = [
     gameId: 14274,
     startDate: new Date('2026-02-09T00:00:00'),
     endDate: new Date('2026-02-16T00:00:00'),
-    entryFee: '$5.00',
     tag: 'Exclusive' as const,
     betRange: '$0.20 - $10.00',
     leaderboard: [
@@ -6317,7 +6316,6 @@ const cashTournamentsData = [
     gameId: 15832,
     startDate: new Date('2026-02-12T00:00:00'),
     endDate: new Date('2026-02-18T06:00:00'),
-    entryFee: '$10.00',
     tag: 'Hot' as const,
     betRange: '$0.50 - $25.00',
     leaderboard: [
@@ -6344,7 +6342,6 @@ const cashTournamentsData = [
     gameId: 16501,
     startDate: new Date('2026-02-10T00:00:00'),
     endDate: new Date('2026-02-20T00:00:00'),
-    entryFee: '$2.50',
     tag: 'New' as const,
     betRange: '$0.10 - $5.00',
     leaderboard: [
@@ -6371,7 +6368,6 @@ const cashTournamentsData = [
     gameId: 13847,
     startDate: new Date('2026-02-14T00:00:00'),
     endDate: new Date('2026-02-19T12:00:00'),
-    entryFee: '$20.00',
     tag: 'Exclusive' as const,
     betRange: '$1.00 - $50.00',
     leaderboard: [
@@ -6394,7 +6390,6 @@ const cashTournamentsData = [
     gameId: 17203,
     startDate: new Date('2026-02-11T00:00:00'),
     endDate: new Date('2026-02-17T14:00:00'),
-    entryFee: '$7.50',
     tag: 'Early' as const,
     betRange: '$0.25 - $15.00',
     leaderboard: [
@@ -6421,7 +6416,6 @@ const cashTournamentsData = [
     gameId: 12956,
     startDate: new Date('2026-02-14T00:00:00'),
     endDate: new Date('2026-02-21T08:00:00'),
-    entryFee: '$15.00',
     tag: 'Hot' as const,
     betRange: '$0.50 - $20.00',
     leaderboard: [
@@ -6446,7 +6440,6 @@ const freerollTournamentsData = [
     gameId: 14275,
     startDate: new Date('2026-02-10T00:00:00'),
     endDate: new Date('2026-02-17T00:00:00'),
-    entryFee: 'FREE',
     tag: 'New' as const,
     betRange: '$0.10 - $1.00',
     leaderboard: [
@@ -6473,7 +6466,6 @@ const freerollTournamentsData = [
     gameId: 16502,
     startDate: new Date('2026-02-13T00:00:00'),
     endDate: new Date('2026-02-15T00:00:00'),
-    entryFee: 'FREE',
     tag: 'Hot' as const,
     betRange: '$0.05 - $0.50',
     leaderboard: [
@@ -6498,7 +6490,6 @@ const freerollTournamentsData = [
     gameId: 15833,
     startDate: new Date('2026-02-08T00:00:00'),
     endDate: new Date('2026-02-18T00:00:00'),
-    entryFee: 'FREE',
     tag: 'Exclusive' as const,
     betRange: '$0.10 - $2.00',
     leaderboard: [
@@ -6525,7 +6516,6 @@ const freerollTournamentsData = [
     gameId: 13848,
     startDate: new Date('2026-02-12T00:00:00'),
     endDate: new Date('2026-02-16T04:00:00'),
-    entryFee: 'FREE',
     tag: 'Early' as const,
     betRange: '$0.05 - $1.00',
     leaderboard: [
@@ -9449,7 +9439,7 @@ function NavTestPageContent() {
                               </div>
                               <p className="text-sm text-white/60">
                                 {tournamentTab === 'cash' 
-                                  ? 'Cash Tournaments are played with real money. Entry fees apply.'
+                                  ? 'Cash Tournaments are played with real money. No entry fee required!'
                                   : 'Freeroll Tournaments are free to enter. No entry fee required!'}
                               </p>
                             </div>
@@ -9520,7 +9510,6 @@ function NavTestPageContent() {
                                     {/* Info rows */}
                                     <div className="space-y-1">
                                       {[
-                                        { icon: <IconCoins className="w-3 h-3 shrink-0 text-white/50" />, label: 'Fee', value: tournament.entryFee, bold: true },
                                         { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
                                         { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
                                         { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },
@@ -11221,7 +11210,6 @@ function NavTestPageContent() {
                                       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2 flex-1">
                                         <div className="space-y-1">
                                           {[
-                                            { icon: <IconCoins className="w-3 h-3 shrink-0 text-white/50" />, label: 'Fee', value: tournament.entryFee, bold: true },
                                             { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
                                             { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
                                             { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },

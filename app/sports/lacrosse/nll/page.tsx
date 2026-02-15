@@ -3792,7 +3792,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           display: 'flex', 
           flexDirection: 'column', 
           maxHeight: isMobile
-            ? ('calc(100dvh - 120px)')
+            ? ('calc(100dvh - 200px)')
             : 'calc(100vh - 170px)',
         }}
       >
@@ -3931,7 +3931,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 return (
                   <div
                     key={bet.id}
-                    className="relative overflow-hidden border-b border-black/5 last:border-b-0 rounded"
+                    className="relative overflow-hidden rounded-lg mb-1.5 last:mb-0"
                     onTouchStart={(e) => {
                       const touch = e.touches[0]
                       const el = e.currentTarget
@@ -3988,7 +3988,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         <IconTrash className="w-4 h-4 text-white" />
                       </div>
                     )}
-                    <div data-bet-inner="" className="flex items-start gap-2 py-2 px-2 bg-[#f5f5f5] rounded relative" style={{ zIndex: 1 }}>
+                    <div data-bet-inner="" className="flex items-start gap-2.5 py-2.5 px-2.5 bg-[#f5f5f5] rounded-lg border border-black/[0.04] relative" style={{ zIndex: 1 }}>
                     {/* Remove Button - Smaller, more subtle */}
                     <button
                       onClick={(e) => {
@@ -4065,9 +4065,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       )}
                     </div>
 
-                      {/* Odds - Smaller, right-aligned */}
-                    <div className="flex-shrink-0 text-xs font-medium text-black mr-1.5 w-10 text-right">
-                          {bet.odds}
+                      {/* Odds badge */}
+                    <div className="flex-shrink-0 bg-black/[0.06] rounded-md px-2 py-1 mr-1">
+                          <span className="text-[11px] font-semibold text-black/80 whitespace-nowrap">{bet.odds}</span>
                         </div>
 
                     {/* Stake Input - Smaller, tighter */}
