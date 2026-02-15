@@ -1,6 +1,7 @@
 'use client'
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
+import { ReloadClaim } from '@/components/vip/reload-claim'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
@@ -7546,20 +7547,7 @@ function VipDrawerContent({
         )}
         
         {vipActiveTab === 'Reloads' && (
-          <Card className="bg-white/3 border-white/5">
-            <CardContent className={cn(isMobile ? "p-4" : "p-8")}>
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-6">
-                  <IconCreditCard className="w-10 h-10 text-white/40" strokeWidth={1.5} />
-                </div>
-                <div className="text-center space-y-2">
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    Reload bonuses will appear here
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ReloadClaim />
         )}
         
         {vipActiveTab === 'Cash Drop' && (
