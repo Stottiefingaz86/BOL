@@ -1,5 +1,6 @@
 'use client'
 import { useRainBalance } from '@/hooks/use-rain-balance'
+import { StreakCounter } from '@/components/vip/streak-counter'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -682,8 +683,12 @@ function VipDrawerContent({
               </CardContent>
             </Card>
             
+            <StreakCounter />
+
+
+            
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Benefits</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">My Benefits</h3>
               <Accordion type="single" defaultValue="Gold" collapsible className="w-full">
                 <AccordionItem value="Bronze" className={cn("border-white/10", "opacity-50")}>
                   <AccordionTrigger value="Bronze" className="text-white/50 hover:text-white/70">

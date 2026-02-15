@@ -1,5 +1,6 @@
 'use client'
 import { useRainBalance } from '@/hooks/use-rain-balance'
+import { StreakCounter } from '@/components/vip/streak-counter'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
@@ -672,11 +673,11 @@ function TotalRewardsCard() {
   }, [shouldAnimate])
 
   return (
-    <div className="mb-12 w-full flex justify-center" ref={containerRef}>
-      <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 transition-colors duration-300" style={{ width: '700px', height: '140px' }}>
-        <CardContent className="p-6 flex flex-col justify-center items-center h-full text-center">
-          <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">Total Rewards Claimed</CardTitle>
-          <div className="text-5xl font-bold text-white dark:text-white text-gray-900 dark:text-white transition-colors duration-300">
+    <div ref={containerRef} className="flex-shrink-0" style={{ width: '280px' }}>
+      <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 transition-colors duration-300 h-full">
+        <CardContent className="p-4 flex flex-col justify-center items-center h-full text-center">
+          <CardTitle className="text-xs text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
+          <div className="text-2xl font-bold text-white dark:text-white text-gray-900 dark:text-white transition-colors duration-300">
             $<NumberFlow 
               value={shouldAnimate ? targetValue : 0}
               format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }}
@@ -2477,8 +2478,9 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
         
         <div className="px-6 pt-8 pb-8 max-w-7xl mx-auto flex flex-col items-center w-full">
           {/* Cards from Casino Banner - Centered */}
-          <div className="mb-4 w-full flex justify-center items-center mt-8">
-            <div className="flex items-center gap-3">
+          <div className="mb-8 w-full flex justify-center mt-8">
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
               {/* VIP Rewards Card - Wider */}
               <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300" style={{ width: '280px', height: '140px' }}>
                 <CardContent className="p-4">
@@ -2513,12 +2515,15 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                   </div>
                 </CardContent>
               </Card>
+              </div>
+              <div className="flex gap-3">
+                <TotalRewardsCard />
+                <div className="flex-1 min-w-0">
+                  <StreakCounter />
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Total Rewards Claimed - Same width as VIP Rewards + Daily Races combined (700px) */}
-          <TotalRewardsCard />
-
           {/* The Levels Section */}
           <LevelsCarousel />
 
@@ -7033,7 +7038,12 @@ function VipDrawerContent({
             </Card>
             
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Benefits</h3>
+              <StreakCounter />
+            </div>
+
+            
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">My Benefits</h3>
               <Accordion type="single" defaultValue="Gold" collapsible className="w-full">
                 <AccordionItem value="Bronze" className={cn("border-white/10", "opacity-50")}>
                   <AccordionTrigger value="Bronze" className="text-white/50 hover:text-white/70">
@@ -11275,7 +11285,7 @@ function NavTestPageContent() {
                               </div>
                               
                               {/* Title */}
-                              <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
+                              <h2 className="text-4xl md:text-3xl font-bold text-white mb-3">
                                 HALLOWEEN GAMES
                               </h2>
                               
