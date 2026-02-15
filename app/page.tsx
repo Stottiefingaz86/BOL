@@ -1227,6 +1227,7 @@ function HomePageContent() {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [quickLinksOpen, setQuickLinksOpen] = useState(false)
+  const [loadingQuickLink, setLoadingQuickLink] = useState<string | null>(null)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
@@ -1713,16 +1714,23 @@ function HomePageContent() {
                 key={item.label}
                 onClick={(e) => {
                   e.stopPropagation()
+                  setLoadingQuickLink(item.label)
                   item.onClick()
+                  setTimeout(() => setLoadingQuickLink(null), 1200)
                 }}
                 className={cn(
-                  "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors",
+                  "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors relative",
                   item.label === 'Home'
                     ? "text-white"
                     : "text-white/70 hover:text-white"
                 )}
               >
-                {item.label}
+                <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
+                {loadingQuickLink === item.label && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <IconLoader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                  </span>
+                )}
               </button>
             ))}
           </div>

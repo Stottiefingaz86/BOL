@@ -8531,6 +8531,7 @@ function NavTestPageContent() {
   const [gameSortFilter, setGameSortFilter] = useState<string>('popular')
   const [activeIconTab, setActiveIconTab] = useState('search')
   const [quickLinksOpen, setQuickLinksOpen] = useState(false)
+  const [loadingQuickLink, setLoadingQuickLink] = useState<string | null>(null)
   const lastScrollYRef = useRef(0)
   const [depositDrawerOpen, setDepositDrawerOpen] = useState(false)
   const [depositAmount, setDepositAmount] = useState(25)
@@ -9000,7 +9001,7 @@ function NavTestPageContent() {
         >
           <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-white/10">
                 {[
-                  { label: 'Home', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
+                  { label: 'Home', onClick: () => { router.push('/'); setQuickLinksOpen(false); } },
                   { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Live Betting', onClick: () => { window.location.href = '/live-betting'; setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
@@ -9013,10 +9014,12 @@ function NavTestPageContent() {
                     key={item.label}
                     onClick={(e) => {
                       e.stopPropagation()
+                      setLoadingQuickLink(item.label)
                       item.onClick()
+                      setTimeout(() => setLoadingQuickLink(null), 1200)
                     }}
                     className={cn(
-                      "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors",
+                      "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors relative",
                       (item.label === 'Casino' && !showSports && !showVipRewards) ||
                       (item.label === 'Sports' && showSports) ||
                       (item.label === 'VIP Rewards' && showVipRewards)
@@ -9024,7 +9027,12 @@ function NavTestPageContent() {
                         : "text-white/70 hover:text-white"
                     )}
                   >
-                    {item.label}
+                    <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
+                    {loadingQuickLink === item.label && (
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <IconLoader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                      </span>
+                    )}
                   </button>
                 ))}
           </div>

@@ -261,8 +261,8 @@ function MobileChatDrawer() {
             onDragEnd={handleDragEnd}
             style={{
               y: dragY,
-              height: '85dvh',
-              maxHeight: '85dvh',
+              height: '92dvh',
+              maxHeight: '92dvh',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
               pointerEvents: 'auto',
             }}
