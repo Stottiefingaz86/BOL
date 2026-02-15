@@ -22,6 +22,7 @@ import {
   IconChevronRight,
   IconCheck,
   IconMessageCircle2,
+  IconTrash,
 } from "@tabler/icons-react"
 import { BetslipNumberPad } from "@/components/betslip/number-pad"
 
@@ -358,7 +359,7 @@ function BetslipDefaultView() {
         </div>
       )}
       {/* Header */}
-      <div className={cn("px-3 py-2.5 flex items-center justify-between border-b border-black/5 transition-all", isScrolled && "bg-white/95 backdrop-blur-sm")} style={{ flexShrink: 0, zIndex: 15, backgroundColor: isScrolled ? 'rgba(255,255,255,0.95)' : 'white' }}>
+      <div className="px-3 py-2.5 flex items-center justify-between border-b border-black/5" style={{ flexShrink: 0, zIndex: 15, background: 'rgba(255,255,255,0.82)', backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)' }}>
         <div className="flex items-center gap-2">
           {bets.length > 0 && (
             <div className="bg-[#424242] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-md">
@@ -425,7 +426,7 @@ function BetslipDefaultView() {
                     e.stopPropagation()
                     clearAll()
                   }}
-                  className="text-[10px] font-medium text-black/50 hover:text-black/70 uppercase tracking-wide"
+                  className="text-[10px] font-medium text-red-400 hover:text-red-500 uppercase tracking-wide px-2 py-0.5 rounded border border-red-200 hover:border-red-300 hover:bg-red-50 transition-colors"
                 >
                   Remove All
                 </button>
@@ -438,7 +439,62 @@ function BetslipDefaultView() {
                 const toWin = currentStake * decimalMultiplier - currentStake
 
                 return (
-                  <div key={bet.id} className="flex items-start gap-2 py-2 px-2 -mx-2 border-b border-black/5 last:border-b-0 bg-[#f5f5f5] rounded">
+                  <div
+                    key={bet.id}
+                    className="relative overflow-hidden border-b border-black/5 last:border-b-0 rounded"
+                    onTouchStart={(e) => {
+                      const touch = e.touches[0]
+                      const el = e.currentTarget
+                      el.dataset.startX = touch.clientX.toString()
+                      el.dataset.startY = touch.clientY.toString()
+                      el.dataset.swiping = 'false'
+                    }}
+                    onTouchMove={(e) => {
+                      const el = e.currentTarget
+                      const startX = parseFloat(el.dataset.startX || '0')
+                      const startY = parseFloat(el.dataset.startY || '0')
+                      const touch = e.touches[0]
+                      const dx = touch.clientX - startX
+                      const dy = touch.clientY - startY
+                      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                        el.dataset.swiping = 'true'
+                        e.stopPropagation()
+                        const inner = el.querySelector('[data-bet-inner]') as HTMLElement
+                        const reveal = el.querySelector('[data-bet-remove]') as HTMLElement
+                        if (inner && dx < 0) {
+                          const clamped = Math.max(dx, -100)
+                          inner.style.transform = `translateX(${clamped}px)`
+                          inner.style.transition = 'none'
+                          if (reveal) reveal.style.opacity = `${Math.min(1, Math.abs(dx) / 60)}`
+                        }
+                      }
+                    }}
+                    onTouchEnd={(e) => {
+                      const el = e.currentTarget
+                      const startX = parseFloat(el.dataset.startX || '0')
+                      const touch = e.changedTouches[0]
+                      const dx = touch.clientX - startX
+                      const inner = el.querySelector('[data-bet-inner]') as HTMLElement
+                      const reveal = el.querySelector('[data-bet-remove]') as HTMLElement
+                      if (inner) {
+                        if (dx < -70) {
+                          inner.style.transition = 'transform 0.2s ease-out'
+                          inner.style.transform = 'translateX(-100%)'
+                          setTimeout(() => removeBet(bet.id), 200)
+                        } else {
+                          inner.style.transition = 'transform 0.2s ease-out'
+                          inner.style.transform = 'translateX(0)'
+                          if (reveal) { reveal.style.transition = 'opacity 0.2s'; reveal.style.opacity = '0' }
+                        }
+                      }
+                    }}
+                  >
+                    {isMobile && (
+                      <div data-bet-remove="" className="absolute inset-0 flex items-center justify-end px-4 bg-red-500 rounded" style={{ opacity: 0 }}>
+                        <IconTrash className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    <div data-bet-inner="" className="flex items-start gap-2 py-2 px-2 bg-[#f5f5f5] rounded relative" style={{ zIndex: 1 }}>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeBet(bet.id) }}
                       className="mt-0.5 flex-shrink-0 w-4 h-4 flex items-center justify-center hover:bg-black/5 rounded"
@@ -517,6 +573,7 @@ function BetslipDefaultView() {
                       <div className="text-[9px] text-black/50 text-right mt-0.5 leading-tight">
                         To Win {currencySymbol}{toWin.toFixed(2)}
                       </div>
+                    </div>
                     </div>
                   </div>
                 )
