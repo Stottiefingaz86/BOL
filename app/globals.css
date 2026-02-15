@@ -880,6 +880,7 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 [data-vaul-drawer-wrapper] {
   transform: none !important;
   will-change: auto !important;
+  pointer-events: auto !important;
 }
 
 /* Prevent body scroll lock when drawer is open (non-modal) */
@@ -891,6 +892,7 @@ html[data-vaul-drawer-open="true"] {
   height: auto !important;
   touch-action: auto !important;
   -webkit-overflow-scrolling: touch !important;
+  pointer-events: auto !important;
 }
 
 /* CRITICAL: Ensure body never gets stuck with overflow:hidden after betslip closes */

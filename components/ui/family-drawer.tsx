@@ -118,15 +118,41 @@ function FamilyDrawerRoot({
   const views =
     customViews && Object.keys(customViews).length > 0 ? customViews : undefined
 
-  // CRITICAL: Restore body scroll when drawer closes.
-  // Vaul can leave overflow:hidden on body even with modal=false.
+  // CRITICAL: Keep body interactive when non-modal drawer is open,
+  // and restore body scroll when drawer closes.
+  // Vaul can set overflow:hidden / pointer-events:none on body even with modal=false.
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // Force body to remain interactive while non-modal drawer is open.
+      // Vaul can set pointer-events:none after our initial override,
+      // so we use a MutationObserver to continuously enforce it.
+      const ensureInteractive = () => {
+        if (document.body.style.pointerEvents === 'none') {
+          document.body.style.pointerEvents = 'auto'
+        }
+        if (document.documentElement.style.pointerEvents === 'none') {
+          document.documentElement.style.pointerEvents = 'auto'
+        }
+        const wrapper = document.querySelector('[data-vaul-drawer-wrapper]') as HTMLElement
+        if (wrapper && wrapper.style.pointerEvents === 'none') {
+          wrapper.style.pointerEvents = 'auto'
+        }
+      }
+      ensureInteractive()
+      // Watch for vaul re-applying pointer-events:none
+      const observer = new MutationObserver(ensureInteractive)
+      observer.observe(document.body, { attributes: true, attributeFilter: ['style'] })
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] })
+      const wrapper = document.querySelector('[data-vaul-drawer-wrapper]') as HTMLElement
+      if (wrapper) observer.observe(wrapper, { attributes: true, attributeFilter: ['style'] })
+      return () => observer.disconnect()
+    } else {
       // Small delay to let vaul finish its cleanup
       const timer = setTimeout(() => {
         document.body.style.removeProperty('overflow')
         document.body.style.removeProperty('pointer-events')
         document.documentElement.style.removeProperty('overflow')
+        document.documentElement.style.removeProperty('pointer-events')
         // Also remove vaul data attribute if lingering
         if (document.body.getAttribute('data-vaul-drawer-open') === 'true') {
           document.body.removeAttribute('data-vaul-drawer-open')
