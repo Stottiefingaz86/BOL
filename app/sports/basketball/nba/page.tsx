@@ -4019,12 +4019,47 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </div>
                           </div>
                         </>
+                      ) : bet.marketTitle === 'Bet Boost' ? (
+                        <>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide leading-tight">⚡ BOOST{bet.selection.includes(' & ') ? ` · ${bet.selection.split(' & ').length} Legs` : ''}</span>
+                          </div>
+                          {bet.selection.includes(' & ') ? (
+                            <>
+                              <div className="text-[10px] text-black/40 mb-1.5 leading-tight">{bet.eventName}</div>
+                              <div className="relative ml-[2px] mb-0.5">
+                                <div className="absolute left-[2px] top-[4px] bottom-[4px] w-[1px] bg-amber-300/40" />
+                                <div className="space-y-1.5">
+                                  {bet.selection.split(' & ').map((leg: string, i: number) => (
+                                    <div key={i} className="flex items-center gap-2 relative">
+                                      <div className="w-[5px] h-[5px] rounded-full bg-amber-500 flex-shrink-0 relative z-10 ring-1 ring-amber-500/20" />
+                                      <span className="text-[11px] text-black/70 leading-tight">{leg.trim()}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-xs font-medium text-black mb-0.5 truncate leading-tight">{bet.selection}</div>
+                          )}
+                        </>
                       ) : (
                         <>
                           <div className="text-xs font-medium text-black mb-0.5 truncate leading-tight">{bet.selection}</div>
                           <div className="text-[10px] text-black/50 mb-0.5 leading-tight">{bet.marketTitle}</div>
                           {event && (
-                            <div className="text-[10px] text-black/40 truncate leading-tight">{event.team1} v {event.team2}</div>
+                            <>
+                              <div className="text-[10px] text-black/40 truncate leading-tight">{event.team1} v {event.team2}</div>
+                              {('isLive' in event) && (event as any).isLive && liveScores[bet.eventId] && (
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <div className="flex items-center gap-0.5 bg-red-500/10 border border-red-500/20 rounded px-1 py-[1px]">
+                                    <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+                                    <span className="text-[8px] font-bold text-red-500 uppercase">Live</span>
+                                  </div>
+                                  <span className="text-[10px] font-semibold text-black/70">{liveScores[bet.eventId].team1} - {liveScores[bet.eventId].team2}</span>
+                                </div>
+                              )}
+                            </>
                           )}
                         </>
                       )}
