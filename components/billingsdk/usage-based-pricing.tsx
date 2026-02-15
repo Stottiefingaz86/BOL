@@ -13,7 +13,7 @@ import {
   useSpring,
   useTransform,
   useMotionValueEvent,
-} from "motion/react";
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   Card,

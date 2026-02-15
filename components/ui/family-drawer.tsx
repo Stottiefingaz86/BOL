@@ -13,7 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { Slot } from "@radix-ui/react-slot"
 import clsx from "clsx"
 import { cn } from "@/lib/utils"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, motion } from "framer-motion"
 import useMeasure from "react-use-measure"
 import { Drawer } from "vaul"
 
