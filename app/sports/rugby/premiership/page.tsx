@@ -3793,7 +3793,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           display: 'flex', 
           flexDirection: 'column', 
           maxHeight: isMobile
-            ? ('calc(100dvh - 200px)')
+            ? ('calc(100dvh - 80px)')
             : 'calc(100vh - 170px)',
         }}
       >
@@ -3910,6 +3910,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </button>
               </div>
                   {/* New bets appear at top (reversed array order) */}
+                  <AnimatePresence initial={false}>
                   {[...bets].reverse().map((bet, index) => {
                 const event = liveEvents.find(e => e.id === bet.eventId) || upcomingEvents.find(e => e.id === bet.eventId)
                 // Helper to convert odds to decimal multiplier
@@ -3930,9 +3931,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 const toWin = currentStake * decimalMultiplier - currentStake
 
                 return (
-                  <div
+                  <motion.div
                     key={bet.id}
-                    className="relative overflow-hidden rounded-lg mb-1.5 last:mb-0"
+                    initial={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, x: 0, height: 'auto', marginBottom: 6, transition: { type: 'spring', stiffness: 500, damping: 35, mass: 0.8 } }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0, transition: { duration: 0.15, ease: 'easeOut' } }}
+                    className="relative overflow-hidden rounded-lg"
                     onTouchStart={(e) => {
                       const touch = e.touches[0]
                       const el = e.currentTarget
@@ -4160,9 +4164,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       </div>
                     </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
+                  </AnimatePresence>
                 </div>
               )}
 

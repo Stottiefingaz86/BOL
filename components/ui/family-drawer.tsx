@@ -251,7 +251,7 @@ function FamilyDrawerContent({
   // On desktop: stop before the sub-nav
   const topNavHeight = 64
   const subNavHeight = 56
-  const safeMargin = isMobile ? 200 : 10
+  const safeMargin = isMobile ? 80 : 10
   const viewportHeight = typeof window !== 'undefined'
     ? (isMobile && window.visualViewport ? window.visualViewport.height : window.innerHeight)
     : 800
@@ -278,7 +278,7 @@ function FamilyDrawerContent({
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
-        maxHeight: isMobile ? `min(${maxHeightValue}px, calc(100dvh - 200px))` : `${maxHeightValue}px`,
+        maxHeight: isMobile ? `min(${maxHeightValue}px, calc(100dvh - 80px))` : `${maxHeightValue}px`,
         overflow: 'clip',
         borderTopLeftRadius: '7px',
         borderTopRightRadius: '7px',
@@ -289,23 +289,25 @@ function FamilyDrawerContent({
   )
 
   return (
-    <Drawer.Content
-      ref={contentRef}
-      asChild={asChild}
-      className={clsx(
-        "fixed inset-x-0 bottom-0 z-[99999] w-full rounded-t-[7px] bg-background outline-none md:mx-auto md:max-w-[361px]",
-        className
-      )}
-      style={{
-        pointerEvents: 'auto',
-        borderTopLeftRadius: '7px',
-        borderTopRightRadius: '7px',
-        overflow: 'hidden',
-        ...positionStyle,
-      }}
-    >
-      {asChild ? <Slot>{content}</Slot> : content}
-    </Drawer.Content>
+    <Drawer.Portal>
+      <Drawer.Content
+        ref={contentRef}
+        asChild={asChild}
+        className={clsx(
+          "fixed inset-x-0 bottom-0 z-[99999] w-full rounded-t-[7px] bg-background outline-none md:mx-auto md:max-w-[361px]",
+          className
+        )}
+        style={{
+          pointerEvents: 'auto',
+          borderTopLeftRadius: '7px',
+          borderTopRightRadius: '7px',
+          overflow: 'hidden',
+          ...positionStyle,
+        }}
+      >
+        {asChild ? <Slot>{content}</Slot> : content}
+      </Drawer.Content>
+    </Drawer.Portal>
   )
 }
 

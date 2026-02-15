@@ -25,6 +25,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react"
 import { BetslipNumberPad } from "@/components/betslip/number-pad"
+import { motion, AnimatePresence } from "framer-motion"
 
 // ─── Helpers ──────────────────────────────────────────────
 function oddsToDecimal(oddsStr: string): number {
@@ -351,7 +352,7 @@ function BetslipDefaultView() {
 
   // Expanded state
   return (
-    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100dvh - 200px)' : 'calc(100vh - 170px)' }}>
+    <div className="flex flex-col w-full" style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? 'calc(100dvh - 80px)' : 'calc(100vh - 170px)' }}>
       {/* Drag Handle - Mobile Only */}
       {isMobile && (
         <div className="flex justify-center pt-2 pb-0.5 shrink-0 cursor-grab active:cursor-grabbing">
@@ -431,6 +432,7 @@ function BetslipDefaultView() {
                   Remove All
                 </button>
               </div>
+              <AnimatePresence initial={false}>
               {[...bets].reverse().map((bet) => {
                 const decimalMultiplier = oddsToDecimal(bet.odds)
                 const currentStake = localStakes[bet.id] !== undefined
@@ -439,9 +441,12 @@ function BetslipDefaultView() {
                 const toWin = currentStake * decimalMultiplier - currentStake
 
                 return (
-                  <div
+                  <motion.div
                     key={bet.id}
-                    className="relative overflow-hidden rounded-lg mb-1.5 last:mb-0"
+                    initial={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
+                    animate={{ opacity: 1, x: 0, height: 'auto', marginBottom: 6, transition: { type: 'spring', stiffness: 500, damping: 35, mass: 0.8 } }}
+                    exit={{ opacity: 0, height: 0, marginBottom: 0, transition: { duration: 0.15, ease: 'easeOut' } }}
+                    className="relative overflow-hidden rounded-lg"
                     onTouchStart={(e) => {
                       const touch = e.touches[0]
                       const el = e.currentTarget
@@ -621,9 +626,10 @@ function BetslipDefaultView() {
                       </div>
                     </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
+              </AnimatePresence>
             </div>
           )}
 

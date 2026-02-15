@@ -859,6 +859,13 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
   pointer-events: auto !important;
 }
 
+/* Vaul portal container must not inherit transforms that break position:fixed on iOS */
+[vaul-drawer-wrapper],
+[data-vaul-drawer-wrapper] {
+  transform: none !important;
+  will-change: auto !important;
+}
+
 /* Prevent body scroll lock when drawer is open (non-modal) */
 body[data-vaul-drawer-open="true"],
 html[data-vaul-drawer-open="true"] {
