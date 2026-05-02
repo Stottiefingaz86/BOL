@@ -44,7 +44,6 @@ import {
   IconLayoutDashboard,
   IconLifebuoy,
   IconInfoCircle,
-  IconBuilding,
   IconStar,
   IconPlayerPlay,
   IconCards,
@@ -58,6 +57,7 @@ import {
   IconHome,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
+import { DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS } from '@/lib/sidebar-footer-nav'
 import NumberFlow from '@number-flow/react'
 
 // ── Real component imports (wrapped in try/catch safe wrappers) ──
@@ -775,11 +775,7 @@ function SidebarNavPreview() {
     { icon: IconFlame, label: 'Table Games' },
     { icon: IconBolt, label: 'Live Casino' },
   ]
-  const bottomItems = [
-    { icon: IconCrown, label: 'Loyalty Hub' },
-    { icon: IconBuilding, label: 'Banking' },
-    { icon: IconLifebuoy, label: 'Need Help' },
-  ]
+  const bottomItems = [...DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS]
   const quickLinks = ['Home', 'Sports', 'Live Betting', 'Casino', 'Live Casino', 'Poker', 'VIP Rewards']
   const otherLinks = ['Esports', 'Racebook', 'Contests', 'Virtuals']
 
@@ -958,7 +954,7 @@ function SidebarNavPreview() {
             <div className="flex-1 min-h-[24px]" />
           </div>
 
-          {/* Bottom — Loyalty Hub, Banking, Need Help */}
+          {/* Bottom — VIP Hub, Promotions, Wallet, Need Help */}
           <div className="border-t border-white/10 py-2 px-1.5 space-y-0.5 flex-shrink-0">
             {bottomItems.map(item => {
               const Icon = item.icon
@@ -2866,15 +2862,11 @@ import { AnimatePresence, motion } from 'framer-motion'
       <div className="flex-1" />
       <Separator className="bg-white/10 mx-2" />
 
-      {/* Bottom — Loyalty Hub, Banking, Need Help */}
+      {/* Bottom — VIP Hub, Promotions, Wallet, Need Help */}
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
-            {[
-              { icon: IconCrown, label: 'Loyalty Hub' },
-              { icon: IconBuilding, label: 'Banking' },
-              { icon: IconLifebuoy, label: 'Need Help' },
-            ].map(item => (
+            {DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS.map(item => (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton className="text-white/70 hover:text-white hover:bg-white/5">
                   <Icon strokeWidth={1.5} className="w-5 h-5" />

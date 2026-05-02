@@ -25,6 +25,7 @@ import {
   IconGift,
   IconCreditCard,
   IconUserPlus,
+  IconRocket,
   IconCrown,
   IconChevronLeft,
   IconChevronRight,
@@ -68,6 +69,13 @@ import {
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import {
+  DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS,
+  SIDEBAR_FOOTER_NEED_HELP,
+  SIDEBAR_FOOTER_PROMOTIONS,
+  SIDEBAR_FOOTER_VIP_HUB,
+  SIDEBAR_FOOTER_WALLET,
+} from '@/lib/sidebar-footer-nav'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -148,6 +156,7 @@ import { CashDropCode } from '@/components/vip/cash-drop-code'
 import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
+import { DailyRacesTimer } from '@/components/daily-races-timer'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import {
   Accordion,
@@ -264,45 +273,6 @@ const accountPnlByWeek = {
     { day: 'Sat', date: 'Mar 01', amount: -30 },
     { day: 'Sun', date: 'Mar 02', amount: 90 },
   ],
-}
-
-// ═══════════════════════════════════════════════════════════
-// Daily Races Timer — exact copy from casino/page.tsx
-// ═══════════════════════════════════════════════════════════
-function DailyRacesTimer() {
-  const [hours, setHours] = useState(6)
-  const [minutes, setMinutes] = useState(54)
-  const [seconds, setSeconds] = useState(31)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((s) => {
-        if (s === 0) {
-          setMinutes((m) => {
-            if (m === 0) {
-              setHours((h) => (h === 0 ? 23 : h - 1))
-              return 59
-            }
-            return m - 1
-          })
-          return 59
-        }
-        return s - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-1 tabular-nums transition-colors duration-300">
-      <NumberFlow value={hours} />
-      <span className="mx-1">:</span>
-      <NumberFlow value={minutes} />
-      <span className="mx-1">:</span>
-      <NumberFlow value={seconds} />
-    </div>
-  )
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -787,50 +757,71 @@ function DashboardSection({
       <div className="flex flex-col md:flex-row gap-3 mb-3">
         {/* VIP Rewards Card — matches casino banner */}
         <Card 
-          className="group relative bg-white/5 border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden w-full md:w-[200px]" 
-          style={{ minHeight: '164px' }}
+          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5 w-full md:w-[300px]" 
+          style={{ height: '164px' }}
           onClick={() => onOpenVipHub?.()}
         >
-          <CardContent className="p-4 relative z-10 flex flex-col h-full">
-            <CardTitle className="text-sm text-white/70 mb-4">VIP Rewards</CardTitle>
-            <div className="text-xs text-white/50 mb-2">Gold To Platinum I</div>
-            <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-auto text-[11px] h-7 px-3 border-white/20 bg-transparent text-white/70 hover:text-white hover:bg-white/10 rounded-small w-full"
-              onClick={(e) => { e.stopPropagation(); onOpenVipHub?.() }}
-            >
-              Open Hub
-            </Button>
+          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
+            <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-white leading-tight">
+              Gold To Platinum I
+            </CardTitle>
+            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+              <VipTierProgressBar
+                value={45}
+                variant="compact"
+                bannerTile
+                showOriginalsNote
+                nextTierLabel="Platinum I"
+                wagerRemaining="$2,750"
+                className="mt-0"
+              />
+            </div>
           </CardContent>
           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
         </Card>
 
         {/* Daily Races Card — matches casino banner */}
         <Card 
-          className="group relative bg-white/5 border-white/10 transition-colors duration-300 cursor-pointer overflow-hidden w-full md:flex-1" 
-          style={{ minHeight: '164px' }}
+          className="group relative cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5 w-full md:w-[300px] md:flex-none" 
+          style={{ height: '164px' }}
         >
-          <CardContent className="p-4 relative z-10">
-            <div className="flex items-start justify-between mb-4">
-              <CardTitle className="text-sm text-white/70 mb-0">Daily Races</CardTitle>
-              <div className="text-right">
-                <DailyRacesTimer />
+          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
+            <div className="mb-2 flex shrink-0 items-start justify-between gap-2">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+                  style={{ background: 'rgba(245, 158, 11, 0.12)' }}
+                >
+                  <IconTrophy
+                    strokeWidth={1.8}
+                    className="h-4 w-4 text-amber-400"
+                  />
+                </div>
+                <CardTitle className="mb-0 text-sm font-semibold text-amber-100 dark:text-amber-100 leading-tight">
+                  $25K Daily Race
+                </CardTitle>
+              </div>
+              <div className="shrink-0 text-right">
+                <DailyRacesTimer
+                  className="text-xl font-bold text-amber-600 tabular-nums dark:text-amber-200"
+                  colonClassName="text-amber-500/70 dark:text-amber-300/80"
+                />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="bg-[#2d2d2d] rounded-small p-2.5 border border-white/10">
-                <div className="text-white font-semibold mb-0.5">3rd</div>
-                <div className="text-white/50 text-[10px]">Position</div>
-              </div>
-              <div className="bg-[#2d2d2d] rounded-small p-2.5 border border-white/10">
-                <div className="text-white font-semibold mb-0.5">$80.000</div>
-                <div className="text-white/50 text-[10px]">Wagered</div>
-              </div>
-              <div className="bg-[#2d2d2d] rounded-small p-2.5 border border-white/10">
-                <div className="text-white font-semibold mb-0.5">$160.000</div>
-                <div className="text-white/50 text-[10px]">Current Prize</div>
+            <div className="flex min-h-0 flex-1 items-center">
+              <div className="grid w-full grid-cols-3 gap-2 text-xs">
+                <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30">
+                  <div className="text-amber-100 font-semibold mb-0.5">3rd</div>
+                  <div className="text-[10px] text-amber-200/70">Position</div>
+                </div>
+                <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30">
+                  <div className="text-amber-100 font-semibold mb-0.5">$80.000</div>
+                  <div className="text-[10px] text-amber-200/70">Wagered</div>
+                </div>
+                <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 dark:border-amber-400/40">
+                  <div className="text-amber-50 font-semibold mb-0.5">$160.000</div>
+                  <div className="text-[10px] text-amber-200/80">Current Prize</div>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -2463,6 +2454,13 @@ function AccountPageContent() {
     setDepositDrawerOpen(true)
     useChatStore.getState().setIsOpen(false)
   }, [trackClick])
+
+  useEffect(() => {
+    const handler = () => openDepositDrawer()
+    if (typeof window === 'undefined') return
+    window.addEventListener('deposit:open-drawer', handler)
+    return () => window.removeEventListener('deposit:open-drawer', handler)
+  }, [openDepositDrawer])
   const openNotificationsDrawer = useCallback(() => {
     setAccountDrawerView('notifications')
     openAccountDrawer()
@@ -3267,46 +3265,47 @@ function AccountPageContent() {
 
               <Separator className="bg-white/10 mx-2" />
 
-              {/* Bottom section — Loyalty Hub, Banking, Need Help */}
+              {/* Bottom section — VIP Hub, Promotions, Wallet, Need Help */}
               <SidebarGroup>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {[
-                      { icon: IconBuilding, label: 'Banking' },
-                      { icon: IconLifebuoy, label: 'Need Help' },
-                    ].map((item, index) => {
+                    {DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS.map((item, index) => {
                       const Icon = item.icon
                       return (
                         <SidebarMenuItem key={index}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <SidebarMenuButton
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <SidebarMenuButton
                                 onClick={(e) => {
                                   e.preventDefault()
                                   e.stopPropagation()
                                   if (isMobile) setOpenMobile(false)
-                                  if (item.label === 'Loyalty Hub') {
-                                    router.push('/casino?vip=true')
-                                  } else if (item.label === 'Banking') {
+                                  if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
+                                    openVipDrawer()
+                                  } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
+                                    router.push('/promotions')
+                                  } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     setActiveSection('payments')
+                                  } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
+                                    console.log('Need Help clicked')
                                   }
                                 }}
-                            className={cn(
+                                className={cn(
                                   "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                   "text-white/70 hover:text-white hover:bg-white/5"
-                            )}
-                          >
+                                )}
+                              >
                                 <Icon strokeWidth={1.5} className="w-5 h-5" />
                                 <span>{item.label}</span>
-                          </SidebarMenuButton>
-                        </TooltipTrigger>
-                        {sidebarState === 'collapsed' && (
-                          <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              </SidebarMenuButton>
+                            </TooltipTrigger>
+                            {sidebarState === 'collapsed' && (
+                              <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
                                 <p>{item.label}</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </SidebarMenuItem>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </SidebarMenuItem>
                       )
                     })}
                   </SidebarMenu>

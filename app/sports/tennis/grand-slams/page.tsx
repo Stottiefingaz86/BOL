@@ -11,6 +11,7 @@ import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
 import { SidebarPromos } from '@/components/sidebar-promos'
+import { DailyRacesTimer } from '@/components/daily-races-timer'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
@@ -225,6 +226,7 @@ import {
 import { InteractiveGridBackground } from '@/components/interactive-grid-background'
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
+import { DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS, SIDEBAR_FOOTER_NEED_HELP, SIDEBAR_FOOTER_PROMOTIONS, SIDEBAR_FOOTER_VIP_HUB, SIDEBAR_FOOTER_WALLET } from '@/lib/sidebar-footer-nav'
 import DynamicIsland from '@/components/dynamic-island'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import { useChatStore } from '@/lib/store/chatStore'
@@ -1127,43 +1129,6 @@ function ScrollVideoPlayer() {
   )
 }
 
-// Daily Races Timer Component
-function DailyRacesTimer() {
-  const [hours, setHours] = useState(6)
-  const [minutes, setMinutes] = useState(54)
-  const [seconds, setSeconds] = useState(31)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((s) => {
-        if (s === 0) {
-          setMinutes((m) => {
-            if (m === 0) {
-              setHours((h) => (h === 0 ? 23 : h - 1))
-              return 59
-            }
-            return m - 1
-          })
-          return 59
-        }
-        return s - 1
-      })
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return (
-    <div className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-1 tabular-nums transition-colors duration-300">
-      <NumberFlow value={hours} />
-      <span className="mx-1">:</span>
-      <NumberFlow value={minutes} />
-      <span className="mx-1">:</span>
-      <NumberFlow value={seconds} />
-    </div>
-  )
-}
-
 // Bonus data type
 type BonusItem = {
   id: string;
@@ -1271,10 +1236,13 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                     if (previousPageState.activeSubNav && setActiveSubNav) {
                       setActiveSubNav(previousPageState.activeSubNav)
                     }
+                  } else if (previousPageState.showSports) {
+                    if (setShowVipRewards) {
+                      setShowVipRewards(false)
+                    }
                   } else {
-                    // If we came from VIP Rewards Overview, go back to Overview
                     if (setVipActiveSidebarItem) {
-                      setVipActiveSidebarItem('Overview')
+                      setVipActiveSidebarItem('Promos')
                     }
                   }
                   if (setPreviousPageState) {
@@ -1384,23 +1352,26 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                 <div className="mb-4">
                   <div className="text-white/70 text-xs mb-2">Time Remaining:</div>
                   <div className="scale-75 origin-left">
-                    <DailyRacesTimer />
+                    <DailyRacesTimer
+                      className="text-xl font-bold text-amber-200 tabular-nums"
+                      colonClassName="text-amber-400/70"
+                    />
                   </div>
                 </div>
                 
                 {/* User's Current Status - Using Daily Race Card Components */}
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
+                    <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
+                      <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">3rd</div>
+                      <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Position</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
+                    <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
+                      <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
+                      <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Wagered</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
+                    <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 dark:border-amber-400/40 transition-colors duration-300">
+                      <div className="text-amber-50 font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
+                      <div className="text-[10px] text-amber-200/80 transition-colors duration-300">Current Prize</div>
                     </div>
                 </div>
               </CardContent>
@@ -1765,40 +1736,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
   return (
     <SidebarInset className="bg-[#1a1a1a] text-white">
-      {/* Banner Carousel - Full Width with Arrows */}
-      <div className="pt-6 md:pt-8 mb-6 md:mb-8">
-        <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-          {!isMobile && (
-            <>
-              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-            </>
-          )}
-          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
-            {[
-              { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
-              { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
-              { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
-              { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
-              { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
-            ].map((banner, index) => (
-              <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                  <Image
-                    src={banner.src}
-                    alt={banner.alt}
-                    width={340}
-                    height={164}
-                    className="object-cover w-full h-full"
-                    unoptimized
-                  />
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
-      <div className="px-4 md:px-6 pb-8 max-w-7xl mx-auto w-full">
+      <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto w-full">
 
         {/* My Bonus Section */}
         <div className="w-full">
@@ -2453,34 +2391,50 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
               <h1 className="text-xl md:text-2xl font-bold text-white">Hi, CH</h1>
               <div className="flex flex-col md:flex-row gap-3">
               {/* VIP Rewards Card - Wider */}
-              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 w-full md:w-[280px]" style={{ minHeight: '140px' }}>
+              <Card className="flex-shrink-0 w-full border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5 md:w-[300px]" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
-                  <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">Gold To Platinum I</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-white dark:text-white mb-4 transition-colors duration-300">Gold To Platinum I</CardTitle>
                   <VipTierProgressBar value={45} nextTierLabel="Platinum I" wagerRemaining="$2,750" />
                 </CardContent>
               </Card>
               
               {/* Daily Races Card - Wider */}
-              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-1 transition-colors duration-300 w-full md:w-auto" style={{ minHeight: '140px' }}>
+              <Card className="flex-shrink-0 w-full border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5 md:w-[300px]" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
-                    <div className="text-right">
-                      <DailyRacesTimer />
+                  <div className="flex items-start justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div
+                        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(245, 158, 11, 0.12)' }}
+                      >
+                        <IconTrophy
+                          strokeWidth={1.8}
+                          className="w-4 h-4 text-amber-400"
+                        />
+                      </div>
+                      <CardTitle className="mb-0 text-sm font-semibold text-amber-100 transition-colors duration-300 dark:text-amber-100 leading-tight">
+                        $25K Daily Race
+                      </CardTitle>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <DailyRacesTimer
+                        className="text-xl font-bold text-amber-600 tabular-nums dark:text-amber-200"
+                        colonClassName="text-amber-500/70 dark:text-amber-300/80"
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
+                    <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
+                      <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">3rd</div>
+                      <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Position</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
+                    <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
+                      <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
+                      <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Wagered</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
+                    <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 transition-colors duration-300 dark:border-amber-400/40">
+                      <div className="text-amber-50 font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
+                      <div className="text-[10px] text-amber-200/80 transition-colors duration-300">Current Prize</div>
                     </div>
                   </div>
                 </CardContent>
@@ -9448,8 +9402,6 @@ function NavTestPageContent() {
     { icon: IconCards, label: 'Table Games' },
     { icon: IconBroadcast, label: 'Live Casino' },
     { icon: IconTrophy, label: 'Tournaments' },
-    { icon: IconBuilding, label: 'Banking' },
-    { icon: IconLifebuoy, label: 'Need Help' },
   ]
 
   const gameFilters = ['For You', 'Bonus Buys', 'Megaways', 'Slots', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'New', 'Exclusive']
@@ -10455,7 +10407,7 @@ function NavTestPageContent() {
                       
                       {!showQuickLinksMenu && sidebarMenuItems.map((item, index) => {
                         const Icon = item.icon
-                        const showSeparatorAbove = item.label === 'Loyalty Hub'
+                        const showSeparatorAbove = false
                         // Determine if this menu item is active based on selectedCategory only
                         // Note: activeSubNav is for sub nav tabs, not side menu highlighting
                         const isActive = selectedCategory === item.label || 
@@ -10553,16 +10505,6 @@ function NavTestPageContent() {
                                         setSelectedCategory('Tournaments')
                                         setShowAllGames(true)
                                         setShowSports(false)
-                                      } else if (item.label === 'Loyalty Hub') {
-                                        openVipDrawer()
-                                        setShowSports(false)
-                                      } else if (item.label === 'Banking') {
-                                        openDepositDrawer()
-                                        setShowSports(false)
-                                      } else if (item.label === 'Need Help') {
-                                        // Handle need help - could open a help modal or navigate
-                                        console.log('Need Help clicked')
-                                        setShowSports(false)
                                       }
                                     }}
                                   >
@@ -10583,6 +10525,51 @@ function NavTestPageContent() {
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
+              <div className="flex-1 min-h-0" />
+              <Separator className="bg-white/10 mx-2" />
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS.map((item, index) => {
+                      const Icon = item.icon
+                      return (
+                        <SidebarMenuItem key={`sidebar-footer-${index}`}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <SidebarMenuButton
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  if (isMobile) setOpenMobile(false)
+                                  if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
+                                    window.dispatchEvent(new CustomEvent('vip:open-drawer'))
+                                  } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
+                                    router.push('/promotions')
+                                  } else if (item.label === SIDEBAR_FOOTER_WALLET) {
+                                    openDepositDrawer()
+                                  } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
+                                    console.log('Need Help clicked')
+                                  }
+                                }}
+                                className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer text-white/70 hover:text-white hover:bg-white/5"
+                              >
+                                <Icon strokeWidth={1.5} className="w-5 h-5" />
+                                <span>{item.label}</span>
+                              </SidebarMenuButton>
+                            </TooltipTrigger>
+                            {sidebarState === 'collapsed' && (
+                              <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                <p>{item.label}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </SidebarMenuItem>
+                      )
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+
               </TooltipProvider>
             </SidebarContent>
           </Sidebar>
@@ -10606,7 +10593,7 @@ function NavTestPageContent() {
                       {[
                         { id: 'Overview', icon: IconLayoutDashboard, label: 'VIP Dashboard' },
                         { id: 'My Bonus', icon: IconGift, label: 'My Bonus' },
-                        { id: 'Promos', icon: IconSparkles, label: 'Promos' },
+                        { id: 'Promos', icon: IconRocket, label: 'Promos' },
                         { id: 'Cash Races', icon: IconClock, label: 'Cash Races' },
                         { id: 'Contests', icon: IconTrophy, label: 'Contests' },
                         { id: 'Challenges', icon: IconFlame, label: 'Challenges' },
@@ -10740,16 +10727,27 @@ function NavTestPageContent() {
                 <SidebarGroup>
                   <SidebarGroupContent>
                     <SidebarMenu>
-                      {[
-                        { icon: IconBuilding, label: 'Banking' },
-                        { icon: IconLifebuoy, label: 'Need Help' },
-                      ].map((item, index) => {
+                      {DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS.map((item, index) => {
                         const Icon = item.icon
                         return (
                           <SidebarMenuItem key={`vip-bottom-${index}`}>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <SidebarMenuButton
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (isMobile) setOpenMobile(false)
+                                    if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
+                                      window.dispatchEvent(new CustomEvent('vip:open-drawer'))
+                                    } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
+                                      router.push('/promotions')
+                                    } else if (item.label === SIDEBAR_FOOTER_WALLET) {
+                                      openDepositDrawer()
+                                    } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
+                                      console.log('Need Help clicked')
+                                    }
+                                  }}
                                   className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer text-white/70 hover:text-white hover:bg-white/5"
                                 >
                                   <Icon strokeWidth={1.5} className="w-5 h-5" />
@@ -11126,16 +11124,27 @@ function NavTestPageContent() {
                         isMobile ? "pl-3" : "pl-6"
                       )}>
                         <Card 
-                          className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                          style={{ width: '200px', height: '140px' }}
+                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5" 
+                          style={{ width: '300px', height: '164px' }}
                           onClick={() => {
                             openVipDrawer()
                           }}
                         >
-                          <CardContent className="p-4 relative z-10">
-                            <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">VIP Rewards</CardTitle>
-                            <div className="text-xs text-gray-600 dark:text-white/50 mb-2 transition-colors duration-300">Gold To Platinum I</div>
-                            <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
+                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
+                            <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-white dark:text-white transition-colors duration-300 leading-tight">
+                              Gold To Platinum I
+                            </CardTitle>
+                            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+                              <VipTierProgressBar
+                                value={45}
+                                variant="compact"
+                                bannerTile
+                                showOriginalsNote
+                                nextTierLabel="Platinum I"
+                                wagerRemaining="$2,750"
+                                className="mt-0"
+                              />
+                            </div>
                           </CardContent>
                           {/* Sweep effect */}
                           <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
@@ -11145,38 +11154,58 @@ function NavTestPageContent() {
                       {/* Daily Races Card */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                         <Card 
-                          className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                          style={{ width: '300px', height: '140px' }}
+                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5" 
+                          style={{ width: '300px', height: '164px' }}
                           onClick={() => {
                             // Save current page state before navigating
                             setPreviousPageState({
-                              showSports: false,
+                              showSports: true,
                               showVipRewards: false,
-                              activeSubNav: activeSubNav
+                              activeSubNav: activeSubNav,
                             })
-                            setInitialVipSidebarItem('Cash Races')
-                            openVipDrawer()
+                            setVipActiveSidebarItem('Cash Races')
+                            setShowVipRewards(true)
+                            setVipDrawerOpen(false)
+                            window.scrollTo(0, 0)
                           }}
                         >
-                          <CardContent className="p-4 relative z-10">
-                            <div className="flex items-start justify-between mb-4">
-                              <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
-                              <div className="text-right">
-                                <DailyRacesTimer />
+                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
+                            <div className="mb-2 flex shrink-0 items-start justify-between gap-2">
+                              <div className="flex min-w-0 flex-1 items-center gap-2">
+                                <div
+                                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+                                  style={{ background: 'rgba(245, 158, 11, 0.12)' }}
+                                >
+                                  <IconTrophy
+                                    strokeWidth={1.8}
+                                    className="h-4 w-4 text-amber-400"
+                                  />
+                                </div>
+                                <CardTitle className="mb-0 text-sm font-semibold text-amber-100 transition-colors duration-300 dark:text-amber-100 leading-tight">
+                                  $25K Daily Race
+                                </CardTitle>
+                              </div>
+                              <div className="shrink-0 text-right">
+                                <DailyRacesTimer
+                                  className="text-xl font-bold text-amber-600 tabular-nums dark:text-amber-200"
+                                  colonClassName="text-amber-500/70 dark:text-amber-300/80"
+                                />
                               </div>
                             </div>
-                            <div className="grid grid-cols-3 gap-2 text-xs">
-                              <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                                <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                                <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
+                            <div className="flex min-h-0 flex-1 items-center">
+                              <div className="grid w-full grid-cols-3 gap-2 text-xs">
+                              <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30 transition-colors duration-300">
+                                <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">3rd</div>
+                                <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Position</div>
                               </div>
-                              <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                                <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                                <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
+                              <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
+                                <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
+                                <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Wagered</div>
                               </div>
-                              <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                                <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                                <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
+                              <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 dark:border-amber-400/40 transition-colors duration-300">
+                                <div className="text-amber-50 font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
+                                <div className="text-[10px] text-amber-200/80 transition-colors duration-300">Current Prize</div>
+                              </div>
                               </div>
                             </div>
                           </CardContent>

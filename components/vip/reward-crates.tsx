@@ -683,10 +683,10 @@ function CrateCard({ crate, onOpen, isLink }: CrateCardProps) {
               className="flex items-center gap-2.5 px-1 py-1 rounded-md"
             >
               <Icon
-                className="w-4 h-4 flex-shrink-0"
-                style={{ color: styles.primary }}
+                className="w-4 h-4 flex-shrink-0 text-white/40"
+                aria-hidden
               />
-              <span className="flex-1 text-[12px] font-medium text-white/85 truncate">
+              <span className="flex-1 truncate text-[10.5px] font-semibold text-white/40">
                 {reward.label}
               </span>
               {typeof reward.chance === 'number' && (

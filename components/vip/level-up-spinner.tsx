@@ -7,7 +7,6 @@ import {
   IconChevronUp,
   IconCrown,
   IconLock,
-  IconBoxMultiple,
 } from '@tabler/icons-react'
 import { fireConfetti } from '@/lib/confetti'
 import { cn } from '@/lib/utils'
@@ -125,11 +124,15 @@ interface Reward {
 }
 
 /**
- * Maps a spinner crate rarity to the canonical earn-crate kind that the
- * `RewardCrates` component listens for via the `notification:earn-crate`
- * CustomEvent. Common → small case (case-s), Rare → medium case (case-m),
- * Legendary → extra-large case (case-xl).
+ * Same `/lootbox/*.svg` assets as `components/vip/reward-crates.tsx` (MiniCrate / CrateCard).
  */
+const CRATE_PAGE_IMAGE: Record<CrateRewardKind, string> = {
+  'crate-common': '/lootbox/common.svg',
+  'crate-rare': '/lootbox/rare.svg',
+  'crate-legendary': '/lootbox/legend.svg',
+}
+
+/** Earn-crate event kinds — Common → case-s, Rare → case-m, Legendary → case-xl. */
 const CRATE_DISPATCH_KIND: Record<CrateRewardKind, 'case-s' | 'case-m' | 'case-xl'> = {
   'crate-common': 'case-s',
   'crate-rare': 'case-m',
@@ -156,12 +159,20 @@ const DEFAULT_REWARDS: Reward[] = [
 // Reel constants
 // ---------------------------------------------------------------------------
 
-const CARD_WIDTH = 92
-const CARD_HEIGHT = 108
-const CARD_GAP = 6
+const CARD_WIDTH = 78
+const CARD_HEIGHT = 92
+/** Breathing room between gem tiles — keeps the strip readable while spinning */
+const CARD_GAP = 18
 const STRIP_LENGTH = 60
 const SPIN_DURATION_MS = 5500
 const SPIN_EASING = 'cubic-bezier(0.05, 0.7, 0.1, 1)'
+/** One full copy of the idle strip width (~pixels); animation runs this far for a seamless loop */
+function idleStripWidthPx(cardCount: number): number {
+  if (cardCount <= 0) return CARD_WIDTH
+  return cardCount * (CARD_WIDTH + CARD_GAP) - CARD_GAP
+}
+/** Keep scroll speed roughly constant when strip length changes (e.g. after a spin) */
+const IDLE_MS_PER_CARD = 780
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -261,11 +272,19 @@ export function LevelUpSpinner({
   const [reelOffset, setReelOffset] = useState(0)
   const [reelTransition, setReelTransition] = useState('none')
   const [spinning, setSpinning] = useState(false)
+  /** After a spin lands, hold transform (no idle crawl) until Spin again or hub remount. */
+  const [reelFrozenAfterWin, setReelFrozenAfterWin] = useState(false)
   const [winner, setWinner] = useState<Reward | null>(null)
 
   const reelRef = useRef<HTMLDivElement | null>(null)
   const tierCarouselRef = useRef<HTMLDivElement | null>(null)
   const tierBtnRefs = useRef<Partial<Record<TierName, HTMLButtonElement | null>>>({})
+
+  const idleShiftPx = useMemo(() => idleStripWidthPx(strip.length), [strip.length])
+  const idleDurationMs = useMemo(
+    () => Math.max(22_000, strip.length * IDLE_MS_PER_CARD),
+    [strip.length],
+  )
 
   const isLocked = useMemo(() => {
     const userRank = TIER_RANK[currentTier]
@@ -277,6 +296,8 @@ export function LevelUpSpinner({
 
   const handleSpin = useCallback(() => {
     if (spinning || isLocked) return
+
+    setReelFrozenAfterWin(false)
 
     const winningReward = pickWeighted(DEFAULT_REWARDS)
     const winningIndex = STRIP_LENGTH - 8
@@ -314,6 +335,8 @@ export function LevelUpSpinner({
     window.setTimeout(() => {
       setSpinning(false)
       setWinner(winningReward)
+      setReelTransition('none')
+      setReelFrozenAfterWin(true)
 
       // Cut the whirr the instant the reel lands on the prize.
       stopSound('spin')
@@ -379,6 +402,7 @@ export function LevelUpSpinner({
     setReelTransition('none')
     setReelOffset(0)
     setWinner(null)
+    setReelFrozenAfterWin(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTier, selectedSubLevel])
 
@@ -391,6 +415,8 @@ export function LevelUpSpinner({
       btn.offsetLeft - container.clientWidth / 2 + btn.clientWidth / 2
     container.scrollTo({ left: targetLeft, behavior: 'smooth' })
   }, [selectedTier])
+
+  const showIdleCrawl = !spinning && !reelFrozenAfterWin
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -486,51 +512,78 @@ export function LevelUpSpinner({
         })}
       </div>
 
-      {/* Reel — escapes drawer's horizontal padding so the strip uses the full hub width */}
-      <div className="relative -mx-4" ref={reelRef}>
-        {/* Centre marker chevrons */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1.5 z-20 pointer-events-none">
-          <IconChevronDown className="w-4 h-4 text-white drop-shadow-md" strokeWidth={3} />
-        </div>
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 z-20 pointer-events-none">
-          <IconChevronUp className="w-4 h-4 text-white drop-shadow-md" strokeWidth={3} />
-        </div>
-
-        {/* Edge gradient fades — blend the outermost cards into the drawer bg */}
-        <div
-          aria-hidden
-          className="absolute inset-y-0 left-0 w-14 z-10 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to right, rgba(13,13,16,1), rgba(13,13,16,0))',
-          }}
-        />
-        <div
-          aria-hidden
-          className="absolute inset-y-0 right-0 w-14 z-10 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to left, rgba(13,13,16,1), rgba(13,13,16,0))',
-          }}
-        />
-
-        <div
-          className="overflow-hidden"
-          style={{ height: CARD_HEIGHT }}
-        >
+      {/* Reel — chevrons anchored to the strip edges (not the section bottom) so
+          the lower marker cannot drift over the Spin CTA; pb-8 reserves its height in flow */}
+      <div className="relative -mx-4 overflow-visible pt-2 pb-8" ref={reelRef}>
+        <div className="relative">
           <div
-            className="flex items-center h-full"
-            style={{
-              gap: CARD_GAP,
-              transform: `translateX(${reelOffset}px)`,
-              transition: reelTransition,
-              willChange: 'transform',
-            }}
+            aria-hidden
+            className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1 -translate-x-1/2"
           >
-            {strip.map((r, idx) => (
-              <ReelCard key={`${idx}-${r.id}`} tier={selectedTier} reward={r} />
-            ))}
+            <IconChevronDown
+              className="h-5 w-5 text-white"
+              strokeWidth={3}
+              style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.85))' }}
+            />
+          </div>
+
+          <div className="overflow-hidden" style={{ height: CARD_HEIGHT }}>
+            <div
+              className={cn(
+                'flex h-full items-center',
+                showIdleCrawl &&
+                  'motion-safe:animate-vip-reel-idle motion-reduce:animate-none',
+              )}
+              style={{
+                gap: CARD_GAP,
+                ...(showIdleCrawl
+                  ? {
+                      ['--reel-idle-shift' as string]: `${idleShiftPx}px`,
+                      ['--reel-idle-ms' as string]: `${idleDurationMs}ms`,
+                    }
+                  : {
+                      transform: `translateX(${reelOffset}px)`,
+                      transition: reelTransition,
+                      willChange: 'transform',
+                    }),
+              }}
+            >
+              {showIdleCrawl ? (
+                <>
+                  {strip.map((r, idx) => (
+                    <ReelCard
+                      key={`idle-a-${idx}-${r.id}`}
+                      tier={selectedTier}
+                      reward={r}
+                    />
+                  ))}
+                  {strip.map((r, idx) => (
+                    <ReelCard
+                      key={`idle-b-${idx}-${r.id}`}
+                      tier={selectedTier}
+                      reward={r}
+                    />
+                  ))}
+                </>
+              ) : (
+                strip.map((r, idx) => (
+                  <ReelCard key={`${idx}-${r.id}`} tier={selectedTier} reward={r} />
+                ))
+              )}
+            </div>
+          </div>
+
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2"
+          >
+            <IconChevronUp
+              className="h-5 w-5 text-white"
+              strokeWidth={3}
+              style={{ filter: 'drop-shadow(0 -1px 2px rgba(0,0,0,0.85))' }}
+            />
           </div>
         </div>
-
       </div>
 
       {/* CTA */}
@@ -614,19 +667,77 @@ function CssGem({ tier, size = 32 }: { tier: TierName; size?: number }) {
 }
 
 function ReelCard({ tier, reward }: { tier: TierName; reward: Reward }) {
-  const src = TIER_IMAGE[tier]
+  const tierBgSrc = TIER_IMAGE[tier]
+
+  if (reward.kind !== 'cash') {
+    const kind = reward.kind as CrateRewardKind
+    const crateSrc = CRATE_PAGE_IMAGE[kind]
+    return (
+      <div
+        style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+        className="relative shrink-0 overflow-hidden rounded-lg ring-1 ring-white/10 shadow-md shadow-black/30"
+      >
+        {tierBgSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={tierBgSrc}
+            alt=""
+            draggable={false}
+            className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+          />
+        ) : (
+          <CssGem tier={tier} size={Math.max(CARD_WIDTH, CARD_HEIGHT)} />
+        )}
+
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.45) 38%, rgba(0,0,0,0) 75%)',
+          }}
+        />
+
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-1 pb-4 pt-0.5 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={crateSrc}
+            alt=""
+            draggable={false}
+            className="h-12 w-12 shrink-0 object-contain pointer-events-none select-none"
+            style={{
+              filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.55))',
+            }}
+          />
+          <span
+            className={cn(
+              'mt-1 text-[10px] font-extrabold uppercase leading-none tracking-tight',
+              CRATE_STYLE[kind].text
+            )}
+            style={{
+              textShadow:
+                '0 2px 8px rgba(0,0,0,0.95), 0 1px 2px rgba(0,0,0,0.7)',
+            }}
+          >
+            {reward.amount}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
-      className="relative shrink-0 rounded-md overflow-hidden"
+      className="relative shrink-0 overflow-hidden rounded-lg ring-1 ring-white/10 shadow-md shadow-black/30"
     >
-      {src ? (
+      {tierBgSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src}
+          src={tierBgSrc}
           alt=""
           draggable={false}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none"
         />
       ) : (
         <CssGem tier={tier} size={Math.max(CARD_WIDTH, CARD_HEIGHT)} />
@@ -644,17 +755,11 @@ function ReelCard({ tier, reward }: { tier: TierName; reward: Reward }) {
       />
 
       {/* Hero amount — dead-centred, with a small icon stacked above it.
-          Cash prizes render the dollar value in white; crate prizes render
-          the rarity name (Common / Rare / Legendary) tinted by rarity. */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-1.5">
-        <ReelGlyph kind={reward.kind} />
+          Cash prizes render the dollar value in white. */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-1.5 text-center">
+        <ReelGlyph />
         <span
-          className={cn(
-            'font-extrabold leading-none tracking-tight mt-1.5',
-            reward.kind === 'cash'
-              ? 'text-[18px] text-white tabular-nums'
-              : cn('text-[13px] uppercase', CRATE_STYLE[reward.kind].text)
-          )}
+          className="mt-1 text-[16px] font-extrabold leading-none tracking-tight text-white tabular-nums"
           style={{
             textShadow:
               '0 2px 8px rgba(0,0,0,0.95), 0 1px 2px rgba(0,0,0,0.7), 0 0 1px rgba(0,0,0,0.9)',
@@ -676,23 +781,13 @@ const CRATE_STYLE: Record<CrateRewardKind, { text: string; chip: string }> = {
   'crate-legendary': { text: 'text-amber-300', chip: 'rgba(251, 191, 36, 0.28)' },
 }
 
-/** Compact icon-only glyph used inside reel cards (no chip background). */
-function ReelGlyph({ kind }: { kind: Reward['kind'] }) {
-  const cls = 'w-4 h-4'
-  if (kind === 'cash') {
-    return (
-      <IconCashBanknote
-        className={cn(cls, 'text-emerald-300')}
-        strokeWidth={2.5}
-        style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.7))' }}
-      />
-    )
-  }
+/** Cash-only glyph above the dollar amount on gem tiles */
+function ReelGlyph() {
   return (
-    <IconBoxMultiple
-      className={cn(cls, CRATE_STYLE[kind].text)}
-      strokeWidth={2.5}
-      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.7))' }}
+    <IconCashBanknote
+      className="h-3 w-3 text-emerald-300"
+      strokeWidth={2.25}
+      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.75))' }}
     />
   )
 }
@@ -710,13 +805,20 @@ function RewardIcon({ kind, small = false }: { kind: Reward['kind']; small?: boo
       </span>
     )
   }
-  const style = CRATE_STYLE[kind]
+  const crateKind = kind as CrateRewardKind
+  const src = CRATE_PAGE_IMAGE[crateKind]
   return (
     <span
-      className={cn('rounded p-0.5 flex items-center justify-center', !small && 'mb-0.5')}
-      style={{ backgroundColor: style.chip }}
+      className={cn('flex items-center justify-center rounded p-0.5', !small && 'mb-0.5')}
+      style={{ backgroundColor: CRATE_STYLE[crateKind].chip }}
     >
-      <IconBoxMultiple className={cn(sz, style.text)} strokeWidth={2} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        draggable={false}
+        className={cn(sz, 'object-contain')}
+      />
     </span>
   )
 }

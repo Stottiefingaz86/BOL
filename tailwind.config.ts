@@ -65,7 +65,19 @@ const config: Config = {
   		},
   		borderRadius: {
   			small: '6px'
-  		}
+  		},
+  		keyframes: {
+  			'vip-reel-idle': {
+  				'0%': { transform: 'translateX(0)' },
+  				'100%': {
+  					transform: 'translateX(calc(-1 * var(--reel-idle-shift, 0px)))',
+  				},
+  			},
+  		},
+  		animation: {
+  			'vip-reel-idle':
+  				'vip-reel-idle var(--reel-idle-ms, 28s) linear infinite',
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

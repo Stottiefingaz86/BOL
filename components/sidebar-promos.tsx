@@ -9,8 +9,7 @@ import {
   IconTargetArrow,
   IconChevronRight,
   IconChevronDown,
-  IconSparkles,
-  IconCrown,
+  IconRocket,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
@@ -211,7 +210,7 @@ export function SidebarPromos({
   return (
     <div className="px-2 pt-2 pb-1 min-w-0 max-w-full">
       <div className="rounded-lg bg-white/[0.025] border border-white/[0.06] overflow-hidden min-w-0">
-        {/* Toggle bar — sparkles + "Promotions" label + chevron. */}
+        {/* Toggle bar — rocket + "Promotions" + chevron (matches Promotion nav). */}
         <button
           type="button"
           onClick={toggle}
@@ -219,7 +218,7 @@ export function SidebarPromos({
           aria-expanded={isOpen}
           className="w-full h-9 flex items-center gap-2 px-2.5 hover:bg-white/[0.03] transition-colors"
         >
-          <IconSparkles
+          <IconRocket
             strokeWidth={1.8}
             className="w-4 h-4 text-white/55 flex-shrink-0"
           />
@@ -262,9 +261,7 @@ export function SidebarPromos({
                   }
                   className="mt-1 mx-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] font-medium text-white/50 hover:text-white hover:bg-white/[0.04] transition-colors"
                 >
-                  <IconCrown strokeWidth={1.8} className="w-3.5 h-3.5" />
-                  <span className="flex-1 text-left">All Promotions</span>
-                  <IconChevronRight className="w-3 h-3 opacity-60" />
+                  <span className="w-full text-left">All Promotions</span>
                 </button>
               </div>
             </motion.div>
