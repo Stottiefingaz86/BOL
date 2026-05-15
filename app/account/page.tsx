@@ -156,6 +156,7 @@ import { CashDropCode } from '@/components/vip/cash-drop-code'
 import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
+import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { DailyRacesTimer } from '@/components/daily-races-timer'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import {
@@ -765,7 +766,7 @@ function DashboardSection({
             <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-white leading-tight">
               Gold To Platinum I
             </CardTitle>
-            <div className="mt-5 flex min-h-0 flex-1 flex-col">
+            <div className="mt-3 flex min-h-0 flex-1 flex-col">
               <VipTierProgressBar
                 value={45}
                 variant="compact"
@@ -2286,6 +2287,7 @@ function VipDrawerContent({
               </CardContent>
             </Card>
 
+            <DailySpinCard />
             <VipBenefitTiles
               onClaim={(tile) => console.log('VIP claim', tile.id)}
               onTileClick={(tile) => console.log('VIP tile click', tile.id)}
@@ -2447,6 +2449,16 @@ function AccountPageContent() {
     window.addEventListener('vip:open-drawer', handler)
     return () => window.removeEventListener('vip:open-drawer', handler)
   }, [openVipDrawer])
+
+  // Daily Spin (and other promo popups) dispatch this event so the VIP hub
+  // doesn't stay stacked behind their dialog. Keeps each modal feeling like
+  // the primary thing on screen.
+  useEffect(() => {
+    const handler = () => setVipDrawerOpen(false)
+    if (typeof window === 'undefined') return
+    window.addEventListener('vip:close-drawer', handler)
+    return () => window.removeEventListener('vip:close-drawer', handler)
+  }, [])
   const openDepositDrawer = useCallback(() => {
     trackClick('deposit', 'Deposit')
     setAccountDrawerOpen(false)

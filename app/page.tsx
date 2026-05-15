@@ -11,6 +11,7 @@ import { CashDropCode } from '@/components/vip/cash-drop-code'
 import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
+import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { SidebarPromos } from '@/components/sidebar-promos'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
@@ -638,6 +639,7 @@ function VipDrawerContent({
               </CardContent>
             </Card>
 
+            <DailySpinCard />
             <VipBenefitTiles
               onClaim={(tile) => console.log('VIP claim', tile.id)}
               onTileClick={(tile) => console.log('VIP tile click', tile.id)}
@@ -878,6 +880,16 @@ function HomePageContent() {
     window.addEventListener('vip:open-drawer', handler)
     return () => window.removeEventListener('vip:open-drawer', handler)
   }, [openVipDrawer])
+
+  // Daily Spin (and other promo popups) dispatch this event so the VIP hub
+  // doesn't stay stacked behind their dialog. Keeps each modal feeling like
+  // the primary thing on screen.
+  useEffect(() => {
+    const handler = () => setVipDrawerOpen(false)
+    if (typeof window === 'undefined') return
+    window.addEventListener('vip:close-drawer', handler)
+    return () => window.removeEventListener('vip:close-drawer', handler)
+  }, [])
 
   // Sub-component nav handlers across the app navigate to `/?vip=open` when
   // they want to launch the VIP Hub but can't reach the local `openVipDrawer`

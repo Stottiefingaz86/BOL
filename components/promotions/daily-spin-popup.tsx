@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, animate } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { IconX } from '@tabler/icons-react'
@@ -10,32 +11,69 @@ import { IconX } from '@tabler/icons-react'
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface SpinPrize {
-  /** Display label, e.g. "$50" */
+  /** Primary on-slice label, e.g. "$50" or "20" */
   label: string
-  /** Numeric value used for the win screen / claim payload */
+  /** Optional secondary line under the primary label, e.g. "FREE SPINS" */
+  sublabel?: string
+  /** Numeric value used for the claim payload */
   value: number
+  /** Reward type — drives win-screen copy and the no-prize "Unlucky" branch */
+  kind: 'cash' | 'spins' | 'none'
   /** Slice background color */
   color: string
   /** Probability weight — higher = more likely. Big prizes get small weights. */
   weight: number
 }
 
-// 8 slices, on-brand palette: betRed / charcoal / gold / betNavy alternating.
-// Weights bias toward the smaller cash values so the big prizes feel rare.
-const COLOR_RED = '#ee3536'      // betRed/500
-const COLOR_BLACK = '#1a1a1a'    // near-charcoal (deep)
-const COLOR_GOLD = '#f5b400'     // brand gold accent
-const COLOR_NAVY = '#2d6f88'     // betNavy/500
+// 8 slices, brand-aligned premium palette. Pulled from
+// `lib/agent/designSystem.ts`:
+//   - betRed/700 #dc2a2f  → deepened to a rich wine claret
+//   - betNavy/700 #104e62 → deepened to midnight teal
+//   - vipColors/gold #c4af3e + Loyalty Gold #c5a047 → muted antique gold
+//   - true onyx for the "dark" wedges
+// Bright Tailwind values like `#facc15`, `#dc2434`, `#3a8caa` were too
+// "primary-school crayon"; these read as enamel jewellery instead.
+interface PrizeColor {
+  /** Inner gradient stop (toward hub) — the "brighter" face of the slice. */
+  inner: string
+  /** Outer gradient stop (toward rim) — the "deeper" face of the slice. */
+  outer: string
+  /** Family label used as the SVG <radialGradient> id suffix. */
+  family: 'claret' | 'onyx' | 'gold' | 'midnight'
+  /** Solid colour used for confetti & halo accent (always readable on black). */
+  accent: string
+  /** Recommended foreground for prize labels on this slice. */
+  ink: 'light' | 'dark'
+}
 
-const PRIZES: SpinPrize[] = [
-  { label: '$5',     value: 5,     color: COLOR_RED,   weight: 28 },
-  { label: '$50',    value: 50,    color: COLOR_GOLD,  weight: 14 },
-  { label: '$10',    value: 10,    color: COLOR_NAVY,  weight: 24 },
-  { label: '$250',   value: 250,   color: COLOR_BLACK, weight: 6  },
-  { label: '$25',    value: 25,    color: COLOR_RED,   weight: 16 },
-  { label: '$500',   value: 500,   color: COLOR_GOLD,  weight: 3  },
-  { label: '$15',    value: 15,    color: COLOR_NAVY,  weight: 22 },
-  { label: '$1,000', value: 1000,  color: COLOR_BLACK, weight: 1  },
+const PALETTE: Record<'claret' | 'onyx' | 'gold' | 'midnight', PrizeColor> = {
+  // Deep wine — the brand red, dropped two steps down for a casino-table feel.
+  claret:   { inner: '#9a1322', outer: '#3a0510', family: 'claret',   accent: '#ee3536', ink: 'light' },
+  // True onyx with a faint warm undertone so it doesn't look like a hole.
+  onyx:     { inner: '#23252b', outer: '#08090b', family: 'onyx',     accent: '#c5a047', ink: 'light' },
+  // Brand loyalty gold — antique, muted. No more lemon-yellow.
+  gold:     { inner: '#c5a047', outer: '#5e4612', family: 'gold',     accent: '#dbc448', ink: 'dark' },
+  // Deep midnight teal — derived from betNavy/700, dropped further so it
+  // reads as evening rather than a primary blue.
+  midnight: { inner: '#1d4a5e', outer: '#06212e', family: 'midnight', accent: '#5cd0ff', ink: 'light' },
+}
+
+interface PrizeWithColor extends Omit<SpinPrize, 'color'> {
+  color: PrizeColor
+}
+
+// Prize order is rendered around the wheel starting at 12 o'clock and going
+// clockwise. Weights bias the random pick toward the lower-tier outcomes so
+// the headline prizes still feel like a rare hit.
+const PRIZES: PrizeWithColor[] = [
+  { label: 'Unlucky',                       value: 0,    kind: 'none',  color: PALETTE.onyx,     weight: 30 },
+  { label: '$2',                            value: 2,    kind: 'cash',  color: PALETTE.claret,   weight: 22 },
+  { label: '$5',                            value: 5,    kind: 'cash',  color: PALETTE.midnight, weight: 18 },
+  { label: '20',  sublabel: 'FREE SPINS',   value: 20,   kind: 'spins', color: PALETTE.gold,     weight: 5  },
+  { label: '100', sublabel: 'FREE SPINS',   value: 100,  kind: 'spins', color: PALETTE.claret,   weight: 1  },
+  { label: '$20',                           value: 20,   kind: 'cash',  color: PALETTE.onyx,     weight: 8  },
+  { label: '$50',                           value: 50,   kind: 'cash',  color: PALETTE.gold,     weight: 2  },
+  { label: '5',   sublabel: 'FREE SPINS',   value: 5,    kind: 'spins', color: PALETTE.midnight, weight: 14 },
 ]
 
 const SEGMENT_COUNT = PRIZES.length
@@ -50,11 +88,20 @@ const SPIN_DURATION_MS = 6800
 const SPIN_BASE_TURNS = 8
 const SPIN_EASE: [number, number, number, number] = [0.08, 0.55, 0.05, 1]
 
-// Some slice colors are too dark to read as a confetti/halo accent (e.g.
-// black). Map them to a visible "spotlight" version of the brand palette.
-function accentFor(color: string): string {
-  if (color === COLOR_BLACK) return COLOR_GOLD
-  return color
+// Returns the always-readable accent colour for confetti / win halos —
+// onyx is too dark to bloom on a black backdrop, so it borrows champagne gold
+// instead. Every other slice already ships its own visible accent.
+function accentFor(color: PrizeColor): string {
+  return color.accent
+}
+
+// Human-readable prize string used in the title + claim button. Kept separate
+// from the on-slice label because slice space is tight (we use abbreviated
+// "20 / FREE SPINS" stacks there) but the win screen has room to breathe.
+function formatPrize(p: PrizeWithColor): string {
+  if (p.kind === 'spins') return `${p.value} Free Spins`
+  if (p.kind === 'cash') return p.label
+  return p.label
 }
 
 function pickWeightedIndex(): number {
@@ -87,94 +134,6 @@ function wedgePath(cx: number, cy: number, rOuter: number, rInner: number, start
     `A ${rInner} ${rInner} 0 ${largeArc} 0 ${x1i} ${y1i}`,
     'Z',
   ].join(' ')
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Animated gold rain background (matches JackpotOverlay vibe)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function GoldRain() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let animId = 0
-    const particles: Array<{
-      x: number; y: number; size: number; speed: number
-      opacity: number; rotation: number; rotSpeed: number
-      wobble: number; wobbleSpeed: number; color: string
-    }> = []
-    const colors = ['#FFD700', '#FFA500', '#FFDF00', '#DAA520', '#FFB347', '#E8B923']
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth * 2
-      canvas.height = canvas.offsetHeight * 2
-      ctx.setTransform(2, 0, 0, 2, 0, 0)
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    for (let i = 0; i < 70; i++) {
-      particles.push({
-        x: Math.random() * canvas.offsetWidth,
-        y: Math.random() * canvas.offsetHeight * -2,
-        size: Math.random() * 4 + 1.5,
-        speed: Math.random() * 1.6 + 0.8,
-        opacity: Math.random() * 0.45 + 0.1,
-        rotation: Math.random() * 360,
-        rotSpeed: (Math.random() - 0.5) * 3,
-        wobble: Math.random() * 50,
-        wobbleSpeed: Math.random() * 0.02 + 0.005,
-        color: colors[Math.floor(Math.random() * colors.length)],
-      })
-    }
-
-    let time = 0
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight)
-      time += 1
-      particles.forEach((p) => {
-        ctx.save()
-        const wobbleX = Math.sin(time * p.wobbleSpeed + p.wobble) * 25
-        ctx.translate(p.x + wobbleX, p.y)
-        ctx.rotate((p.rotation + time * p.rotSpeed) * (Math.PI / 180))
-        ctx.globalAlpha = p.opacity
-        ctx.fillStyle = p.color
-        ctx.shadowColor = p.color
-        ctx.shadowBlur = 6
-        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2)
-        ctx.restore()
-        p.y += p.speed
-        if (p.y > canvas.offsetHeight + 20) {
-          p.y = -20
-          p.x = Math.random() * canvas.offsetWidth
-        }
-      })
-      animId = requestAnimationFrame(draw)
-    }
-    draw()
-
-    return () => {
-      cancelAnimationFrame(animId)
-      window.removeEventListener('resize', resize)
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      // z-index: 0 so the canvas paints inside its parent's stacking context
-      // but BELOW positioned siblings. The popup card wraps content in a
-      // relative-positioned container with z-index 1, so this stays in the
-      // background.
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 0 }}
-    />
-  )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -232,25 +191,11 @@ function WheelSVG({ rotation, spinning, showPointer = true }: WheelProps) {
     })
   }, [])
 
-  // Rim "LED" bulbs nestled inside the dark rim ring. Multi-colour palette —
-  // each bulb is one of four hues so the rim feels like a fairy-light strip.
-  const bulbs = useMemo(() => {
-    const count = 24
-    const palette = ['#FFD700', '#ee3536', '#ffffff', '#5cd0ff'] // gold / red / white / cyan
-    return Array.from({ length: count }, (_, i) => {
-      const a = (i / count) * Math.PI * 2 - Math.PI / 2
-      const r = WHEEL_RADIUS + 17
-      return {
-        x: Math.cos(a) * r,
-        y: Math.sin(a) * r,
-        i,
-        color: palette[i % palette.length],
-      }
-    })
-  }, [])
-
-  // Total view radius (wheel + neon halo + bulbs + drop shadow)
-  const VIEW = WHEEL_RADIUS + 48
+  // Total view radius (wheel + thin rim + ambient shadow). No studs, no LED
+  // strip, no skeuomorphic ornaments — the previous design tried to be
+  // "premium" by piling decoration on top of decoration. Modern wheels read
+  // as a single confident shape.
+  const VIEW = WHEEL_RADIUS + 36
 
   return (
     <svg
@@ -259,249 +204,121 @@ function WheelSVG({ rotation, spinning, showPointer = true }: WheelProps) {
       style={{ overflow: 'visible' }}
     >
       <defs>
-        {/* Flat dark rim — a single mostly-uniform colour with a soft
-            inner/outer fade. Modern, no chiseled bevel or chrome highlights. */}
-        <radialGradient
-          id="rim3D"
-          gradientUnits="userSpaceOnUse"
-          cx="0"
-          cy="0"
-          r={WHEEL_RADIUS + 28}
-        >
-          <stop offset={(WHEEL_RADIUS) / (WHEEL_RADIUS + 28)} stopColor="#0a0a0a" />
-          <stop offset={(WHEEL_RADIUS + 4) / (WHEEL_RADIUS + 28)} stopColor="#1a1d22" />
-          <stop offset={(WHEEL_RADIUS + 24) / (WHEEL_RADIUS + 28)} stopColor="#15181c" />
-          <stop offset={1} stopColor="#000000" />
+        {/* Single subtle inner highlight — a faint white wash near the centre
+            so flat slices catch a hint of light without becoming gradient
+            paintings. Modern wheels are flat; this is the one concession. */}
+        <radialGradient id="innerWash" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.06" />
+          <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
-
-        {/* Slice depth — radial vignette: darker near hub, slight highlight at
-            the outer edge. Gives slices a 3D wedge feel without bevels. */}
-        <radialGradient
-          id="sliceDepth"
-          gradientUnits="userSpaceOnUse"
-          cx="0"
-          cy="0"
-          r={WHEEL_RADIUS}
-        >
-          <stop offset="0%" stopColor="#000" stopOpacity="0.55" />
-          <stop offset="35%" stopColor="#000" stopOpacity="0.22" />
-          <stop offset="70%" stopColor="#000" stopOpacity="0" />
-          <stop offset="92%" stopColor="#ffffff" stopOpacity="0.10" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-        </radialGradient>
-
-        {/* Soft glass dome — top-half highlight that does NOT rotate with the
-            wheel. Subtle so it reads as ambient lighting, not a Y2K lens. */}
-        <radialGradient id="domeHighlight" cx="50%" cy="6%" r="78%" fx="50%" fy="0%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.28" />
-          <stop offset="38%" stopColor="#ffffff" stopOpacity="0.08" />
-          <stop offset="68%" stopColor="#ffffff" stopOpacity="0" />
-          <stop offset="100%" stopColor="#000000" stopOpacity="0.18" />
-        </radialGradient>
-
-        {/* Bulb glow filter */}
-        <filter id="bulbGlow" x="-100%" y="-100%" width="300%" height="300%">
-          <feGaussianBlur stdDeviation="2.2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
-        {/* Outer neon halo blur */}
-        <filter id="neonBlur" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="6" />
-        </filter>
-
       </defs>
-
-      {/* ─── Outer pulsing neon halo (BetOnline red) ─── */}
-      <motion.circle
-        cx={0}
-        cy={0}
-        r={WHEEL_RADIUS + 30}
-        fill="none"
-        stroke="#ee3536"
-        strokeWidth={4}
-        filter="url(#neonBlur)"
-        animate={{ opacity: [0.55, 0.95, 0.55] }}
-        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.circle
-        cx={0}
-        cy={0}
-        r={WHEEL_RADIUS + 36}
-        fill="none"
-        stroke="#FFD700"
-        strokeWidth={2}
-        filter="url(#neonBlur)"
-        animate={{ opacity: [0.3, 0.7, 0.3] }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-      />
-
-      {/* ─── Flat dark rim ─── */}
-      <circle cx={0} cy={0} r={WHEEL_RADIUS + 28} fill="url(#rim3D)" />
-      {/* Subtle inner edge stroke so the slice circle reads cleanly */}
-      <circle
-        cx={0}
-        cy={0}
-        r={WHEEL_RADIUS + 1}
-        fill="none"
-        stroke="#000000"
-        strokeWidth={1}
-      />
-
-      {/* ─── Multi-colour LED bulbs nestled in the dark rim ─── */}
-      {bulbs.map((b) => {
-        // Vary timing per-bulb for an organic chase pattern. Pairing duration
-        // with begin offset gives the rim a "fairy-light" twinkle rather than
-        // a uniform pulse.
-        const dur = (0.9 + (b.i * 0.13) % 1.6).toFixed(2)
-        const begin = ((b.i * 0.17) % 1.4).toFixed(2)
-        return (
-          <g key={b.i}>
-            {/* Dark recessed socket */}
-            <circle cx={b.x} cy={b.y} r={6.5} fill="#000000" />
-            <circle
-              cx={b.x}
-              cy={b.y}
-              r={6.5}
-              fill="none"
-              stroke="#3a3f49"
-              strokeWidth={0.8}
-            />
-            {/* Glowing coloured bulb */}
-            <circle
-              cx={b.x}
-              cy={b.y}
-              r={4.4}
-              fill={b.color}
-              filter="url(#bulbGlow)"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.15;1;0.15"
-                dur={`${dur}s`}
-                begin={`${begin}s`}
-                repeatCount="indefinite"
-                calcMode="spline"
-                keyTimes="0;0.5;1"
-                keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
-              />
-              <animate
-                attributeName="r"
-                values="3.6;4.6;3.6"
-                dur={`${dur}s`}
-                begin={`${begin}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-            {/* Bright pin-prick highlight that twinkles in sync */}
-            <circle cx={b.x - 1} cy={b.y - 1} r={1.4} fill="#ffffff">
-              <animate
-                attributeName="opacity"
-                values="0.2;1;0.2"
-                dur={`${dur}s`}
-                begin={`${begin}s`}
-                repeatCount="indefinite"
-              />
-            </circle>
-          </g>
-        )
-      })}
 
       {/* ─── Wheel body — rotates via SVG transform attribute (imperative) ─── */}
       <g ref={wheelGroupRef} transform={`rotate(${currentRotationRef.current})`}>
-        {/* Slice fills */}
-        {slices.map((s, i) => (
-          <path
-            key={`slice-${i}`}
-            d={s.path}
-            fill={s.prize.color}
-            stroke="rgba(0,0,0,0.35)"
-            strokeWidth={1}
-          />
-        ))}
-
-        {/* Per-slice depth shading (one shape over all slices) */}
-        <circle cx={0} cy={0} r={WHEEL_RADIUS} fill="url(#sliceDepth)" pointerEvents="none" />
-
-        {/* Slice dividers — dark steel, low contrast (slices speak for
-            themselves, dividers just frame them) */}
-        {Array.from({ length: SEGMENT_COUNT }, (_, i) => {
-          const a = (i * SEGMENT_DEG - SEGMENT_DEG / 2 - 90) * (Math.PI / 180)
-          const x1 = Math.cos(a) * WHEEL_INNER_RADIUS
-          const y1 = Math.sin(a) * WHEEL_INNER_RADIUS
-          const x2 = Math.cos(a) * WHEEL_RADIUS
-          const y2 = Math.sin(a) * WHEEL_RADIUS
+        {/* Flat slice fills. No per-family radial gradients, no shading
+            tricks — just two confident brand colours alternating. The whole
+            "polished enamel" idea was reading as Photoshop layer styles. */}
+        {slices.map((s, i) => {
+          const isAccent = i % 2 === 0
           return (
-            <line
-              key={`spoke-${i}`}
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
-              stroke="#0f1216"
-              strokeWidth={2}
-              strokeLinecap="round"
-              opacity={0.85}
+            <path
+              key={`slice-${i}`}
+              d={s.path}
+              fill={isAccent ? '#ee3536' : '#16171b'}
+              stroke="#0a0b0e"
+              strokeWidth={1}
             />
           )
         })}
 
-        {/* Labels */}
+        {/* Subtle inner wash so the centre catches a touch of warm light */}
+        <circle cx={0} cy={0} r={WHEEL_RADIUS} fill="url(#innerWash)" pointerEvents="none" />
+
+        {/* Labels — solid white, single weight, no stroke, no shadow stack.
+            Slices with a sublabel ("FREE SPINS") render the count big with
+            the descriptor stacked underneath. Long single-line labels like
+            "Unlucky" downscale automatically. */}
         {slices.map((s, i) => {
-          const labelRadius = (WHEEL_RADIUS + WHEEL_INNER_RADIUS) / 2 + 14
+          const labelRadius = (WHEEL_RADIUS + WHEEL_INNER_RADIUS) / 2 + 18
+          const hasSub = !!s.prize.sublabel
+          const labelLen = s.prize.label.length
+          const primarySize = hasSub
+            ? 30
+            : labelLen > 5
+              ? 18
+              : labelLen > 3
+                ? 22
+                : 26
           return (
             <g key={`label-${i}`} transform={`rotate(${s.labelAngle})`}>
               <text
                 x={0}
-                y={-labelRadius}
+                y={-labelRadius - (hasSub ? 6 : 0)}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="#ffffff"
-                fontSize={s.prize.label.length > 4 ? 22 : 28}
-                fontWeight={900}
+                fontSize={primarySize}
+                fontWeight={700}
                 style={{
                   fontFamily: 'var(--font-figtree), sans-serif',
-                  letterSpacing: '-0.02em',
-                  paintOrder: 'stroke',
-                  stroke: 'rgba(0,0,0,0.7)',
-                  strokeWidth: 3.5,
-                  strokeLinejoin: 'round',
+                  letterSpacing: '-0.01em',
                 }}
               >
                 {s.prize.label}
               </text>
+              {hasSub && (
+                <text
+                  x={0}
+                  y={-labelRadius + 14}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="rgba(255,255,255,0.85)"
+                  fontSize={9}
+                  fontWeight={600}
+                  style={{
+                    fontFamily: 'var(--font-figtree), sans-serif',
+                    letterSpacing: '0.12em',
+                  }}
+                >
+                  {s.prize.sublabel}
+                </text>
+              )}
             </g>
           )
         })}
-
-        {/* Inner separator ring around the hub — dark frame */}
-        <circle cx={0} cy={0} r={WHEEL_INNER_RADIUS + 5} fill="#000000" />
-        <circle
-          cx={0}
-          cy={0}
-          r={WHEEL_INNER_RADIUS + 5}
-          fill="none"
-          stroke="#3a3f49"
-          strokeOpacity={0.9}
-          strokeWidth={1.2}
-        />
       </g>
 
-      {/* ─── Soft glass dome highlight (does NOT rotate with the wheel) ─── */}
+      {/* ─── Outer rim ─── A single hairline ring framing the slice band.
+          No bevels, no piping, no studs — clean geometric border. */}
       <circle
         cx={0}
         cy={0}
-        r={WHEEL_RADIUS}
-        fill="url(#domeHighlight)"
-        pointerEvents="none"
+        r={WHEEL_RADIUS + 6}
+        fill="none"
+        stroke="#262628"
+        strokeWidth={12}
+      />
+      <circle
+        cx={0}
+        cy={0}
+        r={WHEEL_RADIUS + 12.5}
+        fill="none"
+        stroke="#0a0b0e"
+        strokeWidth={1}
+      />
+      <circle
+        cx={0}
+        cy={0}
+        r={WHEEL_RADIUS - 0.5}
+        fill="none"
+        stroke="#0a0b0e"
+        strokeWidth={1}
       />
 
-      {/* ─── Center hub — flat dark disc behind the SPIN button ─── */}
-      <circle cx={0} cy={0} r={WHEEL_INNER_RADIUS + 1} fill="#000000" />
-      <circle cx={0} cy={0} r={WHEEL_INNER_RADIUS} fill="#1a1d22" />
+      {/* ─── Center cap — solid dark disc behind the SPIN button. Gives the
+          rotating spokes a clean stop without the gold-sparkle hub disc. */}
+      <circle cx={0} cy={0} r={WHEEL_INNER_RADIUS + 6} fill="#0a0b0e" />
+      <circle cx={0} cy={0} r={WHEEL_INNER_RADIUS + 5} fill="#16171b" />
 
       {/* ─── Pointer at the very top of the wheel ─── */}
       {showPointer && (
@@ -511,132 +328,161 @@ function WheelSVG({ rotation, spinning, showPointer = true }: WheelProps) {
   )
 }
 
-// Pointer: gold map-pin shape with a circular hole. Sits with its tip well
-// inside the slice band so it visibly marks the winning wedge. Bobs gently
-// when idle and wobbles like a peg-tick pointer while the wheel is spinning.
+// Pointer: a sleek champagne-gold arrow blade mounted on a slim metal stem,
+// pinned to the top edge of the rim. Rotates around its mounting point —
+// driven by an imperative `requestAnimationFrame` loop on the SVG `rotate`
+// attribute, NOT framer-motion. The previous framer-motion + `transformBox`
+// trick was unreliable on SVG `<g>` and the wobble simply didn't fire on most
+// browsers (which is what the user noticed).
 function PointerSVG({ spinning }: { spinning: boolean }) {
-  const R_HEAD = 22
-  const POINT_Y = R_HEAD + 22 // tip extends 22 below the head centre
-  const HOLE_R = 8
-  // Drop the tip ~30 units inside the rim so the pin clearly overlaps the
-  // slice band rather than perching on the edge.
-  const tipTargetY = -(WHEEL_RADIUS - 30)
-  const translateY = tipTargetY - POINT_Y
+  const ref = useRef<SVGGElement>(null)
+
+  // Pivot lives at the very top of the rim where the pointer attaches. We
+  // rotate around (0, PIVOT_Y) using SVG's `rotate(angle cx cy)` syntax so
+  // the swing pivots from the mount, not from the centre of the bounding box.
+  const PIVOT_Y = -(WHEEL_RADIUS + 4)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    if (!spinning) {
+      // Idle: gentle continuous bob via a slow sine wave so the pointer never
+      // looks frozen. Keeps the wheel feeling alive.
+      let raf = 0
+      const start = performance.now()
+      const tick = (now: number) => {
+        const t = (now - start) / 1000
+        const bobAngle = Math.sin(t * 1.4) * 1.4
+        el.setAttribute('transform', `rotate(${bobAngle} 0 ${PIVOT_Y})`)
+        raf = requestAnimationFrame(tick)
+      }
+      raf = requestAnimationFrame(tick)
+      return () => cancelAnimationFrame(raf)
+    }
+
+    // Spinning: peg-click ratchet. Triangle wave with a sharp lead-in so each
+    // swing lands like the pointer was just kicked by a divider going past.
+    let raf = 0
+    const start = performance.now()
+    const tick = (now: number) => {
+      const t = (now - start) / 1000
+      // ~7Hz oscillation, ±9° peak — clearly visible without being silly.
+      const phase = (t * 7) % 1
+      // Sawtooth-ish wave: quick recoil, slower return-to-rest.
+      const sweep = phase < 0.35 ? -1 + (phase / 0.35) * 1.2 : 0.2 - ((phase - 0.35) / 0.65) * 1.2
+      const angle = sweep * 9
+      el.setAttribute('transform', `rotate(${angle} 0 ${PIVOT_Y})`)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      // Snap back to neutral so the next idle bob starts clean.
+      el.setAttribute('transform', `rotate(0 0 ${PIVOT_Y})`)
+    }
+  }, [spinning, PIVOT_Y])
+
+  // Geometry — minimal flat triangle pointing inward at 12 o'clock.
+  // Sits just inside the rim so it reads as part of the wheel chrome, not
+  // a separate ornament. No gem, no dome, no metal gradient.
+  const TIP_Y = -(WHEEL_RADIUS - 4)
+  const BASE_Y = -(WHEEL_RADIUS + 14)
+  const HALF_W = 11
+
+  const trianglePath = [
+    `M ${-HALF_W} ${BASE_Y}`,
+    `L 0 ${TIP_Y}`,
+    `L ${HALF_W} ${BASE_Y}`,
+    'Z',
+  ].join(' ')
 
   return (
-    <g transform={`translate(0 ${translateY})`}>
-      {/* Idle bob — gentle vertical breathing when not spinning. */}
-      <motion.g
-        animate={spinning ? { y: 0 } : { y: [0, -4, 0] }}
-        transition={
-          spinning
-            ? { duration: 0.25, ease: 'easeOut' }
-            : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        {/* Wobble — kicked-by-pegs effect while spinning, pivots from the
-            top of the head so the tip swings naturally. */}
-        <motion.g
-          animate={spinning ? { rotate: [0, -7, 0, -7, 0] } : { rotate: 0 }}
-          transition={
-            spinning
-              ? { duration: 0.32, repeat: Infinity, ease: 'easeOut' }
-              : { duration: 0.3, ease: 'easeOut' }
-          }
-          style={{ transformBox: 'fill-box', transformOrigin: 'center top' }}
-        >
-          {/* Map-pin shape: round head + tapered tip + circular hole.
-              fillRule="evenodd" turns the inner sub-path into a real cutout. */}
-          <path
-            d={[
-              `M 0 ${POINT_Y}`,
-              `L ${-Math.cos(Math.PI / 6) * R_HEAD} ${Math.sin(Math.PI / 6) * R_HEAD}`,
-              `A ${R_HEAD} ${R_HEAD} 0 1 1 ${Math.cos(Math.PI / 6) * R_HEAD} ${Math.sin(Math.PI / 6) * R_HEAD}`,
-              `Z`,
-              `M ${HOLE_R} 0`,
-              `A ${HOLE_R} ${HOLE_R} 0 1 0 ${-HOLE_R} 0`,
-              `A ${HOLE_R} ${HOLE_R} 0 1 0 ${HOLE_R} 0`,
-              `Z`,
-            ].join(' ')}
-            fill="#FFD700"
-            fillRule="evenodd"
-            stroke="#9a6a00"
-            strokeWidth={2}
-            strokeLinejoin="round"
-            style={{ filter: 'drop-shadow(0 4px 10px rgba(255,200,0,0.45))' }}
-          />
-        </motion.g>
-      </motion.g>
+    <g ref={ref} transform={`rotate(0 0 ${PIVOT_Y})`}>
+      <path
+        d={trianglePath}
+        fill="#ffffff"
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.55))' }}
+      />
     </g>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Twinkling sparkle layer — only mounted on the win frame
+// Ambient backdrop — a soft brand-red glow pulse anchored behind the wheel
+// plus a few slow-drifting white particles in the card. Deliberately dim and
+// low-frequency so it feels like atmosphere, not decoration.
 // ─────────────────────────────────────────────────────────────────────────────
 
-function SparkleOverlay({ active, accentColor }: { active: boolean; accentColor: string }) {
-  // Generate sparkle positions/timings once; remount per-win is cheap enough
-  // and we want fresh randomization on every win.
-  const sparkles = useMemo(() => {
-    if (!active) return []
-    return Array.from({ length: 38 }, (_, i) => {
-      const useAccent = Math.random() < 0.25
-      return {
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: 8 + Math.random() * 18,
-        delay: Math.random() * 1.6,
-        duration: 0.9 + Math.random() * 1.4,
-        repeatDelay: Math.random() * 1.4,
-        color: useAccent ? accentColor : Math.random() > 0.5 ? '#FFE38A' : '#ffffff',
-      }
-    })
-  }, [active, accentColor])
-
-  if (!active) return null
+function AmbientBackdrop({ active }: { active: boolean }) {
+  // Particle positions are randomised once per mount so each session feels
+  // organic, but the count is small (12) and motion is slow so the eye reads
+  // them as ambient depth rather than a falling-particle effect.
+  const particles = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => ({
+      i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 1.5 + Math.random() * 2,
+      delay: Math.random() * 4,
+      duration: 6 + Math.random() * 6,
+      drift: -8 - Math.random() * 12, // upward drift in %
+    }))
+  }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 35 }}>
-      {sparkles.map((s) => (
-        <motion.div
-          key={s.id}
-          className="absolute"
+    <div
+      aria-hidden
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      style={{ zIndex: 0 }}
+    >
+      {/* Centre glow — a slow pulsing brand-red radial bloom anchored behind
+          the wheel. Sits low in the alpha range so it feels like the room
+          lighting, not a spotlight. */}
+      <motion.div
+        className="absolute left-1/2 top-1/2 rounded-full"
+        style={{
+          width: '120%',
+          aspectRatio: '1 / 1',
+          transform: 'translate(-50%, -50%)',
+          background:
+            'radial-gradient(circle, rgba(238,53,54,0.18) 0%, rgba(238,53,54,0.08) 35%, rgba(238,53,54,0) 65%)',
+          filter: 'blur(12px)',
+        }}
+        animate={
+          active
+            ? { opacity: [0.55, 0.9, 0.55], scale: [0.95, 1.05, 0.95] }
+            : { opacity: 0.55, scale: 1 }
+        }
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Drifting particles — white at low alpha, slow upward drift, gentle
+          twinkle. No gold, no colour, no streak trails. */}
+      {particles.map((p) => (
+        <motion.span
+          key={p.i}
+          className="absolute rounded-full"
           style={{
-            left: `${s.x}%`,
-            top: `${s.y}%`,
-            width: s.size,
-            height: s.size,
-            transform: 'translate(-50%, -50%)',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            background: 'rgba(255,255,255,0.55)',
+            boxShadow: '0 0 4px rgba(255,255,255,0.35)',
           }}
-          initial={{ scale: 0, opacity: 0, rotate: 0 }}
           animate={{
-            scale: [0, 1, 0],
-            opacity: [0, 1, 0],
-            rotate: [0, 90, 180],
+            y: [`0%`, `${p.drift}%`],
+            opacity: [0, 0.7, 0],
           }}
           transition={{
-            duration: s.duration,
-            delay: s.delay,
+            duration: p.duration,
+            delay: p.delay,
             repeat: Infinity,
-            repeatDelay: s.repeatDelay,
             ease: 'easeInOut',
           }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width={s.size}
-            height={s.size}
-            style={{ filter: `drop-shadow(0 0 8px ${s.color})` }}
-          >
-            {/* 4-point sparkle / glint */}
-            <path
-              d="M12 1.5 L13.5 10.5 L22.5 12 L13.5 13.5 L12 22.5 L10.5 13.5 L1.5 12 L10.5 10.5 Z"
-              fill={s.color}
-            />
-          </svg>
-        </motion.div>
+        />
       ))}
     </div>
   )
@@ -650,7 +496,7 @@ interface DailySpinPopupProps {
   visible: boolean
   onClose: () => void
   /** Called with the prize once the user claims after a spin. */
-  onClaim?: (prize: SpinPrize) => void
+  onClaim?: (prize: PrizeWithColor) => void
 }
 
 type Phase = 'idle' | 'spinning' | 'won'
@@ -807,9 +653,13 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
     setRotation(target)
 
     // Fire the win effects shortly after the wheel finishes its slow creep.
+    // Skip the confetti for the "Unlucky" slice — celebrating a no-prize
+    // result feels wrong.
     setTimeout(() => {
       setPhase('won')
-      fireConfetti(accentFor(PRIZES[winIdx].color))
+      if (PRIZES[winIdx].kind !== 'none') {
+        fireConfetti(accentFor(PRIZES[winIdx].color))
+      }
     }, SPIN_DURATION_MS + 120)
   }, [phase, fireConfetti])
 
@@ -820,7 +670,16 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
     onClose()
   }, [winningPrize, onClaim, onClose])
 
-  return (
+  // Portal target — only available client-side. The popup MUST escape any
+  // ancestor stacking context (the VIP drawer uses CSS transforms for its
+  // slide animation, which traps fixed-positioned children no matter how
+  // high z-index gets). Mounting at <body> is the cleanest fix.
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    if (typeof document !== 'undefined') setPortalTarget(document.body)
+  }, [])
+
+  const tree = (
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -834,55 +693,59 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
           aria-modal="true"
           aria-label="Daily spin"
         >
-          {/* Backdrop — light translucent dim so the homepage stays visible
-              behind the dialog. Click outside to close while idle. */}
+          {/* Backdrop — translucent dim with a soft blur so the page stays
+              legible behind the wheel without competing for attention. */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="absolute inset-0 backdrop-blur-[2px]"
-            style={{ background: 'rgba(0,0,0,0.45)' }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 backdrop-blur-sm"
+            style={{ background: 'rgba(0,0,0,0.55)' }}
             onClick={phase === 'idle' ? onClose : undefined}
           />
 
-          {/* ─── Card / dialog ─── */}
+          {/* ─── Card / dialog ─── Clean dark surface, subtle white border.
+              No gold rim, no warm bloom. Modern flat. */}
           <motion.div
-            initial={{ scale: 0.88, opacity: 0, y: 30 }}
+            initial={{ scale: 0.94, opacity: 0, y: 16 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.92, opacity: 0, y: 20 }}
-            transition={{ duration: 0.5, type: 'spring', stiffness: 200, damping: 22 }}
-            className="relative z-10 flex flex-col items-center w-[min(94vw,460px)] rounded-[28px] px-5 pt-7 pb-6 overflow-hidden"
+            exit={{ scale: 0.96, opacity: 0, y: 8 }}
+            transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
+            className="relative z-10 flex flex-col items-center w-[min(94vw,460px)] rounded-[24px] px-3 pt-7 pb-6 overflow-hidden sm:px-4"
             style={{
-              background:
-                'linear-gradient(180deg, rgba(28,18,18,0.96) 0%, rgba(14,10,10,0.97) 60%, rgba(8,8,10,0.98) 100%)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow:
-                '0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(238,53,54,0.18), 0 0 60px rgba(238,53,54,0.25)',
+              background: '#0c0d10',
+              border: '1px solid rgba(255,255,255,0.06)',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.65)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Ambient gold rain inside the card — clipped by the card's
-                overflow-hidden + rounded corners. Sits behind all content. */}
-            <GoldRain />
+            {/* Ambient backdrop — slow brand-red glow + drifting particles.
+                Sits at z-index 0 so all foreground content layers above it. */}
+            <AmbientBackdrop active={phase !== 'spinning'} />
 
-            {/* In-card win effects — flash + sparkles scoped to the card so
-                they don't cover the page behind the dialog */}
+            {/* Win flash — a single subtle brand-red glow pulse from the
+                centre of the wheel. No rays, no sparkles, no white blast.
+                Skipped when the result is "Unlucky". */}
             <AnimatePresence>
-              {phase === 'won' && (
+              {phase === 'won' && winningPrize?.kind !== 'none' && (
                 <motion.div
                   key="win-flash"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.85, 0, 0.4, 0] }}
-                  transition={{ duration: 0.9, times: [0, 0.12, 0.3, 0.5, 1], ease: 'easeOut' }}
-                  className="absolute inset-0 pointer-events-none bg-white rounded-[28px]"
-                  style={{ zIndex: 30 }}
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: [0, 0.45, 0], scale: [0.7, 1.2, 1.4] }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  className="absolute left-1/2 top-1/2 pointer-events-none"
+                  style={{
+                    zIndex: 30,
+                    width: '90%',
+                    aspectRatio: '1 / 1',
+                    transform: 'translate(-50%, -50%)',
+                    background:
+                      'radial-gradient(circle, rgba(238,53,54,0.55) 0%, rgba(238,53,54,0) 60%)',
+                    filter: 'blur(8px)',
+                  }}
                 />
               )}
             </AnimatePresence>
-            <SparkleOverlay
-              active={phase === 'won'}
-              accentColor={winningPrize ? accentFor(winningPrize.color) : '#FFD700'}
-            />
 
             {/* Close button — pinned to card */}
             <button
@@ -895,8 +758,6 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
               <IconX className="w-4 h-4" />
             </button>
 
-            {/* Content stack — relative + positive z-index keeps it above
-                the absolutely-positioned GoldRain canvas behind it */}
             <div className="relative w-full flex flex-col items-center pt-2" style={{ zIndex: 1 }}>
             {/* Title */}
             <motion.h2
@@ -909,28 +770,23 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
               {phase === 'won' && winningPrize ? (
                 <motion.span
                   className="inline-block"
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: [0.6, 1.18, 1], opacity: 1 }}
-                  transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                  initial={{ scale: 0.92, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.36, ease: [0.2, 0.8, 0.2, 1] }}
                 >
-                  You won{' '}
-                  <motion.span
-                    className="bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-400 bg-clip-text text-transparent inline-block"
-                    style={{ backgroundSize: '200% 100%' }}
-                    animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                    transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
-                  >
-                    {winningPrize.label}
-                  </motion.span>
-                  !
+                  {winningPrize.kind === 'none' ? (
+                    <>So close.</>
+                  ) : (
+                    <>
+                      You won{' '}
+                      <span style={{ color: '#ee3536' }}>
+                        {formatPrize(winningPrize)}
+                      </span>
+                    </>
+                  )}
                 </motion.span>
               ) : (
-                <>
-                  Daily Spin For{' '}
-                  <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-amber-500 bg-clip-text text-transparent">
-                    Cash
-                  </span>
-                </>
+                <>Daily spin</>
               )}
             </motion.h2>
 
@@ -941,66 +797,77 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
               transition={{ delay: 0.36, duration: 0.4 }}
               className="text-white/55 text-sm text-center mt-2 mb-5"
             >
-              {phase === 'won'
-                ? 'Claim your reward — credited straight to your balance.'
-                : 'One free spin every day. Tap the button to play.'}
+              {phase === 'won' && winningPrize?.kind === 'none'
+                ? 'No prize this time — try again tomorrow.'
+                : phase === 'won'
+                  ? winningPrize?.kind === 'spins'
+                    ? 'Free spins added to your account.'
+                    : 'Claim your reward — credited straight to your balance.'
+                  : 'One free spin every day. Tap the button to play.'}
             </motion.p>
 
             {/* Wheel — pointer is rendered inside the SVG so it stays
                 pixel-perfect centred on the wheel at every viewport size. */}
-            <div className="relative w-full aspect-square mx-auto" style={{ maxWidth: 360 }}>
-              {/* Win halo — colored glow over the winning slice (top of wheel) */}
+            <div className="relative w-full aspect-square mx-auto" style={{ maxWidth: 420 }}>
+              {/* Win halo — colored glow over the winning slice (top of wheel).
+                  Suppressed for the no-prize result. */}
               <AnimatePresence>
-                {phase === 'won' && winningPrize && (() => {
-                  const haloColor = accentFor(winningPrize.color)
-                  return (
-                    <motion.div
-                      key="win-halo"
-                      className="absolute left-1/2 -translate-x-1/2 rounded-full pointer-events-none"
-                      style={{
-                        top: '4%',
-                        width: '42%',
-                        aspectRatio: '1 / 1',
-                        background: `radial-gradient(circle, ${haloColor}cc 0%, ${haloColor}55 35%, transparent 70%)`,
-                        filter: 'blur(2px)',
-                        zIndex: 2,
-                      }}
-                      initial={{ opacity: 0, scale: 0.4 }}
-                      animate={{ opacity: [0, 1, 0.7, 0.85], scale: [0.4, 1.4, 1, 1.1] }}
-                      transition={{ duration: 1.4, ease: 'easeOut' }}
-                    />
-                  )
-                })()}
+                {phase === 'won' && winningPrize && winningPrize.kind !== 'none' && (
+                  <motion.div
+                    key="win-halo"
+                    className="absolute left-1/2 -translate-x-1/2 rounded-full pointer-events-none"
+                    style={{
+                      top: '4%',
+                      width: '38%',
+                      aspectRatio: '1 / 1',
+                      background:
+                        'radial-gradient(circle, rgba(238,53,54,0.6) 0%, rgba(238,53,54,0) 65%)',
+                      filter: 'blur(4px)',
+                      zIndex: 2,
+                    }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: [0, 0.9, 0.7], scale: [0.5, 1.2, 1] }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                  />
+                )}
               </AnimatePresence>
 
               {/* Wheel (pointer is baked in, fixed at top centre) */}
               <WheelSVG rotation={rotation} spinning={phase === 'spinning'} />
 
-              {/* SPIN button — flat, modern, minimal styling */}
+              {/* ─── SPIN button ─── Flat brand-red disc, white sans label.
+                  No metal gradient, no embossed shadows, no halo. The
+                  whole "polished gold ball" was reading as a Y2K bouncy ball. */}
               <button
                 type="button"
                 onClick={handleSpin}
                 disabled={phase !== 'idle'}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                className="group absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 aria-label={phase === 'idle' ? 'Spin the wheel' : phase === 'spinning' ? 'Spinning…' : 'Spin complete'}
-                style={{ width: '23%', aspectRatio: '1 / 1' }}
+                style={{
+                  width: '24%',
+                  aspectRatio: '1 / 1',
+                  cursor: phase === 'idle' ? 'pointer' : 'default',
+                }}
               >
-                <motion.div
-                  animate={phase === 'idle' ? { scale: [1, 1.04, 1] } : { scale: 1 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-full h-full rounded-full flex items-center justify-center text-white font-semibold tracking-[0.16em] uppercase select-none"
+                <div
+                  className="relative w-full h-full rounded-full flex items-center justify-center select-none transition-all group-active:scale-95 group-hover:brightness-110"
                   style={{
-                    fontSize: 'clamp(11px, 2.4vw, 14px)',
-                    background: '#ffffff',
-                    color: '#0a0a0a',
-                    border: '1px solid rgba(0,0,0,0.08)',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.45)',
-                    cursor: phase === 'idle' ? 'pointer' : 'default',
-                    opacity: phase === 'spinning' ? 0.85 : 1,
+                    background: phase === 'idle' ? '#ee3536' : '#7a1a1c',
+                    boxShadow:
+                      '0 8px 24px rgba(238,53,54,0.35), 0 0 0 4px rgba(0,0,0,0.55)',
                   }}
                 >
-                  SPIN
-                </motion.div>
+                  <span
+                    className="font-bold tracking-[0.18em] uppercase text-white"
+                    style={{
+                      fontSize: 'clamp(11px, 2.4vw, 14px)',
+                      fontFamily: 'var(--font-figtree), sans-serif',
+                    }}
+                  >
+                    {phase === 'spinning' ? '...' : 'SPIN'}
+                  </span>
+                </div>
               </button>
             </div>
 
@@ -1038,7 +905,9 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
                         border: '1.5px solid #ee3536',
                       }}
                     >
-                      Claim {winningPrize.label}
+                      {winningPrize.kind === 'none'
+                        ? 'Close'
+                        : `Claim ${formatPrize(winningPrize)}`}
                     </button>
                   </motion.div>
                 )}
@@ -1050,6 +919,9 @@ export function DailySpinPopup({ visible, onClose, onClaim }: DailySpinPopupProp
       )}
     </AnimatePresence>
   )
+
+  if (!portalTarget) return null
+  return createPortal(tree, portalTarget)
 }
 
 export default DailySpinPopup
