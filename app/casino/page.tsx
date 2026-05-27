@@ -10153,7 +10153,6 @@ function NavTestPageContent() {
                               ) : null
                             })()}
 
-                            <div className="min-w-0 flex items-center gap-3">
                         <motion.h2 
                               className="text-2xl font-bold text-black dark:text-white transition-colors duration-300 flex-shrink-0"
                           initial={{ opacity: 0, y: -10 }}
@@ -10162,10 +10161,6 @@ function NavTestPageContent() {
                         >
                           {activeIconTab === 'favorite' || selectedCategory === 'Favorites' ? 'Favorites' : (selectedVendor || selectedCategory || activeSubNav)}
                         </motion.h2>
-                            {activeSubNav === 'Jackpots' && (
-                              <JackpotSwitch variant="launcher" />
-                            )}
-                            </div>
                             
                             {/* Show selected filter */}
                             {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && gameSortFilter !== 'popular' && (
@@ -11346,12 +11341,9 @@ function NavTestPageContent() {
                             )}
                             style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}
                           >
-                            <div className="flex min-w-0 items-center gap-3 flex-1 min-h-[36px]">
-                              <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 transition-colors duration-300">
-                                Jackpots
-                              </h2>
-                              <JackpotSwitch variant="launcher" />
-                            </div>
+                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300">
+                              Jackpots
+                            </h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                             <Button
                               variant="ghost"

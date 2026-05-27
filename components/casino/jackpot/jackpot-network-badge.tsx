@@ -4,7 +4,6 @@ import type { JackpotTierId } from '@/lib/jackpot/constants'
 import { JACKPOT_TIERS } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
-import { IconCoins } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 interface JackpotNetworkBadgeProps {
@@ -20,7 +19,7 @@ export function JackpotNetworkBadge({ tier, className }: JackpotNetworkBadgeProp
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-0.5 px-1.5 py-1 rounded-md border backdrop-blur-sm min-w-[52px]',
+        'flex items-center justify-center px-1.5 py-0.5 rounded-md border backdrop-blur-sm min-w-[44px]',
         className
       )}
       style={{
@@ -28,15 +27,6 @@ export function JackpotNetworkBadge({ tier, className }: JackpotNetworkBadgeProp
         borderColor: `${accent}55`,
       }}
     >
-      <div className="flex items-center gap-0.5 leading-none">
-        <IconCoins className="w-2 h-2 flex-shrink-0" style={{ color: accent }} />
-        <span
-          className="text-[7px] font-bold uppercase tracking-wide"
-          style={{ color: accent }}
-        >
-          {config?.shortLabel ?? 'JP'}
-        </span>
-      </div>
       <JackpotTickingAmount value={amount} size="badge" />
     </div>
   )
