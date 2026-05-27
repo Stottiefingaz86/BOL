@@ -2574,9 +2574,7 @@ useEffect(() => {
         { label: 'Home', product: null },
         { label: 'Sports', product: 'sports' },
         { label: 'Casino', product: 'casino' },
-        { label: 'Poker', product: 'poker' },
-        { label: 'VIP Rewards', product: 'vipRewards' },
-      ].filter(i => !i.product || visibleProducts[i.product]).map((item) => (
+        { label: 'Poker', product: 'poker' },      ].filter(i => !i.product || visibleProducts[i.product]).map((item) => (
           <button
             key={item.label}
           onClick={() => item.onClick()}

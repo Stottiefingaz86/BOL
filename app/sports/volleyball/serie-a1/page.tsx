@@ -9455,7 +9455,6 @@ function NavTestPageContent() {
                   { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
-                  { label: 'VIP Rewards', onClick: () => { openVipDrawer(); setQuickLinksOpen(false); } },
                   { label: 'Promotions', onClick: () => { router.push('/promotions'); setQuickLinksOpen(false); } },
                   { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
                 ].map((item) => (
@@ -9573,103 +9572,6 @@ function NavTestPageContent() {
                     </Button>
                     <div className="w-px h-5 bg-white/20" />
                   </div>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
-                        showSports && "!text-white"
-                      )}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        setShowSports(true)
-                        setShowVipRewards(false)
-                        window.scrollTo(0, 0)
-                      }}
-                      data-active={showSports}
-                    >
-                      {showSports && (
-                        <motion.div
-                          layoutId="sportsNavPill" layout="position"
-                          className="absolute inset-0 rounded-small"
-                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10">Sports</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  
-                  
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
-                        !showSports && !showVipRewards && activeSubNav !== 'Live' && "!text-white"
-                      )}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                      data-active={!showSports && !showVipRewards && activeSubNav !== 'Live'}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        router.push('/casino')
-                      }}
-                    >
-                      {!showSports && !showVipRewards && activeSubNav !== 'Live' && (
-                        <motion.div
-                          layoutId="sportsNavPill" layout="position"
-                          className="absolute inset-0 rounded-small"
-                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10">Casino</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  
-                  
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "data-[active=true]:bg-white/10 data-[active=true]:text-white",
-                        "text-white/70 active:bg-white/10 cursor-pointer"
-                      )}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        router.push('/casino?poker=true')
-                      }}
-                    >
-                      Poker
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
-                      )}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        openVipDrawer()
-                      }}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                    >
-                      <span className="relative z-10">VIP Rewards</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
                   
                   
                   <SidebarMenuItem>

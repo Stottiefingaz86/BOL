@@ -2653,7 +2653,6 @@ function AccountPageContent() {
               ...(visibleProducts.casino ? [{ label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino') } }] : []),
               ...(visibleProducts.liveCasino ? [{ label: 'Live Casino', onClick: () => { trackNav('casino', 'Live Casino'); router.push('/casino') } }] : []),
               ...(visibleProducts.poker ? [{ label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true') } }] : []),
-              ...(visibleProducts.vipRewards ? [{ label: 'VIP Rewards', onClick: () => { trackNav('vip-rewards', 'VIP Rewards'); openVipDrawer() } }] : []),
               ...(visibleProducts.casino ? [{ label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions') } }] : []),
             ].map((item) => (
               <button
@@ -2803,21 +2802,6 @@ function AccountPageContent() {
                 </SidebarMenuItem>
                 )}
 
-                {visibleProducts.vipRewards && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    className={cn(
-                      "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-white/5 hover:text-white transition-colors",
-                      "text-white/70 cursor-pointer"
-                    )}
-                    style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('vip-rewards', 'VIP Rewards'); openVipDrawer() }}
-                  >
-                    <span className="relative z-10">VIP Rewards</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                )}
 
                 {visibleProducts.casino && (
                 <SidebarMenuItem>
@@ -3105,7 +3089,6 @@ function AccountPageContent() {
                   ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                   ...(visibleProducts.casino ? [{ label: 'Casino', page: 'casino' as const }] : []),
                   ...(visibleProducts.poker ? [{ label: 'Poker', page: 'poker' as const }] : []),
-                  ...(visibleProducts.vipRewards ? [{ label: 'VIP Rewards', page: 'vipRewards' as const }] : []),
                   ...(visibleProducts.casino ? [{ label: 'Promotions', page: 'promotions' as const }] : []),
                 ].map((item) => (
                   <button
@@ -3121,8 +3104,6 @@ function AccountPageContent() {
                         router.push('/casino')
                       } else if (item.page === 'poker') {
                         router.push('/casino?poker=true')
-                      } else if (item.page === 'vipRewards') {
-                        openVipDrawer()
                       } else if (item.page === 'promotions') {
                         setVipDrawerOpen(false)
                         router.push('/promotions')

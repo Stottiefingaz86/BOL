@@ -1521,7 +1521,6 @@ function HomePageContent() {
               { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
               { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
-              { label: 'VIP Rewards', onClick: () => { trackNav('vip-rewards', 'VIP Rewards'); openVipDrawer(); setQuickLinksOpen(false); } },
               { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
               { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
             ].map((item) => (
@@ -1614,14 +1613,6 @@ function HomePageContent() {
                     onClick={() => { trackNav('poker', 'Poker'); router.push('/casino?poker=true') }}
                   >
                     Poker
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
-                    onClick={() => { trackNav('vip-rewards', 'VIP Rewards'); openVipDrawer() }}
-                  >
-                    VIP Rewards
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

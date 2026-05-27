@@ -15,6 +15,21 @@ import { DailyRacesTimer, NumberFlowCountdown } from '@/components/daily-races-t
 import { SidebarPromos } from '@/components/sidebar-promos'
 import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
+import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
+import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
+import {
+  JackpotActivityFeed,
+  JackpotNetworkBadge,
+  JackpotSwitch,
+  JackpotTabTicker,
+  JackpotTickerBar,
+  MustDropDrawer,
+  useJackpotTicker,
+  useJackpotPreviewGameCount,
+} from '@/components/casino/jackpot'
+import { JACKPOT_ELIGIBLE_GAME_LIMIT } from '@/lib/jackpot/constants'
+import { getJackpotNetworkTier, isJackpotNetworkGame } from '@/lib/jackpot/game-network'
+import { useJackpotStore } from '@/lib/store/jackpotStore'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId, Suspense } from 'react'
 import { useChatStore } from '@/lib/store/chatStore'
@@ -23,7 +38,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { playSound } from '@/lib/sounds'
 import {
@@ -508,7 +523,7 @@ function GameSection({ title, games }: { title: string; games: typeof mostPlayed
 }
 
 // Lazy loaded game tile component with staggered animation
-function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = false }: { index: number; columnIndex: number; rowIndex: number; onTileClick?: (game: { title: string; image: string; provider?: string; features?: string[] }) => void; isMobile?: boolean }) {
+function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = false, showJackpotNetworkTag = false }: { index: number; columnIndex: number; rowIndex: number; onTileClick?: (game: { title: string; image: string; provider?: string; features?: string[] }) => void; isMobile?: boolean; showJackpotNetworkTag?: boolean }) {
   const [isVisible, setIsVisible] = useState(false)
   const tileRef = useRef<HTMLDivElement>(null)
 
@@ -568,6 +583,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
 
   const tag = getMetaTag(index)
   const tileVendor = getTileVendor(index)
+  const jackpotTier = showJackpotNetworkTag ? getJackpotNetworkTier(index) : null
 
   // Use regular div on mobile to avoid layout animation issues - no state, no animations
   if (isMobile) {
@@ -597,6 +613,11 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
             />
           )}
           <GameTagBadge tag={tag} vendor={tileVendor} />
+          {jackpotTier && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+              <JackpotNetworkBadge tier={jackpotTier} />
+            </div>
+          )}
         </div>
       </div>
     )
@@ -637,6 +658,11 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
             />
           )}
           <GameTagBadge tag={tag} vendor={tileVendor} />
+          {jackpotTier && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+              <JackpotNetworkBadge tier={jackpotTier} />
+            </div>
+          )}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
         </div>
       ) : (
@@ -7254,8 +7280,13 @@ function NavTestPageContent() {
   const CASINO_FEATURE_TOUR_KEY = 'bol-casino-feature-tour-v1'
   const isMobile = useIsMobile()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  useJackpotTicker()
+  const jackpotFeedInsertAt = useJackpotPreviewGameCount(isMobile)
+  const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
   const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   const { trackNav, trackClick, trackAction, trackSidebar, trackPageView } = useTracking('casino')
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, _setActiveSubNav] = useState('For You')
@@ -7498,6 +7529,10 @@ function NavTestPageContent() {
   const [forYouBlackjackCanScrollPrev, setForYouBlackjackCanScrollPrev] = useState(false)
   const [forYouBlackjackCanScrollNext, setForYouBlackjackCanScrollNext] = useState(false)
   const [forYouBlackjackCurrentIndex, setForYouBlackjackCurrentIndex] = useState(0)
+
+  const [forYouJackpotsCarouselApi, setForYouJackpotsCarouselApi] = useState<CarouselApi>()
+  const [forYouJackpotsCanScrollPrev, setForYouJackpotsCanScrollPrev] = useState(false)
+  const [forYouJackpotsCanScrollNext, setForYouJackpotsCanScrollNext] = useState(false)
   
   const [forYouSlotsCarouselApi, setForYouSlotsCarouselApi] = useState<CarouselApi>()
   const [forYouSlotsCanScrollPrev, setForYouSlotsCanScrollPrev] = useState(false)
@@ -7659,6 +7694,16 @@ function NavTestPageContent() {
   }, [forYouBaccaratCarouselApi])
 
   useEffect(() => {
+    if (!forYouJackpotsCarouselApi) return
+    setForYouJackpotsCanScrollPrev(forYouJackpotsCarouselApi.canScrollPrev())
+    setForYouJackpotsCanScrollNext(forYouJackpotsCarouselApi.canScrollNext())
+    forYouJackpotsCarouselApi.on('select', () => {
+      setForYouJackpotsCanScrollPrev(forYouJackpotsCarouselApi.canScrollPrev())
+      setForYouJackpotsCanScrollNext(forYouJackpotsCarouselApi.canScrollNext())
+    })
+  }, [forYouJackpotsCarouselApi])
+
+  useEffect(() => {
     if (!popularCarouselApi) return
     setPopularCanScrollPrev(popularCarouselApi.canScrollPrev())
     setPopularCanScrollNext(popularCarouselApi.canScrollNext())
@@ -7710,6 +7755,13 @@ function NavTestPageContent() {
 
   // Activity table state
   const [casinoActivityTab, setCasinoActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
+
+  useEffect(() => {
+    if (activeSubNav === 'Jackpots') {
+      setCasinoActivityTab('Jackpot Winners')
+    }
+  }, [activeSubNav])
+
   const [casinoActivityFeed, setCasinoActivityFeed] = useState<Array<{
     id: string
     type: 'casino'
@@ -7982,20 +8034,28 @@ function NavTestPageContent() {
     }
   }, [selectedGame])
 
-  // Jackpot overlay — show 10 seconds after game image loads
+  // Hide win overlay when opting out of jackpot play
   useEffect(() => {
-    if (gameImageLoaded && selectedGame) {
-      jackpotTimerRef.current = setTimeout(() => {
-        setShowJackpot(true)
-      }, 5000)
+    if (!jackpotOptedIn) {
+      setShowJackpot(false)
     }
+  }, [jackpotOptedIn])
+
+  // Demo win after game loads (only if already opted in at load time)
+  useEffect(() => {
+    if (!gameImageLoaded || !selectedGame || !jackpotOptedIn) return
+    jackpotTimerRef.current = setTimeout(() => {
+      if (useJackpotStore.getState().optedIn) {
+        setShowJackpot(true)
+      }
+    }, 5000)
     return () => {
       if (jackpotTimerRef.current) {
         clearTimeout(jackpotTimerRef.current)
         jackpotTimerRef.current = null
       }
     }
-  }, [gameImageLoaded, selectedGame])
+  }, [gameImageLoaded, selectedGame, jackpotOptedIn])
   
   // Handle fullscreen change events
   useEffect(() => {
@@ -8234,92 +8294,23 @@ function NavTestPageContent() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [isMobile])
 
-  // Ensure component is mounted before showing animations
+  // Client-side clock fill (avoid SSR time in initial HTML)
   useEffect(() => {
-    setMounted(true)
-    setCurrentTime(new Date().toLocaleString('en-US', { 
-      month: '2-digit', 
-      day: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    }))
-    
-    // Full-page Promotions (casino), e.g. sidebar widgets, "All Promotions", or /promotions — not the hub drawer.
-    const vipRewardsPageParam = searchParams.get('vipRewardsPage')
-    if (vipRewardsPageParam === 'true') {
-      setVipDrawerOpen(false)
-      setShowPoker(false)
-      setShowSports(false)
-      setShowVipRewards(true)
-      const promoSectionParam = searchParams.get('section')
-      if (promoSectionParam) {
-        setInitialVipSidebarItem(promoSectionParam)
-      }
-      window.scrollTo(0, 0)
-      router.replace('/casino', { scroll: false })
-    } else {
-      // Drawer-only deep link (/casino?vip=true) — e.g. promo rows + section=
-      const vipParam = searchParams.get('vip')
-      if (vipParam === 'true') {
-        openVipDrawer()
-        const sectionParam = searchParams.get('section')
-        if (sectionParam) {
-          setVipActiveSidebarItem(sectionParam)
-        }
-      }
-    }
-    
-    // Check for poker query parameter to deep link to Poker
-    const pokerParam = searchParams.get('poker')
-    if (pokerParam === 'true') {
-      setShowPoker(true)
-      setShowSports(false)
-      setShowVipRewards(false)
-    }
-    
-    // Check for tab query parameter to deep link to specific casino tab (e.g. Live Casino)
-    const tabParam = searchParams.get('tab')
-    if (tabParam === 'live') {
-      setActiveSubNav('Live')
-      setShowAllGames(false)
-      setSelectedCategory('')
-      setSelectedVendor('')
-      setShowSports(false)
-      setShowVipRewards(false)
-      // Clean up URL
-      router.replace('/casino', { scroll: false })
-    }
-  }, [searchParams, router])
+    setCurrentTime(
+      new Date().toLocaleString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      })
+    )
+  }, [])
 
   useEffect(() => {
-    if (!mounted) return
-    const focus = searchParams.get('focus')
-    if (focus !== 'originals') return
-
-    setShowSports(false)
-    setShowVipRewards(false)
-    setShowPoker(false)
-    setShowAllGames(false)
-    setSelectedCategory('')
-    setSelectedVendor('')
-    setActiveSubNav('For You')
-
-    router.replace('/casino', { scroll: false })
-
-    const timeoutId = window.setTimeout(() => {
-      document
-        .getElementById('casino-originals-carousel')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 450)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [mounted, searchParams, router])
-
-  useEffect(() => {
-    if (!mounted || isMobile || showSports || showVipRewards || showPoker) return
+    if (isMobile || showSports || showVipRewards || showPoker) return
     if (typeof window === 'undefined') return
 
     const hasSeenTour = window.localStorage.getItem(CASINO_FEATURE_TOUR_KEY) === 'seen'
@@ -8330,18 +8321,8 @@ function NavTestPageContent() {
     }, 500)
 
     return () => window.clearTimeout(timeout)
-  }, [mounted, isMobile, showSports, showVipRewards, showPoker, CASINO_FEATURE_TOUR_KEY])
+  }, [isMobile, showSports, showVipRewards, showPoker, CASINO_FEATURE_TOUR_KEY])
 
-  // Don't render until mounted to prevent hydration issues
-  if (!mounted) {
-    return (
-      <div className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen flex items-center justify-center">
-        <div className="text-white/70">Loading...</div>
-      </div>
-    )
-  }
-
-  // Top featured casino items (square icon style like poker)
   const casinoTopItems = [
     { icon: IconHeart, label: 'My Favorites' },
     { icon: IconDice, label: 'Play Random' },
@@ -8381,6 +8362,22 @@ function NavTestPageContent() {
         '--brand-primary-hover': brandPrimaryHover,
       } as React.CSSProperties}
     >
+      <Suspense fallback={null}>
+        <CasinoSearchParamsEffects
+          router={router}
+          openVipDrawer={openVipDrawer}
+          setVipDrawerOpen={setVipDrawerOpen}
+          setShowPoker={setShowPoker}
+          setShowSports={setShowSports}
+          setShowVipRewards={setShowVipRewards}
+          setShowAllGames={setShowAllGames}
+          setSelectedCategory={setSelectedCategory}
+          setSelectedVendor={setSelectedVendor}
+          setActiveSubNav={setActiveSubNav}
+          setInitialVipSidebarItem={setInitialVipSidebarItem}
+          setVipActiveSidebarItem={setVipActiveSidebarItem}
+        />
+      </Suspense>
       {/* Mobile: Quick Links - Above main menu, pushes it down when open */}
       {isMobile && (
         <motion.div
@@ -8413,7 +8410,6 @@ function NavTestPageContent() {
                   { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
                   { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
-                  { label: 'VIP Rewards', product: 'vipRewards' as const, onClick: () => { trackNav('vip-rewards', 'VIP Rewards'); setVipDrawerOpen(true); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
                   { label: 'Other', product: null, onClick: () => { setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
@@ -8635,26 +8631,6 @@ function NavTestPageContent() {
                   </SidebarMenuItem>
                   )}
                   
-                  {visibleProducts.vipRewards && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
-                      )}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        trackNav('vip-rewards', 'VIP Rewards')
-                        setVipDrawerOpen(true)
-                      }}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                    >
-                      <span className="relative z-10">VIP Rewards</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  )}
                   
                   {visibleProducts.casino && (
                   <SidebarMenuItem>
@@ -9046,7 +9022,6 @@ function NavTestPageContent() {
                     ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                     ...(visibleProducts.casino ? [{ label: 'Casino', page: 'casino' as const }] : []),
                     ...(visibleProducts.poker ? [{ label: 'Poker', page: 'poker' as const }] : []),
-                    ...(visibleProducts.vipRewards ? [{ label: 'VIP Rewards', page: 'vipRewards' as const }] : []),
                     ...(visibleProducts.casino ? [{ label: 'Promotions', page: 'promotions' as const }] : []),
                   ].map((item) => {
                     const isCurrentPage =
@@ -9070,10 +9045,6 @@ function NavTestPageContent() {
                             setShowVipRewards(false)
                             setShowPoker(false)
                             setActiveSubNav('For You')
-                            window.scrollTo(0, 0)
-                            setShowVipRewards(false)
-                            setShowPoker(false)
-                            setActiveSubNav('Live')
                             setShowAllGames(false)
                             setSelectedCategory('')
                             setSelectedVendor('')
@@ -9084,9 +9055,6 @@ function NavTestPageContent() {
                             setShowSports(false)
                             setShowVipRewards(false)
                             window.scrollTo(0, 0)
-                          } else if (item.page === 'vipRewards') {
-                            trackNav('vip-rewards', 'VIP Rewards')
-                            setVipDrawerOpen(true)
                           } else if (item.page === 'promotions') {
                             trackNav('promotions', 'Promotions')
                             router.push('/promotions')
@@ -9605,8 +9573,8 @@ function NavTestPageContent() {
 
           {/* Main Content - Empty for now */}
           <SidebarInset 
-            className="bg-[#1a1a1a] dark:bg-[#1a1a1a] bg-white dark:bg-[#1a1a1a] text-white dark:text-white text-gray-900 dark:text-white transition-colors duration-700" 
-            style={{ 
+            className="min-h-0 bg-[#1a1a1a] text-white transition-colors duration-700"
+            style={{
               width: 'auto', 
               flex: '1 1 0%', 
               minWidth: 0, 
@@ -9920,7 +9888,6 @@ function NavTestPageContent() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 >
-              <>
             {/* Banner Carousel - Static, below tabs, only show on "For You" page */}
             {activeSubNav === 'For You' && !showAllGames && (
               <div 
@@ -10115,20 +10082,51 @@ function NavTestPageContent() {
                   </Carousel>
                 </div>
               )}
+
+              {activeSubNav === 'For You' && !showAllGames && (
+                <div
+                  className={cn(
+                    'relative z-0 w-full min-w-0',
+                    isMobile ? 'px-3 pb-6 pt-1 -mt-2' : 'px-6 pb-8 -mt-4'
+                  )}
+                >
+                  <MustDropDrawer />
+                  <JackpotTickerBar
+                    onNavigateToJackpots={() => {
+                      setActiveSubNav('Jackpots')
+                      setSelectedCategory('Jackpots')
+                      setShowAllGames(true)
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  />
+                </div>
+              )}
               
               {/* Tab Panels */}
               <div 
                 ref={contentRef}
                 className={cn(
-                  "relative z-0",
-                  isMobile ? "-mt-2" : "mt-0"
+                  'relative z-0',
+                  isMobile && activeSubNav === 'For You' && !showAllGames
+                    ? 'mt-2'
+                    : isMobile
+                      ? '-mt-2'
+                      : 'mt-0'
                 )}
                 style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}
               >
                   <AnimatePresence mode="wait" initial={false}>
                     {showAllGames ? (
                       <div className="">
-                        <div className="flex items-center justify-between mb-6 px-6">
+                        {activeSubNav === 'Jackpots' && (
+                          <JackpotTabTicker />
+                        )}
+                        <div
+                          className={cn(
+                            'mb-6 flex items-center justify-between',
+                            isMobile ? 'px-3' : 'px-6'
+                          )}
+                        >
                           <div className="flex items-center gap-3">
                             {/* Back button - show when viewing vendor, category not in sub nav menu, or favorites page */}
                             {(() => {
@@ -10154,15 +10152,20 @@ function NavTestPageContent() {
                                 </button>
                               ) : null
                             })()}
-                            
+
+                            <div className="min-w-0 flex items-center gap-3">
                         <motion.h2 
-                              className="text-2xl font-bold text-black dark:text-white transition-colors duration-300"
+                              className="text-2xl font-bold text-black dark:text-white transition-colors duration-300 flex-shrink-0"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
                         >
                           {activeIconTab === 'favorite' || selectedCategory === 'Favorites' ? 'Favorites' : (selectedVendor || selectedCategory || activeSubNav)}
                         </motion.h2>
+                            {activeSubNav === 'Jackpots' && (
+                              <JackpotSwitch variant="launcher" />
+                            )}
+                            </div>
                             
                             {/* Show selected filter */}
                             {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && gameSortFilter !== 'popular' && (
@@ -10654,7 +10657,7 @@ function NavTestPageContent() {
                           document.body
                         )}
 
-                        {/* ============ GAME GRID (non-tournament content) ============ */}
+
                         {selectedCategory !== 'Tournaments' && (() => {
                           // Generate game data with sortable properties - memoized to prevent regeneration on scroll
                           const gameNames = ['Gold Nugget Rush', 'Mega Fortune', 'Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza', 'Razor Shark', 'Sweet Bonanza', 'Gates of Olympus', 'Big Bass Bonanza', 'The Dog House', 'Wolf Gold', 'Fire Strike', 'Chilli Heat']
@@ -10704,57 +10707,123 @@ function NavTestPageContent() {
                               sortedGames.sort((a, b) => b.nameLower.localeCompare(a.nameLower))
                               break
                           }
+
+                          if (activeSubNav === 'Jackpots' && showAllGames) {
+                            sortedGames = sortedGames
+                              .filter((g) => isJackpotNetworkGame(g.index))
+                              .slice(0, JACKPOT_ELIGIBLE_GAME_LIMIT)
+                          }
                           
                           const categoryKey = selectedCategory || activeSubNav
                           const maxCols = 8 // Maximum columns for largest screens
-                          const gameTiles = sortedGames.map((game, displayIndex) => {
+                          const isJackpotsGrid =
+                            activeSubNav === 'Jackpots' && showAllGames && mounted
+                          const gridClassName =
+                            'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-4 px-6'
+
+                          const renderGameTile = (
+                            game: (typeof sortedGames)[number],
+                            displayIndex: number
+                          ) => {
                             const columnIndex = displayIndex % maxCols
-                            // Use stable key that doesn't change during scroll
                             const stableKey = `${categoryKey}-${game.index}`
                             return (
-                              <LazyGameTile 
-                                key={stableKey} 
-                                index={game.index} 
+                              <LazyGameTile
+                                key={stableKey}
+                                index={game.index}
                                 columnIndex={columnIndex}
                                 rowIndex={Math.floor(displayIndex / maxCols)}
                                 onTileClick={setSelectedGame}
                                 isMobile={isMobile}
+                                showJackpotNetworkTag={activeSubNav === 'Jackpots'}
                               />
-                            )
-                          })
-
-                          // Calculate how many skeleton boxes needed to fill the last row
-                          // Add skeletons to fill incomplete rows and prevent gaps
-                          const totalTiles = gameTiles.length
-                          const itemsInLastRow = totalTiles % maxCols
-                          const skeletonCount = itemsInLastRow > 0 ? maxCols - itemsInLastRow : 0
-                          const skeletonBoxes = Array.from({ length: skeletonCount }).map((_, index) => (
-                            <div key={`skeleton-${categoryKey}-${index}`} className="w-full aspect-square">
-                              <Skeleton 
-                                className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" 
-                              />
-                        </div>
-                          ))
-
-                          // On mobile, use memoized static div to prevent re-renders during scroll
-                          if (isMobile) {
-                            return (
-                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-4 px-6" style={{ willChange: 'auto' }}>
-                                {gameTiles}
-                                {skeletonBoxes}
-                        </div>
                             )
                           }
-                          
+
+                          const renderSkeletons = (tileCount: number) => {
+                            if (isJackpotsGrid) return []
+                            const itemsInLastRow = tileCount % maxCols
+                            const skeletonCount =
+                              itemsInLastRow > 0 ? maxCols - itemsInLastRow : 0
+                            return Array.from({ length: skeletonCount }).map(
+                              (_, index) => (
+                                <div
+                                  key={`skeleton-${categoryKey}-${index}`}
+                                  className="w-full aspect-square"
+                                >
+                                  <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
+                                </div>
+                              )
+                            )
+                          }
+
+                          if (isJackpotsGrid) {
+                            const insertAt = Math.min(
+                              jackpotFeedInsertAt,
+                              sortedGames.length
+                            )
+                            const firstGames = sortedGames.slice(0, insertAt)
+                            const restGames = sortedGames.slice(insertAt)
+
+                            return (
+                              <div className="flex flex-col gap-4 w-full">
+                                <div
+                                  className={gridClassName}
+                                  style={
+                                    isMobile ? { willChange: 'auto' } : undefined
+                                  }
+                                >
+                                  {firstGames.map((game, i) =>
+                                    renderGameTile(game, i)
+                                  )}
+                                  {renderSkeletons(firstGames.length)}
+                                </div>
+                                <div className="px-6 w-full min-w-0">
+                                  <JackpotActivityFeed
+                                    compact
+                                    maxItems={6}
+                                    className="w-full"
+                                  />
+                                </div>
+                                <div
+                                  className={gridClassName}
+                                  style={
+                                    isMobile ? { willChange: 'auto' } : undefined
+                                  }
+                                >
+                                  {restGames.map((game, i) =>
+                                    renderGameTile(game, insertAt + i)
+                                  )}
+                                  {renderSkeletons(restGames.length)}
+                                </div>
+                              </div>
+                            )
+                          }
+
+                          const gameTiles = sortedGames.map((game, displayIndex) =>
+                            renderGameTile(game, displayIndex)
+                          )
+
+                          if (isMobile) {
+                            return (
+                              <div
+                                className={gridClassName}
+                                style={{ willChange: 'auto' }}
+                              >
+                                {gameTiles}
+                                {renderSkeletons(gameTiles.length)}
+                              </div>
+                            )
+                          }
+
                           return (
-                            <div 
-                              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-4 px-6"
-                            >
+                            <div className={gridClassName}>
                               {gameTiles}
-                              {skeletonBoxes}
+                              {renderSkeletons(gameTiles.length)}
                             </div>
                           )
                         })()}
+
                       </div>
                     ) : activeSubNav === 'Live' ? (
                       <motion.div
@@ -11265,6 +11334,110 @@ function NavTestPageContent() {
                       >
                         {/* Game Category Carousels */}
                         <div className="space-y-8 relative" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}>
+
+                        <>
+                        {/* Jackpots — same carousel pattern as other For You rows */}
+                        {activeSubNav === 'For You' && (
+                        <div className={cn(isMobile ? 'pt-5' : 'pt-6')}>
+                          <div
+                            className={cn(
+                              'flex justify-between items-center mb-5 relative z-10',
+                              isMobile ? 'px-3' : 'px-6'
+                            )}
+                            style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}
+                          >
+                            <div className="flex min-w-0 items-center gap-3 flex-1 min-h-[36px]">
+                              <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 transition-colors duration-300">
+                                Jackpots
+                              </h2>
+                              <JackpotSwitch variant="launcher" />
+                            </div>
+                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
+                            <Button
+                              variant="ghost"
+                              className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
+                              onClick={() => {
+                                setActiveSubNav('Jackpots')
+                                setSelectedCategory('Jackpots')
+                                setShowAllGames(true)
+                                window.scrollTo({ top: 0, behavior: 'smooth' })
+                              }}
+                            >
+                              View all
+                            </Button>
+                              {!isMobile && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      if (forYouJackpotsCarouselApi) {
+                                        const currentIndex = forYouJackpotsCarouselApi.selectedScrollSnap()
+                                        const targetIndex = Math.max(0, currentIndex - 2)
+                                        forYouJackpotsCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!forYouJackpotsCarouselApi || !forYouJackpotsCanScrollPrev}
+                                  >
+                                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      if (forYouJackpotsCarouselApi) {
+                                        const currentIndex = forYouJackpotsCarouselApi.selectedScrollSnap()
+                                        const slideCount = forYouJackpotsCarouselApi.scrollSnapList().length
+                                        const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                                        forYouJackpotsCarouselApi.scrollTo(targetIndex)
+                                      }
+                                    }}
+                                    disabled={!forYouJackpotsCarouselApi || !forYouJackpotsCanScrollNext}
+                                  >
+                                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
+                            <Carousel setApi={setForYouJackpotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 24 })
+                                  .map((_, i) => i)
+                                  .filter((i) => isJackpotNetworkGame(i))
+                                  .slice(0, 12)
+                                  .map((index, i) => (
+                                    <CarouselItem
+                                      key={`jp-fy-${index}`}
+                                      className={cn(
+                                        'pr-0 basis-auto flex-shrink-0',
+                                        i === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-4'
+                                      )}
+                                    >
+                                      <div
+                                        data-content-item
+                                        className="w-[160px] h-[160px] flex-shrink-0"
+                                      >
+                                        <LazyGameTile
+                                          index={index}
+                                          columnIndex={i}
+                                          rowIndex={0}
+                                          onTileClick={setSelectedGame}
+                                          isMobile={isMobile}
+                                          showJackpotNetworkTag
+                                        />
+                                      </div>
+                                    </CarouselItem>
+                                  ))}
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
+                        )}
 
                         {/* New Games Section - Square Tiles */}
                         <div>
@@ -11782,262 +11955,24 @@ function NavTestPageContent() {
                         </div>
                         
                         {/* Activity Section */}
-                        <div className={cn("mb-8", isMobile ? "px-3" : "px-6")}>
-                          <Separator className="mb-6 bg-white/10" />
-                          <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
-                          
-                          {/* Tabs */}
-                          <div className="mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-                            <div className="bg-white/5 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
-                              {['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race'].map((tab) => (
-                                <button
-                                  key={tab}
-                                  onClick={() => setCasinoActivityTab(tab as 'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race')}
-                                  className={cn(
-                                    "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
-                                    casinoActivityTab === tab
-                                      ? "text-white"
-                                      : "text-white/70 hover:text-white hover:bg-white/5 bg-transparent"
-                                  )}
-                                >
-                                  {casinoActivityTab === tab && (
-                                    <motion.div
-                                      layoutId="casinoActivityTab"
-                                      className="absolute inset-0 rounded-2xl -z-10"
-                                      style={{ backgroundColor: '#ee3536' }}
-                                      initial={false}
-                                      transition={{
-                                        type: "spring",
-                                        stiffness: 400,
-                                        damping: 40
-                                      }}
-                                    />
-                                  )}
-                                  <span className="relative z-10 whitespace-nowrap">{tab}</span>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                        <CasinoActivityPanel
+                          isMobile={isMobile}
+                          heading={activeSubNav === 'Jackpots' ? 'Jackpot activity' : 'Activity'}
+                          tabLayoutId="casinoActivityTab"
+                          casinoActivityTab={casinoActivityTab}
+                          onCasinoActivityTabChange={setCasinoActivityTab}
+                          casinoRaceHours={casinoRaceHours}
+                          casinoRaceMinutes={casinoRaceMinutes}
+                          casinoRaceSeconds={casinoRaceSeconds}
+                          casinoRaceLeaderboardData={casinoRaceLeaderboardData}
+                          casinoUserRacePosition={casinoUserRacePosition}
+                          casinoJackpotWinnersData={casinoJackpotWinnersData}
+                          casinoActivityFeed={casinoActivityFeed}
+                          onSelectGame={(g) => setSelectedGame(g)}
+                        />
 
-                          {/* Activity Feed Table or Race Leaderboard */}
-                          <Card className="bg-white/5 backdrop-blur-sm border-white/10 rounded-small overflow-hidden">
-                            <CardContent className="p-0">
-                              <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
-                                {casinoActivityTab === 'Daily Race' ? (
-                                  <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                                      <span className="text-white/70 text-xs">Ends in</span>
-                                      <NumberFlowCountdown
-                                        hours={casinoRaceHours}
-                                        minutes={casinoRaceMinutes}
-                                        seconds={casinoRaceSeconds}
-                                        className="text-sm font-bold text-white"
-                                        colonClassName="text-white/50"
-                                      />
-                                    </div>
-                                    <div className="overflow-x-auto">
-                                      <table className="w-full">
-                                        <thead>
-                                          <tr className="border-b border-white/10">
-                                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Rank</th>
-                                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Nickname</th>
-                                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Wagered</th>
-                                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Prize</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {casinoRaceLeaderboardData.map((entry) => (
-                                            <tr key={entry.rank} className="border-b border-white/10 hover:bg-white/10 transition-colors">
-                                              <td className="py-3 px-4">
-                                                <div className="flex items-center gap-2">
-                                                  {entry.medal === 'gold' && <IconTrophy className="w-5 h-5 text-yellow-400" />}
-                                                  {entry.medal === 'silver' && <IconTrophy className="w-5 h-5 text-gray-400" />}
-                                                  {entry.medal === 'bronze' && <IconTrophy className="w-5 h-5 text-orange-400" />}
-                                                  {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
-                                                </div>
-                                              </td>
-                                              <td className="py-3 px-4 text-white text-sm">{entry.nickname}</td>
-                                              <td className="py-3 px-4 text-right text-white text-sm">{entry.wagered}</td>
-                                              <td className="py-3 px-4 text-right text-white text-sm font-semibold">{entry.prize}</td>
-                                            </tr>
-                                          ))}
-                                          <tr className="border-t-2 border-white/20 bg-white/5">
-                                            <td className="py-3 px-4">
-                                              <span className="text-white text-sm font-semibold">{casinoUserRacePosition.rank}th</span>
-                                            </td>
-                                            <td className="py-3 px-4 text-white text-sm font-semibold">{casinoUserRacePosition.nickname}</td>
-                                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{casinoUserRacePosition.wagered}</td>
-                                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{casinoUserRacePosition.prize}</td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                  </div>
-                                ) : casinoActivityTab === 'Jackpot Winners' ? (
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow className="border-white/10 hover:bg-transparent">
-                                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">Jackpot Won</TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      {casinoJackpotWinnersData.map((winner, index) => (
-                                        <TableRow
-                                          key={winner.id}
-                                          className={cn(
-                                            "border-b border-white/10 hover:bg-white/5 transition-colors",
-                                            index === 0 && "bg-amber-500/5"
-                                          )}
-                                        >
-                                          <TableCell className="py-3 px-4">
-                                            <div className="flex items-center gap-2">
-                                              {winner.gameImage ? (
-                                                <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
-                                                  <Image
-                                                    src={winner.gameImage}
-                                                    alt={winner.game}
-                                                    width={40}
-                                                    height={40}
-                                                    className="w-full h-full object-cover"
-                                                    quality={75}
-                                                    unoptimized
-                                                  />
-                                                </div>
-                                              ) : (
-                                                <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                                              )}
-                                              <span
-                                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
-                                                onClick={() => {
-                                                  if (winner.gameImage) {
-                                                    setSelectedGame({
-                                                      title: winner.game,
-                                                      image: winner.gameImage
-                                                    })
-                                                  }
-                                                }}
-                                              >
-                                                {winner.game}
-                                              </span>
-                                            </div>
-                                          </TableCell>
-                                          <TableCell className="py-3 px-4">
-                                            <span className={cn(
-                                              "text-sm",
-                                              winner.user === 'Hidden' ? "text-white/50" : "text-white"
-                                            )}>
-                                              {winner.user}
-                                            </span>
-                                          </TableCell>
-                                          <TableCell className="py-3 px-4">
-                                            <span className="text-white/60 text-sm">{winner.time}</span>
-                                          </TableCell>
-                                          <TableCell className="py-3 px-4">
-                                            <div className="flex items-center gap-1.5">
-                                              <IconTrophy className="w-3.5 h-3.5 text-amber-400" />
-                                              <span className="text-amber-400 text-sm font-semibold">{winner.amount}</span>
-                                            </div>
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
-                                    </TableBody>
-                                  </Table>
-                                ) : (
-                                  <Table>
-                                    <TableHeader>
-                                      <TableRow className="border-white/10 hover:bg-transparent">
-                                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">Bet Amount</TableHead>
-                                        <TableHead className="text-white/70 font-medium text-xs">Win Amount</TableHead>
-                                      </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                      <AnimatePresence mode="popLayout">
-                                        {casinoActivityFeed.map((activity, index) => (
-                                          <motion.tr
-                                            key={activity.id}
-                                            layout
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            transition={{ duration: 0.2, ease: "easeOut" }}
-                                            className={cn(
-                                              "border-b border-white/10 hover:bg-white/5 transition-colors",
-                                              index === 0 && "bg-white/5"
-                                            )}
-                                          >
-                                            <TableCell className="py-3 px-4">
-                                              <div className="flex items-center gap-2">
-                                                {activity.gameImage ? (
-                                                  <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
-                                                    <Image
-                                                      src={activity.gameImage}
-                                                      alt={activity.event}
-                                                      width={40}
-                                                      height={40}
-                                                      className="w-full h-full object-cover"
-                                                      quality={75}
-                                                      unoptimized
-                                                    />
-                                                  </div>
-                                                ) : (
-                                                  <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                                                )}
-                                                <span 
-                                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
-                                                  onClick={() => {
-                                                    if (activity.gameImage) {
-                                                      setSelectedGame({
-                                                        title: activity.event,
-                                                        image: activity.gameImage
-                                                      })
-                                                    }
-                                                  }}
-                                                >
-                                                  {activity.event}
-                                                </span>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4">
-                                              <span className={cn(
-                                                "text-sm",
-                                                activity.user === 'Hidden' ? "text-white/50" : "text-white"
-                                              )}>
-                                                {activity.user}
-                                              </span>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4">
-                                              <span className="text-white/60 text-sm">{activity.time}</span>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4">
-                                              <div className="flex items-center gap-1.5">
-                                                <IconCoins className="w-3.5 h-3.5 text-green-400" />
-                                                <span className="text-white text-sm font-medium">{activity.betAmount}</span>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-4">
-                                              {activity.winAmount ? (
-                                                <span className="text-green-400 text-sm font-medium">{activity.winAmount}</span>
-                                              ) : (
-                                                <span className="text-white/30 text-sm">-</span>
-                                              )}
-                                            </TableCell>
-                                          </motion.tr>
-                                        ))}
-                                      </AnimatePresence>
-                                    </TableBody>
-                                  </Table>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
-                        
+                        {activeSubNav !== 'Jackpots' && (
+                        <>
                         {/* Most Popular Section - Square Tiles */}
                         <div>
                           <div className={cn(
@@ -12534,12 +12469,14 @@ function NavTestPageContent() {
                             </Carousel>
                           </div>
                         </div>
+                        </>
+                        )}
+                        </>
                       </div>
                     </motion.div>
                     )}
                   </AnimatePresence>
               </div>
-              </>
                 </motion.div>
             )}
             </AnimatePresence>
@@ -13389,8 +13326,29 @@ function NavTestPageContent() {
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-[200] bg-[#1a1a1a]"
             >
-              {/* Rounded Glass Top Bar - Hidden in mobile landscape */}
-              {!(isMobile && isLandscape) && (
+              {/* Top chrome: full glass bar (portrait / desktop); compact bar in mobile landscape */}
+              {isMobile && isLandscape ? (
+                <div className="pointer-events-auto fixed left-3 right-3 top-3 z-[250] flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedGame(null)
+                      setGameLauncherMenuOpen(false)
+                      setIsFullscreen(false)
+                    }}
+                    className="flex h-9 shrink-0 items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 text-xs font-medium text-white backdrop-blur-md"
+                  >
+                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    Lobby
+                  </button>
+                  <h2 className="min-w-0 flex-1 truncate text-center text-xs font-semibold text-white">
+                    {selectedGame.title}
+                  </h2>
+                  <div className="shrink-0 scale-90">
+                    <JackpotSwitch variant="launcher" minimal />
+                  </div>
+                </div>
+              ) : (
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -13438,6 +13396,16 @@ function NavTestPageContent() {
                             className="absolute top-full left-0 mt-2 w-56 bg-[#2d2d2d]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
                           >
                             <div className="py-2">
+                              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 min-h-[44px]">
+                                <span className="text-xs text-white/70 flex-shrink-0">
+                                  Jackpots
+                                </span>
+                                <JackpotSwitch
+                                  variant="launcher"
+                                  minimal
+                                  className="focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-0 focus-visible:ring-offset-[#2d2d2d]"
+                                />
+                              </div>
                               <button
                                 onClick={() => {
                                   openDepositDrawer()
@@ -13469,12 +13437,13 @@ function NavTestPageContent() {
                 </div>
 
                 {/* Game Name - Center (absolutely positioned) */}
-                    <h2 className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-white max-w-[50%] truncate px-2">
+                    <h2 className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-white max-w-[min(40%,12rem)] sm:max-w-[50%] truncate px-2 z-0">
                   {selectedGame.title}
                 </h2>
 
-                    {/* Right Icons - Fullscreen, Favorite and Close */}
-                    <div className="flex items-center gap-1">
+                    {/* Jackpot opt-in + window controls */}
+                    <div className="z-10 ml-auto flex items-center gap-1.5 sm:gap-2">
+                      <JackpotSwitch variant="launcher" minimal={isMobile} />
                 <button
                           onClick={() => {
                             if (!gameImageRef.current) return
@@ -13780,7 +13749,7 @@ function NavTestPageContent() {
           </DrawerContent>
         </Drawer>
 
-      {mounted && !isMobile && !showSports && !showVipRewards && !showPoker && (
+      {!isMobile && !showSports && !showVipRewards && !showPoker && (
         <Tour
           open={casinoFeatureTourOpen}
           onOpenChange={handleCasinoTourOpenChange}
@@ -13923,9 +13892,7 @@ function ViewTab({
 export default function CasinoPage() {
   return (
     <SidebarProvider defaultOpen={false}>
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-white">Loading...</div></div>}>
       <NavTestPageContent />
-      </Suspense>
     </SidebarProvider>
   )
 }
