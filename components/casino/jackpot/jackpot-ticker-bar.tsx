@@ -8,6 +8,7 @@ import {
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 interface JackpotTickerBarProps {
@@ -24,15 +25,12 @@ function TickerCell({
   tier,
   amount,
   onClick,
-  isFirst,
-  isMustDrop,
+  compact,
 }: {
   tier: JackpotTickerTierConfig
   amount: number
   onClick: () => void
-  isFirst?: boolean
-  /** Daily column — must-drop pool + drawer */
-  isMustDrop?: boolean
+  compact?: boolean
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const [hoverGlow, setHoverGlow] = useState({ x: 50, y: 50, on: false })
@@ -53,22 +51,17 @@ function TickerCell({
       ref={ref}
       type="button"
       onClick={onClick}
-      aria-label={
-        isMustDrop
-          ? 'Daily must-drop jackpot — guaranteed before midnight. Open details.'
-          : `${tier.label} jackpot`
-      }
+      aria-label={`${tier.label} jackpot`}
       onMouseMove={handleMove}
       onMouseEnter={handleMove}
       onMouseLeave={() => setHoverGlow((g) => ({ ...g, on: false }))}
       className={cn(
-        'relative min-w-0 w-full overflow-hidden py-2.5 px-2',
-        'flex flex-col items-center justify-center gap-1',
+        'relative min-w-0 w-full overflow-hidden',
+        'flex flex-col items-center justify-center gap-0.5',
         'cursor-pointer transition-colors hover:bg-white/[0.04]',
-        !isFirst && 'border-l border-white/10'
+        compact ? 'px-1 py-2.5' : 'px-2 py-3'
       )}
     >
-      {/* Per-tier top accent line */}
       <span
         className="absolute inset-x-0 top-0 h-[2px] z-[3] pointer-events-none"
         style={{ backgroundColor: glow }}
@@ -87,21 +80,21 @@ function TickerCell({
         }}
       />
       <span
-        className="relative z-[2] text-[8px] font-semibold uppercase tracking-[0.16em] mt-1.5 truncate max-w-full px-1"
+        className={cn(
+          'relative z-[2] w-full text-center font-semibold uppercase truncate',
+          compact
+            ? 'text-[7px] tracking-wide mt-1 px-0.5'
+            : 'text-[8px] tracking-[0.12em] mt-1.5 px-1'
+        )}
         style={{ color: tier.accent }}
       >
         {tier.shortLabel}
       </span>
-      {isMustDrop && (
-        <span className="relative z-[2] text-[7px] font-medium uppercase tracking-[0.1em] text-white/40 leading-none -mt-0.5 text-center px-0.5">
-          Must drop · before midnight
-        </span>
-      )}
-      <span className="relative z-[2] w-full max-w-full overflow-hidden flex justify-center min-h-[14px]">
+      <span className="relative z-[2] flex w-full min-h-[20px] items-center justify-center overflow-hidden">
         <JackpotTickingAmount
           value={amount}
-          size="xs"
-          className="max-w-full"
+          size={compact ? 'xs' : 'sm'}
+          className="max-w-full min-w-0 justify-center leading-none md:text-base"
         />
       </span>
     </button>
@@ -112,15 +105,10 @@ export function JackpotTickerBar({
   className,
   onNavigateToJackpots,
 }: JackpotTickerBarProps) {
+  const isMobile = useIsMobile()
   const tickerAmounts = useJackpotStore((s) => s.tickerAmounts)
-  const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
-  const setMustDropDrawerOpen = useJackpotStore((s) => s.setMustDropDrawerOpen)
 
-  const handleTierClick = (tierId: JackpotTickerTierId) => {
-    if (tierId === 'daily') {
-      setMustDropDrawerOpen(true)
-      return
-    }
+  const handleTierClick = (_tierId: JackpotTickerTierId) => {
     if (onNavigateToJackpots) {
       onNavigateToJackpots()
     }
@@ -133,20 +121,16 @@ export function JackpotTickerBar({
         className
       )}
     >
-      <div className="relative grid grid-cols-5 w-full">
-        {JACKPOT_TICKER_TIERS.map((tier, i) => {
-          const isDaily = tier.id === 'daily'
-          return (
-            <TickerCell
-              key={tier.id}
-              tier={tier}
-              amount={isDaily ? mustDropAmount : tickerAmounts[tier.id]}
-              onClick={() => handleTierClick(tier.id)}
-              isFirst={i === 0}
-              isMustDrop={isDaily}
-            />
-          )
-        })}
+      <div className="relative grid grid-cols-4 w-full divide-x divide-white/10">
+        {JACKPOT_TICKER_TIERS.map((tier) => (
+          <TickerCell
+            key={tier.id}
+            tier={tier}
+            amount={tickerAmounts[tier.id]}
+            onClick={() => handleTierClick(tier.id)}
+            compact={isMobile}
+          />
+        ))}
       </div>
     </div>
   )

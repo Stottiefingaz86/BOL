@@ -1,5 +1,5 @@
 export type JackpotTierId = 'mini' | 'minor' | 'major' | 'mega' | 'network'
-export type JackpotTickerTierId = 'mini' | 'minor' | 'major' | 'mega' | 'daily'
+export type JackpotTickerTierId = 'mini' | 'minor' | 'major' | 'mega'
 
 export interface JackpotTierConfig {
   id: JackpotTierId
@@ -22,8 +22,6 @@ export interface JackpotTickerTierConfig {
   tickMin: number
   tickMax: number
   accent: string
-  /** Opens must-drop drawer when true */
-  opensDrawer?: boolean
 }
 
 export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
@@ -62,16 +60,6 @@ export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
     tickMin: 0.8,
     tickMax: 5,
     accent: '#fbbf24',
-  },
-  {
-    id: 'daily',
-    label: 'Daily',
-    shortLabel: 'DAILY',
-    seedAmount: 11890,
-    tickMin: 0.1,
-    tickMax: 0.65,
-    accent: 'var(--ds-primary, #ee3536)',
-    opensDrawer: true,
   },
 ]
 

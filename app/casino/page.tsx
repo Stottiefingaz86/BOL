@@ -23,6 +23,7 @@ import {
   JackpotSwitch,
   JackpotTabTicker,
   JackpotTickerBar,
+  JackpotTickingAmount,
   MustDropDrawer,
   useJackpotTicker,
   useJackpotPreviewGameCount,
@@ -7283,10 +7284,8 @@ function NavTestPageContent() {
   useJackpotTicker()
   const jackpotFeedInsertAt = useJackpotPreviewGameCount(isMobile)
   const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
+  const setMustDropDrawerOpen = useJackpotStore((s) => s.setMustDropDrawerOpen)
   const { trackNav, trackClick, trackAction, trackSidebar, trackPageView } = useTracking('casino')
   const [activeFilter, setActiveFilter] = useState('For You')
   const [activeSubNav, _setActiveSubNav] = useState('For You')
@@ -7530,9 +7529,9 @@ function NavTestPageContent() {
   const [forYouBlackjackCanScrollNext, setForYouBlackjackCanScrollNext] = useState(false)
   const [forYouBlackjackCurrentIndex, setForYouBlackjackCurrentIndex] = useState(0)
 
-  const [forYouJackpotsCarouselApi, setForYouJackpotsCarouselApi] = useState<CarouselApi>()
-  const [forYouJackpotsCanScrollPrev, setForYouJackpotsCanScrollPrev] = useState(false)
-  const [forYouJackpotsCanScrollNext, setForYouJackpotsCanScrollNext] = useState(false)
+  const [jackpotsFeatureCarouselApi, setJackpotsFeatureCarouselApi] = useState<CarouselApi>()
+  const [jackpotsFeatureCanScrollPrev, setJackpotsFeatureCanScrollPrev] = useState(false)
+  const [jackpotsFeatureCanScrollNext, setJackpotsFeatureCanScrollNext] = useState(false)
   
   const [forYouSlotsCarouselApi, setForYouSlotsCarouselApi] = useState<CarouselApi>()
   const [forYouSlotsCanScrollPrev, setForYouSlotsCanScrollPrev] = useState(false)
@@ -7694,14 +7693,14 @@ function NavTestPageContent() {
   }, [forYouBaccaratCarouselApi])
 
   useEffect(() => {
-    if (!forYouJackpotsCarouselApi) return
-    setForYouJackpotsCanScrollPrev(forYouJackpotsCarouselApi.canScrollPrev())
-    setForYouJackpotsCanScrollNext(forYouJackpotsCarouselApi.canScrollNext())
-    forYouJackpotsCarouselApi.on('select', () => {
-      setForYouJackpotsCanScrollPrev(forYouJackpotsCarouselApi.canScrollPrev())
-      setForYouJackpotsCanScrollNext(forYouJackpotsCarouselApi.canScrollNext())
+    if (!jackpotsFeatureCarouselApi) return
+    setJackpotsFeatureCanScrollPrev(jackpotsFeatureCarouselApi.canScrollPrev())
+    setJackpotsFeatureCanScrollNext(jackpotsFeatureCarouselApi.canScrollNext())
+    jackpotsFeatureCarouselApi.on('select', () => {
+      setJackpotsFeatureCanScrollPrev(jackpotsFeatureCarouselApi.canScrollPrev())
+      setJackpotsFeatureCanScrollNext(jackpotsFeatureCarouselApi.canScrollNext())
     })
-  }, [forYouJackpotsCarouselApi])
+  }, [jackpotsFeatureCarouselApi])
 
   useEffect(() => {
     if (!popularCarouselApi) return
@@ -8509,7 +8508,7 @@ function NavTestPageContent() {
             
             {/* Navigation Menu - Desktop only */}
             {!isMobile && (
-              <nav className="flex-1 flex items-center z-[110] -ml-1" style={{ pointerEvents: 'auto' }}>
+              <nav className="flex-1 flex items-center z-[110] -ml-1 overflow-hidden" style={{ pointerEvents: 'auto' }}>
                 <SidebarMenu className="flex flex-row items-center gap-2">
                   {/* Sidebar collapse toggle — always visible on desktop */}
                   <div className="flex items-center gap-1.5 mr-1">
@@ -9783,9 +9782,16 @@ function NavTestPageContent() {
               <motion.div 
                 initial={false}
                 animate={isMobile ? {
-                  height: quickLinksOpen ? '155px' : '100px' // 64px header + 40px quick links (when open) + 57px sub nav - 6px = 155px, or 64px header + 57px sub nav - 21px = 100px (reduced gap for both states)
+                  height: quickLinksOpen
+                    ? showAllGames && activeSubNav === 'Jackpots'
+                      ? '128px'
+                      : '155px'
+                    : showAllGames && activeSubNav === 'Jackpots'
+                      ? '72px'
+                      : '100px',
                 } : {
-                  height: '115px' // 64px header + 57px sub nav - 6px (reduced gap for desktop)
+                  height:
+                    showAllGames && activeSubNav === 'Jackpots' ? '92px' : '115px',
                 }}
                 transition={isMobile ? {
                   type: "tween",
@@ -9883,10 +9889,11 @@ function NavTestPageContent() {
               ) : (
                 <motion.div
                   key="casino-page"
-                  initial={{ opacity: 0 }}
+                  initial={false}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                  className="relative min-h-[50vh]"
                 >
             {/* Banner Carousel - Static, below tabs, only show on "For You" page */}
             {activeSubNav === 'For You' && !showAllGames && (
@@ -10083,25 +10090,6 @@ function NavTestPageContent() {
                 </div>
               )}
 
-              {activeSubNav === 'For You' && !showAllGames && (
-                <div
-                  className={cn(
-                    'relative z-0 w-full min-w-0',
-                    isMobile ? 'px-3 pb-6 pt-1 -mt-2' : 'px-6 pb-8 -mt-4'
-                  )}
-                >
-                  <MustDropDrawer />
-                  <JackpotTickerBar
-                    onNavigateToJackpots={() => {
-                      setActiveSubNav('Jackpots')
-                      setSelectedCategory('Jackpots')
-                      setShowAllGames(true)
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }}
-                  />
-                </div>
-              )}
-              
               {/* Tab Panels */}
               <div 
                 ref={contentRef}
@@ -10115,9 +10103,25 @@ function NavTestPageContent() {
                 )}
                 style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}
               >
-                  <AnimatePresence mode="wait" initial={false}>
+                  <AnimatePresence mode="sync" initial={false}>
                     {showAllGames ? (
-                      <div className="">
+                      <motion.div
+                        key={`all-games-${activeSubNav || selectedCategory || 'grid'}`}
+                        initial={false}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{
+                          duration: 0.2,
+                          ease: 'easeOut',
+                        }}
+                        className="w-full"
+                        style={{
+                          width: '100%',
+                          maxWidth: '100%',
+                          boxSizing: 'border-box',
+                          minWidth: 0,
+                        }}
+                      >
                         {activeSubNav === 'Jackpots' && (
                           <JackpotTabTicker />
                         )}
@@ -10159,7 +10163,11 @@ function NavTestPageContent() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
                         >
-                          {activeIconTab === 'favorite' || selectedCategory === 'Favorites' ? 'Favorites' : (selectedVendor || selectedCategory || activeSubNav)}
+                          {activeIconTab === 'favorite' || selectedCategory === 'Favorites'
+                            ? 'Favorites'
+                            : (selectedVendor || selectedCategory || activeSubNav) === 'Jackpots'
+                              ? 'Jackpot Games'
+                              : (selectedVendor || selectedCategory || activeSubNav)}
                         </motion.h2>
                             
                             {/* Show selected filter */}
@@ -10712,7 +10720,7 @@ function NavTestPageContent() {
                           const categoryKey = selectedCategory || activeSubNav
                           const maxCols = 8 // Maximum columns for largest screens
                           const isJackpotsGrid =
-                            activeSubNav === 'Jackpots' && showAllGames && mounted
+                            activeSubNav === 'Jackpots' && showAllGames
                           const gridClassName =
                             'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8 gap-4 px-6'
 
@@ -10819,13 +10827,13 @@ function NavTestPageContent() {
                           )
                         })()}
 
-                      </div>
+                      </motion.div>
                     ) : activeSubNav === 'Live' ? (
                       <motion.div
                         key="live"
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={false}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        exit={{ opacity: 0, y: -8 }}
                         transition={{
                           duration: 0.2,
                           ease: "easeOut"
@@ -11316,10 +11324,10 @@ function NavTestPageContent() {
                     </motion.div>
                     ) : (
                       <motion.div
-                        key={activeSubNav}
-                        initial={{ opacity: 0, y: 10 }}
+                        key="for-you-home"
+                        initial={false}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        exit={{ opacity: 0, y: -8 }}
                         transition={{
                           duration: 0.2,
                           ease: "easeOut"
@@ -11331,106 +11339,6 @@ function NavTestPageContent() {
                         <div className="space-y-8 relative" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, overflow: 'visible' }}>
 
                         <>
-                        {/* Jackpots — same carousel pattern as other For You rows */}
-                        {activeSubNav === 'For You' && (
-                        <div className={cn(isMobile ? 'pt-5' : 'pt-6')}>
-                          <div
-                            className={cn(
-                              'flex justify-between items-center mb-5 relative z-10',
-                              isMobile ? 'px-3' : 'px-6'
-                            )}
-                            style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}
-                          >
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300">
-                              Jackpots
-                            </h2>
-                            <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
-                            <Button
-                              variant="ghost"
-                              className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
-                                style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
-                              onClick={() => {
-                                setActiveSubNav('Jackpots')
-                                setSelectedCategory('Jackpots')
-                                setShowAllGames(true)
-                                window.scrollTo({ top: 0, behavior: 'smooth' })
-                              }}
-                            >
-                              View all
-                            </Button>
-                              {!isMobile && (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                    onClick={() => {
-                                      if (forYouJackpotsCarouselApi) {
-                                        const currentIndex = forYouJackpotsCarouselApi.selectedScrollSnap()
-                                        const targetIndex = Math.max(0, currentIndex - 2)
-                                        forYouJackpotsCarouselApi.scrollTo(targetIndex)
-                                      }
-                                    }}
-                                    disabled={!forYouJackpotsCarouselApi || !forYouJackpotsCanScrollPrev}
-                                  >
-                                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                    onClick={() => {
-                                      if (forYouJackpotsCarouselApi) {
-                                        const currentIndex = forYouJackpotsCarouselApi.selectedScrollSnap()
-                                        const slideCount = forYouJackpotsCarouselApi.scrollSnapList().length
-                                        const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                                        forYouJackpotsCarouselApi.scrollTo(targetIndex)
-                                      }
-                                    }}
-                                    disabled={!forYouJackpotsCarouselApi || !forYouJackpotsCanScrollNext}
-                                  >
-                                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
-                            <Carousel setApi={setForYouJackpotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                                {Array.from({ length: 24 })
-                                  .map((_, i) => i)
-                                  .filter((i) => isJackpotNetworkGame(i))
-                                  .slice(0, 12)
-                                  .map((index, i) => (
-                                    <CarouselItem
-                                      key={`jp-fy-${index}`}
-                                      className={cn(
-                                        'pr-0 basis-auto flex-shrink-0',
-                                        i === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-4'
-                                      )}
-                                    >
-                                      <div
-                                        data-content-item
-                                        className="w-[160px] h-[160px] flex-shrink-0"
-                                      >
-                                        <LazyGameTile
-                                          index={index}
-                                          columnIndex={i}
-                                          rowIndex={0}
-                                          onTileClick={setSelectedGame}
-                                          isMobile={isMobile}
-                                          showJackpotNetworkTag
-                                        />
-                                      </div>
-                                    </CarouselItem>
-                                  ))}
-                              </CarouselContent>
-                            </Carousel>
-                          </div>
-                        </div>
-                        )}
-
                         {/* New Games Section - Square Tiles */}
                         <div>
                           <div className={cn(
@@ -11637,6 +11545,191 @@ function NavTestPageContent() {
                             </Carousel>
                           </div>
                         </div>
+
+                        {/* Jackpots feature block */}
+                        {activeSubNav === 'For You' && (
+                        <div className="relative mx-3 mb-8 max-w-full overflow-hidden rounded-lg md:-mx-6">
+                          <MustDropDrawer />
+                          <div className="relative min-h-[400px] overflow-hidden rounded-lg border border-white/10">
+                            <div
+                              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#252029] via-[#1a171f] to-[#121018]"
+                              aria-hidden
+                            />
+                            <div
+                              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-amber-400/[0.07]"
+                              aria-hidden
+                            />
+                            <div
+                              className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-5%,rgba(238,53,54,0.09),transparent_55%)]"
+                              aria-hidden
+                            />
+                            <div className="relative z-[1] min-w-0 max-w-full p-6 md:p-8 md:pb-8 md:pr-8 md:pl-14">
+                              <div className="mb-2">
+                                <span className="inline-flex items-center gap-1.5 bg-[#ee3536]/90 text-white text-xs font-semibold px-3 py-1 rounded-small">
+                                  <span
+                                    className="relative flex h-2 w-2 shrink-0"
+                                    aria-hidden
+                                  >
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70 opacity-75" />
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                                  </span>
+                                  Jackpot Network
+                                </span>
+                              </div>
+                              <h2 className="text-2xl font-bold text-white mb-3 md:text-3xl lg:text-4xl">
+                                JACKPOT GAMES
+                              </h2>
+                              <p className="text-white/90 text-sm md:text-base max-w-2xl mb-5">
+                                Play eligible slots for a shot at Mini, Minor, Major, and Mega pools — live amounts tick on every spin.
+                              </p>
+                              <div className="mb-5 w-full min-w-0 pointer-events-auto">
+                                <JackpotTickerBar
+                                  onNavigateToJackpots={() => {
+                                    setActiveSubNav('Jackpots')
+                                    setSelectedCategory('Jackpots')
+                                    setShowAllGames(true)
+                                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                                  }}
+                                />
+                              </div>
+                              <div
+                                className={cn(
+                                  'flex w-full items-center justify-between gap-2 mb-4 pointer-events-auto',
+                                  isMobile ? 'min-w-0' : 'gap-3 mb-6'
+                                )}
+                              >
+                                <Button
+                                  variant="ghost"
+                                  className={cn(
+                                    'text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small inline-flex items-center gap-2 whitespace-nowrap transition-colors duration-300',
+                                    isMobile ? 'min-w-0 flex-1 shrink' : 'min-w-0 shrink'
+                                  )}
+                                  onClick={() => setMustDropDrawerOpen(true)}
+                                >
+                                  <IconClock className="w-3.5 h-3.5 flex-shrink-0 text-[#ee3536]" />
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/50">
+                                    Daily must drop
+                                  </span>
+                                  <JackpotTickingAmount value={mustDropAmount} size="xs" className="shrink-0" />
+                                  <IconChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-white/35" strokeWidth={2} />
+                                </Button>
+                                <div
+                                  className={cn(
+                                    'flex shrink-0 items-center gap-2',
+                                    isMobile && 'ml-2'
+                                  )}
+                                  style={
+                                    isMobile
+                                      ? {
+                                          visibility: 'visible',
+                                          opacity: 1,
+                                          display: 'flex',
+                                          flexShrink: 0,
+                                        }
+                                      : undefined
+                                  }
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small whitespace-nowrap transition-colors duration-300"
+                                    style={
+                                      isMobile
+                                        ? {
+                                            visibility: 'visible',
+                                            opacity: 1,
+                                            display: 'inline-flex',
+                                            flexShrink: 0,
+                                            whiteSpace: 'nowrap',
+                                          }
+                                        : undefined
+                                    }
+                                    onClick={() => {
+                                      setActiveSubNav('Jackpots')
+                                      setSelectedCategory('Jackpots')
+                                      setShowAllGames(true)
+                                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                                    }}
+                                  >
+                                    All Games
+                                  </Button>
+                                  {!isMobile && (
+                                    <>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                        onClick={() => {
+                                          if (jackpotsFeatureCarouselApi) {
+                                            const currentIndex = jackpotsFeatureCarouselApi.selectedScrollSnap()
+                                            jackpotsFeatureCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
+                                          }
+                                        }}
+                                        disabled={!jackpotsFeatureCarouselApi || !jackpotsFeatureCanScrollPrev}
+                                      >
+                                        <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                        onClick={() => {
+                                          if (jackpotsFeatureCarouselApi) {
+                                            const currentIndex = jackpotsFeatureCarouselApi.selectedScrollSnap()
+                                            const slideCount = jackpotsFeatureCarouselApi.scrollSnapList().length
+                                            jackpotsFeatureCarouselApi.scrollTo(
+                                              Math.min(slideCount - 1, currentIndex + 2)
+                                            )
+                                          }
+                                        }}
+                                        disabled={!jackpotsFeatureCarouselApi || !jackpotsFeatureCanScrollNext}
+                                      >
+                                        <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="pointer-events-auto -mx-6 min-w-0">
+                                <Carousel
+                                  setApi={setJackpotsFeatureCarouselApi}
+                                  className="w-full relative"
+                                  opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
+                                >
+                                  <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                    {Array.from({ length: 48 })
+                                      .map((_, i) => i)
+                                      .filter((i) => isJackpotNetworkGame(i))
+                                      .slice(0, 15)
+                                      .map((gameIndex, i) => (
+                                        <CarouselItem
+                                          key={`jp-feature-${gameIndex}`}
+                                          className={cn(
+                                            'pr-0 basis-auto flex-shrink-0',
+                                            i === 0 ? 'pl-3 md:pl-8' : 'pl-2 md:pl-3'
+                                          )}
+                                        >
+                                          <div
+                                            data-content-item
+                                            className="w-[160px] h-[160px] flex-shrink-0"
+                                          >
+                                            <LazyGameTile
+                                              index={gameIndex}
+                                              columnIndex={i}
+                                              rowIndex={0}
+                                              onTileClick={setSelectedGame}
+                                              isMobile={isMobile}
+                                              showJackpotNetworkTag
+                                            />
+                                          </div>
+                                        </CarouselItem>
+                                      ))}
+                                  </CarouselContent>
+                                </Carousel>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        )}
                         
                         {/* BlackJack Section - Square Tiles */}
                         <div>
@@ -11808,144 +11901,7 @@ function NavTestPageContent() {
                             </div>
                           </div>
                         )}
-                        
-                        {/* Feature Section - Rain Background */}
-                        <div className={cn(
-                          "relative w-full rounded-lg overflow-hidden mb-8",
-                          isMobile ? "mx-3" : "-mx-6"
-                        )}>
-                          <RainBackground 
-                            className="rounded-lg min-h-[400px]"
-                            count={150}
-                            intensity={1}
-                            angle={15}
-                            color="rgba(174, 194, 224, 0.5)"
-                            lightning={true}
-                          >
-                            <div className={cn(
-                              "relative z-10",
-                              isMobile ? "p-8" : "pt-8 pb-8 pr-8 pl-14"
-                            )}>
-                              {/* Tag */}
-                              <div className="mb-2">
-                                <span className="inline-block bg-orange-600/80 text-white text-xs font-semibold px-3 py-1 rounded-small">
-                                  Halloween
-                                </span>
-                              </div>
-                              
-                              {/* Title */}
-                              <h2 className="text-4xl md:text-3xl font-bold text-white mb-3">
-                                HALLOWEEN GAMES
-                              </h2>
-                              
-                              {/* Description */}
-                              <p className="text-white/90 text-sm md:text-base max-w-2xl mb-6">
-                                Get spooky with our collection of Halloween-themed games! Spin the reels and win big with haunted slots and eerie jackpots.
-                              </p>
-                              
-                              {/* Action Button + Arrows */}
-                              <div className="flex items-center justify-between mb-6 pointer-events-auto">
-                                <Button
-                                  variant="ghost"
-                                  className="text-white/70 hover:text-white hover:bg-white/5 text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
-                                  onClick={() => {
-                                    setSelectedCategory('Halloween')
-                                    setShowAllGames(true)
-                                    setActiveSubNav('For You')
-                                  }}
-                                >
-                                  <IconGhost className="w-4 h-4" />
-                                  All Games
-                                </Button>
-                                {!isMobile && (
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                      onClick={() => {
-                                        if (halloweenCarouselApi) {
-                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
-                                          const targetIndex = Math.max(0, currentIndex - 2)
-                                          halloweenCarouselApi.scrollTo(targetIndex)
-                                        }
-                                      }}
-                                      disabled={!halloweenCarouselApi || !halloweenCanScrollPrev}
-                                    >
-                                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                      onClick={() => {
-                                        if (halloweenCarouselApi) {
-                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
-                                          const slideCount = halloweenCarouselApi.scrollSnapList().length
-                                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                                          halloweenCarouselApi.scrollTo(targetIndex)
-                                        }
-                                      }}
-                                      disabled={!halloweenCarouselApi || !halloweenCanScrollNext}
-                                    >
-                                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-                                </Button>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Game Tiles Carousel */}
-                              <div className="pointer-events-auto -mx-6">
-                                <Carousel setApi={setHalloweenCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                                  <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                                {Array.from({ length: 15 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
-                                  return (
-                                        <CarouselItem key={index} className={cn(
-                                          "pr-0 basis-auto flex-shrink-0",
-                                          index === 0 ? (isMobile ? "pl-3" : "pl-8") : "pl-2 md:pl-3"
-                                        )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.backgroundColor = `${getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'}33`
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                                        }}
-                                        onClick={() => {
-                                          const halloweenNames = ['Spooky Slots', 'Haunted Mansion', 'Witch\'s Brew', 'Pumpkin Jack', 'Ghostly Reels', 'Trick or Treat']
-                                          setSelectedGame({
-                                            title: halloweenNames[index % halloweenNames.length],
-                                            image: imageSrc,
-                                                provider: getTileVendor(index + 80),
-                                            features: ['Halloween Theme', 'Spooky Bonus Features', 'Special Halloween Promotions']
-                                          })
-                                        }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`Halloween Game ${index + 1}`}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                            <GameTagBadge tag={getMetaTag(index + 80)} vendor={getTileVendor(index + 80)} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'color-mix(in srgb, var(--ds-primary, #ee3536) 10%, transparent)' }} />
-                                      </div>
-                                        </CarouselItem>
-                                  )
-                                })}
-                                  </CarouselContent>
-                                </Carousel>
-                              </div>
-                            </div>
-                          </RainBackground>
-                        </div>
-                        
+
                         {/* Activity Section */}
                         <CasinoActivityPanel
                           isMobile={isMobile}
@@ -12202,6 +12158,137 @@ function NavTestPageContent() {
                               </CarouselContent>
                             </Carousel>
                           </div>
+                        </div>
+
+                        {/* Feature Section - Rain Background */}
+                        <div className="relative mx-3 mb-8 max-w-full overflow-hidden rounded-lg md:-mx-6">
+                          <RainBackground 
+                            className="rounded-lg min-h-[400px]"
+                            count={150}
+                            intensity={1}
+                            angle={15}
+                            color="rgba(174, 194, 224, 0.5)"
+                            lightning={true}
+                          >
+                            <div className="relative z-10 min-w-0 max-w-full p-6 md:p-8 md:pb-8 md:pr-8 md:pl-14">
+                              {/* Tag */}
+                              <div className="mb-2">
+                                <span className="inline-block bg-orange-600/80 text-white text-xs font-semibold px-3 py-1 rounded-small">
+                                  Halloween
+                                </span>
+                              </div>
+                              
+                              {/* Title */}
+                              <h2 className="text-2xl font-bold text-white mb-3 md:text-3xl lg:text-4xl">
+                                HALLOWEEN GAMES
+                              </h2>
+                              
+                              {/* Description */}
+                              <p className="text-white/90 text-sm md:text-base max-w-2xl mb-6">
+                                Get spooky with our collection of Halloween-themed games! Spin the reels and win big with haunted slots and eerie jackpots.
+                              </p>
+                              
+                              {/* Action Button + Arrows */}
+                              <div className="flex items-center justify-between mb-6 pointer-events-auto">
+                                <Button
+                                  variant="ghost"
+                                  className="text-white/70 hover:text-white hover:bg-white/5 text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
+                                  onClick={() => {
+                                    setSelectedCategory('Halloween')
+                                    setShowAllGames(true)
+                                    setActiveSubNav('For You')
+                                  }}
+                                >
+                                  <IconGhost className="w-4 h-4" />
+                                  All Games
+                                </Button>
+                                {!isMobile && (
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                      onClick={() => {
+                                        if (halloweenCarouselApi) {
+                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
+                                          const targetIndex = Math.max(0, currentIndex - 2)
+                                          halloweenCarouselApi.scrollTo(targetIndex)
+                                        }
+                                      }}
+                                      disabled={!halloweenCarouselApi || !halloweenCanScrollPrev}
+                                    >
+                                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                      onClick={() => {
+                                        if (halloweenCarouselApi) {
+                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
+                                          const slideCount = halloweenCarouselApi.scrollSnapList().length
+                                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
+                                          halloweenCarouselApi.scrollTo(targetIndex)
+                                        }
+                                      }}
+                                      disabled={!halloweenCarouselApi || !halloweenCanScrollNext}
+                                    >
+                                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                                </Button>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Game Tiles Carousel */}
+                              <div className="pointer-events-auto -mx-6">
+                                <Carousel setApi={setHalloweenCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                                  <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {Array.from({ length: 15 }).map((_, index) => {
+                                  const imageSrc = squareTileImages[index % squareTileImages.length]
+                                  return (
+                                        <CarouselItem key={index} className={cn(
+                                          "pr-0 basis-auto flex-shrink-0",
+                                          index === 0 ? (isMobile ? "pl-3" : "pl-8") : "pl-2 md:pl-3"
+                                        )}>
+                                      <div 
+                                        data-content-item 
+                                        className="w-[160px] h-[160px] rounded-small bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.backgroundColor = `${getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'}33`
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                                        }}
+                                        onClick={() => {
+                                          const halloweenNames = ['Spooky Slots', 'Haunted Mansion', 'Witch\'s Brew', 'Pumpkin Jack', 'Ghostly Reels', 'Trick or Treat']
+                                          setSelectedGame({
+                                            title: halloweenNames[index % halloweenNames.length],
+                                            image: imageSrc,
+                                                provider: getTileVendor(index + 80),
+                                            features: ['Halloween Theme', 'Spooky Bonus Features', 'Special Halloween Promotions']
+                                          })
+                                        }}
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={`Halloween Game ${index + 1}`}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="160px"
+                                          />
+                                        )}
+                                            <GameTagBadge tag={getMetaTag(index + 80)} vendor={getTileVendor(index + 80)} />
+                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'color-mix(in srgb, var(--ds-primary, #ee3536) 10%, transparent)' }} />
+                                      </div>
+                                        </CarouselItem>
+                                  )
+                                })}
+                                  </CarouselContent>
+                                </Carousel>
+                              </div>
+                            </div>
+                          </RainBackground>
                         </div>
 
                         {/* Crash Games Section - Square Tiles */}
