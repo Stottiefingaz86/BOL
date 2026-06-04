@@ -18,6 +18,8 @@ import {
   IconSoccerField,
   IconSparkles,
 } from '@tabler/icons-react'
+import { useAuthSession } from '@/hooks/use-auth-session'
+import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
 import { cn } from '@/lib/utils'
 
 type Tier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Host'
@@ -172,6 +174,7 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [claimed, setClaimed] = useState(false)
+  const { isLoggedIn } = useAuthSession()
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current
@@ -298,8 +301,10 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
         </div>
 
         {/* CTA pinned to the bottom of the card */}
-        <div className="mt-auto w-full">
-          {isClaimable ? (
+        <div className="relative z-10 mt-auto w-full">
+          {!isLoggedIn ? (
+            <VipLoggedOutCta compact />
+          ) : isClaimable ? (
             claimed ? (
               <div className="w-full h-9 rounded-md text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-400">
                 <IconCheck className="w-3.5 h-3.5" />

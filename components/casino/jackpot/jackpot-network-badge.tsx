@@ -1,33 +1,31 @@
 'use client'
 
+import { IconCoins } from '@tabler/icons-react'
 import type { JackpotTierId } from '@/lib/jackpot/constants'
-import { JACKPOT_TIERS } from '@/lib/jackpot/constants'
-import { useJackpotStore } from '@/lib/store/jackpotStore'
-import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
 import { cn } from '@/lib/utils'
 
 interface JackpotNetworkBadgeProps {
-  tier: JackpotTierId
+  /** Kept for call-site compatibility; display is a single “Jackpot” tag */
+  tier?: JackpotTierId
   className?: string
 }
 
-export function JackpotNetworkBadge({ tier, className }: JackpotNetworkBadgeProps) {
-  const config = JACKPOT_TIERS.find((t) => t.id === tier)
-  const accent = config?.accent ?? '#fbbf24'
-  const amount = useJackpotStore((s) => s.amounts[tier])
-
+export function JackpotNetworkBadge({ className }: JackpotNetworkBadgeProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-center px-1.5 py-0.5 rounded-md border backdrop-blur-sm min-w-[44px]',
+        'flex items-center gap-1 rounded-md border border-white/15 bg-black/55 px-1.5 py-0.5 backdrop-blur-sm',
         className
       )}
-      style={{
-        backgroundColor: 'rgba(0,0,0,0.62)',
-        borderColor: `${accent}55`,
-      }}
     >
-      <JackpotTickingAmount value={amount} size="badge" />
+      <IconCoins
+        className="h-2.5 w-2.5 shrink-0 text-amber-200/90"
+        stroke={2}
+        aria-hidden
+      />
+      <span className="text-[9px] font-semibold uppercase tracking-wide text-white/90">
+        Jackpot
+      </span>
     </div>
   )
 }

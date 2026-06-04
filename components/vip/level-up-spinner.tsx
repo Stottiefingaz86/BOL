@@ -12,6 +12,8 @@ import { fireConfetti } from '@/lib/confetti'
 import { cn } from '@/lib/utils'
 import { playSound, stopSound } from '@/lib/sounds'
 import { toast } from 'sonner'
+import { useAuthSession } from '@/hooks/use-auth-session'
+import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
 
 // ---------------------------------------------------------------------------
 // Tier data
@@ -265,6 +267,7 @@ export function LevelUpSpinner({
   currentSubLevel = 1,
   className,
 }: LevelUpSpinnerProps) {
+  const { isLoggedIn } = useAuthSession()
   const [selectedTier, setSelectedTier] = useState<TierName>(currentTier)
   const [selectedSubLevel, setSelectedSubLevel] = useState<number>(currentSubLevel)
 
@@ -587,7 +590,9 @@ export function LevelUpSpinner({
       </div>
 
       {/* CTA */}
-      {isLocked ? (
+      {!isLoggedIn ? (
+        <VipLoggedOutCta className="!h-11 !rounded-lg !text-sm" />
+      ) : isLocked ? (
         <button
           type="button"
           disabled

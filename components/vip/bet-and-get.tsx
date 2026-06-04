@@ -3,6 +3,8 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IconCheck, IconCircleCheck } from '@tabler/icons-react'
+import { useAuthSession } from '@/hooks/use-auth-session'
+import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
 
 type MissionStatus = 'completed' | 'in_progress' | 'not_started'
 
@@ -71,9 +73,10 @@ const MISSIONS: Mission[] = [
 ]
 
 function MissionCard({ mission, onClaim }: { mission: Mission; onClaim: (id: string) => void }) {
+  const { isLoggedIn } = useAuthSession()
   const progressPercent = Math.min((mission.progress / mission.target) * 100, 100)
   const isComplete = mission.status === 'completed'
-  const canClaim = isComplete && !mission.claimed
+  const canClaim = isLoggedIn && isComplete && !mission.claimed
 
   return (
     <div className="rounded-xl bg-white/[0.04] border border-white/[0.06] overflow-hidden">
@@ -96,24 +99,28 @@ function MissionCard({ mission, onClaim }: { mission: Mission; onClaim: (id: str
             />
             <span className="text-xs text-white/60">{mission.task}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="h-full rounded-full bg-[#fbbf24]"
-              />
+          {isLoggedIn && (
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-2 rounded-full bg-white/[0.08] overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className="h-full rounded-full bg-[#fbbf24]"
+                />
+              </div>
+              <span className="text-xs text-white/50 font-medium tabular-nums flex-shrink-0">
+                ${mission.progress} / ${mission.target}
+              </span>
             </div>
-            <span className="text-xs text-white/50 font-medium tabular-nums flex-shrink-0">
-              ${mission.progress} / ${mission.target}
-            </span>
-          </div>
+          )}
         </div>
 
-        {/* Claim Button */}
+        {/* Claim / Log in */}
         <AnimatePresence mode="wait">
-          {mission.claimed ? (
+          {!isLoggedIn ? (
+            <VipLoggedOutCta className="!h-auto !py-3 !rounded-lg !text-sm" />
+          ) : mission.claimed ? (
             <motion.div
               key="claimed"
               initial={{ opacity: 0, y: 4 }}

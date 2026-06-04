@@ -41,10 +41,10 @@ const DrawerOverlay = React.forwardRef<
     ref={ref}
     className={cn("fixed inset-0 z-[9998] bg-black/60 backdrop-blur-xl transition-opacity duration-300 ease-in-out", className)}
     style={{
-      ...props.style,
       pointerEvents: nonInteractive ? 'none' : 'auto',
       visibility: 'visible',
       zIndex: 9998,
+      ...props.style,
     } as React.CSSProperties}
     onClick={(e) => {
       if (nonInteractive) {
@@ -103,21 +103,21 @@ const DrawerContent = React.forwardRef<
         ref={ref}
         {...(noDrag ? { 'data-vaul-no-drag': '' } : {})}
         className={cn(
-          "fixed z-[9999] flex flex-col border bg-background",
-          "[&[data-vaul-drawer-direction='right']]:inset-y-0 [&[data-vaul-drawer-direction='right']]:right-0 [&[data-vaul-drawer-direction='right']]:h-full [&[data-vaul-drawer-direction='right']]:w-3/4 [&[data-vaul-drawer-direction='right']]:sm:max-w-sm [&[data-vaul-drawer-direction='right']]:rounded-l-[10px] [&[data-vaul-drawer-direction='right']]:border-l",
-          "[&[data-vaul-drawer-direction='left']]:inset-y-0 [&[data-vaul-drawer-direction='left']]:left-0 [&[data-vaul-drawer-direction='left']]:h-full [&[data-vaul-drawer-direction='left']]:w-3/4 [&[data-vaul-drawer-direction='left']]:sm:max-w-sm [&[data-vaul-drawer-direction='left']]:rounded-r-[10px] [&[data-vaul-drawer-direction='left']]:border-r",
+          "fixed z-[100000] flex flex-col border bg-background",
+          "[&[data-vaul-drawer-direction='right']]:inset-y-0 [&[data-vaul-drawer-direction='right']]:md:top-16 [&[data-vaul-drawer-direction='right']]:md:bottom-0 [&[data-vaul-drawer-direction='right']]:md:inset-y-auto [&[data-vaul-drawer-direction='right']]:right-0 [&[data-vaul-drawer-direction='right']]:h-full [&[data-vaul-drawer-direction='right']]:md:h-auto [&[data-vaul-drawer-direction='right']]:w-3/4 [&[data-vaul-drawer-direction='right']]:sm:max-w-sm [&[data-vaul-drawer-direction='right']]:rounded-l-[10px] [&[data-vaul-drawer-direction='right']]:border-l",
+          "[&[data-vaul-drawer-direction='left']]:inset-y-0 [&[data-vaul-drawer-direction='left']]:md:top-16 [&[data-vaul-drawer-direction='left']]:md:bottom-0 [&[data-vaul-drawer-direction='left']]:md:inset-y-auto [&[data-vaul-drawer-direction='left']]:left-0 [&[data-vaul-drawer-direction='left']]:h-full [&[data-vaul-drawer-direction='left']]:md:h-auto [&[data-vaul-drawer-direction='left']]:w-3/4 [&[data-vaul-drawer-direction='left']]:sm:max-w-sm [&[data-vaul-drawer-direction='left']]:rounded-r-[10px] [&[data-vaul-drawer-direction='left']]:border-r",
           "[&[data-vaul-drawer-direction='top']]:inset-x-0 [&[data-vaul-drawer-direction='top']]:top-0 [&[data-vaul-drawer-direction='top']]:rounded-b-[10px] [&[data-vaul-drawer-direction='top']]:border-b [&[data-vaul-drawer-direction='top']]:h-auto",
           "[&[data-vaul-drawer-direction='bottom']]:inset-x-0 [&[data-vaul-drawer-direction='bottom']]:bottom-0 [&[data-vaul-drawer-direction='bottom']]:rounded-t-[10px] [&[data-vaul-drawer-direction='bottom']]:border-t [&[data-vaul-drawer-direction='bottom']]:h-auto",
           className
         )}
         style={{
-          ...style,
           position: 'fixed',
           pointerEvents: 'auto',
           visibility: 'visible',
           opacity: 1,
-          zIndex: 9999,
+          zIndex: 100000,
           display: 'flex',
+          ...style,
         } as React.CSSProperties}
         {...props}
       >

@@ -1,5 +1,7 @@
 'use client'
 
+import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
+
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import React, { Suspense } from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -2277,7 +2279,7 @@ function VipDrawerContent({
         )}
       </div>
 
-      <div className={cn("px-4 pt-4 overflow-y-auto flex-1 min-h-0", isMobile ? "pb-6" : "pb-2")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 24px)' : undefined }}>
+      <VipHubScrollBody isMobile={isMobile}>
         {vipActiveTab === 'Overview' && (
           <div className="space-y-6">
             <Card className="bg-white/5 border-white/10">
@@ -2348,7 +2350,7 @@ function VipDrawerContent({
 
         {vipActiveTab === 'Reloads' && <ReloadClaim />}
         {vipActiveTab === 'Cash Drop' && <CashDropCode />}
-      </div>
+      </VipHubScrollBody>
     </div>
   )
 }

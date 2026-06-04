@@ -22,6 +22,8 @@ import {
   IconShare,
 } from '@tabler/icons-react'
 import { useChatStore } from '@/lib/store/chatStore'
+import { useAuthSession } from '@/hooks/use-auth-session'
+import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -362,6 +364,7 @@ export function RewardCrates({
   initialBalance = 1247.5,
   hideHeader = false,
 }: RewardCratesProps) {
+  const { isLoggedIn } = useAuthSession()
   const [crates, setCrates] = useState<RewardCrate[]>(cratesProp ?? DEFAULT_CRATES)
   const [opening, setOpening] = useState<{ crate: RewardCrate; reward: CrateReward } | null>(null)
   const [balance, setBalance] = useState(initialBalance)
@@ -451,6 +454,34 @@ export function RewardCrates({
     stopOpenSound()
     setOpening(null)
   }, [opening, stopOpenSound])
+
+  if (!isLoggedIn) {
+    return (
+      <div className="space-y-3">
+        {!hideHeader && (
+          <>
+            <h3 className="text-lg font-semibold text-white">{heading}</h3>
+            <p className="text-xs text-white/50 leading-relaxed">
+              Earn crates by leveling up, hitting streaks, completing missions and challenges. Open
+              them for instant rewards.
+            </p>
+          </>
+        )}
+        <div className="rounded-xl border border-white/10 bg-white/5 px-5 py-6 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
+            <IconGift className="h-6 w-6 text-white/40" />
+          </div>
+          <p className="text-sm font-semibold text-white">Unlock reward crates</p>
+          <p className="mt-1.5 text-xs leading-relaxed text-white/50">
+            Log in to collect crates from level-ups, streaks, missions, and challenges.
+          </p>
+          <div className="mx-auto mt-4 max-w-[200px]">
+            <VipLoggedOutCta />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">

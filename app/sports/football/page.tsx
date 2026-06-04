@@ -1,4 +1,8 @@
 'use client'
+
+import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
+
+import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { VipBenefitTiles } from '@/components/vip/vip-benefit-tiles'
@@ -9411,7 +9415,7 @@ function VipDrawerContent({
         )}
       </div>
       
-      <div className={cn("px-4 pt-4 overflow-y-auto flex-1 min-h-0", isMobile ? "pb-6" : "pb-2")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 24px)' : undefined }}>
+      <VipHubScrollBody isMobile={isMobile}>
         {vipActiveTab === 'Overview' && (
           <div className="space-y-6">
             <Card className="bg-white/5 border-white/10">
@@ -9484,7 +9488,7 @@ function VipDrawerContent({
 
         
         
-      </div>
+      </VipHubScrollBody>
     </div>
   )
 }
@@ -10257,6 +10261,94 @@ function NavTestPageContent() {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       className={cn(
+                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
+                        "hover:bg-white/5 hover:text-white transition-colors",
+                        "text-white/70 cursor-pointer",
+                        isSportsProductActive && "!text-white"
+                      )}
+                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        trackNav('sports', 'Sports')
+                        trackPageView('sports', 'Sports')
+                        setShowSports(true)
+                        setShowVipRewards(false)
+                        router.push('/sports/football')
+                        window.scrollTo(0, 0)
+                      }}
+                      data-active={isSportsProductActive}
+                    >
+                      {isSportsProductActive && (
+                        <motion.div
+                          layoutId="sportsNavPill" layout="position"
+                          className="absolute inset-0 rounded-small"
+                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10">Sports</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
+                        "hover:bg-white/5 hover:text-white transition-colors",
+                        "text-white/70 cursor-pointer",
+                        !showSports && !showVipRewards && activeSubNav !== 'Live' && "!text-white"
+                      )}
+                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
+                      data-active={!showSports && !showVipRewards && activeSubNav !== 'Live'}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        trackNav('casino', 'Casino')
+                        trackPageView('casino', 'Casino')
+                        router.push('/casino')
+                      }}
+                    >
+                      {!showSports && !showVipRewards && activeSubNav !== 'Live' && (
+                        <motion.div
+                          layoutId="sportsNavPill" layout="position"
+                          className="absolute inset-0 rounded-small"
+                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10">Casino</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center",
+                        "hover:bg-white/5 hover:text-white transition-colors",
+                        "data-[active=true]:bg-white/10 data-[active=true]:text-white",
+                        "text-white/70 active:bg-white/10 cursor-pointer"
+                      )}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        trackNav('poker', 'Poker')
+                        trackPageView('poker', 'Poker')
+                        router.push('/casino?poker=true')
+                      }}
+                    >
+                      Poker
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className={cn(
                         "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
                         "hover:bg-white/5 hover:text-white transition-colors",
                         "text-white/70 cursor-pointer",
@@ -10346,24 +10438,7 @@ function NavTestPageContent() {
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
             {/* VIP Crown Button - After theme toggle on desktop, after balance on mobile */}
             {!isMobile ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             ) : null}
             
             {/* Separator - Hide on mobile */}
@@ -10413,24 +10488,7 @@ function NavTestPageContent() {
             
             {/* VIP Crown Button - After balance on mobile only */}
             {isMobile && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             )}
             
 {/* Deposit Button - Desktop only */}

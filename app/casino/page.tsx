@@ -1,4 +1,8 @@
 'use client'
+
+import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
+
+import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { VipBenefitTiles } from '@/components/vip/vip-benefit-tiles'
@@ -20,6 +24,7 @@ import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-par
 import {
   JackpotActivityFeed,
   JackpotNetworkBadge,
+  JackpotLauncherDropdown,
   JackpotSwitch,
   JackpotTabTicker,
   JackpotTickerBar,
@@ -6149,7 +6154,7 @@ function VipDrawerContent({
         )}
       </div>
       
-      <div className={cn("px-4 pt-4 overflow-y-auto flex-1 min-h-0", isMobile ? "pb-6" : "pb-2")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 24px)' : undefined }}>
+      <VipHubScrollBody isMobile={isMobile}>
         {vipActiveTab === 'Overview' && (
           <div className="space-y-6">
             <Card className="bg-white/5 border-white/10">
@@ -6221,7 +6226,7 @@ function VipDrawerContent({
 
         
         
-                </div>
+                </VipHubScrollBody>
                 </div>
   )
 }
@@ -8715,24 +8720,7 @@ function NavTestPageContent() {
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
             {/* VIP Crown Button - After theme toggle on desktop, after balance on mobile */}
             {!isMobile ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             ) : null}
             
             {/* Separator - Hide on mobile */}
@@ -8782,24 +8770,7 @@ function NavTestPageContent() {
             
             {/* VIP Crown Button - After balance on mobile only */}
             {isMobile && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             )}
             
 {/* Deposit Button - Desktop only */}
@@ -13403,11 +13374,11 @@ function NavTestPageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[200] bg-[#1a1a1a]"
+              className="fixed inset-0 z-[100010] bg-[#1a1a1a]"
             >
               {/* Top chrome: full glass bar (portrait / desktop); compact bar in mobile landscape */}
               {isMobile && isLandscape ? (
-                <div className="pointer-events-auto fixed left-3 right-3 top-3 z-[250] flex items-center gap-2">
+                <div className="pointer-events-auto fixed left-3 right-3 top-3 z-[250] flex h-9 items-center">
                   <button
                     type="button"
                     onClick={() => {
@@ -13415,16 +13386,16 @@ function NavTestPageContent() {
                       setGameLauncherMenuOpen(false)
                       setIsFullscreen(false)
                     }}
-                    className="flex h-9 shrink-0 items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 text-xs font-medium text-white backdrop-blur-md"
+                    className="relative z-10 flex h-9 w-fit shrink-0 items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 text-xs font-medium text-white backdrop-blur-md"
                   >
                     <IconChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden />
                     Lobby
                   </button>
-                  <h2 className="min-w-0 flex-1 truncate text-center text-xs font-semibold text-white">
+                  <h2 className="pointer-events-none absolute left-1/2 z-0 max-w-[min(50%,14rem)] -translate-x-1/2 truncate px-2 text-center text-xs font-semibold text-white">
                     {selectedGame.title}
                   </h2>
-                  <div className="shrink-0 scale-90">
-                    <JackpotSwitch variant="launcher" minimal />
+                  <div className="relative z-10 ml-auto">
+                    <JackpotLauncherDropdown compact iconOnly />
                   </div>
                 </div>
               ) : (
@@ -13434,16 +13405,16 @@ function NavTestPageContent() {
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.2 }}
                   className={cn(
-                    "fixed top-4 left-4 right-4 z-50 rounded-2xl backdrop-blur-xl border border-white/10",
+                    "fixed top-4 left-4 right-4 z-[100020] rounded-2xl backdrop-blur-xl border border-white/10",
                     isMobile ? "h-10" : "h-12"
                   )}
                   style={{
                     backgroundColor: 'rgba(26, 26, 26, 0.6)',
                   }}
                 >
-                  <div className="flex items-center justify-between h-full px-3 relative">
+                  <div className={cn("relative flex h-full w-full items-center", isMobile ? "px-2" : "px-3")}>
                     {/* Hamburger Menu - Left */}
-                    <div className="relative" ref={gameLauncherMenuRef}>
+                    <div className="relative z-10 shrink-0" ref={gameLauncherMenuRef}>
                       <button
                         onClick={() => setGameLauncherMenuOpen(!gameLauncherMenuOpen)}
                         className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
@@ -13475,16 +13446,34 @@ function NavTestPageContent() {
                             className="absolute top-full left-0 mt-2 w-56 bg-[#2d2d2d]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
                           >
                             <div className="py-2">
-                              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 min-h-[44px]">
-                                <span className="text-xs text-white/70 flex-shrink-0">
-                                  Jackpots
-                                </span>
-                                <JackpotSwitch
-                                  variant="launcher"
-                                  minimal
-                                  className="focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-0 focus-visible:ring-offset-[#2d2d2d]"
-                                />
-                              </div>
+                              {isMobile && (
+                                <button
+                                  onClick={() => {
+                                    const gameId = hashGameTitle(selectedGame.title)
+                                    const newFavorited = new Set(favoritedGames)
+                                    if (newFavorited.has(gameId)) {
+                                      newFavorited.delete(gameId)
+                                    } else {
+                                      newFavorited.add(gameId)
+                                    }
+                                    setFavoritedGames(newFavorited)
+                                    setGameLauncherMenuOpen(false)
+                                  }}
+                                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm flex items-center gap-2.5"
+                                >
+                                  <IconHeart
+                                    className={cn(
+                                      'w-4 h-4 shrink-0',
+                                      favoritedGames.has(hashGameTitle(selectedGame.title))
+                                        ? 'text-pink-500 fill-pink-500'
+                                        : 'text-white/70'
+                                    )}
+                                  />
+                                  {favoritedGames.has(hashGameTitle(selectedGame.title))
+                                    ? 'Remove from Favourites'
+                                    : 'Add to Favourites'}
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   openDepositDrawer()
@@ -13496,8 +13485,8 @@ function NavTestPageContent() {
                   </button>
                               <button
                                 onClick={() => {
-                                  setSimilarGamesDrawerOpen(true)
                                   setGameLauncherMenuOpen(false)
+                                  setSimilarGamesDrawerOpen(true)
                                 }}
                                 className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
                               >
@@ -13513,17 +13502,21 @@ function NavTestPageContent() {
                           </motion.div>
                         )}
                       </AnimatePresence>
-                </div>
+                    </div>
 
-                {/* Game Name - Center (absolutely positioned) */}
-                    <h2 className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-white max-w-[min(40%,12rem)] sm:max-w-[50%] truncate px-2 z-0">
-                  {selectedGame.title}
-                </h2>
+                    <h2
+                      className={cn(
+                        'pointer-events-none absolute inset-y-0 left-1/2 z-0 flex w-full max-w-[min(52%,18rem)] -translate-x-1/2 items-center justify-center truncate px-2 text-center font-semibold text-white',
+                        isMobile ? 'text-xs' : 'text-sm'
+                      )}
+                    >
+                      {selectedGame.title}
+                    </h2>
 
-                    {/* Jackpot opt-in + window controls */}
-                    <div className="z-10 ml-auto flex items-center gap-1.5 sm:gap-2">
-                      <JackpotSwitch variant="launcher" minimal={isMobile} />
-                <button
+                    <div className="relative z-10 ml-auto flex shrink-0 items-center gap-0.5">
+                      <JackpotLauncherDropdown compact={isMobile} iconOnly={isMobile} />
+                      {!isMobile && (
+                      <button
                           onClick={() => {
                             if (!gameImageRef.current) return
                             
@@ -13551,9 +13544,10 @@ function NavTestPageContent() {
                         >
                           <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
                         </button>
+                      )}
+                      {!isMobile && (
                       <button 
                         onClick={() => {
-                          // Toggle favorite
                           const gameId = hashGameTitle(selectedGame.title)
                           const newFavorited = new Set(favoritedGames)
                           if (newFavorited.has(gameId)) {
@@ -13574,6 +13568,7 @@ function NavTestPageContent() {
                           )}
                         />
                       </button>
+                      )}
                       <button
                         onClick={() => {
                           setSelectedGame(null)
@@ -13707,18 +13702,23 @@ function NavTestPageContent() {
         {/* Similar Games Drawer */}
         <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
-            showOverlay={isMobile}
+            showOverlay={selectedGame ? true : isMobile}
+            overlayClassName={selectedGame ? '!z-[100040]' : undefined}
+            data-similar-games-drawer
             className={cn(
-            "bg-[#1a1a1a] text-white flex flex-col relative",
+            "bg-[#1a1a1a] text-white flex flex-col relative similar-games-drawer",
             "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden",
             isMobile && "rounded-t-[10px]"
             )}
-            style={isMobile ? {
+            style={{
+              zIndex: selectedGame ? 100050 : undefined,
+              ...(isMobile ? {
               height: '80vh',
               maxHeight: '80vh',
               top: 'auto',
               bottom: 0,
-            } : undefined}
+            } : {}),
+            }}
           >
             {isMobile && <DrawerHandle variant="light" />}
             <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>

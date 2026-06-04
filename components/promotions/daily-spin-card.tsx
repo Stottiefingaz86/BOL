@@ -4,6 +4,8 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import { motion } from "framer-motion"
 import { IconRefresh } from "@tabler/icons-react"
+import { VipLoggedOutCta } from "@/components/vip/vip-logged-out-cta"
+import { useAuthSession } from "@/hooks/use-auth-session"
 import { cn } from "@/lib/utils"
 
 /**
@@ -37,33 +39,29 @@ export type DailySpinCardProps = {
  */
 export function DailySpinCard({ className, compact = true }: DailySpinCardProps) {
   const [open, setOpen] = useState(false)
+  const { isLoggedIn } = useAuthSession()
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
+      <div
         className={cn(
-          // Neutral glass surface to match the other VIP drawer cards.
-          // `transition-all` handles the colour shift on hover; the red
-          // accent ring/shadow gets driven via inline styles below so we can
-          // use the exact brand hex.
-          "group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 text-left transition-all hover:border-[#ee3536]/40 hover:bg-white/[0.07] hover:shadow-[0_0_24px_rgba(238,53,54,0.18)]",
+          "group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 text-left transition-all",
+          isLoggedIn && "hover:border-[#ee3536]/40 hover:bg-white/[0.07] hover:shadow-[0_0_24px_rgba(238,53,54,0.18)]",
           compact ? "p-3" : "p-4",
           className,
         )}
-        aria-label="Open daily spin"
       >
         <motion.div
-          animate={{ rotate: [0, 8, -8, 0] }}
+          animate={isLoggedIn ? { rotate: [0, 8, -8, 0] } : { rotate: 0 }}
           transition={{
             duration: 4,
-            repeat: Infinity,
+            repeat: isLoggedIn ? Infinity : 0,
             ease: "easeInOut",
             times: [0, 0.3, 0.7, 1],
           }}
           className={cn(
-            "flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/70 transition-colors group-hover:bg-[#ee3536]/15 group-hover:text-[#ee3536]",
+            "flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/70 transition-colors",
+            isLoggedIn && "group-hover:bg-[#ee3536]/15 group-hover:text-[#ee3536]",
             compact ? "h-9 w-9" : "h-11 w-11",
           )}
         >
@@ -92,33 +90,42 @@ export function DailySpinCard({ className, compact = true }: DailySpinCardProps)
           </p>
         </div>
 
-        {/* CTA — brand red, matching the "Claim $42.50" / primary action
-            pattern used elsewhere in the VIP drawer. */}
-        <span
-          className={cn(
-            "flex-shrink-0 rounded-lg font-semibold uppercase tracking-wide text-white transition-colors",
-            compact ? "px-3 py-1.5 text-[11px]" : "px-3.5 py-2 text-xs",
-          )}
-          style={{
-            background: BRAND_RED,
-            boxShadow: `0 4px 14px ${BRAND_RED}40`,
-          }}
-          onMouseEnter={(e) => {
-            ;(e.currentTarget as HTMLSpanElement).style.background = BRAND_RED_DARK
-          }}
-          onMouseLeave={(e) => {
-            ;(e.currentTarget as HTMLSpanElement).style.background = BRAND_RED
-          }}
-        >
-          Spin
-        </span>
-      </button>
+        {isLoggedIn ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className={cn(
+              "flex-shrink-0 rounded-lg font-semibold uppercase tracking-wide text-white transition-colors",
+              compact ? "px-3 py-1.5 text-[11px]" : "px-3.5 py-2 text-xs",
+            )}
+            style={{
+              background: BRAND_RED,
+              boxShadow: `0 4px 14px ${BRAND_RED}40`,
+            }}
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLButtonElement).style.background = BRAND_RED_DARK
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLButtonElement).style.background = BRAND_RED
+            }}
+            aria-label="Open daily spin"
+          >
+            Spin
+          </button>
+        ) : (
+          <div className={cn("flex-shrink-0", compact ? "w-[88px]" : "w-[96px]")}>
+            <VipLoggedOutCta compact className="!h-auto !py-1.5 !text-[10px] !normal-case !tracking-normal" />
+          </div>
+        )}
+      </div>
 
-      <DailySpinPopup
-        visible={open}
-        onClose={() => setOpen(false)}
-        onClaim={() => setOpen(false)}
-      />
+      {isLoggedIn && (
+        <DailySpinPopup
+          visible={open}
+          onClose={() => setOpen(false)}
+          onClaim={() => setOpen(false)}
+        />
+      )}
     </>
   )
 }

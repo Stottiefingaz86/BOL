@@ -6,6 +6,8 @@ export interface JackpotTierConfig {
   label: string
   shortLabel: string
   description: string
+  /** Added to base stake per spin when this tier is opted in */
+  spinAddon: number
   seedAmount: number
   tickMin: number
   tickMax: number
@@ -69,6 +71,7 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     label: 'Mini',
     shortLabel: 'MINI',
     description: 'Hits often — keeps the action going',
+    spinAddon: 0.02,
     seedAmount: 485.73,
     tickMin: 0.01,
     tickMax: 0.12,
@@ -81,6 +84,7 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     label: 'Minor',
     shortLabel: 'MINOR',
     description: 'Regular wins across the lobby',
+    spinAddon: 0.03,
     seedAmount: 6225,
     tickMin: 0.05,
     tickMax: 0.35,
@@ -93,6 +97,7 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     label: 'Major',
     shortLabel: 'MAJOR',
     description: 'Bigger pools, bigger moments',
+    spinAddon: 0.05,
     seedAmount: 72700,
     tickMin: 0.2,
     tickMax: 1.5,
@@ -105,6 +110,7 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     label: 'Mega',
     shortLabel: 'MEGA',
     description: 'Life-changing top tier',
+    spinAddon: 0.1,
     seedAmount: 1312000,
     tickMin: 0.8,
     tickMax: 5,
@@ -117,6 +123,7 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     label: 'Network',
     shortLabel: 'NETWORK',
     description: 'Shared across all brands',
+    spinAddon: 0.15,
     seedAmount: 2480000,
     tickMin: 2,
     tickMax: 12,
@@ -128,8 +135,25 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
 
 export const JACKPOT_CONTRIBUTION_RATE = 0.01
 export const JACKPOT_MIN_QUALIFYING_BET = 1
-/** Added to base game stake per spin when opted into jackpots */
+/** @deprecated Use per-tier spinAddon — kept for legacy single-toggle UI */
 export const JACKPOT_PER_SPIN_ADDON = 0.1
+
+export function formatJackpotSpinAddon(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+export function getJackpotSpinAddonTotal(
+  tierOptIns: Partial<Record<JackpotTierId, boolean>>
+): number {
+  return JACKPOT_TIERS.reduce((sum, tier) => {
+    return tierOptIns[tier.id] ? sum + tier.spinAddon : sum
+  }, 0)
+}
 /** Jackpots tab — only jackpot-network games, capped count */
 export const JACKPOT_ELIGIBLE_GAME_LIMIT = 12
 

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Figtree } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import GlobalChatWrapper from '@/components/chat/global-chat-wrapper'
+import { AuthSessionSync } from '@/components/auth/auth-session-sync'
+import { GlobalAuthLoginFallback } from '@/components/auth/global-auth-login-fallback'
 import GlobalBetslip from '@/components/betslip/global-betslip'
 import { DesignCustomizer } from '@/components/design-customizer'
 import { PreventOverscroll } from '@/components/prevent-overscroll'
@@ -49,6 +51,8 @@ export default function RootLayout({
       </head>
       <body style={{ fontFamily: 'var(--font-figtree), sans-serif' }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="theme">
+          <AuthSessionSync />
+          <GlobalAuthLoginFallback />
           <EsportsLinkFix />
           <PreventOverscroll />
           <GlobalChatWrapper>

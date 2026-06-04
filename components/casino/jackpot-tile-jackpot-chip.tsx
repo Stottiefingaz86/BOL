@@ -3,20 +3,16 @@
 import { IconCoins } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import type { JackpotTierConfig } from '@/components/casino/jackpot-tiers'
-import { JackpotTileRollAmount } from '@/components/casino/jackpot-roll-amount'
 
 export type JackpotTileJackpotChipProps = {
-  tier: JackpotTierConfig
-  /** Carousel tiles are 160px; grid tiles are larger */
+  /** Kept for call-site compatibility */
+  tier?: JackpotTierConfig
   size?: 'carousel' | 'grid'
   className?: string
 }
 
-/**
- * Bottom-center jackpot readout on game artwork (Megaways-style reference):
- * frosted pill, gold tier row, amount with superscript ticker digit.
- */
-export function JackpotTileJackpotChip({ tier, size = 'carousel', className }: JackpotTileJackpotChipProps) {
+/** Bottom-center “Jackpot” tag on game artwork */
+export function JackpotTileJackpotChip({ className }: JackpotTileJackpotChipProps) {
   return (
     <div
       className={cn(
@@ -26,21 +22,18 @@ export function JackpotTileJackpotChip({ tier, size = 'carousel', className }: J
     >
       <div
         className={cn(
-          'flex w-max max-w-full flex-col items-center gap-0.5 rounded-md px-2 py-1',
-          'bg-black/50 backdrop-blur-[7px]',
-          /* No hard stroke — soft edge only */
+          'flex items-center gap-1 rounded-md border border-white/15 bg-black/55 px-1.5 py-0.5 backdrop-blur-[7px]',
           'shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
         )}
       >
-        <div className="flex items-center gap-0.5">
-          <IconCoins className="h-2.5 w-2.5 shrink-0 text-amber-200/90" stroke={2} aria-hidden />
-          <span className="text-[7.5px] font-bold uppercase tracking-[0.14em] text-amber-200/90 md:text-[8px]">
-            {tier.label}
-          </span>
-        </div>
-        <div className="-mt-px text-center leading-none">
-          <JackpotTileRollAmount tierId={tier.id} size={size} />
-        </div>
+        <IconCoins
+          className="h-2.5 w-2.5 shrink-0 text-amber-200/90"
+          stroke={2}
+          aria-hidden
+        />
+        <span className="text-[9px] font-semibold uppercase tracking-wide text-white/90">
+          Jackpot
+        </span>
       </div>
     </div>
   )

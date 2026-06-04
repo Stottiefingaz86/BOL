@@ -517,6 +517,19 @@ header[class*="z-\[100\]"] [role="button"] {
   position: fixed !important;
 }
 
+/* Game launcher fullscreen overlay (z ~100010) — jackpot tier menu must sit above it */
+[data-jackpot-launcher-dropdown],
+[data-radix-popper-content-wrapper]:has([data-jackpot-launcher-dropdown]) {
+  z-index: 100030 !important;
+  pointer-events: auto !important;
+}
+
+/* Similar games drawer from game launcher */
+[data-vaul-drawer].similar-games-drawer,
+[data-vaul-drawer][data-similar-games-drawer] {
+  z-index: 100050 !important;
+}
+
 /* Ensure carousel arrows are ALWAYS visible and NEVER clipped */
 button[class*="CarouselPrevious"],
 button[class*="CarouselNext"] {
@@ -891,10 +904,33 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 /* Let vaul handle its own layout. We only add z-index for layering
    and prevent body scroll-lock for non-modal drawers. */
 
-/* Drawer content should appear above page content */
-[data-vaul-drawer-direction] {
-  z-index: 99999 !important;
+/* Drawer content should appear above page content, below the main nav */
+[data-vaul-drawer] {
+  z-index: 100000 !important;
   pointer-events: auto !important;
+}
+
+/* Desktop: drawers + overlays start below the fixed main nav (h-16 / 64px), like chat */
+@media (min-width: 768px) {
+  [data-vaul-drawer][data-vaul-drawer-direction='right'],
+  [data-vaul-drawer][data-vaul-drawer-direction='left'] {
+    top: 64px !important;
+    bottom: 0 !important;
+    height: auto !important;
+    max-height: calc(100vh - 64px) !important;
+  }
+
+  [data-vaul-overlay] {
+    top: 64px !important;
+    bottom: 0 !important;
+    height: auto !important;
+  }
+
+  /* Keep balance / wallet controls visible above drawers when claiming rewards */
+  [data-nav-header] {
+    z-index: 100002 !important;
+    isolation: isolate;
+  }
 }
 
 /* Vaul portal container must not inherit transforms that break position:fixed on iOS */

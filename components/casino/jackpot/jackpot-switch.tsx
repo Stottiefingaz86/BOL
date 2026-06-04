@@ -7,8 +7,10 @@ import { IconCoins } from '@tabler/icons-react'
 
 interface JackpotSwitchProps {
   variant?: 'launcher' | 'pill' | 'section'
-  /** Coin-only pill (tight game header) */
+  /** Coin + switch pill (desktop game header) */
   minimal?: boolean
+  /** Switch only — narrowest mobile game bar */
+  compact?: boolean
   baseStake?: number
   className?: string
 }
@@ -28,15 +30,49 @@ const COMPACT_W = 'w-[188px]'
 export function JackpotSwitch({
   variant = 'pill',
   minimal = false,
+  compact = false,
   baseStake = 1,
   className,
 }: JackpotSwitchProps) {
   const optedIn = useJackpotStore((s) => s.optedIn)
   const toggleOptedIn = useJackpotStore((s) => s.toggleOptedIn)
+  const spinAddonTotal = useJackpotStore((s) => s.getSpinAddonTotal())
 
   const isLauncher = variant === 'launcher' || variant === 'section'
-  const addon = formatStake(JACKPOT_PER_SPIN_ADDON)
-  const total = formatStake(baseStake + (optedIn ? JACKPOT_PER_SPIN_ADDON : 0))
+  const addon = formatStake(spinAddonTotal > 0 ? spinAddonTotal : JACKPOT_PER_SPIN_ADDON)
+  const total = formatStake(baseStake + (optedIn ? spinAddonTotal : 0))
+
+  if (isLauncher && compact) {
+    return (
+      <button
+        type="button"
+        role="switch"
+        aria-checked={optedIn}
+        aria-label={
+          optedIn
+            ? `Jackpots on, ${addon} per spin`
+            : `Jackpots off, add ${addon} per spin to opt in`
+        }
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleOptedIn()
+        }}
+        className={cn(
+          'relative flex-shrink-0 h-4 w-7 rounded-full transition-colors outline-none',
+          'focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent',
+          optedIn ? 'bg-[var(--ds-primary,#ee3536)]' : 'bg-white/25',
+          className
+        )}
+      >
+        <span
+          className={cn(
+            'absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-[left] duration-200',
+            optedIn ? 'left-3.5' : 'left-0.5'
+          )}
+        />
+      </button>
+    )
+  }
 
   if (isLauncher && !minimal) {
     return (

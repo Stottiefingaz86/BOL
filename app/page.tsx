@@ -1,4 +1,9 @@
 'use client'
+
+import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
+import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
+import { AuthLoginBridge } from '@/components/auth/auth-login-bridge'
+import { useAuthSession } from '@/hooks/use-auth-session'
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { ReferralCodeField } from '@/components/auth/referral-code-field'
 import { StreakCounter } from '@/components/vip/streak-counter'
@@ -629,7 +634,7 @@ function VipDrawerContent({
         )}
       </div>
       
-      <div className={cn("px-4 pt-4 overflow-y-auto flex-1 min-h-0", isMobile ? "pb-6" : "pb-2")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 24px)' : undefined }}>
+      <VipHubScrollBody isMobile={isMobile}>
         {vipActiveTab === 'Overview' && (
           <div className="space-y-6">
             <Card className="bg-white/5 border-white/10">
@@ -679,7 +684,7 @@ function VipDrawerContent({
 
         
         
-      </div>
+      </VipHubScrollBody>
     </div>
   )
 }
@@ -731,15 +736,7 @@ function HomePageContent() {
   const [loginForm, setLoginForm] = useState({ identifier: '', password: '', keepLoggedIn: false })
   const [loginPasswordVisible, setLoginPasswordVisible] = useState(false)
   const [createAccountDob, setCreateAccountDob] = useState({ day: '', month: '', year: '' })
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(() => {
-    if (typeof window === 'undefined') return true
-    try {
-      const stored = localStorage.getItem('bol-auth-logged-in')
-      return stored === null ? true : stored === 'true'
-    } catch {
-      return true
-    }
-  })
+  const { isLoggedIn: isUserLoggedIn, setLoggedIn: setIsUserLoggedIn, logout } = useAuthSession()
   const [depositDrawerOpen, setDepositDrawerOpen] = useState(false)
   const [depositAmount, setDepositAmount] = useState(25)
   const [useManualAmount, setUseManualAmount] = useState(false)
@@ -754,15 +751,6 @@ function HomePageContent() {
     almost: false,
     complete: false
   })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    try {
-      localStorage.setItem('bol-auth-logged-in', isUserLoggedIn ? 'true' : 'false')
-    } catch {
-      // ignore storage failures
-    }
-  }, [isUserLoggedIn])
 
   const createAccountErrors = {
     fullName: createAccountForm.fullName.trim().length >= 2 ? '' : 'Please enter a username',
@@ -863,6 +851,10 @@ function HomePageContent() {
     setAccountDrawerOpen(true)
     useChatStore.getState().setIsOpen(false)
   }, [trackClick])
+  const openAccountLogin = useCallback(() => {
+    openAccountDrawer()
+    setAccountDrawerView('login')
+  }, [openAccountDrawer])
   const openVipDrawer = useCallback(() => {
     trackClick('vip-hub', 'Overview')
     setAccountDrawerOpen(false)
@@ -1493,6 +1485,7 @@ function HomePageContent() {
         '--brand-primary-hover': brandPrimaryHover,
       } as React.CSSProperties}
     >
+      <AuthLoginBridge onRequestLogin={openAccountLogin} />
       {/* Mobile: Quick Links - Above main menu */}
       {isMobile && (
         <motion.div
@@ -1664,28 +1657,12 @@ function HomePageContent() {
         
         <div className={cn("flex items-center", isMobile ? "gap-2" : "gap-3")} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
           {/* VIP Crown Button - Desktop */}
-          {!isMobile && isUserLoggedIn && (
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                openVipDrawer()
-              }}
-              className={cn(
-                "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                "active:bg-gray-500/20",
-                vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                "h-8 w-8"
-              )}
-              style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-            >
-              <IconCrown className="text-yellow-400 w-4 h-4" />
-            </button>
+          {!isMobile && (
+            <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
           )}
           
           {/* Separator - Hide on mobile */}
-          {!isMobile && isUserLoggedIn && (
+          {!isMobile && (
             <div className="h-6 w-px bg-white/20" />
           )}
           
@@ -1745,24 +1722,8 @@ function HomePageContent() {
           )}
           
           {/* VIP Crown Button - Mobile */}
-          {isMobile && isUserLoggedIn && (
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                openVipDrawer()
-              }}
-              className={cn(
-                "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                "active:bg-gray-500/20",
-                vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                "h-8 w-8"
-              )}
-              style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-            >
-              <IconCrown className="text-yellow-400 w-4 h-4" />
-            </button>
+          {isMobile && (
+            <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
           )}
           
           {/* Deposit Button - Desktop only */}
@@ -3672,7 +3633,7 @@ function HomePageContent() {
                     variant="ghost" 
                     className="w-full justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-600 h-10 px-2 min-w-0"
                     onClick={() => {
-                      setIsUserLoggedIn(false)
+                      logout()
                       setAccountDrawerView('account')
                     }}
                   >

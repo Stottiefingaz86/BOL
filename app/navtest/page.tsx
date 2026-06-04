@@ -1,4 +1,8 @@
 'use client'
+
+import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
+
+import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { VipBenefitTiles } from '@/components/vip/vip-benefit-tiles'
@@ -6109,7 +6113,7 @@ function VipDrawerContent({
         )}
       </div>
       
-      <div className={cn("px-4 pt-4 overflow-y-auto flex-1 min-h-0", isMobile ? "pb-6" : "pb-2")} style={{ WebkitOverflowScrolling: 'touch', overflowY: 'auto', flex: '1 1 auto', minHeight: 0, paddingBottom: isMobile ? 'env(safe-area-inset-bottom, 24px)' : undefined }}>
+      <VipHubScrollBody isMobile={isMobile}>
         {vipActiveTab === 'Overview' && (
           <div className="space-y-6">
             <Card className="bg-white/5 border-white/10">
@@ -6182,7 +6186,7 @@ function VipDrawerContent({
 
         
         
-      </div>
+      </VipHubScrollBody>
     </div>
   )
 }
@@ -6873,24 +6877,7 @@ function NavTestPageContent() {
           )} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
             {/* VIP Crown Button - After theme toggle on desktop, after balance on mobile */}
             {!isMobile ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             ) : null}
             
             {/* Separator - Hide on mobile */}
@@ -6940,24 +6927,7 @@ function NavTestPageContent() {
             
             {/* VIP Crown Button - After balance on mobile only */}
             {isMobile && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('VIP button clicked')
-                  openVipDrawer()
-                }}
-                className={cn(
-                  "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                  "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                  "active:bg-gray-500/20",
-                  vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                  "h-8 w-8"
-                )}
-                style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-              >
-                <IconCrown className="text-yellow-400 w-4 h-4" />
-              </button>
+              <VipCrownNavButton active={vipDrawerOpen} onClick={openVipDrawer} />
             )}
             
 {/* Deposit Button - Desktop only */}
