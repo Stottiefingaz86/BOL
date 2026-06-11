@@ -530,6 +530,16 @@ header[class*="z-\[100\]"] [role="button"] {
   z-index: 100050 !important;
 }
 
+/* Game launcher: blur overlay must cover the launcher header, not start below main nav */
+[data-vaul-overlay].game-launcher-similar-games-overlay {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: auto !important;
+  inset: 0 !important;
+}
+
 /* Ensure carousel arrows are ALWAYS visible and NEVER clipped */
 button[class*="CarouselPrevious"],
 button[class*="CarouselNext"] {

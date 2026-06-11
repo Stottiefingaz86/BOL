@@ -37,6 +37,13 @@ function optedInFromTiers(tierOptIns: TierOptIns): boolean {
   return JACKPOT_TIERS.every((tier) => tierOptIns[tier.id])
 }
 
+export interface MegaWinRoll {
+  fromAmount: number
+  winAmount: number
+  startedAt: number
+  durationMs: number
+}
+
 interface JackpotState {
   optedIn: boolean
   tierOptIns: TierOptIns
@@ -45,12 +52,17 @@ interface JackpotState {
   mustDropDeadline: number
   mustDropAmount: number
   mustDropDrawerOpen: boolean
+  megaWinRoll: MegaWinRoll | null
+  lastWinAmount: number
   setOptedIn: (optedIn: boolean) => void
   toggleOptedIn: () => void
   setTierOptIn: (tierId: JackpotTierId, enabled: boolean) => void
   toggleTierOptIn: (tierId: JackpotTierId) => void
   getSpinAddonTotal: () => number
   setMustDropDrawerOpen: (open: boolean) => void
+  startMegaWinRoll: (durationMs: number, delayMs?: number, winAmount?: number) => void
+  completeMegaWinRoll: () => void
+  cancelMegaWinRoll: () => void
   tickAmounts: () => void
 }
 
@@ -64,6 +76,8 @@ export const useJackpotStore = create<JackpotState>()(
       mustDropDeadline: Date.now() + 10 * 60 * 60 * 1000 + 44 * 1000,
       mustDropAmount: 12342.5,
       mustDropDrawerOpen: false,
+      megaWinRoll: null,
+      lastWinAmount: 0,
 
       setOptedIn: (optedIn) =>
         set({
@@ -91,9 +105,49 @@ export const useJackpotStore = create<JackpotState>()(
 
       setMustDropDrawerOpen: (open) => set({ mustDropDrawerOpen: open }),
 
+      startMegaWinRoll: (durationMs, delayMs = 0, winAmount) => {
+        const fromAmount = get().tickerAmounts.mega
+        const payout = winAmount ?? fromAmount
+        const startedAt = Date.now() + delayMs
+        set({
+          lastWinAmount: payout,
+          megaWinRoll: {
+            fromAmount,
+            winAmount: payout,
+            startedAt,
+            durationMs,
+          },
+        })
+      },
+
+      completeMegaWinRoll: () => {
+        const roll = get().megaWinRoll
+        if (!roll) return
+
+        const nextMega = +Math.max(0, roll.fromAmount - roll.winAmount).toFixed(2)
+        set({
+          megaWinRoll: null,
+          tickerAmounts: {
+            ...get().tickerAmounts,
+            mega: nextMega,
+          },
+          amounts: {
+            ...get().amounts,
+            mega: nextMega,
+          },
+        })
+      },
+
+      cancelMegaWinRoll: () => {
+        if (get().megaWinRoll) {
+          get().completeMegaWinRoll()
+        }
+      },
+
       tickAmounts: () => {
         const amounts = { ...get().amounts }
         JACKPOT_TIERS.forEach((tier) => {
+          if (tier.id === 'mega' && get().megaWinRoll) return
           const delta =
             tier.tickMin + Math.random() * (tier.tickMax - tier.tickMin)
           amounts[tier.id] = +(amounts[tier.id] + delta).toFixed(2)
@@ -101,6 +155,7 @@ export const useJackpotStore = create<JackpotState>()(
 
         const tickerAmounts = { ...get().tickerAmounts }
         JACKPOT_TICKER_TIERS.forEach((tier) => {
+          if (tier.id === 'mega' && get().megaWinRoll) return
           const delta =
             tier.tickMin + Math.random() * (tier.tickMax - tier.tickMin)
           tickerAmounts[tier.id] = +(tickerAmounts[tier.id] + delta).toFixed(2)

@@ -13518,13 +13518,12 @@ function NavTestPageContent() {
                 gameName={selectedGame.title}
                 onClose={() => {
                   setShowJackpot(false)
-                  // Store jackpot winnings — balance will animate when game launcher closes
-                  pendingBalanceRef.current += 250000
+                  pendingBalanceRef.current += useJackpotStore.getState().lastWinAmount
                 }}
                 onShareToChat={() => {
                   setShowJackpot(false)
-                  // Store jackpot winnings — balance will animate when game launcher closes
-                  pendingBalanceRef.current += 250000
+                  const winAmount = useJackpotStore.getState().lastWinAmount
+                  pendingBalanceRef.current += winAmount
                   // Share jackpot win to chat
                   const chatStore = useChatStore.getState()
                   chatStore.setIsOpen(true)
@@ -13532,10 +13531,17 @@ function NavTestPageContent() {
                     eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
                     selection: 'Mega Jackpot',
                     odds: '💰',
-                    stake: 250000,
+                    stake: winAmount,
                   }])
                 }}
               />
+
+              {similarGamesDrawerOpen && (
+                <div
+                  className="pointer-events-none absolute inset-0 z-[100035] bg-black/60 backdrop-blur-xl"
+                  aria-hidden
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -13544,7 +13550,11 @@ function NavTestPageContent() {
         <Drawer open={similarGamesDrawerOpen} onOpenChange={setSimilarGamesDrawerOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
           <DrawerContent 
             showOverlay={selectedGame ? true : isMobile}
-            overlayClassName={selectedGame ? '!z-[100040]' : undefined}
+            overlayClassName={
+              selectedGame
+                ? 'game-launcher-similar-games-overlay !z-[100040] !inset-0 !top-0 !bottom-0 !h-auto'
+                : undefined
+            }
             data-similar-games-drawer
             className={cn(
             "bg-[#1a1a1a] text-white flex flex-col relative similar-games-drawer",

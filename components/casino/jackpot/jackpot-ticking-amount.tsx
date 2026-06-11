@@ -8,12 +8,14 @@ interface JackpotTickingAmountProps {
   value: number
   className?: string
   size?: 'badge' | 'xs' | 'sm' | 'md' | 'lg' | 'hero'
+  flowDuration?: number
 }
 
 export function JackpotTickingAmount({
   value,
   className,
   size = 'md',
+  flowDuration = 550,
 }: JackpotTickingAmountProps) {
   const { prefix, number, suffix, decimals } = jackpotCompactParts(value)
 
@@ -44,7 +46,7 @@ export function JackpotTickingAmount({
           maximumFractionDigits: decimals,
           useGrouping: number >= 1000 && suffix === '',
         }}
-        transformTiming={{ duration: 550, easing: 'ease-out' }}
+        transformTiming={{ duration: flowDuration, easing: 'ease-out' }}
       />
       {suffix && <span>{suffix}</span>}
     </span>

@@ -3,7 +3,13 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { IconShare, IconX, IconTrophy } from '@tabler/icons-react'
+import { IconShare, IconX } from '@tabler/icons-react'
+import {
+  formatJackpotAmount,
+  JACKPOT_WIN_COUNTUP_DELAY_MS,
+  JACKPOT_WIN_COUNTUP_DURATION_MS,
+} from '@/lib/jackpot/constants'
+import { useJackpotStore } from '@/lib/store/jackpotStore'
 
 // Gold particle rain background
 function GoldRain() {
@@ -145,24 +151,38 @@ function StaticChar({ char, delay, spinning }: { char: string; delay: number; sp
   )
 }
 
-// Full odometer display — $250,000.00
-function OdometerAmount({ spinning, scale }: { spinning: boolean; scale: number }) {
-  // $250,000.00
-  const chars: Array<{ type: 'digit'; value: number } | { type: 'static'; value: string }> = [
-    { type: 'static', value: '$' },
-    { type: 'digit', value: 2 },
-    { type: 'digit', value: 5 },
-    { type: 'digit', value: 0 },
-    { type: 'static', value: ',' },
-    { type: 'digit', value: 0 },
-    { type: 'digit', value: 0 },
-    { type: 'digit', value: 0 },
-    { type: 'static', value: '.' },
-    { type: 'digit', value: 0 },
-    { type: 'digit', value: 0 },
-  ]
+type OdometerChar =
+  | { type: 'digit'; value: number }
+  | { type: 'static'; value: string }
 
+function buildOdometerChars(amount: number): OdometerChar[] {
+  const formatted = formatJackpotAmount(amount)
+  return formatted.split('').map((char) =>
+    /\d/.test(char)
+      ? { type: 'digit' as const, value: Number(char) }
+      : { type: 'static' as const, value: char }
+  )
+}
+
+// Full odometer display — spins to the live mega jackpot amount
+function OdometerAmount({
+  amount,
+  spinning,
+  scale,
+}: {
+  amount: number
+  spinning: boolean
+  scale: number
+}) {
+  const chars = useMemo(() => buildOdometerChars(amount), [amount])
+  const digitCount = chars.filter((char) => char.type === 'digit').length
   let digitIndex = 0
+  const fontSize =
+    digitCount > 9
+      ? 'clamp(1.1rem, 4.5vw, 3rem)'
+      : digitCount > 7
+        ? 'clamp(1.3rem, 6vw, 4rem)'
+        : 'clamp(1.6rem, 7.5vw, 5rem)'
 
   return (
     <motion.div
@@ -170,7 +190,7 @@ function OdometerAmount({ spinning, scale }: { spinning: boolean; scale: number 
       animate={{ scale }}
       transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
       style={{
-        fontSize: 'clamp(1.6rem, 7.5vw, 5rem)',
+        fontSize,
         lineHeight: 1.15,
         letterSpacing: '-0.02em',
       }}
@@ -178,13 +198,13 @@ function OdometerAmount({ spinning, scale }: { spinning: boolean; scale: number 
       {chars.map((c, i) => {
         if (c.type === 'digit') {
           const idx = digitIndex++
-          // Stagger: leftmost digit has most delay (lands last), rightmost lands first
-          // Total digits = 8, so delay goes from 0.7 for first to 0 for last
-          const totalDigits = 8
-          const staggerDelay = ((totalDigits - 1 - idx) / (totalDigits - 1)) * 0.6
+          const staggerDelay =
+            digitCount > 1
+              ? ((digitCount - 1 - idx) / (digitCount - 1)) * 0.6
+              : 0
           return (
             <SpinDigit
-              key={i}
+              key={`${i}-${c.value}`}
               target={c.value}
               delay={staggerDelay}
               spinning={spinning}
@@ -193,9 +213,9 @@ function OdometerAmount({ spinning, scale }: { spinning: boolean; scale: number 
         }
         return (
           <StaticChar
-            key={i}
+            key={`${i}-${c.value}`}
             char={c.value}
-            delay={digitIndex / 8}
+            delay={digitIndex / Math.max(digitCount, 1)}
             spinning={spinning}
           />
         )
@@ -216,7 +236,10 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
   const [showCTA, setShowCTA] = useState(false)
   const [landed, setLanded] = useState(false)
   const [scale, setScale] = useState(0.6)
+  const [winAmount, setWinAmount] = useState(0)
   const confettiFired = useRef(false)
+  const startMegaWinRoll = useJackpotStore((s) => s.startMegaWinRoll)
+  const cancelMegaWinRoll = useJackpotStore((s) => s.cancelMegaWinRoll)
 
   const fireConfetti = useCallback(() => {
     if (confettiFired.current) return
@@ -241,14 +264,23 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
       setShowCTA(false)
       setLanded(false)
       setScale(0.6)
+      setWinAmount(0)
       confettiFired.current = false
+      cancelMegaWinRoll()
       return
     }
+
+    const megaJackpot = useJackpotStore.getState().tickerAmounts.mega
+    setWinAmount(megaJackpot)
+    startMegaWinRoll(
+      JACKPOT_WIN_COUNTUP_DURATION_MS,
+      JACKPOT_WIN_COUNTUP_DELAY_MS
+    )
 
     // Phase 1: Start spinning after intro (0.4s)
     const t1 = setTimeout(() => {
       setSpinning(true)
-    }, 400)
+    }, JACKPOT_WIN_COUNTUP_DELAY_MS)
 
     // Phase 2: Scale up as digits spin (staggered)
     const t2 = setTimeout(() => setScale(0.75), 600)
@@ -260,7 +292,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
       setScale(1.05)
       setLanded(true)
       fireConfetti()
-    }, 3000)
+    }, JACKPOT_WIN_COUNTUP_DELAY_MS + JACKPOT_WIN_COUNTUP_DURATION_MS)
 
     // Phase 4: Show CTAs
     const t6 = setTimeout(() => {
@@ -276,7 +308,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
       clearTimeout(t5)
       clearTimeout(t6)
     }
-  }, [visible, fireConfetti])
+  }, [visible, fireConfetti, startMegaWinRoll, cancelMegaWinRoll])
 
   return (
     <AnimatePresence>
@@ -321,26 +353,25 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
             transition={{ duration: 0.5, type: 'spring', stiffness: 180, damping: 18 }}
             className="relative z-10 flex flex-col items-center gap-5 px-4 max-w-xl w-full"
           >
-            {/* Trophy */}
+            {/* Tier label */}
             <motion.div
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
+              initial={{ scale: 0.85, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ delay: 0.15, type: 'spring', stiffness: 260, damping: 14 }}
+              className="flex flex-col items-center gap-0.5 text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-white/[0.08] border border-white/[0.08] flex items-center justify-center backdrop-blur-sm overflow-hidden">
-                <img src="/banners/yay.gif" alt="Jackpot!" className="w-full h-full object-cover" />
-              </div>
-            </motion.div>
-
-            {/* JACKPOT label */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.4 }}
-            >
-              <h2 className="text-xs font-semibold tracking-[0.25em] uppercase text-white/40">
-                Jackpot Winner
-              </h2>
+              <p
+                className="text-3xl font-bold tracking-[0.12em] sm:text-4xl"
+                style={{
+                  color: '#fbbf24',
+                  textShadow: '0 0 32px rgba(251, 191, 36, 0.35)',
+                }}
+              >
+                MEGA
+              </p>
+              <p className="text-sm font-medium tracking-[0.2em] text-white/90 sm:text-base">
+                Jackpot
+              </p>
             </motion.div>
 
             {/* Odometer spinning digits */}
@@ -350,7 +381,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
               transition={{ delay: 0.3, duration: 0.3 }}
               className="w-full"
             >
-              <OdometerAmount spinning={spinning} scale={scale} />
+              <OdometerAmount amount={winAmount} spinning={spinning} scale={scale} />
             </motion.div>
 
             {/* Landed flash */}

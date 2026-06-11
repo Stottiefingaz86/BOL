@@ -7,16 +7,19 @@ import {
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
+import { useMegaTickerDisplayAmount } from '@/components/casino/jackpot/use-mega-ticker-display-amount'
 import { cn } from '@/lib/utils'
 
 function TierAmount({
   tier,
   amount,
   compact = false,
+  flowDuration,
 }: {
   tier: JackpotTickerTierConfig
   amount: number
   compact?: boolean
+  flowDuration?: number
 }) {
   return (
     <>
@@ -37,6 +40,7 @@ function TierAmount({
         <JackpotTickingAmount
           value={amount}
           size="xs"
+          flowDuration={flowDuration}
           className="text-[11px] font-semibold text-white md:text-xs"
         />
       )}
@@ -48,17 +52,19 @@ function MarqueeItem({
   tier,
   amount,
   copy,
+  flowDuration,
 }: {
   tier: JackpotTickerTierConfig
   amount: number
   copy: 'a' | 'b'
+  flowDuration?: number
 }) {
   return (
     <span
       className="inline-flex shrink-0 items-center gap-1.5 px-4 md:px-6"
       aria-hidden={copy === 'b' ? true : undefined}
     >
-      <TierAmount tier={tier} amount={amount} />
+      <TierAmount tier={tier} amount={amount} flowDuration={flowDuration} />
       <span className="text-white/20" aria-hidden>
         ·
       </span>
@@ -72,6 +78,13 @@ interface JackpotLauncherMarqueeProps {
 
 export function JackpotLauncherMarquee({ className }: JackpotLauncherMarqueeProps) {
   const tickerAmounts = useJackpotStore((s) => s.tickerAmounts)
+  const { amount: megaDisplayAmount, isRolling: megaIsRolling } =
+    useMegaTickerDisplayAmount()
+
+  const amountForTier = (tierId: JackpotTickerTierConfig['id']) =>
+    tierId === 'mega' ? megaDisplayAmount : tickerAmounts[tierId]
+
+  const megaFlowDuration = megaIsRolling ? 90 : undefined
 
   return (
     <div className={cn('w-full', className)}>
@@ -82,7 +95,11 @@ export function JackpotLauncherMarquee({ className }: JackpotLauncherMarqueeProp
             key={tier.id}
             className="flex min-w-0 items-center justify-center gap-1.5 px-2"
           >
-            <TierAmount tier={tier} amount={tickerAmounts[tier.id]} />
+            <TierAmount
+              tier={tier}
+              amount={amountForTier(tier.id)}
+              flowDuration={tier.id === 'mega' ? megaFlowDuration : undefined}
+            />
           </div>
         ))}
       </div>
@@ -99,8 +116,9 @@ export function JackpotLauncherMarquee({ className }: JackpotLauncherMarqueeProp
                 <MarqueeItem
                   key={`${tier.id}-${copy}`}
                   tier={tier}
-                  amount={tickerAmounts[tier.id]}
+                  amount={amountForTier(tier.id)}
                   copy={copy}
+                  flowDuration={tier.id === 'mega' ? megaFlowDuration : undefined}
                 />
               ))}
             </div>

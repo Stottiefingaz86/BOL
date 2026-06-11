@@ -138,6 +138,10 @@ export const JACKPOT_MIN_QUALIFYING_BET = 1
 /** @deprecated Use per-tier spinAddon — kept for legacy single-toggle UI */
 export const JACKPOT_PER_SPIN_ADDON = 0.1
 
+/** Demo mega win shown in game launcher overlay */
+export const JACKPOT_WIN_COUNTUP_DELAY_MS = 400
+export const JACKPOT_WIN_COUNTUP_DURATION_MS = 2600
+
 export function formatJackpotSpinAddon(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

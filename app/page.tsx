@@ -141,6 +141,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import DynamicIsland from '@/components/dynamic-island'
 import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
+import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { NotificationHub } from '@/components/account/notification-hub'
 
 /** Sign-up country (USA / CAN share +1); `iso` is stored on the form. */
@@ -3056,13 +3057,12 @@ function HomePageContent() {
                 gameName={selectedGame.title}
                 onClose={() => {
                   setShowJackpot(false)
-                  // Store jackpot winnings — balance will animate when game launcher closes
-                  pendingBalanceRef.current += 250000
+                  pendingBalanceRef.current += useJackpotStore.getState().lastWinAmount
                 }}
                 onShareToChat={() => {
                   setShowJackpot(false)
-                  // Store jackpot winnings — balance will animate when game launcher closes
-                  pendingBalanceRef.current += 250000
+                  const winAmount = useJackpotStore.getState().lastWinAmount
+                  pendingBalanceRef.current += winAmount
                   // Share jackpot win to chat
                   const chatStore = useChatStore.getState()
                   chatStore.setIsOpen(true)
@@ -3070,7 +3070,7 @@ function HomePageContent() {
                     eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
                     selection: 'Mega Jackpot',
                     odds: '💰',
-                    stake: 250000,
+                    stake: winAmount,
                   }])
                 }}
               />
