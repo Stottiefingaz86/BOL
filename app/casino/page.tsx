@@ -13172,7 +13172,12 @@ function NavTestPageContent() {
                   transition={{ duration: 0.2 }}
                   className="relative z-[100020] mx-3 mt-3 shrink-0 overflow-visible rounded-xl border border-white/10 bg-[#1a1a1a]/90 backdrop-blur-xl"
                 >
-                  <div className="grid h-9 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1 border-b border-white/10 px-2">
+                  <div
+                    className={cn(
+                      'grid h-9 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1 px-2',
+                      gameLauncherJackpotsVisible && 'border-b border-white/10'
+                    )}
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -13231,7 +13236,8 @@ function NavTestPageContent() {
                 >
                   <div
                     className={cn(
-                      'relative h-10 w-full min-w-0 overflow-visible border-b border-white/10 px-2',
+                      'relative h-10 w-full min-w-0 overflow-visible px-2',
+                      gameLauncherJackpotsVisible && 'border-b border-white/10',
                       isMobile
                         ? 'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1'
                         : 'flex items-center gap-1.5 md:gap-2 md:px-2.5'

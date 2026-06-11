@@ -15,7 +15,7 @@ export function GameLauncherJackpotRow({
   if (!visible) return null
 
   return (
-    <div className={cn('border-t border-white/10 bg-black/10', className)}>
+    <div className={cn('bg-black/10', className)}>
       <JackpotLauncherMarquee className="w-full py-0" />
     </div>
   )
