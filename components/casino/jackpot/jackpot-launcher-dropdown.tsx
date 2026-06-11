@@ -1,7 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
-import { IconChevronDown, IconCoins } from '@tabler/icons-react'
+import { IconChevronDown, IconCoins, IconSettings } from '@tabler/icons-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,199 +8,502 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   JACKPOT_TIERS,
+  JACKPOT_PER_SPIN_ADDON,
   formatJackpotCompact,
   formatJackpotSpinAddon,
+  type JackpotTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { cn } from '@/lib/utils'
 
 interface JackpotLauncherDropdownProps {
-  compact?: boolean
-  /** “JP” + chevron — compact mobile game bar (avoids deposit-like coin icon) */
-  iconOnly?: boolean
+  layout?: 'pill' | 'strip' | 'inline' | 'mobile-bar' | 'header'
   className?: string
+  tickerVisible?: boolean
+  onTickerToggle?: () => void
 }
 
-function TierToggle({
+const LAUNCHER_TIER_IDS: JackpotTierId[] = ['mini', 'minor', 'major', 'mega']
+
+function formatStake(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+function GlobalOptInToggle({
   enabled,
   onToggle,
   label,
+  size = 'default',
 }: {
   enabled: boolean
   onToggle: () => void
   label: string
+  size?: 'small' | 'default' | 'large'
 }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={enabled}
-      aria-label={`${label} jackpots ${enabled ? 'on' : 'off'}`}
+      aria-label={`${label} ${enabled ? 'on' : 'off'}`}
       onClick={(e) => {
         e.stopPropagation()
         onToggle()
       }}
       className={cn(
-        'relative h-5 w-9 shrink-0 rounded-full transition-colors outline-none',
+        'relative shrink-0 rounded-full transition-colors outline-none',
         'focus-visible:ring-2 focus-visible:ring-white/25',
+        size === 'large' ? 'h-6 w-11' : size === 'small' ? 'h-4 w-7' : 'h-5 w-9',
         enabled ? 'bg-[var(--ds-primary,#ee3536)]' : 'bg-white/25'
       )}
     >
       <span
         className={cn(
-          'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-[left] duration-200',
-          enabled ? 'left-[18px]' : 'left-0.5'
+          'absolute top-0.5 rounded-full bg-white shadow-sm transition-[left] duration-200',
+          size === 'large' ? 'h-5 w-5' : size === 'small' ? 'h-3 w-3' : 'h-4 w-4',
+          enabled
+            ? size === 'large'
+              ? 'left-[22px]'
+              : size === 'small'
+                ? 'left-[14px]'
+                : 'left-[18px]'
+            : 'left-0.5'
         )}
       />
     </button>
   )
 }
 
-export function JackpotLauncherDropdown({
-  compact = false,
-  iconOnly = false,
-  className,
-}: JackpotLauncherDropdownProps) {
-  const tierOptIns = useJackpotStore((s) => s.tierOptIns)
-  const amounts = useJackpotStore((s) => s.amounts)
-  const toggleTierOptIn = useJackpotStore((s) => s.toggleTierOptIn)
-  const spinAddonTotal = useJackpotStore((s) => s.getSpinAddonTotal())
-  const activeCount = useMemo(
-    () => JACKPOT_TIERS.filter((t) => tierOptIns[t.id]).length,
-    [tierOptIns]
-  )
+function JackpotOptInDetails({
+  optedIn,
+  toggleOptedIn,
+  amounts,
+  spinAddonTotal,
+  tickerVisible,
+  onTickerToggle,
+}: {
+  optedIn: boolean
+  toggleOptedIn: () => void
+  amounts: Record<string, number>
+  spinAddonTotal: number
+  tickerVisible?: boolean
+  onTickerToggle?: () => void
+}) {
+  const launcherTiers = JACKPOT_TIERS.filter((t) => LAUNCHER_TIER_IDS.includes(t.id))
 
+  return (
+    <div className="max-h-[min(70vh,28rem)] overflow-y-auto text-sm">
+      <div className="border-b border-white/10 px-4 py-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-semibold text-white">Jackpot opt-in</p>
+            <p className="mt-1 text-xs leading-relaxed text-white/55">
+              Opt in to all tiers at once. Each adds to your stake per spin.
+            </p>
+          </div>
+          <GlobalOptInToggle
+            enabled={optedIn}
+            onToggle={toggleOptedIn}
+            label="All jackpot tiers"
+          />
+        </div>
+      </div>
+
+      {onTickerToggle != null && (
+        <div className="border-b border-white/10 px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-semibold text-white">Jackpot ticker</p>
+              <p className="mt-1 text-xs leading-relaxed text-white/55">
+                {tickerVisible
+                  ? 'Hide the live amounts bar below the header'
+                  : 'Show live jackpot amounts below the header'}
+              </p>
+            </div>
+            <GlobalOptInToggle
+              enabled={tickerVisible ?? true}
+              onToggle={onTickerToggle}
+              label="Jackpot ticker"
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="border-b border-white/10 px-4 py-3">
+        <p className="mb-2 font-semibold text-white">Live jackpots</p>
+        <ul className="space-y-2">
+          {launcherTiers.map((tier) => (
+            <li key={tier.id} className="flex items-center justify-between gap-3">
+              <span className="text-xs font-medium" style={{ color: tier.accent }}>
+                {tier.label}
+              </span>
+              <span className="text-xs font-semibold tabular-nums text-white">
+                {formatJackpotCompact(amounts[tier.id])}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="px-4 py-3">
+        <p className="mb-2 font-semibold text-white">Jackpot info</p>
+        <ul className="space-y-2">
+          {launcherTiers.map((tier) => (
+            <li key={tier.id} className="text-xs leading-relaxed text-white/55">
+              <span className="font-medium" style={{ color: tier.accent }}>
+                {tier.label}:
+              </span>{' '}
+              {tier.description}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="border-t border-white/10 bg-white/[0.03] px-4 py-3">
+        <div className="flex items-center justify-between gap-3 text-xs">
+          <span className="text-white/55">Added to stake / spin</span>
+          <span className="font-semibold tabular-nums text-white">
+            {optedIn && spinAddonTotal > 0
+              ? `+${formatJackpotSpinAddon(spinAddonTotal)}`
+              : '$0.00'}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DetailsMenu({
+  compact = false,
+  touchFriendly = false,
+  triggerClassName,
+  optedIn,
+  toggleOptedIn,
+  amounts,
+  spinAddonTotal,
+  tickerVisible,
+  onTickerToggle,
+}: {
+  compact?: boolean
+  touchFriendly?: boolean
+  triggerClassName?: string
+  optedIn: boolean
+  toggleOptedIn: () => void
+  amounts: Record<string, number>
+  spinAddonTotal: number
+  tickerVisible?: boolean
+  onTickerToggle?: () => void
+}) {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          aria-label={
-            iconOnly
-              ? activeCount > 0
-                ? `Jackpot tiers, ${activeCount} active`
-                : 'Jackpot tiers'
-              : activeCount > 0
-                ? `Jackpots, ${activeCount} tier${activeCount === 1 ? '' : 's'} active`
-                : 'Jackpots'
-          }
+          aria-label="Jackpot opt-in details"
           className={cn(
-            'inline-flex items-center rounded-full border border-white/10 transition-colors',
-            'text-white/90 hover:bg-white/10 outline-none',
-            'focus-visible:ring-2 focus-visible:ring-white/25',
-            iconOnly
-              ? 'relative h-7 shrink-0 gap-1 px-2 text-[11px] font-semibold tracking-wide'
-              : compact
-                ? 'h-7 gap-1 px-2 text-[11px] font-medium'
-                : 'h-8 gap-1 px-2.5 text-xs font-medium',
-            activeCount > 0 && 'border-[color-mix(in_srgb,var(--ds-primary,#ee3536)_40%,transparent)] bg-white/[0.06]',
-            className
+            'inline-flex shrink-0 items-center justify-center text-white/55 transition-colors outline-none',
+            'hover:text-white/85 focus-visible:ring-2 focus-visible:ring-white/25',
+            !triggerClassName &&
+              cn(
+                'rounded-md border border-white/10 bg-white/[0.04]',
+                'hover:bg-white/[0.08]',
+                compact ? (touchFriendly ? 'h-9 w-9' : 'h-6 w-6') : 'h-8 w-8'
+              ),
+            triggerClassName
           )}
         >
-          {iconOnly ? (
-            <>
-              <IconCoins
-                className={cn(
-                  'h-3 w-3 shrink-0',
-                  activeCount > 0
-                    ? 'text-[var(--ds-primary,#ee3536)]'
-                    : 'text-white/50'
-                )}
-                aria-hidden
-              />
-              <span
-                className={cn(
-                  activeCount > 0
-                    ? 'text-[var(--ds-primary,#ee3536)]'
-                    : 'text-white/90'
-                )}
-              >
-                JP
-              </span>
-              <IconChevronDown className="h-3 w-3 shrink-0 text-white/45" aria-hidden />
-              {activeCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[var(--ds-primary,#ee3536)] px-0.5 text-[8px] font-bold text-white">
-                  {activeCount}
-                </span>
-              )}
-            </>
-          ) : (
-            <>
-              <IconCoins
-                className={cn(
-                  compact ? 'h-3 w-3' : 'h-3.5 w-3.5',
-                  activeCount > 0 ? 'text-[var(--ds-primary,#ee3536)]' : 'text-white/50'
-                )}
-              />
-              <span>Jackpots</span>
-              {activeCount > 0 && (
-                <span className="tabular-nums text-white/50">
-                  ({activeCount})
-                </span>
-              )}
-              <IconChevronDown
-                className={cn(compact ? 'h-3 w-3' : 'h-3.5 w-3.5', 'text-white/45')}
-              />
-            </>
-          )}
+          <IconChevronDown
+            className={cn(
+              compact ? (touchFriendly ? 'h-4 w-4' : 'h-3 w-3') : 'h-4 w-4'
+            )}
+            aria-hidden
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
         sideOffset={8}
         data-jackpot-launcher-dropdown
-        className="jackpot-launcher-dropdown w-[min(18rem,calc(100vw-2rem))] border-white/10 bg-[#2d2d2d] p-0 text-white shadow-2xl"
+        className="jackpot-launcher-dropdown w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] p-0 text-white shadow-2xl"
       >
-        <div className="border-b border-white/10 px-3 py-2.5">
-          <p className="text-xs font-semibold text-white">Jackpot opt-in</p>
-          <p className="text-[10px] text-white/50 leading-snug mt-0.5">
-            Choose tiers to enter. Each adds to your stake per spin.
-          </p>
-        </div>
-        <ul className="py-1 max-h-[min(320px,50vh)] overflow-y-auto">
-          {JACKPOT_TIERS.map((tier) => {
-            const enabled = tierOptIns[tier.id]
-            return (
-              <li
-                key={tier.id}
-                className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 transition-colors"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-xs font-semibold"
-                      style={{ color: tier.accent }}
-                    >
-                      {tier.label}
-                    </span>
-                    <span className="text-[10px] text-white/40 tabular-nums">
-                      {formatJackpotCompact(amounts[tier.id])}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-white/45 mt-0.5">
-                    +{formatJackpotSpinAddon(tier.spinAddon)}/spin
-                  </p>
-                </div>
-                <TierToggle
-                  enabled={enabled}
-                  onToggle={() => toggleTierOptIn(tier.id)}
-                  label={tier.label}
-                />
-              </li>
-            )
-          })}
-        </ul>
-        <div className="border-t border-white/10 px-3 py-2.5 bg-white/[0.03]">
-          <div className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="text-white/55">Added to stake / spin</span>
-            <span className="font-semibold text-white tabular-nums">
-              {spinAddonTotal > 0
-                ? `+${formatJackpotSpinAddon(spinAddonTotal)}`
-                : '$0.00'}
-            </span>
-          </div>
-        </div>
+        <JackpotOptInDetails
+          optedIn={optedIn}
+          toggleOptedIn={toggleOptedIn}
+          amounts={amounts}
+          spinAddonTotal={spinAddonTotal}
+          tickerVisible={tickerVisible}
+          onTickerToggle={onTickerToggle}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+function HeaderOptInControl({
+  className,
+  tickerVisible,
+  onTickerToggle,
+}: {
+  className?: string
+  tickerVisible?: boolean
+  onTickerToggle?: () => void
+}) {
+  const optedIn = useJackpotStore((s) => s.optedIn)
+  const toggleOptedIn = useJackpotStore((s) => s.toggleOptedIn)
+  const amounts = useJackpotStore((s) => s.amounts)
+  const spinAddonTotal = useJackpotStore((s) => s.getSpinAddonTotal())
+  const addon = formatStake(
+    spinAddonTotal > 0 ? spinAddonTotal : JACKPOT_PER_SPIN_ADDON
+  )
+
+  return (
+    <DropdownMenu modal={false}>
+      <div
+        className={cn(
+          'inline-flex h-7 shrink-0 items-center rounded-full border border-white/10 bg-white/[0.05] p-0.5',
+          optedIn &&
+            'border-[color-mix(in_srgb,var(--ds-primary,#ee3536)_35%,transparent)] bg-white/[0.07]',
+          className
+        )}
+      >
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label="Jackpot opt-in details"
+            className={cn(
+              'flex h-6 items-center gap-1.5 rounded-full pl-2.5 pr-2 text-left transition-colors',
+              'hover:bg-white/[0.06] outline-none focus-visible:ring-2 focus-visible:ring-white/25',
+              optedIn && 'pl-2 pr-1.5'
+            )}
+          >
+            <span
+              className={cn(
+                'whitespace-nowrap text-[10px] font-medium leading-none text-white/75',
+                optedIn && 'hidden'
+              )}
+            >
+              Jackpot opt-in
+            </span>
+            {optedIn ? (
+              <span className="whitespace-nowrap text-[10px] font-semibold tabular-nums leading-none text-[var(--ds-primary,#ee3536)]">
+                +{addon}/spin
+              </span>
+            ) : null}
+            <IconSettings
+              className="h-3.5 w-3.5 shrink-0 text-white/45"
+              aria-hidden
+            />
+          </button>
+        </DropdownMenuTrigger>
+        <span className="mx-0.5 h-3.5 w-px shrink-0 bg-white/10" aria-hidden />
+        <div className="flex items-center pr-1">
+          <GlobalOptInToggle
+            enabled={optedIn}
+            onToggle={toggleOptedIn}
+            label="Jackpot opt-in"
+            size="small"
+          />
+        </div>
+      </div>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        data-jackpot-launcher-dropdown
+        className="jackpot-launcher-dropdown w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] p-0 text-white shadow-2xl"
+      >
+        <JackpotOptInDetails
+          optedIn={optedIn}
+          toggleOptedIn={toggleOptedIn}
+          amounts={amounts}
+          spinAddonTotal={spinAddonTotal}
+          tickerVisible={tickerVisible}
+          onTickerToggle={onTickerToggle}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+export function JackpotLauncherDropdown({
+  layout = 'pill',
+  className,
+  tickerVisible,
+  onTickerToggle,
+}: JackpotLauncherDropdownProps) {
+  const optedIn = useJackpotStore((s) => s.optedIn)
+  const toggleOptedIn = useJackpotStore((s) => s.toggleOptedIn)
+  const amounts = useJackpotStore((s) => s.amounts)
+  const spinAddonTotal = useJackpotStore((s) => s.getSpinAddonTotal())
+  const addon = formatStake(
+    spinAddonTotal > 0 ? spinAddonTotal : JACKPOT_PER_SPIN_ADDON
+  )
+
+  if (layout === 'header') {
+    return (
+      <HeaderOptInControl
+        className={className}
+        tickerVisible={tickerVisible}
+        onTickerToggle={onTickerToggle}
+      />
+    )
+  }
+
+  if (layout === 'mobile-bar') {
+    return (
+      <div
+        className={cn(
+          'flex w-full min-w-0 items-center gap-3 border-t border-white/10 px-3 py-2.5',
+          className
+        )}
+      >
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium leading-tight text-white">Jackpot opt-in</p>
+          {optedIn ? (
+            <p className="mt-0.5 text-[11px] font-semibold tabular-nums leading-tight text-[var(--ds-primary,#ee3536)]">
+              +{addon}/spin
+            </p>
+          ) : (
+            <p className="mt-0.5 text-[11px] leading-tight text-white/45">Off</p>
+          )}
+        </div>
+        <GlobalOptInToggle
+          enabled={optedIn}
+          onToggle={toggleOptedIn}
+          label="Jackpot opt-in"
+          size="large"
+        />
+        <DetailsMenu
+          compact
+          touchFriendly
+          optedIn={optedIn}
+          toggleOptedIn={toggleOptedIn}
+          amounts={amounts}
+          spinAddonTotal={spinAddonTotal}
+        />
+      </div>
+    )
+  }
+
+  if (layout === 'inline') {
+    return (
+      <div
+        className={cn(
+          'inline-flex shrink-0 items-center gap-1.5 sm:gap-2',
+          className
+        )}
+      >
+        <div className="flex min-w-0 flex-col items-end leading-tight">
+          <span className="whitespace-nowrap text-[10px] font-medium text-white/90 sm:text-[11px]">
+            Jackpot opt-in
+          </span>
+          {optedIn ? (
+            <span className="whitespace-nowrap text-[9px] font-semibold tabular-nums text-[var(--ds-primary,#ee3536)] sm:text-[10px]">
+              +{addon}/spin
+            </span>
+          ) : (
+            <span className="whitespace-nowrap text-[9px] text-white/45 sm:text-[10px]">
+              Off
+            </span>
+          )}
+        </div>
+        <GlobalOptInToggle
+          enabled={optedIn}
+          onToggle={toggleOptedIn}
+          label="Jackpot opt-in"
+        />
+        <DetailsMenu
+          compact
+          optedIn={optedIn}
+          toggleOptedIn={toggleOptedIn}
+          amounts={amounts}
+          spinAddonTotal={spinAddonTotal}
+        />
+      </div>
+    )
+  }
+
+  if (layout === 'strip') {
+    return (
+      <div
+        className={cn(
+          'flex w-full min-w-0 items-center gap-2.5 border-t border-white/10 bg-black/25 px-3 py-2.5 sm:gap-3 sm:px-4',
+          className
+        )}
+      >
+        <IconCoins
+          className={cn(
+            'h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]',
+            optedIn ? 'text-[var(--ds-primary,#ee3536)]' : 'text-white/40'
+          )}
+          aria-hidden
+        />
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+          <span className="shrink-0 text-xs font-medium text-white/90 sm:text-sm">
+            Jackpot opt-in
+          </span>
+          {optedIn ? (
+            <span className="min-w-0 truncate rounded-md border border-white/10 bg-white/[0.08] px-2 py-0.5 text-xs font-semibold tabular-nums text-white">
+              +{addon}/spin
+            </span>
+          ) : (
+            <span className="text-xs text-white/45">Off</span>
+          )}
+        </div>
+        <GlobalOptInToggle
+          enabled={optedIn}
+          onToggle={toggleOptedIn}
+          label="Jackpot opt-in"
+        />
+        <DetailsMenu
+          optedIn={optedIn}
+          toggleOptedIn={toggleOptedIn}
+          amounts={amounts}
+          spinAddonTotal={spinAddonTotal}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        'inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1.5',
+        optedIn &&
+          'border-[color-mix(in_srgb,var(--ds-primary,#ee3536)_35%,transparent)] bg-white/[0.06]',
+        className
+      )}
+    >
+      <IconCoins
+        className={cn(
+          'h-4 w-4 shrink-0',
+          optedIn ? 'text-[var(--ds-primary,#ee3536)]' : 'text-white/45'
+        )}
+        aria-hidden
+      />
+      <span className="text-xs font-medium text-white/90 whitespace-nowrap">
+        Jackpot opt-in
+      </span>
+      {optedIn && (
+        <span className="rounded-md border border-white/10 bg-white/[0.08] px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white whitespace-nowrap">
+          +{addon}/spin
+        </span>
+      )}
+      <GlobalOptInToggle
+        enabled={optedIn}
+        onToggle={toggleOptedIn}
+        label="Jackpot opt-in"
+      />
+      <DetailsMenu
+        optedIn={optedIn}
+        toggleOptedIn={toggleOptedIn}
+        amounts={amounts}
+        spinAddonTotal={spinAddonTotal}
+      />
+    </div>
   )
 }

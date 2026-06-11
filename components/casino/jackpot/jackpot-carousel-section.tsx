@@ -1,7 +1,6 @@
 'use client'
 
 import { JackpotTickerBar } from '@/components/casino/jackpot/jackpot-ticker-bar'
-import { MustDropDrawer } from '@/components/casino/jackpot/must-drop-drawer'
 import { useJackpotTicker } from '@/components/casino/jackpot/use-jackpot-ticker'
 import { cn } from '@/lib/utils'
 
@@ -22,7 +21,6 @@ export function JackpotTickerStrip({ isMobile, className }: JackpotTickerStripPr
         className
       )}
     >
-      <MustDropDrawer />
       <JackpotTickerBar />
     </div>
   )

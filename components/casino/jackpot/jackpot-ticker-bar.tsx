@@ -1,18 +1,21 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import {
   JACKPOT_TICKER_TIERS,
+  formatJackpotCompact,
   type JackpotTickerTierConfig,
   type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 interface JackpotTickerBarProps {
   className?: string
+  /** Readable compact strip for game launcher header */
+  dense?: boolean
+  /** Flat single-line cells — embed beside opt-in in launcher row */
+  embedded?: boolean
   onNavigateToJackpots?: () => void
 }
 
@@ -25,87 +28,90 @@ function TickerCell({
   tier,
   amount,
   onClick,
-  compact,
+  dense,
+  embedded,
 }: {
   tier: JackpotTickerTierConfig
   amount: number
   onClick: () => void
-  compact?: boolean
+  dense?: boolean
+  embedded?: boolean
 }) {
-  const ref = useRef<HTMLButtonElement>(null)
-  const [hoverGlow, setHoverGlow] = useState({ x: 50, y: 50, on: false })
   const glow = tierGlowColor(tier.accent)
-
-  const handleMove = (e: React.MouseEvent) => {
-    const rect = ref.current?.getBoundingClientRect()
-    if (!rect) return
-    setHoverGlow({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-      on: true,
-    })
-  }
+  const formatted = formatJackpotCompact(amount)
 
   return (
     <button
-      ref={ref}
       type="button"
       onClick={onClick}
-      aria-label={`${tier.label} jackpot`}
-      onMouseMove={handleMove}
-      onMouseEnter={handleMove}
-      onMouseLeave={() => setHoverGlow((g) => ({ ...g, on: false }))}
+      aria-label={`${tier.label} jackpot ${amount}`}
       className={cn(
-        'relative min-w-0 w-full overflow-hidden',
-        'flex flex-col items-center justify-center gap-0.5',
-        'cursor-pointer transition-colors hover:bg-white/[0.04]',
-        compact ? 'px-1 py-2.5' : 'px-2 py-3'
+        'relative min-w-0 w-full overflow-hidden text-center transition-colors',
+        embedded
+          ? 'flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 hover:bg-white/[0.03] md:gap-0 md:px-1 md:py-1'
+          : cn(
+              'flex flex-col items-center justify-center',
+              dense
+                ? 'gap-1.5 px-2 py-2.5 hover:bg-white/[0.03]'
+                : 'gap-1 px-2 py-3 hover:bg-white/[0.04]'
+            )
       )}
     >
       <span
-        className="absolute inset-x-0 top-0 h-[2px] z-[3] pointer-events-none"
+        className={cn(
+          'absolute inset-x-0 top-0 z-[1] pointer-events-none',
+          embedded ? 'h-px' : 'h-0.5'
+        )}
         style={{ backgroundColor: glow }}
       />
-      <span
-        className="absolute inset-x-0 top-0 h-5 pointer-events-none z-0"
-        style={{
-          background: `linear-gradient(180deg, color-mix(in srgb, ${glow} 10%, transparent), transparent)`,
-        }}
-      />
-      <span
-        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-[1]"
-        style={{
-          opacity: hoverGlow.on ? 1 : 0,
-          background: `radial-gradient(72px circle at ${hoverGlow.x}% ${hoverGlow.y}%, color-mix(in srgb, ${glow} 14%, transparent), transparent 70%)`,
-        }}
-      />
-      <span
-        className={cn(
-          'relative z-[2] w-full text-center font-semibold uppercase truncate',
-          compact
-            ? 'text-[7px] tracking-wide mt-1 px-0.5'
-            : 'text-[8px] tracking-[0.12em] mt-1.5 px-1'
-        )}
-        style={{ color: tier.accent }}
-      >
-        {tier.shortLabel}
-      </span>
-      <span className="relative z-[2] flex w-full min-h-[20px] items-center justify-center overflow-hidden">
-        <JackpotTickingAmount
-          value={amount}
-          size={compact ? 'xs' : 'sm'}
-          className="max-w-full min-w-0 justify-center leading-none md:text-base"
-        />
-      </span>
+      {embedded ? (
+        <>
+          <span
+            className="relative z-[2] text-[10px] font-bold uppercase leading-none tracking-wide md:text-[9px]"
+            style={{ color: glow }}
+          >
+            {tier.shortLabel}
+          </span>
+          <span className="relative z-[2] max-w-full truncate text-[11px] font-semibold tabular-nums leading-none text-white md:text-[10px]">
+            {formatted}
+          </span>
+        </>
+      ) : (
+        <>
+          <span
+            className={cn(
+              'relative z-[2] w-full font-bold uppercase tracking-[0.14em] leading-none',
+              dense ? 'text-[11px] sm:text-xs' : 'text-[11px]'
+            )}
+            style={{ color: glow }}
+          >
+            {tier.shortLabel}
+          </span>
+          <span className="relative z-[2] flex w-full items-center justify-center px-0.5">
+            {dense ? (
+              <span className="max-w-full truncate text-xs font-semibold tabular-nums leading-none text-white sm:text-[13px]">
+                {formatted}
+              </span>
+            ) : (
+              <JackpotTickingAmount
+                value={amount}
+                size="sm"
+                className="max-w-full min-w-0 justify-center leading-none text-white text-sm"
+              />
+            )}
+          </span>
+        </>
+      )}
     </button>
   )
 }
 
 export function JackpotTickerBar({
   className,
+  dense = false,
+  embedded = false,
   onNavigateToJackpots,
 }: JackpotTickerBarProps) {
-  const isMobile = useIsMobile()
   const tickerAmounts = useJackpotStore((s) => s.tickerAmounts)
 
   const handleTierClick = (_tierId: JackpotTickerTierId) => {
@@ -117,18 +123,22 @@ export function JackpotTickerBar({
   return (
     <div
       className={cn(
-        'relative rounded-lg border border-white/10 bg-white/5 overflow-hidden w-full min-w-0',
+        'relative w-full min-w-0 overflow-hidden',
+        embedded
+          ? 'bg-transparent'
+          : 'rounded-lg border border-white/10 bg-[#121212]/80',
         className
       )}
     >
-      <div className="relative grid grid-cols-4 w-full divide-x divide-white/10">
+      <div className="grid w-full grid-cols-4 divide-x divide-white/10">
         {JACKPOT_TICKER_TIERS.map((tier) => (
           <TickerCell
             key={tier.id}
             tier={tier}
             amount={tickerAmounts[tier.id]}
             onClick={() => handleTierClick(tier.id)}
-            compact={isMobile}
+            dense={dense}
+            embedded={embedded}
           />
         ))}
       </div>

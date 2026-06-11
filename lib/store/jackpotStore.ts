@@ -34,7 +34,7 @@ function buildDefaultTierOptIns(optedIn = true): TierOptIns {
 }
 
 function optedInFromTiers(tierOptIns: TierOptIns): boolean {
-  return Object.values(tierOptIns).some(Boolean)
+  return JACKPOT_TIERS.every((tier) => tierOptIns[tier.id])
 }
 
 interface JackpotState {
@@ -79,18 +79,12 @@ export const useJackpotStore = create<JackpotState>()(
         })
       },
 
-      setTierOptIn: (tierId, enabled) =>
-        set((state) => {
-          const tierOptIns = { ...state.tierOptIns, [tierId]: enabled }
-          return {
-            tierOptIns,
-            optedIn: optedInFromTiers(tierOptIns),
-          }
-        }),
+      setTierOptIn: (_tierId, enabled) => {
+        get().setOptedIn(enabled)
+      },
 
-      toggleTierOptIn: (tierId) => {
-        const current = get().tierOptIns[tierId]
-        get().setTierOptIn(tierId, !current)
+      toggleTierOptIn: (_tierId) => {
+        get().toggleOptedIn()
       },
 
       getSpinAddonTotal: () => getJackpotSpinAddonTotal(get().tierOptIns),
@@ -132,14 +126,13 @@ export const useJackpotStore = create<JackpotState>()(
       merge: (persisted, current) => {
         const p = persisted as Partial<JackpotState> | undefined
         if (!p) return current
-        const tierOptIns =
-          p.tierOptIns ??
-          buildDefaultTierOptIns(p.optedIn ?? current.optedIn)
+        const optedIn = p.optedIn ?? optedInFromTiers(p.tierOptIns ?? current.tierOptIns)
+        const tierOptIns = buildDefaultTierOptIns(optedIn)
         return {
           ...current,
           ...p,
           tierOptIns,
-          optedIn: optedInFromTiers(tierOptIns),
+          optedIn,
         }
       },
     }

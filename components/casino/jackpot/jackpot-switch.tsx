@@ -24,7 +24,11 @@ function formatStake(value: number): string {
   })
 }
 
-const COMPACT_W = 'w-[188px]'
+const COMPACT_W = 'w-[11.5rem]'
+
+function launcherAddonLabel(optedIn: boolean, addon: string): string {
+  return optedIn ? `Jackpot opt-in · +${addon}/spin` : 'Jackpot opt-in'
+}
 
 /** Opt-in switch — compact expanded strip in headers, coin-only in game bar */
 export function JackpotSwitch({
@@ -50,8 +54,8 @@ export function JackpotSwitch({
         aria-checked={optedIn}
         aria-label={
           optedIn
-            ? `Jackpots on, ${addon} per spin`
-            : `Jackpots off, add ${addon} per spin to opt in`
+            ? `Jackpot opt-in on, ${addon} per spin`
+            : `Jackpot opt-in off, add ${addon} per spin to opt in`
         }
         onClick={(e) => {
           e.stopPropagation()
@@ -82,8 +86,8 @@ export function JackpotSwitch({
         aria-checked={optedIn}
         aria-label={
           optedIn
-            ? `Jackpots on, ${addon} per spin, ${total} total`
-            : `Jackpots off, add ${addon} per spin to opt in`
+            ? `Jackpot opt-in on, ${addon} per spin, ${total} total`
+            : `Jackpot opt-in off, add ${addon} per spin to opt in`
         }
         onClick={(e) => {
           e.stopPropagation()
@@ -94,6 +98,8 @@ export function JackpotSwitch({
           'px-2 h-8 flex-shrink-0 transition-colors duration-200 hover:bg-white/[0.08]',
           'outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]',
           COMPACT_W,
+          optedIn &&
+            'border-[color-mix(in_srgb,var(--ds-primary,#ee3536)_40%,transparent)] bg-white/[0.06]',
           className
         )}
       >
@@ -104,17 +110,9 @@ export function JackpotSwitch({
           )}
         />
         <span className="flex-1 min-w-0 text-[10px] leading-none text-left truncate text-white/80">
-          {optedIn ? (
-            <>
-              <span className="text-white font-medium">On</span>
-              <span className="text-white/45"> · +{addon}/spin</span>
-            </>
-          ) : (
-            <>
-              <span className="text-white/55">Off</span>
-              <span className="text-white/40"> · +{addon}/spin</span>
-            </>
-          )}
+          <span className={cn('font-medium', optedIn ? 'text-white' : 'text-white/55')}>
+            {launcherAddonLabel(optedIn, addon)}
+          </span>
         </span>
         <span
           className={cn(
@@ -139,7 +137,7 @@ export function JackpotSwitch({
         type="button"
         role="switch"
         aria-checked={optedIn}
-        aria-label={optedIn ? 'Jackpots on' : 'Jackpots off'}
+        aria-label={optedIn ? 'Jackpot opt-in on' : 'Jackpot opt-in off'}
         onClick={(e) => {
           e.stopPropagation()
           toggleOptedIn()
@@ -182,7 +180,7 @@ export function JackpotSwitch({
       type="button"
       role="switch"
       aria-checked={optedIn}
-      aria-label={optedIn ? 'Jackpots on' : 'Jackpots off'}
+      aria-label={optedIn ? 'Jackpot opt-in on' : 'Jackpot opt-in off'}
       onClick={(e) => {
         e.stopPropagation()
         toggleOptedIn()

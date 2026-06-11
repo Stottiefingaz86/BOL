@@ -1502,6 +1502,27 @@ button[data-active="true"][class*="SidebarMenuButton"],
   }
 }
 
+@keyframes jackpot-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.jackpot-marquee-track {
+  animation: jackpot-marquee 36s linear infinite;
+  will-change: transform;
+  width: max-content;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jackpot-marquee-track {
+    animation: none;
+  }
+}
+
 /* ─── STATSCORE Widget SDK — allow full rendering ─── */
 .statscore-widget-root {
   overflow: visible;
