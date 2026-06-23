@@ -13583,9 +13583,18 @@ function NavTestPageContent() {
                 </div>
                 )}
 
+                {showJackpotWheel && gameImageLoaded && !isMobile && (
+                  <JackpotWheelBonus
+                    onComplete={(tier) => {
+                      setJackpotWinTier(tier)
+                      setShowJackpotWheel(false)
+                      setShowJackpot(true)
+                    }}
+                  />
+                )}
               </div>
 
-              {showJackpotWheel && gameImageLoaded && (
+              {showJackpotWheel && gameImageLoaded && isMobile && (
                 <JackpotWheelBonus
                   onComplete={(tier) => {
                     setJackpotWinTier(tier)

@@ -299,7 +299,15 @@ function FanDuelBackground({ phase, isMobile }: { phase: WheelPhase; isMobile: b
   )
 }
 
-function WheelPointer({ active, pointerClass }: { active: boolean; pointerClass: string }) {
+function WheelPointer({
+  active,
+  pointerClass,
+  showPinMount = true,
+}: {
+  active: boolean
+  pointerClass: string
+  showPinMount?: boolean
+}) {
   return (
     <div className="pointer-events-none absolute left-1/2 top-0 z-40 -translate-x-1/2 -translate-y-1">
       <motion.div
@@ -335,6 +343,9 @@ function WheelPointer({ active, pointerClass }: { active: boolean; pointerClass:
             <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#ee3536" floodOpacity="0.55" />
           </filter>
         </defs>
+        {showPinMount && (
+          <rect x="30" y="4" width="20" height="10" rx="3" fill="#1c1c1f" stroke="#000000" strokeWidth="1" />
+        )}
         {/* Flapper — apex points DOWN into the wheel (black bezel) */}
         <polygon
           points="40,66 12,16 68,16"
@@ -851,8 +862,8 @@ export function JackpotWheelBonus({
   const hubRevealed = phase !== 'intro'
   const isMobile = useIsMobile()
   const layout = isMobile ? MOBILE_WHEEL_LAYOUT : DESKTOP_WHEEL_LAYOUT
-  // Hide the centre hub on mobile; frame the top arc once zoomed in.
-  const showHub = !isMobile && phase === 'intro'
+  // Desktop: hub always rendered (opacity via hubRevealed). Mobile: hide hub entirely.
+  const showHub = !isMobile
   const wheelScale = closingIn
     ? layout.closeScale
     : zoomed
@@ -887,17 +898,21 @@ export function JackpotWheelBonus({
           animate={
             mobileHalfWheel
               ? { scale: wheelScale, x: '-50%', y: wheelY }
-              : { scale: wheelScale, y: wheelY, x: 0 }
+              : { scale: wheelScale, y: wheelY }
           }
           transition={
             closingIn
               ? { duration: 4.6, ease: [0.33, 0, 0.15, 1] }
               : { duration: 1, ease: [0.22, 1, 0.36, 1] }
           }
-          style={{ transformOrigin: '50% 50%' }}
+          style={mobileHalfWheel ? { transformOrigin: '50% 50%' } : undefined}
         >
           {showPointer && (
-            <WheelPointer active={pointerActive} pointerClass={layout.pointerClass} />
+            <WheelPointer
+              active={pointerActive}
+              pointerClass={layout.pointerClass}
+              showPinMount={!isMobile}
+            />
           )}
 
           <WheelSvg
@@ -913,7 +928,7 @@ export function JackpotWheelBonus({
 
           {(phase === 'intro' || phase === 'zoom') && <IntroTitleOverlay phase={phase} />}
 
-          {phase === 'intro' && !isMobile && (
+          {phase === 'intro' && (
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 z-[5] h-[29%] w-[29%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10"
               style={{
