@@ -15,6 +15,8 @@ import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
 import { DailySpinCard } from '@/components/promotions/daily-spin-card'
+import { ReferAFriendPage } from '@/components/promotions/refer-a-friend-page'
+import { requestLogin } from '@/lib/auth-session'
 import { DailyRacesTimer, NumberFlowCountdown } from '@/components/daily-races-timer'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
@@ -26,10 +28,11 @@ import {
   JackpotNetworkBadge,
   GameLauncherJackpotRow,
   JackpotLauncherDropdown,
+  JackpotWheelBonus,
   useJackpotTicker,
   useJackpotPreviewGameCount,
 } from '@/components/casino/jackpot'
-import { JACKPOT_ELIGIBLE_GAME_LIMIT } from '@/lib/jackpot/constants'
+import { JACKPOT_ELIGIBLE_GAME_LIMIT, JACKPOT_TICKER_TIERS } from '@/lib/jackpot/constants'
 import { getJackpotNetworkTier, isJackpotNetworkGame } from '@/lib/jackpot/game-network'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 
@@ -42,7 +45,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { playSound } from '@/lib/sounds'
+import { playSound, fadeOutSound } from '@/lib/sounds'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -2082,6 +2085,7 @@ type CasinoBonusItem = {
 function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string; setShowVipRewards?: (show: boolean) => void }) {
   const id = useId()
   const isMobile = useIsMobile()
+  const [isLoggedIn, setIsLoggedIn] = useState(true)
   const [activeTab, setActiveTab] = useState('Sports')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
   const [expandedCasinoRow, setExpandedCasinoRow] = useState<string | null>(null)
@@ -2242,8 +2246,35 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
         {/* My Bonus Section */}
         <div className="w-full">
-          {/* Title */}
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">My Bonus</h1>
+          {/* Title + demo auth toggle */}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
+            <h1 className="text-2xl font-bold text-white md:text-3xl">My Bonus</h1>
+            <div
+              className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-0.5"
+              role="group"
+              aria-label="Demo login state"
+            >
+              {(['Log in', 'Log out'] as const).map((label) => {
+                const loggedIn = label === 'Log in'
+                const active = isLoggedIn === loggedIn
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setIsLoggedIn(loggedIn)}
+                    className={cn(
+                      'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                      active
+                        ? 'bg-[var(--ds-primary,#ee3536)] text-white'
+                        : 'text-white/60 hover:text-white'
+                    )}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
           {/* Tabs - Using AnimateTabs like Casino */}
           <div className="mb-4 md:mb-6">
@@ -2275,6 +2306,32 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
             </AnimateTabs>
           </div>
 
+          {!isLoggedIn ? (
+            <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-6 py-12 md:min-h-[360px] md:px-8">
+              <div className="flex max-w-md flex-col items-center gap-4 text-center">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
+                  <IconGift className="h-5 w-5 text-white/50" aria-hidden />
+                </div>
+                <div className="space-y-1.5">
+                  <h2 className="text-lg font-semibold text-white md:text-xl">
+                    Log in to view your bonuses
+                  </h2>
+                  <p className="text-sm leading-relaxed text-white/55">
+                    Sign in to see your active sports and casino bonuses and claim what&apos;s
+                    waiting for you.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => requestLogin()}
+                  className="h-10 rounded-lg bg-[var(--ds-primary,#ee3536)] px-6 text-sm font-semibold text-white hover:bg-[var(--ds-primary,#ee3536)]/90"
+                >
+                  Log in
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* Sports Tab Content */}
           {activeTab === 'Sports' && (
             <>
@@ -2775,6 +2832,8 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
               )}
             </>
           )}
+            </>
+          )}
         </div>
       </div>
     </SidebarInset>
@@ -2910,10 +2969,11 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           setPreviousPageState={setPreviousPageState}
           setActiveSubNav={setActiveSubNav}
         />
+      ) : vipActiveSidebarItem === 'Refer A Friend' ? (
+        <ReferAFriendPage />
       ) : vipActiveSidebarItem === 'Contests' ||
         vipActiveSidebarItem === 'Challenges' ||
-        vipActiveSidebarItem === 'Raffles' ||
-        vipActiveSidebarItem === 'Refer A Friend' ? (
+        vipActiveSidebarItem === 'Raffles' ? (
         <VipSectionWireframe title={vipActiveSidebarItem} />
       ) : (
         <SidebarInset className="bg-[#1a1a1a] text-white">
@@ -7904,6 +7964,8 @@ function NavTestPageContent() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
   const [showJackpot, setShowJackpot] = useState(false)
+  const [showJackpotWheel, setShowJackpotWheel] = useState(false)
+  const [jackpotWinTier, setJackpotWinTier] = useState<'mini' | 'minor' | 'major' | 'mega'>('mega')
   const jackpotTimerRef = useRef<NodeJS.Timeout | null>(null)
   const gameLauncherMenuRef = useRef<HTMLDivElement>(null)
   const gameImageRef = useRef<HTMLDivElement>(null)
@@ -7977,11 +8039,13 @@ function NavTestPageContent() {
   // Close menu when game launcher closes and reset image loaded state
   useEffect(() => {
     if (!selectedGame) {
+      fadeOutSound('jackpot-bg', 1200)
       setGameLauncherMenuOpen(false)
       setGameLauncherJackpotsVisible(true)
       setGameImageLoaded(false)
       setIsFullscreen(false)
       setShowJackpot(false)
+      setShowJackpotWheel(false)
       if (jackpotTimerRef.current) {
         clearTimeout(jackpotTimerRef.current)
         jackpotTimerRef.current = null
@@ -8017,6 +8081,7 @@ function NavTestPageContent() {
       setGameImageLoaded(false)
       setIsFullscreen(false)
       setShowJackpot(false)
+      setShowJackpotWheel(false)
     }
   }, [selectedGame])
 
@@ -8024,6 +8089,7 @@ function NavTestPageContent() {
   useEffect(() => {
     if (!jackpotOptedIn) {
       setShowJackpot(false)
+      setShowJackpotWheel(false)
     }
   }, [jackpotOptedIn])
 
@@ -8032,7 +8098,7 @@ function NavTestPageContent() {
     if (!gameImageLoaded || !selectedGame || !jackpotOptedIn) return
     jackpotTimerRef.current = setTimeout(() => {
       if (useJackpotStore.getState().optedIn) {
-        setShowJackpot(true)
+        setShowJackpotWheel(true)
       }
     }, 5000)
     return () => {
@@ -13516,26 +13582,40 @@ function NavTestPageContent() {
                     />
                 </div>
                 )}
+
+                {showJackpotWheel && gameImageLoaded && (
+                  <JackpotWheelBonus
+                    onComplete={(tier) => {
+                      setJackpotWinTier(tier)
+                      setShowJackpotWheel(false)
+                      setShowJackpot(true)
+                    }}
+                  />
+                )}
               </div>
 
               {/* Jackpot Win Overlay */}
               <JackpotOverlay
                 visible={showJackpot}
+                tier={jackpotWinTier}
                 gameName={selectedGame.title}
                 onClose={() => {
                   setShowJackpot(false)
+                  setShowJackpotWheel(false)
                   pendingBalanceRef.current += useJackpotStore.getState().lastWinAmount
                 }}
                 onShareToChat={() => {
                   setShowJackpot(false)
+                  setShowJackpotWheel(false)
                   const winAmount = useJackpotStore.getState().lastWinAmount
                   pendingBalanceRef.current += winAmount
-                  // Share jackpot win to chat
+                  const tierLabel =
+                    JACKPOT_TICKER_TIERS.find((t) => t.id === jackpotWinTier)?.label ?? 'Mega'
                   const chatStore = useChatStore.getState()
                   chatStore.setIsOpen(true)
                   chatStore.shareBetToChat([{
                     eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
-                    selection: 'Mega Jackpot',
+                    selection: `${tierLabel} Jackpot`,
                     odds: '💰',
                     stake: winAmount,
                   }])

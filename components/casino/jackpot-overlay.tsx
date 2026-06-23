@@ -6,10 +6,13 @@ import confetti from 'canvas-confetti'
 import { IconShare, IconX } from '@tabler/icons-react'
 import {
   formatJackpotAmount,
+  JACKPOT_TICKER_TIERS,
   JACKPOT_WIN_COUNTUP_DELAY_MS,
   JACKPOT_WIN_COUNTUP_DURATION_MS,
+  type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
+import { fadeOutSound, playSound, stopSound } from '@/lib/sounds'
 
 // Gold particle rain background
 function GoldRain() {
@@ -229,15 +232,23 @@ interface JackpotOverlayProps {
   onClose: () => void
   onShareToChat: () => void
   gameName?: string
+  tier?: JackpotTickerTierId
 }
 
-export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Mega Fortune' }: JackpotOverlayProps) {
+export function JackpotOverlay({
+  visible,
+  onClose,
+  onShareToChat,
+  gameName = 'Mega Fortune',
+  tier = 'mega',
+}: JackpotOverlayProps) {
   const [spinning, setSpinning] = useState(false)
   const [showCTA, setShowCTA] = useState(false)
   const [landed, setLanded] = useState(false)
   const [scale, setScale] = useState(0.6)
   const [winAmount, setWinAmount] = useState(0)
   const confettiFired = useRef(false)
+  const wasVisibleRef = useRef(false)
   const startMegaWinRoll = useJackpotStore((s) => s.startMegaWinRoll)
   const cancelMegaWinRoll = useJackpotStore((s) => s.cancelMegaWinRoll)
 
@@ -258,8 +269,19 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
     }, 900)
   }, [])
 
+  const tierConfig =
+    JACKPOT_TICKER_TIERS.find((t) => t.id === tier) ?? JACKPOT_TICKER_TIERS[3]
+
+  useEffect(() => {
+    if (wasVisibleRef.current && !visible) {
+      fadeOutSound('jackpot-bg', 1400)
+    }
+    wasVisibleRef.current = visible
+  }, [visible])
+
   useEffect(() => {
     if (!visible) {
+      stopSound('jackpot-numbers')
       setSpinning(false)
       setShowCTA(false)
       setLanded(false)
@@ -270,16 +292,18 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
       return
     }
 
-    const megaJackpot = useJackpotStore.getState().tickerAmounts.mega
-    setWinAmount(megaJackpot)
-    startMegaWinRoll(
-      JACKPOT_WIN_COUNTUP_DURATION_MS,
-      JACKPOT_WIN_COUNTUP_DELAY_MS
-    )
+    const tierAmount = useJackpotStore.getState().tickerAmounts[tier]
+    setWinAmount(tierAmount)
+    useJackpotStore.setState({ lastWinAmount: tierAmount })
+
+    if (tier === 'mega') {
+      startMegaWinRoll(JACKPOT_WIN_COUNTUP_DURATION_MS, JACKPOT_WIN_COUNTUP_DELAY_MS)
+    }
 
     // Phase 1: Start spinning after intro (0.4s)
     const t1 = setTimeout(() => {
       setSpinning(true)
+      playSound('jackpot-numbers', { volume: 0.68, loop: true })
     }, JACKPOT_WIN_COUNTUP_DELAY_MS)
 
     // Phase 2: Scale up as digits spin (staggered)
@@ -289,6 +313,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
 
     // Phase 3: All digits landed — final scale + confetti (around 3s total)
     const t5 = setTimeout(() => {
+      stopSound('jackpot-numbers')
       setScale(1.05)
       setLanded(true)
       fireConfetti()
@@ -301,6 +326,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
     }, 3400)
 
     return () => {
+      stopSound('jackpot-numbers')
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
@@ -308,7 +334,7 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
       clearTimeout(t5)
       clearTimeout(t6)
     }
-  }, [visible, fireConfetti, startMegaWinRoll, cancelMegaWinRoll])
+  }, [visible, tier, fireConfetti, startMegaWinRoll, cancelMegaWinRoll])
 
   return (
     <AnimatePresence>
@@ -363,11 +389,11 @@ export function JackpotOverlay({ visible, onClose, onShareToChat, gameName = 'Me
               <p
                 className="text-3xl font-bold tracking-[0.12em] sm:text-4xl"
                 style={{
-                  color: '#fbbf24',
-                  textShadow: '0 0 32px rgba(251, 191, 36, 0.35)',
+                  color: tierConfig.accent,
+                  textShadow: `0 0 32px ${tierConfig.accent}59`,
                 }}
               >
-                MEGA
+                {tierConfig.shortLabel}
               </p>
               <p className="text-sm font-medium tracking-[0.2em] text-white/90 sm:text-base">
                 Jackpot

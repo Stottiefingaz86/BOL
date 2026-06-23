@@ -11,16 +11,64 @@
 
 const SOUND_BASE = '/sound'
 
-export type SoundName = 'button-click' | 'redeem' | 'spin'
+export type SoundName =
+  | 'button-click'
+  | 'redeem'
+  | 'spin'
+  | 'jackpot-bg'
+  | 'jackpot-numbers'
+  | 'jackpot-intro'
+  | 'jackpot-final-segment'
+  | 'highlight'
 
 const FILE_MAP: Record<SoundName, string> = {
   // Note: existing assets use spaces in the file names — keep them encoded.
   'button-click': 'button%20click.mp3',
   redeem: 'redeem.mp3',
   spin: 'spin2.mp3',
+  'jackpot-bg': 'jackpot%20bg_music.mp3',
+  'jackpot-numbers': 'jackpot%20animation_numbers.mp3',
+  'jackpot-intro': 'jackpot%20first%20screen.wav',
+  'jackpot-final-segment': 'finalsegment.wav',
+  highlight: 'highlight.mp3',
 }
 
 const cache: Partial<Record<SoundName, HTMLAudioElement>> = {}
+const HIGHLIGHT_POOL_SIZE = 16
+let highlightPool: HTMLAudioElement[] | null = null
+let highlightPoolIndex = 0
+
+/** Turn off pitch preservation so playbackRate changes the pitch (cross-browser). */
+function disablePreservesPitch(audio: HTMLAudioElement): void {
+  const a = audio as HTMLAudioElement & {
+    preservesPitch?: boolean
+    mozPreservesPitch?: boolean
+    webkitPreservesPitch?: boolean
+  }
+  a.preservesPitch = false
+  a.mozPreservesPitch = false
+  a.webkitPreservesPitch = false
+}
+
+function initHighlightPool(): HTMLAudioElement[] {
+  if (typeof window === 'undefined') return []
+  if (highlightPool) return highlightPool
+  highlightPool = Array.from({ length: HIGHLIGHT_POOL_SIZE }, () => {
+    const audio = new Audio(`${SOUND_BASE}/${FILE_MAP.highlight}`)
+    audio.preload = 'auto'
+    // Let playbackRate actually change the PITCH (browsers preserve pitch by
+    // default, which makes the ticks only speed up, never pitch up).
+    disablePreservesPitch(audio)
+    audio.load()
+    return audio
+  })
+  return highlightPool
+}
+
+/** Warm the highlight pool so wheel ticks fire instantly during spin. */
+export function preloadWheelHighlightTicks(): void {
+  initHighlightPool()
+}
 
 function getAudio(name: SoundName, volume: number): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
@@ -35,8 +83,9 @@ function getAudio(name: SoundName, volume: number): HTMLAudioElement | null {
 }
 
 interface PlaySoundOptions {
-  /** 0–1. Defaults: click 0.5, redeem 0.7, spin 0.5. */
+  /** 0–1. Defaults: click 0.5, redeem 0.7, spin 0.5, jackpot-bg 0.4. */
   volume?: number
+  loop?: boolean
 }
 
 /**
@@ -51,9 +100,19 @@ export function playSound(
   options: PlaySoundOptions = {}
 ): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
-  const defaultVolume = name === 'redeem' ? 0.7 : 0.5
+  const defaultVolume =
+    name === 'redeem'
+      ? 0.7
+      : name === 'jackpot-bg'
+        ? 0.4
+        : name === 'jackpot-numbers'
+          ? 0.68
+          : name === 'highlight'
+            ? 0.5
+            : 0.5
   const audio = getAudio(name, options.volume ?? defaultVolume)
   if (!audio) return null
+  audio.loop = options.loop ?? false
   try {
     audio.currentTime = 0
     const result = audio.play()
@@ -67,6 +126,81 @@ export function playSound(
   return audio
 }
 
+/** Looping jackpot bed — keeps playing if already started (wheel → overlay handoff). */
+export function playJackpotBgMusic(options: PlaySoundOptions = {}): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null
+  const volume = options.volume ?? 0.4
+  const existing = cache['jackpot-bg']
+  if (existing && !existing.paused && existing.loop) {
+    existing.volume = volume
+    return existing
+  }
+  return playSound('jackpot-bg', { ...options, volume, loop: true })
+}
+
+export function setJackpotBgVolume(volume: number): void {
+  const audio = cache['jackpot-bg']
+  if (audio) audio.volume = volume
+}
+
+/** One-shot wheel tick — pitch rises with each segment pass. */
+export function playWheelHighlightTick(
+  tickIndex: number,
+  options: {
+    volume?: number
+    basePitch?: number
+    pitchStep?: number
+    pitchBoost?: number
+    maxPitch?: number
+  } = {}
+): void {
+  if (typeof window === 'undefined') return
+  const pool = initHighlightPool()
+  if (!pool.length) return
+
+  const basePitch = options.basePitch ?? 0.96
+  const pitchStep = options.pitchStep ?? 0.032
+  const pitchBoost = options.pitchBoost ?? 0
+  const maxPitch = options.maxPitch ?? 2.2
+  const pitch = Math.min(maxPitch, basePitch + tickIndex * pitchStep + pitchBoost)
+  const audio = pool[highlightPoolIndex % pool.length]
+  highlightPoolIndex += 1
+
+  audio.volume = Math.min(1, options.volume ?? 0.72)
+  disablePreservesPitch(audio)
+  audio.playbackRate = pitch
+  audio.currentTime = 0
+
+  try {
+    const result = audio.play()
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => {})
+    }
+  } catch {
+    // no-op
+  }
+}
+
+/** Fade a looping sound out, then stop and rewind it. */
+export function fadeOutSound(name: SoundName, durationMs = 900): void {
+  const audio = cache[name]
+  if (!audio || audio.paused) return
+  const startVolume = audio.volume
+  const started = performance.now()
+  const step = () => {
+    const elapsed = performance.now() - started
+    const t = Math.min(1, elapsed / durationMs)
+    audio.volume = startVolume * (1 - t)
+    if (t < 1) {
+      requestAnimationFrame(step)
+    } else {
+      stopSound(name)
+      audio.volume = startVolume
+    }
+  }
+  requestAnimationFrame(step)
+}
+
 /** Stop a sound immediately and rewind it. Safe to call if the sound was
  * never played. */
 export function stopSound(name: SoundName): void {
@@ -75,6 +209,7 @@ export function stopSound(name: SoundName): void {
   try {
     audio.pause()
     audio.currentTime = 0
+    audio.loop = false
   } catch {
     // no-op
   }

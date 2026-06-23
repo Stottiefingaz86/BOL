@@ -141,6 +141,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import DynamicIsland from '@/components/dynamic-island'
 import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
+import { JackpotWheelBonus } from '@/components/casino/jackpot/jackpot-wheel-bonus'
+import { fadeOutSound } from '@/lib/sounds'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { NotificationHub } from '@/components/account/notification-hub'
 
@@ -1018,6 +1020,8 @@ function HomePageContent() {
   const [similarGamesDrawerOpen, setSimilarGamesDrawerOpen] = useState(false)
   const [favoritedGames, setFavoritedGames] = useState<Set<number>>(new Set())
   const [showJackpot, setShowJackpot] = useState(false)
+  const [showJackpotWheel, setShowJackpotWheel] = useState(false)
+  const [jackpotWinTier, setJackpotWinTier] = useState<'mini' | 'minor' | 'major' | 'mega'>('mega')
   const jackpotTimerRef = useRef<NodeJS.Timeout | null>(null)
   const gameLauncherMenuRef = useRef<HTMLDivElement>(null)
   const gameImageRef = useRef<HTMLDivElement>(null)
@@ -1306,10 +1310,12 @@ function HomePageContent() {
   // Close menu when game launcher closes and reset image loaded state
   useEffect(() => {
     if (!selectedGame) {
+      fadeOutSound('jackpot-bg', 1200)
       setGameLauncherMenuOpen(false)
       setGameImageLoaded(false)
       setIsFullscreen(false)
       setShowJackpot(false)
+      setShowJackpotWheel(false)
       if (jackpotTimerRef.current) {
         clearTimeout(jackpotTimerRef.current)
         jackpotTimerRef.current = null
@@ -1345,6 +1351,7 @@ function HomePageContent() {
       setGameImageLoaded(false)
       setIsFullscreen(false)
       setShowJackpot(false)
+      setShowJackpotWheel(false)
     }
   }, [selectedGame])
 
@@ -1352,7 +1359,7 @@ function HomePageContent() {
   useEffect(() => {
     if (gameImageLoaded && selectedGame) {
       jackpotTimerRef.current = setTimeout(() => {
-        setShowJackpot(true)
+        setShowJackpotWheel(true)
       }, 5000)
     }
     return () => {
@@ -3051,24 +3058,36 @@ function HomePageContent() {
                 )}
               </div>
 
+              {showJackpotWheel && gameImageLoaded && (
+                <JackpotWheelBonus
+                  onComplete={(tier) => {
+                    setJackpotWinTier(tier)
+                    setShowJackpotWheel(false)
+                    setShowJackpot(true)
+                  }}
+                />
+              )}
+
               {/* Jackpot Win Overlay */}
               <JackpotOverlay
                 visible={showJackpot}
+                tier={jackpotWinTier}
                 gameName={selectedGame.title}
                 onClose={() => {
                   setShowJackpot(false)
+                  setShowJackpotWheel(false)
                   pendingBalanceRef.current += useJackpotStore.getState().lastWinAmount
                 }}
                 onShareToChat={() => {
                   setShowJackpot(false)
+                  setShowJackpotWheel(false)
                   const winAmount = useJackpotStore.getState().lastWinAmount
                   pendingBalanceRef.current += winAmount
-                  // Share jackpot win to chat
                   const chatStore = useChatStore.getState()
                   chatStore.setIsOpen(true)
                   chatStore.shareBetToChat([{
                     eventName: `🎰 JACKPOT WIN on ${selectedGame.title}`,
-                    selection: 'Mega Jackpot',
+                    selection: `${jackpotWinTier.charAt(0).toUpperCase()}${jackpotWinTier.slice(1)} Jackpot`,
                     odds: '💰',
                     stake: winAmount,
                   }])
