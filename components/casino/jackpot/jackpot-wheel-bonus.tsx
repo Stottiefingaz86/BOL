@@ -10,6 +10,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile'
 import { playJackpotBgMusic, playSound, playWheelHighlightTick, preloadWheelHighlightTicks, setJackpotBgVolume } from '@/lib/sounds'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 const SEGMENTS_PER_TIER = 2
 const SEGMENT_COUNT = JACKPOT_TICKER_TIERS.length * SEGMENTS_PER_TIER
@@ -825,7 +826,11 @@ export function JackpotWheelBonus({
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
   const [pointerActive, setPointerActive] = useState(false)
   const completedRef = useRef(false)
+  const startedRef = useRef(false)
+  const spinStartedRef = useRef(false)
   const spinRafRef = useRef<number | null>(null)
+  const introTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const zoomTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const finishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastLitIndexRef = useRef<number | null>(null)
   const wheelGroupRef = useRef<SVGGElement>(null)
@@ -872,28 +877,51 @@ export function JackpotWheelBonus({
 
   useEffect(() => {
     preloadWheelHighlightTicks()
-    playSound('jackpot-intro', { volume: 0.85 })
-    playJackpotBgMusic({ volume: 0.38 })
 
-    const introTimer = setTimeout(() => {
-      setPhase('zoom')
-      setPointerActive(true)
-      setHighlightedIndex(segmentAtPointer(0))
-    }, 2400)
-    const zoomTimer = setTimeout(() => setPhase('spin'), 3300)
+    // Desktop autoplays the intro. Mobile blocks audio until a user gesture, so
+    // there we wait for the Spin CTA (handleStartSpin) to unlock sound + spin.
+    if (!isMobile) {
+      startedRef.current = true
+      playSound('jackpot-intro', { volume: 0.85 })
+      playJackpotBgMusic({ volume: 0.38 })
+      introTimerRef.current = setTimeout(() => {
+        setPhase('zoom')
+        setPointerActive(true)
+        setHighlightedIndex(segmentAtPointer(0))
+      }, 2400)
+      zoomTimerRef.current = setTimeout(() => setPhase('spin'), 3300)
+    }
 
     return () => {
-      clearTimeout(introTimer)
-      clearTimeout(zoomTimer)
+      if (introTimerRef.current) clearTimeout(introTimerRef.current)
+      if (zoomTimerRef.current) clearTimeout(zoomTimerRef.current)
       // Only cleared on full unmount — NOT on the spin→landed phase change,
       // otherwise the hand-off to the win screen would get cancelled.
       if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Mobile Spin CTA: a user tap unlocks audio playback, then runs the intro →
+  // zoom → spin sequence (shorter intro, since the player already engaged).
+  const handleStartSpin = useCallback(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    playSound('jackpot-intro', { volume: 0.85 })
+    playJackpotBgMusic({ volume: 0.38 })
+    setPhase('zoom')
+    setPointerActive(true)
+    setHighlightedIndex(segmentAtPointer(0))
+    zoomTimerRef.current = setTimeout(() => setPhase('spin'), 1000)
   }, [])
 
   useEffect(() => {
     if (phase !== 'spin') return
+    // Guard against ever starting a second spin loop (which would double up the
+    // highlight ticks / desync the sound). The wheel only spins once.
+    if (spinStartedRef.current) return
+    spinStartedRef.current = true
 
     closingInStartedRef.current = false
 
@@ -1140,6 +1168,26 @@ export function JackpotWheelBonus({
           )}
         </motion.div>
       </div>
+
+      {/* Mobile Spin CTA — taps unlock audio (which is gesture-gated on mobile)
+          and kick off the spin. Rendered outside the scaling wheel so it stays
+          pinned to the bottom of the screen. */}
+      {isMobile && phase === 'intro' && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-x-0 bottom-[7%] z-[30] flex justify-center px-6"
+        >
+          <Button
+            onClick={handleStartSpin}
+            className="pointer-events-auto h-12 w-full max-w-xs rounded-small text-base font-semibold text-white hover:opacity-90"
+            style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+          >
+            Spin to Win
+          </Button>
+        </motion.div>
+      )}
 
       <AnimatePresence>
         {(phase === 'landed' || phase === 'wipe') && highlightedIndex != null && (
