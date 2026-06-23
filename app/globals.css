@@ -222,6 +222,32 @@ img[decoding="sync"] {
   animation: tile-shimmer 1.5s ease-in-out infinite;
 }
 
+/* Jackpot wheel — winning segment flash once the wheel has stopped */
+@keyframes jackpot-win-flash {
+  0%   { opacity: 0.15; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.15; }
+}
+@keyframes jackpot-win-edge-flash {
+  0%   { opacity: 0.35; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.35; }
+}
+.jackpot-winner-fill {
+  animation: jackpot-win-flash 0.46s ease-in-out infinite;
+}
+.jackpot-winner-edge {
+  animation: jackpot-win-edge-flash 0.46s ease-in-out infinite;
+}
+@keyframes jackpot-hub-ring-flash {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+.jackpot-hub-ring {
+  animation: jackpot-hub-ring-flash 0.75s ease-in-out infinite;
+}
+
 @layer base {
   :root {
     --sidebar-background: 0 0% 98%;

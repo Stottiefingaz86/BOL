@@ -245,6 +245,7 @@ export function JackpotOverlay({
   const [spinning, setSpinning] = useState(false)
   const [showCTA, setShowCTA] = useState(false)
   const [landed, setLanded] = useState(false)
+  const [ambientOn, setAmbientOn] = useState(false)
   const [scale, setScale] = useState(0.6)
   const [winAmount, setWinAmount] = useState(0)
   const confettiFired = useRef(false)
@@ -285,6 +286,7 @@ export function JackpotOverlay({
       setSpinning(false)
       setShowCTA(false)
       setLanded(false)
+      setAmbientOn(false)
       setScale(0.6)
       setWinAmount(0)
       confettiFired.current = false
@@ -292,12 +294,20 @@ export function JackpotOverlay({
       return
     }
 
+    // Fade in gold/particle ambience after the wheel wipe — avoids an orange flash
+    // on mount while the win screen is still hidden underneath.
+    const ambientTimer = setTimeout(() => setAmbientOn(true), 520)
+
     const tierAmount = useJackpotStore.getState().tickerAmounts[tier]
     setWinAmount(tierAmount)
-    useJackpotStore.setState({ lastWinAmount: tierAmount })
 
     if (tier === 'mega') {
+      useJackpotStore.setState({ lastWinAmount: tierAmount })
       startMegaWinRoll(JACKPOT_WIN_COUNTUP_DURATION_MS, JACKPOT_WIN_COUNTUP_DELAY_MS)
+    } else {
+      // Pay out the pot to the player and reset that tier back to its seed so
+      // the jackpot ticker drops after the win, then climbs again.
+      useJackpotStore.getState().registerJackpotWin(tier)
     }
 
     // Phase 1: Start spinning after intro (0.4s)
@@ -327,6 +337,7 @@ export function JackpotOverlay({
 
     return () => {
       stopSound('jackpot-numbers')
+      clearTimeout(ambientTimer)
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
@@ -343,40 +354,50 @@ export function JackpotOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.35 }}
           className="fixed inset-0 z-[99999] flex items-center justify-center"
           style={{ pointerEvents: 'auto' }}
         >
-          {/* Dark backdrop */}
+          {/* Dark backdrop — no warm tint until ambience kicks in */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+            transition={{ duration: 0.45 }}
+            className="absolute inset-0 bg-[#06040c]/95 backdrop-blur-xl"
           />
 
-          {/* Gold rain */}
-          <GoldRain />
+          {/* Gold rain — delayed so it doesn't bloom orange under the wheel wipe */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: ambientOn ? 1 : 0 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+          >
+            <GoldRain />
+          </motion.div>
 
-          {/* Radial glow — pulses on land */}
+          {/* Radial glow — cool purple/cyan, ramps in with ambience */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 2 }}>
             <motion.div
               animate={{
                 scale: landed ? 2.5 : spinning ? 1.5 : 0.5,
-                opacity: landed ? 0.45 : spinning ? 0.25 : 0.05,
+                opacity: ambientOn ? (landed ? 0.38 : spinning ? 0.2 : 0.04) : 0,
               }}
               transition={{ duration: landed ? 0.5 : 1, ease: 'easeOut' }}
               className="w-[400px] h-[400px] rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(255,215,0,0.25) 0%, rgba(238,53,54,0.1) 50%, transparent 70%)' }}
+              style={{
+                background:
+                  'radial-gradient(circle, rgba(167,139,250,0.16) 0%, rgba(56,189,248,0.08) 45%, transparent 72%)',
+              }}
             />
           </div>
 
-          {/* Main content */}
+          {/* Main content — slight delay so it appears as the wipe reveals it */}
           <motion.div
-            initial={{ scale: 0.85, opacity: 0, y: 40 }}
+            initial={{ scale: 0.92, opacity: 0, y: 28 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.85, opacity: 0, y: 40 }}
-            transition={{ duration: 0.5, type: 'spring', stiffness: 180, damping: 18 }}
+            transition={{ duration: 0.55, delay: 0.28, type: 'spring', stiffness: 180, damping: 18 }}
             className="relative z-10 flex flex-col items-center gap-5 px-4 max-w-xl w-full"
           >
             {/* Tier label */}

@@ -63,6 +63,8 @@ interface JackpotState {
   startMegaWinRoll: (durationMs: number, delayMs?: number, winAmount?: number) => void
   completeMegaWinRoll: () => void
   cancelMegaWinRoll: () => void
+  /** Pay out a won tier: returns the won pot and resets that tier back to its seed. */
+  registerJackpotWin: (tier: JackpotTickerTierId) => number
   tickAmounts: () => void
 }
 
@@ -142,6 +144,19 @@ export const useJackpotStore = create<JackpotState>()(
         if (get().megaWinRoll) {
           get().completeMegaWinRoll()
         }
+      },
+
+      registerJackpotWin: (tier) => {
+        const payout = get().tickerAmounts[tier]
+        const seed =
+          JACKPOT_TICKER_TIERS.find((t) => t.id === tier)?.seedAmount ?? 0
+        const tickerAmounts = { ...get().tickerAmounts, [tier]: seed }
+        const amounts = { ...get().amounts }
+        if (tier in amounts) {
+          amounts[tier as JackpotTierId] = seed
+        }
+        set({ lastWinAmount: payout, tickerAmounts, amounts })
+        return payout
       },
 
       tickAmounts: () => {

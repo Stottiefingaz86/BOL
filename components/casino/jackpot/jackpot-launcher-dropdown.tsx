@@ -290,7 +290,7 @@ function HeaderOptInControl({
               Jackpot opt-in
             </span>
             {optedIn ? (
-              <span className="whitespace-nowrap text-[10px] font-semibold tabular-nums leading-none text-[var(--ds-primary,#ee3536)]">
+              <span className="whitespace-nowrap text-[10px] font-semibold tabular-nums leading-none text-white">
                 +{addon}/spin
               </span>
             ) : null}

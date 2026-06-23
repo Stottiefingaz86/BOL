@@ -13585,10 +13585,12 @@ function NavTestPageContent() {
 
                 {showJackpotWheel && gameImageLoaded && !isMobile && (
                   <JackpotWheelBonus
-                    onComplete={(tier) => {
+                    onWipeStart={(tier) => {
                       setJackpotWinTier(tier)
-                      setShowJackpotWheel(false)
                       setShowJackpot(true)
+                    }}
+                    onComplete={() => {
+                      setShowJackpotWheel(false)
                     }}
                   />
                 )}
@@ -13596,10 +13598,12 @@ function NavTestPageContent() {
 
               {showJackpotWheel && gameImageLoaded && isMobile && (
                 <JackpotWheelBonus
-                  onComplete={(tier) => {
+                  onWipeStart={(tier) => {
                     setJackpotWinTier(tier)
-                    setShowJackpotWheel(false)
                     setShowJackpot(true)
+                  }}
+                  onComplete={() => {
+                    setShowJackpotWheel(false)
                   }}
                 />
               )}

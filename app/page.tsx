@@ -3060,10 +3060,12 @@ function HomePageContent() {
 
               {showJackpotWheel && gameImageLoaded && (
                 <JackpotWheelBonus
-                  onComplete={(tier) => {
+                  onWipeStart={(tier) => {
                     setJackpotWinTier(tier)
-                    setShowJackpotWheel(false)
                     setShowJackpot(true)
+                  }}
+                  onComplete={() => {
+                    setShowJackpotWheel(false)
                   }}
                 />
               )}

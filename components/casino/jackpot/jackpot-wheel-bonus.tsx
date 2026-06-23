@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, animate, useMotionValue } from 'framer-motion'
 import {
   JACKPOT_TICKER_TIERS,
   type JackpotTickerTierConfig,
@@ -21,7 +21,10 @@ const EXTRA_SPINS = 4
 const EXCITE_SEGMENTS = 9
 /** Spin progress at which the camera begins pushing in on the top pointer zone. */
 const CLOSE_IN_AT = 0.6
-
+/** Hold on the winning segment before the hand-off wipe. */
+const LANDED_HOLD_MS = 2800
+/** Left-to-right wipe duration revealing the jackpot win screen underneath. */
+const WIPE_DURATION_MS = 920
 /** Desktop zoom pushes into the top arc; mobile uses much lower scale so the
     wheel stays inside the viewport instead of clipping off-screen. */
 const DESKTOP_WHEEL_LAYOUT = {
@@ -41,8 +44,8 @@ const MOBILE_WHEEL_LAYOUT = {
   zoomScale: 3,
   closeScale: 3.15,
   introY: '0%',
-  zoomY: '50%',
-  closeY: '50%',
+  zoomY: '44%',
+  closeY: '44%',
   wheelSizeClass: 'h-[min(100vw,420px)] w-[min(100vw,420px)]',
   pointerClass: 'h-[58px] w-[64px]',
 } as const
@@ -61,7 +64,7 @@ const SEGMENT_PALETTE: Record<
   mega: { hub: '#6b2406', mid: '#ea580c', rim: '#f59e0b', neon: '#fcd34d' },
 }
 
-type WheelPhase = 'intro' | 'zoom' | 'spin' | 'landed'
+type WheelPhase = 'intro' | 'zoom' | 'spin' | 'landed' | 'wipe'
 
 type WheelSegment = {
   index: number
@@ -84,6 +87,45 @@ function buildSegments(): WheelSegment[] {
 }
 
 const WHEEL_SEGMENTS = buildSegments()
+
+/** Toggle segment highlight via DOM — avoids React re-renders on every tick. */
+function applyWheelSegmentHighlight(
+  svgRoot: SVGSVGElement | null,
+  prevIndex: number | null,
+  nextIndex: number | null,
+  isMobile: boolean
+) {
+  const setLit = (idx: number, lit: boolean) => {
+    const g = svgRoot?.querySelector(`[data-seg="${idx}"]`)
+    if (g) {
+      g.querySelector('.seg-mute')?.setAttribute('opacity', lit ? '0' : '0.46')
+      g.querySelector('.seg-logo')?.setAttribute('opacity', lit ? '1' : '0.5')
+    }
+    // Overlay layer (drawn above all base slices) carries the bright lit edge.
+    const top = svgRoot?.querySelector(`[data-seg-top="${idx}"]`)
+    if (top) {
+      top.querySelector('.seg-sheen')?.setAttribute('opacity', lit ? '1' : '0')
+      const edge = top.querySelector('.seg-edge-top')
+      if (edge) {
+        edge.setAttribute('stroke-opacity', lit ? '0.95' : '0')
+        if (lit && !isMobile) {
+          edge.setAttribute('filter', 'url(#litGlow)')
+        } else {
+          edge.removeAttribute('filter')
+        }
+      }
+    }
+  }
+  if (prevIndex != null && prevIndex !== nextIndex) setLit(prevIndex, false)
+  if (nextIndex != null) setLit(nextIndex, true)
+}
+
+function applyHubTierLogo(hubImage: HTMLImageElement | null, segmentIndex: number | null) {
+  if (!hubImage || segmentIndex == null) return
+  const tier = WHEEL_SEGMENTS[segmentIndex]?.tier
+  if (!tier) return
+  hubImage.src = `/jackpot/${tier.id}_reel.svg`
+}
 
 function normalizeAngle(deg: number): number {
   return ((deg % 360) + 360) % 360
@@ -197,105 +239,198 @@ function describeSegment(
   ].join(' ')
 }
 
-function FanDuelBackground({ phase, isMobile }: { phase: WheelPhase; isMobile: boolean }) {
-  const spinning = phase === 'spin' || phase === 'landed'
-  const sparkleCount = isMobile ? 8 : 24
-  const rayCount = isMobile ? 8 : 16
+function FanDuelBackground({
+  phase,
+  isMobile,
+  containerRef,
+}: {
+  phase: WheelPhase
+  isMobile: boolean
+  containerRef?: RefObject<HTMLDivElement>
+}) {
+  const showStars = phase === 'spin' || phase === 'landed' || phase === 'wipe'
+  const spotlightY = isMobile && phase !== 'intro' ? '72%' : '46%'
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[#12081f]" />
-
-      {/* Soft colour orbs */}
+    <div ref={containerRef} className="absolute inset-0 z-0 overflow-hidden">
       <div
-        className={cn(
-          'absolute left-1/2 top-[42%] -translate-x-1/2 rounded-full opacity-80',
-          isMobile ? 'h-[55%] w-[75%] blur-[48px]' : 'h-[70%] w-[90%] blur-[80px]'
-        )}
+        className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle, rgba(56,189,248,0.45) 0%, rgba(109,40,217,0.35) 42%, transparent 72%)',
-        }}
-      />
-      <div
-        className="absolute -left-[10%] top-[10%] h-[55%] w-[55%] rounded-full opacity-60 blur-[70px]"
-        style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.35), transparent 70%)' }}
-      />
-      <div
-        className="absolute -right-[8%] top-[18%] h-[50%] w-[50%] rounded-full opacity-55 blur-[70px]"
-        style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.4), transparent 70%)' }}
-      />
-
-      {/* Rotating sunburst */}
-      <motion.div
-        className="absolute left-1/2 top-[46%] h-[160%] w-[160%] -translate-x-1/2 -translate-y-1/2"
-        animate={{ rotate: spinning ? 360 : 0 }}
-        transition={
-          spinning
-            ? { duration: 22, repeat: Infinity, ease: 'linear' }
-            : { duration: 0.4 }
-        }
-        style={{
-          background: `repeating-conic-gradient(
-            from 0deg at 50% 50%,
-            rgba(255,255,255,0.09) 0deg 6deg,
-            transparent 6deg 18deg
-          )`,
-          maskImage: 'radial-gradient(circle at 50% 50%, black 0%, black 38%, transparent 72%)',
-          WebkitMaskImage:
-            'radial-gradient(circle at 50% 50%, black 0%, black 38%, transparent 72%)',
+            'radial-gradient(ellipse 120% 95% at 50% 40%, #18102a 0%, #0e0818 50%, #06040c 100%)',
         }}
       />
 
-      {/* Light rays */}
-      {[...Array(rayCount)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute left-1/2 top-[46%] origin-top -translate-x-1/2 opacity-[0.14]"
-          style={{
-            height: isMobile ? '70%' : '85%',
-            width: isMobile ? '2px' : '3px',
-            transform: `translateX(-50%) rotate(${(360 / rayCount) * i}deg)`,
-            background:
-              'linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(167,139,250,0.15) 45%, transparent)',
-          }}
-        />
-      ))}
+      {showStars && <ShootingStarsCanvas containerRef={containerRef} />}
 
-      {/* Centre bloom behind wheel */}
+      {/* Soft static spotlight behind the wheel — no pulsing or sunburst */}
       <div
-        className="absolute left-1/2 top-[46%] h-[55%] w-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[40px]"
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
+          top: spotlightY,
+          width: isMobile ? '88%' : '64%',
+          height: isMobile ? '46%' : '50%',
           background:
-            'radial-gradient(circle, rgba(103,232,249,0.28) 0%, rgba(168,85,247,0.18) 35%, transparent 68%)',
+            'radial-gradient(circle, rgba(109,40,217,0.18) 0%, rgba(56,189,248,0.05) 42%, transparent 72%)',
+          filter: 'blur(40px)',
         }}
       />
 
-      {/* Sparkles */}
-      {[...Array(sparkleCount)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full bg-white"
-          style={{
-            left: `${8 + ((i * 17) % 84)}%`,
-            top: `${6 + ((i * 23) % 78)}%`,
-            width: i % 3 === 0 ? 3 : 2,
-            height: i % 3 === 0 ? 3 : 2,
-            filter: 'blur(0.5px)',
-            opacity: 0.15 + (i % 5) * 0.08,
-          }}
-          animate={{ opacity: [0.12, 0.45, 0.12], scale: [1, 1.35, 1] }}
-          transition={{
-            duration: 2.2 + (i % 4) * 0.6,
-            repeat: Infinity,
-            delay: i * 0.15,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
-
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d0618]/20 via-transparent to-[#0a0512]/80" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/55" />
     </div>
+  )
+}
+
+/** Diagonal streaks across the full viewport — ambient bg, not centred on the wheel. */
+function ShootingStarsCanvas({
+  containerRef,
+}: {
+  containerRef?: RefObject<HTMLDivElement>
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const container = containerRef?.current
+    if (!canvas || !container) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const dpr = window.devicePixelRatio || 1
+    let cssW = 0
+    let cssH = 0
+    let raf = 0
+    let lastSpawn = 0
+
+    type Particle = {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      length: number
+      thickness: number
+      alpha: number
+      fadeRate: number
+      color: string
+      glow: string
+    }
+
+    let particles: Particle[] = []
+    const colors = ['#ffffff', '#c4b5fd', '#67e8f9', '#a78bfa']
+    const glows = ['255,255,255', '196,181,253', '103,232,249', '167,139,250']
+
+    const resize = () => {
+      const rect = container.getBoundingClientRect()
+      cssW = rect.width
+      cssH = rect.height
+      canvas.width = cssW * dpr
+      canvas.height = cssH * dpr
+      canvas.style.width = `${cssW}px`
+      canvas.style.height = `${cssH}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    const spawn = () => {
+      const count = 1 + Math.floor(Math.random() * 2)
+      for (let i = 0; i < count; i++) {
+        const idx = Math.floor(Math.random() * colors.length)
+        const angle = ((38 + Math.random() * 22) * Math.PI) / 180
+        const speed = 3.5 + Math.random() * 4.5
+        const bucket = Math.random()
+        const length =
+          bucket < 0.55
+            ? 36 + Math.random() * 40
+            : bucket < 0.85
+              ? 72 + Math.random() * 55
+              : 120 + Math.random() * 70
+        particles.push({
+          x: Math.random() * cssW * 1.15 - cssW * 0.08,
+          y: -40 - Math.random() * cssH * 0.35,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          length,
+          thickness: 1 + Math.random() * 1.8,
+          alpha: 0.22 + Math.random() * 0.32,
+          fadeRate: 0.006 + Math.random() * 0.009,
+          color: colors[idx]!,
+          glow: glows[idx]!,
+        })
+      }
+    }
+
+    const tick = (now: number) => {
+      ctx.clearRect(0, 0, cssW, cssH)
+
+      if (now - lastSpawn > 90) {
+        spawn()
+        lastSpawn = now
+      }
+
+      for (const p of particles) {
+        const mag = Math.hypot(p.vx, p.vy) || 1
+        const nx = p.vx / mag
+        const ny = p.vy / mag
+        const sx = p.x - nx * p.length
+        const sy = p.y - ny * p.length
+        const ex = p.x
+        const ey = p.y
+
+        const grad = ctx.createLinearGradient(sx, sy, ex, ey)
+        grad.addColorStop(0, `rgba(${p.glow}, 0)`)
+        grad.addColorStop(0.55, p.color)
+        grad.addColorStop(1, `rgba(${p.glow}, 0)`)
+
+        ctx.save()
+        ctx.globalAlpha = p.alpha
+        ctx.strokeStyle = grad
+        ctx.lineWidth = p.thickness
+        ctx.lineCap = 'round'
+        ctx.shadowBlur = 5
+        ctx.shadowColor = `rgba(${p.glow}, 0.45)`
+        ctx.beginPath()
+        ctx.moveTo(sx, sy)
+        ctx.lineTo(ex, ey)
+        ctx.stroke()
+        ctx.restore()
+
+        p.x += p.vx
+        p.y += p.vy
+        p.alpha -= p.fadeRate
+      }
+
+      particles = particles.filter(
+        (p) =>
+          p.alpha > 0 &&
+          p.x > -120 &&
+          p.x < cssW + 120 &&
+          p.y > -120 &&
+          p.y < cssH + 120
+      )
+
+      raf = requestAnimationFrame(tick)
+    }
+
+    resize()
+    const ro = new ResizeObserver(resize)
+    ro.observe(container)
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      particles = []
+    }
+  }, [containerRef])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 z-0"
+      aria-hidden
+    />
   )
 }
 
@@ -377,29 +512,14 @@ function IntroTitleOverlay({ phase }: { phase: WheelPhase }) {
       }}
       transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex flex-col items-center text-center">
-        <p
-          className="text-[clamp(1.6rem,6.5vw,2.75rem)] font-black uppercase leading-none tracking-[0.05em]"
-          style={{
-            color: '#7dd3fc',
-            WebkitTextStroke: '2px rgba(15,23,42,0.9)',
-            paintOrder: 'stroke fill',
-            filter: 'drop-shadow(0 0 18px rgba(56,189,248,0.55))',
-          }}
-        >
-          Jackpot
-        </p>
-        <p
-          className="mt-1 text-[clamp(1.75rem,7vw,3rem)] font-black uppercase leading-none tracking-[0.07em]"
-          style={{
-            color: '#e9d5ff',
-            WebkitTextStroke: '2px rgba(15,23,42,0.9)',
-            paintOrder: 'stroke fill',
-            filter: 'drop-shadow(0 0 22px rgba(168,85,247,0.45))',
-          }}
-        >
-          Wheel
-        </p>
+      <div className="relative flex flex-col items-center text-center">
+        <img
+          src="/jackpot/jackpot_wheel_logo.svg"
+          alt="Jackpot Wheel"
+          className="w-[clamp(11rem,42vw,17rem)] max-w-none select-none"
+          draggable={false}
+          style={{ filter: 'drop-shadow(0 0 22px rgba(56,189,248,0.45))' }}
+        />
       </div>
     </motion.div>
   )
@@ -409,37 +529,36 @@ function WheelSvg({
   rotation,
   highlightedIndex,
   phase,
-  hubRevealed,
   wheelSizeClass,
   isMobile = false,
   wheelGroupRef,
-  showHub,
+  wheelSvgRef,
 }: {
   rotation: number
   highlightedIndex: number | null
   phase: WheelPhase
-  hubRevealed: boolean
   wheelSizeClass: string
   isMobile?: boolean
-  wheelGroupRef?: RefObject<SVGGElement | null>
-  showHub: boolean
+  wheelGroupRef?: RefObject<SVGGElement>
+  wheelSvgRef?: RefObject<SVGSVGElement>
 }) {
   const cx = WHEEL_CX
   const cy = WHEEL_CY
   const outerR = 178
-  const innerR = 58
-  const showHighlight = phase === 'spin' || phase === 'landed'
+  // Segments run all the way to the centre so the glass hub (an HTML
+  // backdrop-blur disc rendered on top) has real colour to refract behind it.
+  const segInnerR = 0
+  // Reference radius used purely to keep the tier labels in their usual ring.
+  const labelInnerR = 58
+  const showHighlight = phase === 'spin' || phase === 'landed' || phase === 'wipe'
   // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 170×121.
-  const logoH = isMobile ? 46 : 56
+  const logoH = isMobile ? 64 : 56
   const logoW = (logoH * 170) / 121
   // Logos only belong on the actual reel — hidden on the intro/zoom screens.
-  const showLogos = phase === 'spin' || phase === 'landed'
-  // BetOnline B lettermark in the hub, native viewBox 169.323×128.
-  const hubLogoH = 24
-  const hubLogoW = (hubLogoH * 169.323) / 128
+  const showLogos = phase === 'spin' || phase === 'landed' || phase === 'wipe'
 
   return (
-    <svg viewBox="0 0 400 400" className={cn('max-w-none', wheelSizeClass)}>
+    <svg ref={wheelSvgRef} viewBox="0 0 400 400" className={cn('max-w-none', wheelSizeClass)}>
       <defs>
         <filter id="segGlow" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="6" result="blur" />
@@ -451,12 +570,6 @@ function WheelSvg({
         <filter id="wheelShadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000" floodOpacity="0.55" />
         </filter>
-        <radialGradient id="hubGlow" cx="50%" cy="42%" r="62%">
-          <stop offset="0%" stopColor="#3a3d44" />
-          <stop offset="60%" stopColor="#2a2c31" />
-          <stop offset="100%" stopColor="#191a1d" />
-        </radialGradient>
-
         <linearGradient id="rimGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.35" />
           <stop offset="18%" stopColor="#67e8f9" stopOpacity="1" />
@@ -464,14 +577,6 @@ function WheelSvg({
           <stop offset="58%" stopColor="#34d399" stopOpacity="1" />
           <stop offset="78%" stopColor="#38bdf8" stopOpacity="1" />
           <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.35" />
-          <animateTransform
-            attributeName="gradientTransform"
-            type="rotate"
-            from="0 0.5 0.5"
-            to="360 0.5 0.5"
-            dur="3.5s"
-            repeatCount="indefinite"
-          />
         </linearGradient>
 
         <linearGradient id="rimGradientAlt" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -479,14 +584,6 @@ function WheelSvg({
           <stop offset="40%" stopColor="#a5f3fc" stopOpacity="0.85" />
           <stop offset="70%" stopColor="#f0abfc" stopOpacity="0.75" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0.12" />
-          <animateTransform
-            attributeName="gradientTransform"
-            type="rotate"
-            from="360 0.5 0.5"
-            to="0 0.5 0.5"
-            dur="5s"
-            repeatCount="indefinite"
-          />
         </linearGradient>
 
         {/* Subtle glossy top crescent — light, so it never washes colours to pastel */}
@@ -560,16 +657,7 @@ function WheelSvg({
           strokeDasharray="10 18 6 22"
           strokeLinecap="round"
           opacity="0.75"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from={`0 ${cx} ${cy}`}
-            to={`360 ${cx} ${cy}`}
-            dur="8s"
-            repeatCount="indefinite"
-          />
-        </circle>
+        />
         <circle
           cx={cx}
           cy={cy}
@@ -588,16 +676,16 @@ function WheelSvg({
             const start = seg.index * SEGMENT_ANGLE - 90
             const end = start + SEGMENT_ANGLE
             const midAngle = start + SEGMENT_ANGLE / 2
-            const label = segmentLabelPosition(cx, cy, innerR, outerR, midAngle)
+            const label = segmentLabelPosition(cx, cy, labelInnerR, outerR, midAngle)
             const isUnderPointer =
               showHighlight && highlightedIndex != null && highlightedIndex === seg.index
-            const isWinner = phase === 'landed' && isUnderPointer
-            const segmentPath = describeSegment(cx, cy, outerR, innerR, start, end)
+            const isWinner = (phase === 'landed' || phase === 'wipe') && isUnderPointer
+            const segmentPath = describeSegment(cx, cy, outerR, segInnerR, start, end)
             const fillId = `segGrad-${seg.tier.id}-${seg.shade % 2}`
             const neon = SEGMENT_PALETTE[seg.tier.id].neon
 
             return (
-              <g key={seg.index}>
+              <g key={seg.index} data-seg={seg.index} data-neon={neon}>
                 {/* Vivid, fully-saturated base slice */}
                 <path
                   d={segmentPath}
@@ -606,78 +694,31 @@ function WheelSvg({
                   strokeWidth="2"
                   strokeLinejoin="round"
                 />
-                {/* Mute every slice that ISN'T under the pointer so the lit one
-                    reads as a bright moving spotlight as the wheel turns. */}
-                {showHighlight && !isUnderPointer && (
+                {showHighlight && (
                   <path
+                    className="seg-mute"
                     d={segmentPath}
                     fill="#05010a"
                     fillOpacity="0.46"
                     stroke="none"
+                    opacity={isUnderPointer ? 0 : 0.46}
                   />
                 )}
-                {/* Polished light-up: a clean sheen bloom from the rim for the
-                    slice under the pointer. */}
-                {isUnderPointer && (
-                  <path
-                    d={segmentPath}
-                    fill="url(#litSheen)"
-                    stroke="none"
-                    opacity={isWinner ? undefined : 1}
-                  >
-                    {isWinner && (
-                      <animate
-                        attributeName="opacity"
-                        values="0.55;1;0.55"
-                        dur="0.42s"
-                        repeatCount="indefinite"
-                      />
-                    )}
-                  </path>
-                )}
-                {/* Winner flash — bright pulse on the final segment after stop. */}
-                {isWinner && (
-                  <>
-                    <path d={segmentPath} fill="#ffffff" stroke="none" opacity="0">
-                      <animate
-                        attributeName="opacity"
-                        values="0.15;0.55;0.15"
-                        dur="0.42s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
-                    <path
-                      d={segmentPath}
-                      fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="4"
-                      strokeLinejoin="round"
-                      opacity="0.6"
-                    >
-                      <animate
-                        attributeName="opacity"
-                        values="0.35;1;0.35"
-                        dur="0.42s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
-                  </>
-                )}
-                {/* Neon edge outline (FanDuel-style glowing slice borders).
-                    Painted last so the lit slice keeps a crisp bright edge. */}
+                {/* Neon resting edge — stays neon; the bright white lit edge is
+                    drawn in the overlay pass below so it sits ON TOP of neighbours. */}
                 <path
                   d={segmentPath}
                   fill="none"
-                  stroke={isUnderPointer ? '#ffffff' : neon}
-                  strokeOpacity={isUnderPointer ? 0.95 : 0.55}
-                  strokeWidth={isWinner ? 4 : isUnderPointer ? 3 : 1.4}
+                  stroke={neon}
+                  strokeOpacity="0.55"
+                  strokeWidth="1.4"
                   strokeLinejoin="round"
-                  filter={isUnderPointer && !isMobile ? 'url(#litGlow)' : undefined}
                 />
                 {/* Tier wordmark logo — oriented radially so the winning slice
                     reads upright at the top pointer when it lands. */}
                 {showLogos && (
                   <image
+                    className="seg-logo"
                     href={`/jackpot/${seg.tier.id}_reel.svg`}
                     x={label.x - logoW / 2}
                     y={label.y - logoH / 2}
@@ -696,6 +737,58 @@ function WheelSvg({
               </g>
             )
           })}
+
+          {/* Overlay pass — lit sheen + bright white edge for the active slice,
+              drawn after every base slice so the highlight is never clipped by
+              the neighbouring segments. */}
+          {showHighlight &&
+            WHEEL_SEGMENTS.map((seg) => {
+              const start = seg.index * SEGMENT_ANGLE - 90
+              const end = start + SEGMENT_ANGLE
+              const isUnderPointer =
+                highlightedIndex != null && highlightedIndex === seg.index
+              const isWinner = (phase === 'landed' || phase === 'wipe') && isUnderPointer
+              const segmentPath = describeSegment(cx, cy, outerR, segInnerR, start, end)
+              return (
+                <g key={`top-${seg.index}`} data-seg-top={seg.index}>
+                  <path
+                    className="seg-sheen"
+                    d={segmentPath}
+                    fill="url(#litSheen)"
+                    stroke="none"
+                    opacity={isUnderPointer ? 1 : 0}
+                  />
+                  {isWinner && (
+                    <path
+                      className="seg-winner-fill jackpot-winner-fill"
+                      d={segmentPath}
+                      fill="#ffffff"
+                      stroke="none"
+                    />
+                  )}
+                  <path
+                    className="seg-edge-top"
+                    d={segmentPath}
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeOpacity={isUnderPointer ? 0.95 : 0}
+                    strokeWidth={isWinner ? 4 : 3}
+                    strokeLinejoin="round"
+                    filter={isUnderPointer && !isMobile ? 'url(#litGlow)' : undefined}
+                  />
+                  {isWinner && (
+                    <path
+                      className="seg-winner-edge jackpot-winner-edge"
+                      d={segmentPath}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="4"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                </g>
+              )
+            })}
         </g>
 
         {/* Unified glossy sheen — fixed light from the top, doesn't rotate */}
@@ -708,32 +801,6 @@ function WheelSvg({
           style={{ pointerEvents: 'none' }}
         />
 
-        {showHub && (
-        <g opacity={hubRevealed ? 1 : 0} style={{ transition: 'opacity 0.7s ease 0.2s' }}>
-          <circle cx={cx} cy={cy} r={innerR + 5} fill="#101113" stroke="rgba(255,255,255,0.1)" />
-          <circle
-            cx={cx}
-            cy={cy}
-            r={innerR - 4}
-            fill="url(#hubGlow)"
-            stroke="rgba(255,255,255,0.08)"
-          />
-          {/* Brand the hub with the BetOnline B lettermark. The lettermark's
-              swoosh extends left of the B, so the glyph sits right of the box
-              centre — nudge left so the B reads visually centred. */}
-          <image
-            href="/logos/BetOnline/lettermark/primary.svg"
-            x={cx - hubLogoW / 2 - hubLogoW * 0.16}
-            y={cy - hubLogoH / 2}
-            width={hubLogoW}
-            height={hubLogoH}
-            style={{
-              pointerEvents: 'none',
-              filter: 'drop-shadow(0 0 7px rgba(238,53,54,0.55))',
-            }}
-          />
-        </g>
-        )}
       </g>
     </svg>
   )
@@ -741,12 +808,15 @@ function WheelSvg({
 
 export interface JackpotWheelBonusProps {
   onComplete: (tier: JackpotTickerTierId) => void
+  /** Fired when the wipe begins — mount the win overlay underneath before the wheel peels away. */
+  onWipeStart?: (tier: JackpotTickerTierId) => void
   winTier?: JackpotTickerTierId
   className?: string
 }
 
 export function JackpotWheelBonus({
   onComplete,
+  onWipeStart,
   winTier: winTierProp,
   className,
 }: JackpotWheelBonusProps) {
@@ -754,14 +824,21 @@ export function JackpotWheelBonus({
   const [rotation, setRotation] = useState(0)
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
   const [pointerActive, setPointerActive] = useState(false)
-  // Camera push-in on the top pointer zone as the wheel slows to a crawl.
-  const [closingIn, setClosingIn] = useState(false)
   const completedRef = useRef(false)
   const spinRafRef = useRef<number | null>(null)
   const finishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastLitIndexRef = useRef<number | null>(null)
   const wheelGroupRef = useRef<SVGGElement>(null)
+  const wheelSvgRef = useRef<SVGSVGElement>(null)
+  const hubImageRef = useRef<HTMLImageElement>(null)
+  const bgContainerRef = useRef<HTMLDivElement>(null)
   const closingInStartedRef = useRef(false)
+  const isMobile = useIsMobile()
+  const layout = isMobile ? MOBILE_WHEEL_LAYOUT : DESKTOP_WHEEL_LAYOUT
+  const wheelScaleMV = useMotionValue<number>(layout.introScale)
+  const wheelYMV = useMotionValue<string>(layout.introY)
+  const layoutRef = useRef(layout)
+  layoutRef.current = layout
 
   const applyWheelRotation = useCallback((deg: number) => {
     wheelGroupRef.current?.setAttribute(
@@ -787,6 +864,13 @@ export function JackpotWheelBonus({
   }, [onComplete, winTier])
 
   useEffect(() => {
+    if (phase !== 'zoom') return
+    const l = layoutRef.current
+    animate(wheelScaleMV, l.zoomScale, { duration: 1, ease: [0.22, 1, 0.36, 1] })
+    animate(wheelYMV, l.zoomY, { duration: 1, ease: [0.22, 1, 0.36, 1] })
+  }, [phase, wheelScaleMV, wheelYMV])
+
+  useEffect(() => {
     preloadWheelHighlightTicks()
     playSound('jackpot-intro', { volume: 0.85 })
     playJackpotBgMusic({ volume: 0.38 })
@@ -794,6 +878,7 @@ export function JackpotWheelBonus({
     const introTimer = setTimeout(() => {
       setPhase('zoom')
       setPointerActive(true)
+      setHighlightedIndex(segmentAtPointer(0))
     }, 2400)
     const zoomTimer = setTimeout(() => setPhase('spin'), 3300)
 
@@ -821,6 +906,13 @@ export function JackpotWheelBonus({
     const startTime = performance.now()
     lastLitIndexRef.current = segmentAtPointer(startRotation)
     applyWheelRotation(startRotation)
+    applyWheelSegmentHighlight(
+      wheelSvgRef.current,
+      null,
+      lastLitIndexRef.current,
+      isMobile
+    )
+    applyHubTierLogo(hubImageRef.current, lastLitIndexRef.current)
 
     // Tick the instant a new segment lights up — computed from the same value
     // that drives the highlight, in the same frame, so sound + light are locked.
@@ -848,10 +940,15 @@ export function JackpotWheelBonus({
       const t = Math.min(1, (now - startTime) / SPIN_DURATION_MS)
       const current = startRotation + totalTravel * spinEase(t)
 
-      // Start the slow camera push-in once we're into the decel tail.
+      // Slow camera push-in once we're into the decel tail.
       if (t >= CLOSE_IN_AT && !closingInStartedRef.current) {
         closingInStartedRef.current = true
-        setClosingIn(true)
+        const l = layoutRef.current
+        animate(wheelScaleMV, l.closeScale, {
+          duration: 4.6,
+          ease: [0.33, 0, 0.15, 1],
+        })
+        animate(wheelYMV, l.closeY, { duration: 4.6, ease: [0.33, 0, 0.15, 1] })
       }
 
       // Drive rotation via DOM ref — avoids 60fps React re-renders of the heavy
@@ -862,8 +959,10 @@ export function JackpotWheelBonus({
 
       // Same gate as the visual light-up → the click fires exactly with it.
       if (litIndex !== lastLitIndexRef.current) {
+        const prev = lastLitIndexRef.current
         lastLitIndexRef.current = litIndex
-        setHighlightedIndex(litIndex)
+        applyWheelSegmentHighlight(wheelSvgRef.current, prev, litIndex, isMobile)
+        applyHubTierLogo(hubImageRef.current, litIndex)
         const segmentsRemaining = Math.max(
           0,
           Math.round((targetRotation - current) / SEGMENT_ANGLE)
@@ -885,8 +984,12 @@ export function JackpotWheelBonus({
       setHighlightedIndex(winningSegmentIndex)
       setPhase('landed')
       playSound('final-selection-win', { volume: 0.95 })
-      // Stored in a ref so the phase-change cleanup below can't cancel it.
-      finishTimerRef.current = setTimeout(finish, 1600)
+      // Hold on the winner, then wipe away to reveal the jackpot win screen below.
+      finishTimerRef.current = setTimeout(() => {
+        setPhase('wipe')
+        onWipeStart?.(winTier)
+        finishTimerRef.current = setTimeout(finish, WIPE_DURATION_MS)
+      }, LANDED_HOLD_MS)
     }
 
     spinRafRef.current = requestAnimationFrame(tick)
@@ -897,34 +1000,39 @@ export function JackpotWheelBonus({
   }, [phase, winningSegmentIndex, applyWheelRotation])
 
   const zoomed = phase !== 'intro'
-  const showPointer = phase === 'zoom' || phase === 'spin' || phase === 'landed'
+  const showPointer = phase === 'zoom' || phase === 'spin' || phase === 'landed' || phase === 'wipe'
   const hubRevealed = phase !== 'intro'
-  const isMobile = useIsMobile()
-  const layout = isMobile ? MOBILE_WHEEL_LAYOUT : DESKTOP_WHEEL_LAYOUT
-  // Desktop: hub always rendered (opacity via hubRevealed). Mobile: hide hub entirely.
-  const showHub = !isMobile
-  const wheelScale = closingIn
-    ? layout.closeScale
-    : zoomed
-      ? layout.zoomScale
-      : layout.introScale
-  const wheelY = closingIn ? layout.closeY : zoomed ? layout.zoomY : layout.introY
+  // Hub (with the live tier reel logo) is shown on both desktop and mobile.
+  const hubTier =
+    highlightedIndex != null ? WHEEL_SEGMENTS[highlightedIndex]?.tier ?? null : null
+  const hubAccent = hubTier?.accent ?? '#ffffff'
+  const hubLanded = phase === 'landed' || phase === 'wipe'
   // FanDuel mobile: pin wheel centre to the bottom edge so only the top half is visible.
   const mobileHalfWheel = isMobile && zoomed
 
   return (
-    <div
+    <motion.div
       className={cn(
         'absolute inset-0 z-[100010] overflow-hidden',
         isMobile ? 'rounded-none' : 'rounded-2xl',
         className
       )}
+      initial={false}
+      animate={{
+        clipPath:
+          phase === 'wipe' ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0)',
+      }}
+      transition={{
+        duration: phase === 'wipe' ? WIPE_DURATION_MS / 1000 : 0,
+        ease: [0.45, 0, 0.15, 1],
+      }}
+      style={{ willChange: phase === 'wipe' ? 'clip-path' : undefined }}
     >
-      <FanDuelBackground phase={phase} isMobile={isMobile} />
+      <FanDuelBackground phase={phase} isMobile={isMobile} containerRef={bgContainerRef} />
 
       <div
         className={cn(
-          'absolute inset-0 overflow-hidden',
+          'absolute inset-0 z-10 overflow-hidden',
           !mobileHalfWheel && 'flex items-center justify-center'
         )}
       >
@@ -933,18 +1041,12 @@ export function JackpotWheelBonus({
             'relative flex items-center justify-center',
             mobileHalfWheel && 'absolute bottom-0 left-1/2'
           )}
-          initial={false}
-          animate={
-            mobileHalfWheel
-              ? { scale: wheelScale, x: '-50%', y: wheelY }
-              : { scale: wheelScale, y: wheelY }
-          }
-          transition={
-            closingIn
-              ? { duration: 4.6, ease: [0.33, 0, 0.15, 1] }
-              : { duration: 1, ease: [0.22, 1, 0.36, 1] }
-          }
-          style={mobileHalfWheel ? { transformOrigin: '50% 50%' } : undefined}
+          style={{
+            scale: wheelScaleMV,
+            y: wheelYMV,
+            x: mobileHalfWheel ? '-50%' : 0,
+            transformOrigin: mobileHalfWheel ? '50% 50%' : undefined,
+          }}
         >
           {showPointer && (
             <WheelPointer
@@ -958,12 +1060,72 @@ export function JackpotWheelBonus({
             rotation={rotation}
             highlightedIndex={highlightedIndex}
             phase={phase}
-            hubRevealed={hubRevealed}
             wheelSizeClass={layout.wheelSizeClass}
             isMobile={isMobile}
             wheelGroupRef={wheelGroupRef}
-            showHub={showHub}
+            wheelSvgRef={wheelSvgRef}
           />
+
+          {/* Real glass hub — a frosted disc that blurs the wheel segments behind it */}
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[6] -translate-x-1/2 -translate-y-1/2"
+            style={{
+              width: '31.5%',
+              aspectRatio: '1 / 1',
+              opacity: hubRevealed ? 1 : 0,
+              transition: 'opacity 0.7s ease 0.2s',
+            }}
+          >
+            {/* Frosted disc: mostly-dark glass with a hint of the slices blurred behind */}
+            <div
+              className="absolute inset-0 overflow-hidden rounded-full"
+              style={{
+                backdropFilter: 'blur(9px) saturate(1.15) brightness(0.8)',
+                WebkitBackdropFilter: 'blur(9px) saturate(1.15) brightness(0.8)',
+                background:
+                  'linear-gradient(160deg, rgba(18,21,29,0.78) 0%, rgba(7,9,13,0.9) 100%)',
+                boxShadow:
+                  'inset 0 1px 1px rgba(255,255,255,0.32), inset 0 -12px 26px rgba(0,0,0,0.45), 0 6px 18px rgba(0,0,0,0.5)',
+              }}
+            >
+              {/* Soft top reflection on the glass surface */}
+              <div
+                className="absolute inset-x-0 top-0 h-1/2"
+                style={{
+                  background:
+                    'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 100%)',
+                }}
+              />
+            </div>
+            {/* Winner ring flash once the wheel has landed */}
+            {hubLanded && hubTier && (
+              <div
+                className="jackpot-hub-ring absolute inset-[2%] rounded-full"
+                style={{ border: `2.5px solid ${hubAccent}` }}
+              />
+            )}
+            {/* Live tier reel logo, crisp on top of the glass */}
+            {hubTier && (
+              <img
+                ref={hubImageRef}
+                src={`/jackpot/${hubTier.id}_reel.svg`}
+                alt=""
+                draggable={false}
+                className="absolute left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 select-none"
+                style={{
+                  // On mobile the hub centre sits on the bottom edge (half-wheel),
+                  // so lift the logo into the visible top arc instead of the centre.
+                  top: isMobile ? '34%' : '50%',
+                  width: hubLanded ? '64%' : '57%',
+                  opacity: hubLanded ? 1 : 0.9,
+                  transition: 'width 0.3s ease, opacity 0.3s ease',
+                  filter: hubLanded
+                    ? `drop-shadow(0 0 12px ${hubAccent}cc) brightness(1.12)`
+                    : 'brightness(1.06)',
+                }}
+              />
+            )}
+          </div>
 
           {(phase === 'intro' || phase === 'zoom') && <IntroTitleOverlay phase={phase} />}
 
@@ -980,28 +1142,34 @@ export function JackpotWheelBonus({
       </div>
 
       <AnimatePresence>
-        {phase === 'landed' && highlightedIndex != null && (
+        {(phase === 'landed' || phase === 'wipe') && highlightedIndex != null && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.92 }}
+            initial={{ opacity: 0, y: 28, scale: 0.82 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 380,
+              damping: 26,
+              delay: 0.12,
+            }}
             className="pointer-events-none absolute inset-x-0 bottom-[10%] z-20 flex justify-center px-4"
           >
             <div
-              className="rounded-2xl border px-6 py-3 text-center backdrop-blur-xl"
+              className="rounded-2xl border px-7 py-4 text-center backdrop-blur-xl"
               style={{
-                borderColor: `${WHEEL_SEGMENTS[highlightedIndex].tier.accent}66`,
-                backgroundColor: 'rgba(12,6,24,0.72)',
-                boxShadow: `0 0 40px ${WHEEL_SEGMENTS[highlightedIndex].tier.accent}44, 0 8px 32px rgba(0,0,0,0.45)`,
+                borderColor: `${WHEEL_SEGMENTS[highlightedIndex].tier.accent}aa`,
+                backgroundColor: 'rgba(8,4,16,0.94)',
+                boxShadow: `0 0 48px ${WHEEL_SEGMENTS[highlightedIndex].tier.accent}66, 0 12px 40px rgba(0,0,0,0.55)`,
               }}
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/85">
                 You won
               </p>
               <p
                 className="text-2xl font-bold tracking-wide"
                 style={{
                   color: WHEEL_SEGMENTS[highlightedIndex].tier.accent,
-                  textShadow: `0 0 24px ${WHEEL_SEGMENTS[highlightedIndex].tier.accent}66`,
+                  textShadow: `0 0 28px ${WHEEL_SEGMENTS[highlightedIndex].tier.accent}88`,
                 }}
               >
                 {WHEEL_SEGMENTS[highlightedIndex].tier.label} Jackpot
@@ -1011,20 +1179,24 @@ export function JackpotWheelBonus({
         )}
       </AnimatePresence>
 
-      {/* Transition flash — holds, then blooms to white right as the wheel
-          hands off to the jackpot win animation, masking the swap. */}
-      {phase === 'landed' && (
+      {/* Wipe leading edge — soft light sweep, not a colour flash */}
+      {phase === 'wipe' && (
         <motion.div
-          className="pointer-events-none absolute inset-0 z-[100020]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0, 1] }}
-          transition={{ duration: 1.6, times: [0, 0.72, 1], ease: 'easeIn' }}
+          className="pointer-events-none absolute inset-y-0 z-[100030] w-[3px]"
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, #ffffff 0%, #fde68a 45%, #fbbf24 100%)',
+              'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.85) 50%, transparent 100%)',
+            boxShadow:
+              '0 0 28px 10px rgba(167,139,250,0.35), 0 0 56px 18px rgba(255,255,255,0.08)',
+          }}
+          initial={{ left: '0%' }}
+          animate={{ left: '100%' }}
+          transition={{
+            duration: WIPE_DURATION_MS / 1000,
+            ease: [0.45, 0, 0.15, 1],
           }}
         />
       )}
-    </div>
+    </motion.div>
   )
 }
