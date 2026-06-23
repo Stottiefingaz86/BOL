@@ -591,6 +591,7 @@ function WheelSvg({
             const label = segmentLabelPosition(cx, cy, innerR, outerR, midAngle)
             const isUnderPointer =
               showHighlight && highlightedIndex != null && highlightedIndex === seg.index
+            const isWinner = phase === 'landed' && isUnderPointer
             const segmentPath = describeSegment(cx, cy, outerR, innerR, start, end)
             const fillId = `segGrad-${seg.tier.id}-${seg.shade % 2}`
             const neon = SEGMENT_PALETTE[seg.tier.id].neon
@@ -622,7 +623,45 @@ function WheelSvg({
                     d={segmentPath}
                     fill="url(#litSheen)"
                     stroke="none"
-                  />
+                    opacity={isWinner ? undefined : 1}
+                  >
+                    {isWinner && (
+                      <animate
+                        attributeName="opacity"
+                        values="0.55;1;0.55"
+                        dur="0.42s"
+                        repeatCount="indefinite"
+                      />
+                    )}
+                  </path>
+                )}
+                {/* Winner flash — bright pulse on the final segment after stop. */}
+                {isWinner && (
+                  <>
+                    <path d={segmentPath} fill="#ffffff" stroke="none" opacity="0">
+                      <animate
+                        attributeName="opacity"
+                        values="0.15;0.55;0.15"
+                        dur="0.42s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                    <path
+                      d={segmentPath}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="4"
+                      strokeLinejoin="round"
+                      opacity="0.6"
+                    >
+                      <animate
+                        attributeName="opacity"
+                        values="0.35;1;0.35"
+                        dur="0.42s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                  </>
                 )}
                 {/* Neon edge outline (FanDuel-style glowing slice borders).
                     Painted last so the lit slice keeps a crisp bright edge. */}
@@ -631,7 +670,7 @@ function WheelSvg({
                   fill="none"
                   stroke={isUnderPointer ? '#ffffff' : neon}
                   strokeOpacity={isUnderPointer ? 0.95 : 0.55}
-                  strokeWidth={isUnderPointer ? 3 : 1.4}
+                  strokeWidth={isWinner ? 4 : isUnderPointer ? 3 : 1.4}
                   strokeLinejoin="round"
                   filter={isUnderPointer && !isMobile ? 'url(#litGlow)' : undefined}
                 />
@@ -845,7 +884,7 @@ export function JackpotWheelBonus({
       }
       setHighlightedIndex(winningSegmentIndex)
       setPhase('landed')
-      playSound('jackpot-final-segment', { volume: 0.95 })
+      playSound('final-selection-win', { volume: 0.95 })
       // Stored in a ref so the phase-change cleanup below can't cancel it.
       finishTimerRef.current = setTimeout(finish, 1600)
     }

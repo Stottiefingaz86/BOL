@@ -19,6 +19,7 @@ export type SoundName =
   | 'jackpot-numbers'
   | 'jackpot-intro'
   | 'jackpot-final-segment'
+  | 'final-selection-win'
   | 'highlight'
 
 const FILE_MAP: Record<SoundName, string> = {
@@ -30,6 +31,7 @@ const FILE_MAP: Record<SoundName, string> = {
   'jackpot-numbers': 'jackpot%20animation_numbers.mp3',
   'jackpot-intro': 'jackpot%20first%20screen.wav',
   'jackpot-final-segment': 'finalsegment.wav',
+  'final-selection-win': 'final%20selection%20win.mp3',
   highlight: 'highlight.mp3',
 }
 
@@ -109,7 +111,9 @@ export function playSound(
           ? 0.68
           : name === 'highlight'
             ? 0.5
-            : 0.5
+            : name === 'final-selection-win'
+              ? 0.9
+              : 0.5
   const audio = getAudio(name, options.volume ?? defaultVolume)
   if (!audio) return null
   audio.loop = options.loop ?? false
