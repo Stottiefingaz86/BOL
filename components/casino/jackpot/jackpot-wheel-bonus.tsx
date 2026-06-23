@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   JACKPOT_TICKER_TIERS,
   type JackpotTickerTierConfig,
   type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { playJackpotBgMusic, playSound, playWheelHighlightTick, preloadWheelHighlightTicks, setJackpotBgVolume } from '@/lib/sounds'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +21,34 @@ const EXTRA_SPINS = 4
 const EXCITE_SEGMENTS = 9
 /** Spin progress at which the camera begins pushing in on the top pointer zone. */
 const CLOSE_IN_AT = 0.6
+
+/** Desktop zoom pushes into the top arc; mobile uses much lower scale so the
+    wheel stays inside the viewport instead of clipping off-screen. */
+const DESKTOP_WHEEL_LAYOUT = {
+  introScale: 0.82,
+  zoomScale: 2.75,
+  closeScale: 3.1,
+  introY: '0%',
+  zoomY: '40%',
+  closeY: '46%',
+  wheelSizeClass: 'h-[min(92vw,420px)] w-[min(92vw,420px)]',
+  pointerClass: 'h-[72px] w-[80px]',
+} as const
+
+const MOBILE_WHEEL_LAYOUT = {
+  introScale: 0.72,
+  // FanDuel-style: wheel centre sits on the bottom edge, only the top arc shows.
+  zoomScale: 3,
+  closeScale: 3.15,
+  introY: '0%',
+  zoomY: '50%',
+  closeY: '50%',
+  wheelSizeClass: 'h-[min(100vw,420px)] w-[min(100vw,420px)]',
+  pointerClass: 'h-[58px] w-[64px]',
+} as const
+
+const WHEEL_CX = 200
+const WHEEL_CY = 200
 
 /** Vivid, saturated FanDuel-style palette per tier (no pastels). */
 const SEGMENT_PALETTE: Record<
@@ -168,8 +197,10 @@ function describeSegment(
   ].join(' ')
 }
 
-function FanDuelBackground({ phase }: { phase: WheelPhase }) {
+function FanDuelBackground({ phase, isMobile }: { phase: WheelPhase; isMobile: boolean }) {
   const spinning = phase === 'spin' || phase === 'landed'
+  const sparkleCount = isMobile ? 8 : 24
+  const rayCount = isMobile ? 8 : 16
 
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -177,7 +208,10 @@ function FanDuelBackground({ phase }: { phase: WheelPhase }) {
 
       {/* Soft colour orbs */}
       <div
-        className="absolute left-1/2 top-[42%] h-[70%] w-[90%] -translate-x-1/2 rounded-full opacity-80 blur-[80px]"
+        className={cn(
+          'absolute left-1/2 top-[42%] -translate-x-1/2 rounded-full opacity-80',
+          isMobile ? 'h-[55%] w-[75%] blur-[48px]' : 'h-[70%] w-[90%] blur-[80px]'
+        )}
         style={{
           background:
             'radial-gradient(circle, rgba(56,189,248,0.45) 0%, rgba(109,40,217,0.35) 42%, transparent 72%)',
@@ -214,12 +248,14 @@ function FanDuelBackground({ phase }: { phase: WheelPhase }) {
       />
 
       {/* Light rays */}
-      {[...Array(16)].map((_, i) => (
+      {[...Array(rayCount)].map((_, i) => (
         <div
           key={i}
-          className="absolute left-1/2 top-[46%] h-[85%] w-[3px] origin-top -translate-x-1/2 opacity-[0.14]"
+          className="absolute left-1/2 top-[46%] origin-top -translate-x-1/2 opacity-[0.14]"
           style={{
-            transform: `translateX(-50%) rotate(${i * 22.5}deg)`,
+            height: isMobile ? '70%' : '85%',
+            width: isMobile ? '2px' : '3px',
+            transform: `translateX(-50%) rotate(${(360 / rayCount) * i}deg)`,
             background:
               'linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(167,139,250,0.15) 45%, transparent)',
           }}
@@ -236,7 +272,7 @@ function FanDuelBackground({ phase }: { phase: WheelPhase }) {
       />
 
       {/* Sparkles */}
-      {[...Array(24)].map((_, i) => (
+      {[...Array(sparkleCount)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full bg-white"
@@ -263,7 +299,7 @@ function FanDuelBackground({ phase }: { phase: WheelPhase }) {
   )
 }
 
-function WheelPointer({ active }: { active: boolean }) {
+function WheelPointer({ active, pointerClass }: { active: boolean; pointerClass: string }) {
   return (
     <div className="pointer-events-none absolute left-1/2 top-0 z-40 -translate-x-1/2 -translate-y-1">
       <motion.div
@@ -281,7 +317,7 @@ function WheelPointer({ active }: { active: boolean }) {
 
       <svg
         viewBox="0 0 80 72"
-        className="relative h-[72px] w-[80px] drop-shadow-[0_8px_18px_rgba(0,0,0,0.7)]"
+        className={cn('relative drop-shadow-[0_8px_18px_rgba(0,0,0,0.7)]', pointerClass)}
         aria-hidden
       >
         <defs>
@@ -299,8 +335,6 @@ function WheelPointer({ active }: { active: boolean }) {
             <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#ee3536" floodOpacity="0.55" />
           </filter>
         </defs>
-        {/* Pin housing at top */}
-        <rect x="30" y="4" width="20" height="10" rx="3" fill="#1c1c1f" stroke="#000000" strokeWidth="1" />
         {/* Flapper — apex points DOWN into the wheel (black bezel) */}
         <polygon
           points="40,66 12,16 68,16"
@@ -365,19 +399,27 @@ function WheelSvg({
   highlightedIndex,
   phase,
   hubRevealed,
+  wheelSizeClass,
+  isMobile = false,
+  wheelGroupRef,
+  showHub,
 }: {
   rotation: number
   highlightedIndex: number | null
   phase: WheelPhase
   hubRevealed: boolean
+  wheelSizeClass: string
+  isMobile?: boolean
+  wheelGroupRef?: RefObject<SVGGElement | null>
+  showHub: boolean
 }) {
-  const cx = 200
-  const cy = 200
+  const cx = WHEEL_CX
+  const cy = WHEEL_CY
   const outerR = 178
   const innerR = 58
   const showHighlight = phase === 'spin' || phase === 'landed'
   // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 170×121.
-  const logoH = 56
+  const logoH = isMobile ? 46 : 56
   const logoW = (logoH * 170) / 121
   // Logos only belong on the actual reel — hidden on the intro/zoom screens.
   const showLogos = phase === 'spin' || phase === 'landed'
@@ -386,7 +428,7 @@ function WheelSvg({
   const hubLogoW = (hubLogoH * 169.323) / 128
 
   return (
-    <svg viewBox="0 0 400 400" className="h-[min(92vw,420px)] w-[min(92vw,420px)] max-w-none">
+    <svg viewBox="0 0 400 400" className={cn('max-w-none', wheelSizeClass)}>
       <defs>
         <filter id="segGlow" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="6" result="blur" />
@@ -483,7 +525,7 @@ function WheelSvg({
         })}
       </defs>
 
-      <g filter="url(#wheelShadow)">
+      <g filter={isMobile ? undefined : 'url(#wheelShadow)'}>
         <circle cx={cx} cy={cy} r={outerR + 12} fill="#0c0616" />
 
         {/* Animated outer rim */}
@@ -526,7 +568,11 @@ function WheelSvg({
           strokeWidth="1.5"
         />
 
-        <g transform={`rotate(${rotation} ${cx} ${cy})`}>
+        <g
+          ref={wheelGroupRef}
+          transform={`rotate(${rotation} ${cx} ${cy})`}
+          style={{ willChange: 'transform' }}
+        >
           {WHEEL_SEGMENTS.map((seg) => {
             const start = seg.index * SEGMENT_ANGLE - 90
             const end = start + SEGMENT_ANGLE
@@ -576,7 +622,7 @@ function WheelSvg({
                   strokeOpacity={isUnderPointer ? 0.95 : 0.55}
                   strokeWidth={isUnderPointer ? 3 : 1.4}
                   strokeLinejoin="round"
-                  filter={isUnderPointer ? 'url(#litGlow)' : undefined}
+                  filter={isUnderPointer && !isMobile ? 'url(#litGlow)' : undefined}
                 />
                 {/* Tier wordmark logo — oriented radially so the winning slice
                     reads upright at the top pointer when it lands. */}
@@ -612,6 +658,7 @@ function WheelSvg({
           style={{ pointerEvents: 'none' }}
         />
 
+        {showHub && (
         <g opacity={hubRevealed ? 1 : 0} style={{ transition: 'opacity 0.7s ease 0.2s' }}>
           <circle cx={cx} cy={cy} r={innerR + 5} fill="#101113" stroke="rgba(255,255,255,0.1)" />
           <circle
@@ -636,6 +683,7 @@ function WheelSvg({
             }}
           />
         </g>
+        )}
       </g>
     </svg>
   )
@@ -662,6 +710,15 @@ export function JackpotWheelBonus({
   const spinRafRef = useRef<number | null>(null)
   const finishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastLitIndexRef = useRef<number | null>(null)
+  const wheelGroupRef = useRef<SVGGElement>(null)
+  const closingInStartedRef = useRef(false)
+
+  const applyWheelRotation = useCallback((deg: number) => {
+    wheelGroupRef.current?.setAttribute(
+      'transform',
+      `rotate(${deg} ${WHEEL_CX} ${WHEEL_CY})`
+    )
+  }, [])
 
   const winTier = useMemo(() => winTierProp ?? pickWinTier(), [winTierProp])
 
@@ -703,6 +760,8 @@ export function JackpotWheelBonus({
   useEffect(() => {
     if (phase !== 'spin') return
 
+    closingInStartedRef.current = false
+
     // Gentle, steady duck so the ticks cut through — never raised again.
     setJackpotBgVolume(0.28)
 
@@ -711,6 +770,7 @@ export function JackpotWheelBonus({
     const totalTravel = targetRotation - startRotation
     const startTime = performance.now()
     lastLitIndexRef.current = segmentAtPointer(startRotation)
+    applyWheelRotation(startRotation)
 
     // Tick the instant a new segment lights up — computed from the same value
     // that drives the highlight, in the same frame, so sound + light are locked.
@@ -739,16 +799,21 @@ export function JackpotWheelBonus({
       const current = startRotation + totalTravel * spinEase(t)
 
       // Start the slow camera push-in once we're into the decel tail.
-      if (t >= CLOSE_IN_AT) setClosingIn(true)
+      if (t >= CLOSE_IN_AT && !closingInStartedRef.current) {
+        closingInStartedRef.current = true
+        setClosingIn(true)
+      }
+
+      // Drive rotation via DOM ref — avoids 60fps React re-renders of the heavy
+      // SVG which freezes real mobile devices.
+      applyWheelRotation(current)
 
       const litIndex = segmentAtPointer(current)
-      setRotation(current)
-      setHighlightedIndex(litIndex)
-      setPointerActive(true)
 
       // Same gate as the visual light-up → the click fires exactly with it.
       if (litIndex !== lastLitIndexRef.current) {
         lastLitIndexRef.current = litIndex
+        setHighlightedIndex(litIndex)
         const segmentsRemaining = Math.max(
           0,
           Math.round((targetRotation - current) / SEGMENT_ANGLE)
@@ -761,6 +826,7 @@ export function JackpotWheelBonus({
         return
       }
 
+      applyWheelRotation(targetRotation)
       setRotation(targetRotation)
       if (winningSegmentIndex !== lastLitIndexRef.current) {
         lastLitIndexRef.current = winningSegmentIndex
@@ -778,47 +844,76 @@ export function JackpotWheelBonus({
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, winningSegmentIndex])
+  }, [phase, winningSegmentIndex, applyWheelRotation])
 
   const zoomed = phase !== 'intro'
   const showPointer = phase === 'zoom' || phase === 'spin' || phase === 'landed'
   const hubRevealed = phase !== 'intro'
+  const isMobile = useIsMobile()
+  const layout = isMobile ? MOBILE_WHEEL_LAYOUT : DESKTOP_WHEEL_LAYOUT
+  // Hide the centre hub on mobile; frame the top arc once zoomed in.
+  const showHub = !isMobile && phase === 'intro'
+  const wheelScale = closingIn
+    ? layout.closeScale
+    : zoomed
+      ? layout.zoomScale
+      : layout.introScale
+  const wheelY = closingIn ? layout.closeY : zoomed ? layout.zoomY : layout.introY
+  // FanDuel mobile: pin wheel centre to the bottom edge so only the top half is visible.
+  const mobileHalfWheel = isMobile && zoomed
 
   return (
     <div
       className={cn(
-        'absolute inset-0 z-[100010] overflow-hidden rounded-2xl',
+        'absolute inset-0 z-[100010] overflow-hidden',
+        isMobile ? 'rounded-none' : 'rounded-2xl',
         className
       )}
     >
-      <FanDuelBackground phase={phase} />
+      <FanDuelBackground phase={phase} isMobile={isMobile} />
 
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div
+        className={cn(
+          'absolute inset-0 overflow-hidden',
+          !mobileHalfWheel && 'flex items-center justify-center'
+        )}
+      >
         <motion.div
-          className="relative flex items-center justify-center"
+          className={cn(
+            'relative flex items-center justify-center',
+            mobileHalfWheel && 'absolute bottom-0 left-1/2'
+          )}
           initial={false}
-          animate={{
-            scale: closingIn ? 3.1 : zoomed ? 2.75 : 0.82,
-            y: closingIn ? '46%' : zoomed ? '40%' : '0%',
-          }}
+          animate={
+            mobileHalfWheel
+              ? { scale: wheelScale, x: '-50%', y: wheelY }
+              : { scale: wheelScale, y: wheelY, x: 0 }
+          }
           transition={
             closingIn
               ? { duration: 4.6, ease: [0.33, 0, 0.15, 1] }
               : { duration: 1, ease: [0.22, 1, 0.36, 1] }
           }
+          style={{ transformOrigin: '50% 50%' }}
         >
-          {showPointer && <WheelPointer active={pointerActive} />}
+          {showPointer && (
+            <WheelPointer active={pointerActive} pointerClass={layout.pointerClass} />
+          )}
 
           <WheelSvg
             rotation={rotation}
             highlightedIndex={highlightedIndex}
             phase={phase}
             hubRevealed={hubRevealed}
+            wheelSizeClass={layout.wheelSizeClass}
+            isMobile={isMobile}
+            wheelGroupRef={wheelGroupRef}
+            showHub={showHub}
           />
 
           {(phase === 'intro' || phase === 'zoom') && <IntroTitleOverlay phase={phase} />}
 
-          {phase === 'intro' && (
+          {phase === 'intro' && !isMobile && (
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 z-[5] h-[29%] w-[29%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10"
               style={{

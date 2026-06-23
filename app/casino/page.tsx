@@ -13583,16 +13583,17 @@ function NavTestPageContent() {
                 </div>
                 )}
 
-                {showJackpotWheel && gameImageLoaded && (
-                  <JackpotWheelBonus
-                    onComplete={(tier) => {
-                      setJackpotWinTier(tier)
-                      setShowJackpotWheel(false)
-                      setShowJackpot(true)
-                    }}
-                  />
-                )}
               </div>
+
+              {showJackpotWheel && gameImageLoaded && (
+                <JackpotWheelBonus
+                  onComplete={(tier) => {
+                    setJackpotWinTier(tier)
+                    setShowJackpotWheel(false)
+                    setShowJackpot(true)
+                  }}
+                />
+              )}
 
               {/* Jackpot Win Overlay */}
               <JackpotOverlay
