@@ -205,6 +205,56 @@ export function fadeOutSound(name: SoundName, durationMs = 900): void {
   requestAnimationFrame(step)
 }
 
+/**
+ * Unlock audio playback on touch/mobile devices. Call this from a user gesture
+ * handler (e.g. the Spin CTA tap). iOS/Safari keeps every HTMLAudioElement
+ * locked until it has been `.play()`-ed inside a gesture, so later programmatic
+ * plays (the spin tick pool, win sounds) are silently blocked. We briefly play
+ * each element muted and pause it, which marks them as user-unlocked.
+ */
+export function unlockAudioPlayback(): void {
+  if (typeof window === 'undefined') return
+  const pool = initHighlightPool()
+  // Make sure the sounds we'll fire later during the spin actually exist now, so
+  // they get unlocked by this same gesture (otherwise iOS blocks them later).
+  const primed: SoundName[] = [
+    'jackpot-intro',
+    'jackpot-bg',
+    'jackpot-numbers',
+    'final-selection-win',
+    'highlight',
+  ]
+  for (const name of primed) getAudio(name, 0.0001)
+  const elements: HTMLAudioElement[] = [
+    ...pool,
+    ...(Object.values(cache).filter(Boolean) as HTMLAudioElement[]),
+  ]
+  for (const audio of elements) {
+    try {
+      const wasMuted = audio.muted
+      audio.muted = true
+      const result = audio.play()
+      if (result && typeof (result as Promise<void>).then === 'function') {
+        ;(result as Promise<void>)
+          .then(() => {
+            audio.pause()
+            audio.currentTime = 0
+            audio.muted = wasMuted
+          })
+          .catch(() => {
+            audio.muted = wasMuted
+          })
+      } else {
+        audio.pause()
+        audio.currentTime = 0
+        audio.muted = wasMuted
+      }
+    } catch {
+      // no-op — best-effort unlock
+    }
+  }
+}
+
 /** Stop a sound immediately and rewind it. Safe to call if the sound was
  * never played. */
 export function stopSound(name: SoundName): void {

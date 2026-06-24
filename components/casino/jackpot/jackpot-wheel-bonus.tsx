@@ -8,7 +8,7 @@ import {
   type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { playJackpotBgMusic, playSound, playWheelHighlightTick, preloadWheelHighlightTicks, setJackpotBgVolume } from '@/lib/sounds'
+import { playJackpotBgMusic, playSound, playWheelHighlightTick, preloadWheelHighlightTicks, setJackpotBgVolume, unlockAudioPlayback } from '@/lib/sounds'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -243,17 +243,14 @@ function describeSegment(
 function FanDuelBackground({
   phase,
   isMobile,
-  containerRef,
 }: {
   phase: WheelPhase
   isMobile: boolean
-  containerRef?: RefObject<HTMLDivElement>
 }) {
-  const showStars = phase === 'spin' || phase === 'landed' || phase === 'wipe'
   const spotlightY = isMobile && phase !== 'intro' ? '72%' : '46%'
 
   return (
-    <div ref={containerRef} className="absolute inset-0 z-0 overflow-hidden">
+    <div className="absolute inset-0 z-0 overflow-hidden">
       <div
         className="absolute inset-0"
         style={{
@@ -261,8 +258,6 @@ function FanDuelBackground({
             'radial-gradient(ellipse 120% 95% at 50% 40%, #18102a 0%, #0e0818 50%, #06040c 100%)',
         }}
       />
-
-      {showStars && <ShootingStarsCanvas containerRef={containerRef} />}
 
       {/* Soft static spotlight behind the wheel — no pulsing or sunburst */}
       <div
@@ -279,159 +274,6 @@ function FanDuelBackground({
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/55" />
     </div>
-  )
-}
-
-/** Diagonal streaks across the full viewport — ambient bg, not centred on the wheel. */
-function ShootingStarsCanvas({
-  containerRef,
-}: {
-  containerRef?: RefObject<HTMLDivElement>
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const container = containerRef?.current
-    if (!canvas || !container) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const dpr = window.devicePixelRatio || 1
-    let cssW = 0
-    let cssH = 0
-    let raf = 0
-    let lastSpawn = 0
-
-    type Particle = {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      length: number
-      thickness: number
-      alpha: number
-      fadeRate: number
-      color: string
-      glow: string
-    }
-
-    let particles: Particle[] = []
-    const colors = ['#ffffff', '#c4b5fd', '#67e8f9', '#a78bfa']
-    const glows = ['255,255,255', '196,181,253', '103,232,249', '167,139,250']
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect()
-      cssW = rect.width
-      cssH = rect.height
-      canvas.width = cssW * dpr
-      canvas.height = cssH * dpr
-      canvas.style.width = `${cssW}px`
-      canvas.style.height = `${cssH}px`
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-
-    const spawn = () => {
-      const count = 1 + Math.floor(Math.random() * 2)
-      for (let i = 0; i < count; i++) {
-        const idx = Math.floor(Math.random() * colors.length)
-        const angle = ((38 + Math.random() * 22) * Math.PI) / 180
-        const speed = 3.5 + Math.random() * 4.5
-        const bucket = Math.random()
-        const length =
-          bucket < 0.55
-            ? 36 + Math.random() * 40
-            : bucket < 0.85
-              ? 72 + Math.random() * 55
-              : 120 + Math.random() * 70
-        particles.push({
-          x: Math.random() * cssW * 1.15 - cssW * 0.08,
-          y: -40 - Math.random() * cssH * 0.35,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          length,
-          thickness: 1 + Math.random() * 1.8,
-          alpha: 0.22 + Math.random() * 0.32,
-          fadeRate: 0.006 + Math.random() * 0.009,
-          color: colors[idx]!,
-          glow: glows[idx]!,
-        })
-      }
-    }
-
-    const tick = (now: number) => {
-      ctx.clearRect(0, 0, cssW, cssH)
-
-      if (now - lastSpawn > 90) {
-        spawn()
-        lastSpawn = now
-      }
-
-      for (const p of particles) {
-        const mag = Math.hypot(p.vx, p.vy) || 1
-        const nx = p.vx / mag
-        const ny = p.vy / mag
-        const sx = p.x - nx * p.length
-        const sy = p.y - ny * p.length
-        const ex = p.x
-        const ey = p.y
-
-        const grad = ctx.createLinearGradient(sx, sy, ex, ey)
-        grad.addColorStop(0, `rgba(${p.glow}, 0)`)
-        grad.addColorStop(0.55, p.color)
-        grad.addColorStop(1, `rgba(${p.glow}, 0)`)
-
-        ctx.save()
-        ctx.globalAlpha = p.alpha
-        ctx.strokeStyle = grad
-        ctx.lineWidth = p.thickness
-        ctx.lineCap = 'round'
-        ctx.shadowBlur = 5
-        ctx.shadowColor = `rgba(${p.glow}, 0.45)`
-        ctx.beginPath()
-        ctx.moveTo(sx, sy)
-        ctx.lineTo(ex, ey)
-        ctx.stroke()
-        ctx.restore()
-
-        p.x += p.vx
-        p.y += p.vy
-        p.alpha -= p.fadeRate
-      }
-
-      particles = particles.filter(
-        (p) =>
-          p.alpha > 0 &&
-          p.x > -120 &&
-          p.x < cssW + 120 &&
-          p.y > -120 &&
-          p.y < cssH + 120
-      )
-
-      raf = requestAnimationFrame(tick)
-    }
-
-    resize()
-    const ro = new ResizeObserver(resize)
-    ro.observe(container)
-    raf = requestAnimationFrame(tick)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      ro.disconnect()
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      particles = []
-    }
-  }, [containerRef])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none absolute inset-0 z-0"
-      aria-hidden
-    />
   )
 }
 
@@ -822,6 +664,17 @@ export function JackpotWheelBonus({
   className,
 }: JackpotWheelBonusProps) {
   const [phase, setPhase] = useState<WheelPhase>('intro')
+  // Touch / mobile devices gate audio behind a user gesture, so they need the
+  // Spin CTA instead of autoplaying. Detect width OR a coarse (touch) pointer —
+  // width alone misses large phones/tablets. Computed on the client at mount
+  // (the wheel only renders after a click, so there's no SSR mismatch).
+  const [needsTapToStart] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const narrow = window.innerWidth < 768
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false
+    const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    return narrow || coarse || touch
+  })
   const [rotation, setRotation] = useState(0)
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
   const [pointerActive, setPointerActive] = useState(false)
@@ -836,7 +689,6 @@ export function JackpotWheelBonus({
   const wheelGroupRef = useRef<SVGGElement>(null)
   const wheelSvgRef = useRef<SVGSVGElement>(null)
   const hubImageRef = useRef<HTMLImageElement>(null)
-  const bgContainerRef = useRef<HTMLDivElement>(null)
   const closingInStartedRef = useRef(false)
   const isMobile = useIsMobile()
   const layout = isMobile ? MOBILE_WHEEL_LAYOUT : DESKTOP_WHEEL_LAYOUT
@@ -878,10 +730,10 @@ export function JackpotWheelBonus({
   useEffect(() => {
     preloadWheelHighlightTicks()
 
-    // Desktop autoplays the intro. Mobile blocks audio until a user gesture, so
-    // there we wait for the Spin CTA (handleStartSpin) to unlock sound + spin.
-    if (!isMobile) {
-      startedRef.current = true
+    // Desktop autoplays the intro. Touch/mobile devices block audio until a
+    // user gesture, so there we wait for the Spin CTA (handleStartSpin) to
+    // unlock sound + spin.
+    if (!needsTapToStart && !startedRef.current && phase === 'intro') {
       playSound('jackpot-intro', { volume: 0.85 })
       playJackpotBgMusic({ volume: 0.38 })
       introTimerRef.current = setTimeout(() => {
@@ -901,13 +753,16 @@ export function JackpotWheelBonus({
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [needsTapToStart])
 
   // Mobile Spin CTA: a user tap unlocks audio playback, then runs the intro →
   // zoom → spin sequence (shorter intro, since the player already engaged).
   const handleStartSpin = useCallback(() => {
     if (startedRef.current) return
     startedRef.current = true
+    // Unlock audio inside this tap so the later spin ticks / win sounds aren't
+    // blocked by mobile autoplay policy.
+    unlockAudioPlayback()
     playSound('jackpot-intro', { volume: 0.85 })
     playJackpotBgMusic({ volume: 0.38 })
     setPhase('zoom')
@@ -1056,7 +911,7 @@ export function JackpotWheelBonus({
       }}
       style={{ willChange: phase === 'wipe' ? 'clip-path' : undefined }}
     >
-      <FanDuelBackground phase={phase} isMobile={isMobile} containerRef={bgContainerRef} />
+      <FanDuelBackground phase={phase} isMobile={isMobile} />
 
       <div
         className={cn(
@@ -1172,7 +1027,7 @@ export function JackpotWheelBonus({
       {/* Mobile Spin CTA — taps unlock audio (which is gesture-gated on mobile)
           and kick off the spin. Rendered outside the scaling wheel so it stays
           pinned to the bottom of the screen. */}
-      {isMobile && phase === 'intro' && (
+      {needsTapToStart && phase === 'intro' && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
