@@ -1,14 +1,18 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { flushSync } from 'react-dom'
 import { fireConfetti } from '@/lib/confetti'
 import { motion, AnimatePresence, animate, useMotionValue } from 'framer-motion'
 import {
   JACKPOT_FINAL_SEGMENT_MAX_MS,
-  JACKPOT_OVERLAY_BEAT_MS,
   JACKPOT_TICKER_TIERS,
+  JACKPOT_TRANSITION_FADE_MS,
   JACKPOT_TRANSITION_MAX_MS,
+  JACKPOT_POST_FLASH_BEAT_MS,
+  JACKPOT_WINNER_FLASH_MS,
+  JACKPOT_WINNER_PULSE_COUNT,
+  JACKPOT_WINNER_PULSE_MS,
   type JackpotTickerTierConfig,
   type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
@@ -16,6 +20,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import {
   afterSound,
   ensureJackpotWheelSpinMusic,
+  ensureWheelTickBuffersReady,
   fadeOutSound,
   playSpinNowSound,
   playSound,
@@ -26,6 +31,7 @@ import {
   resumeWheelTickAudio,
   startJackpotIntroAudio,
   stopSound,
+  stopWheelHighlightTicks,
   swapJackpotBedForWheelSpin,
   unlockAudioPlayback,
 } from '@/lib/sounds'
@@ -487,9 +493,8 @@ function WheelSvg({
   const segInnerR = 0
   const labelInnerR = 78
   const showHighlight = phase === 'spin' || phase === 'landed' || phase === 'wipe'
-  // During spin the lit slice is driven via DOM (applyWheelSegmentHighlight) so
-  // React re-renders never clobber rotation or highlight mid-spin.
-  const domDrivenHighlight = showHighlight
+  // Only during spin — landed/wipe use React state so the winner slice stays lit.
+  const domDrivenHighlight = phase === 'spin'
   // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 170×121.
   const logoH = isMobile ? 64 : 56
   const logoW = (logoH * 170) / 121
@@ -644,15 +649,17 @@ function WheelSvg({
             const end = start + SEGMENT_ANGLE
             const midAngle = start + SEGMENT_ANGLE / 2
             const label = segmentLabelPosition(cx, cy, labelInnerR, outerR, midAngle)
-            const isUnderPointer =
-              !domDrivenHighlight &&
-              showHighlight &&
-              highlightedIndex != null &&
-              highlightedIndex === seg.index
             const isWinner =
               (phase === 'landed' || phase === 'wipe') &&
               highlightedIndex != null &&
               highlightedIndex === seg.index
+            const isWinnerFlash = phase === 'landed' && isWinner
+            const isUnderPointer =
+              !domDrivenHighlight &&
+              showHighlight &&
+              highlightedIndex != null &&
+              highlightedIndex === seg.index &&
+              !isWinnerFlash
             const segmentPath = describeSegment(cx, cy, outerR, segInnerR, start, end)
             const fillId = `segGrad-${seg.tier.id}-${seg.shade % 2}`
             const neon = SEGMENT_PALETTE[seg.tier.id].neon
@@ -724,27 +731,34 @@ function WheelSvg({
             WHEEL_SEGMENTS.map((seg) => {
               const start = seg.index * SEGMENT_ANGLE - 90
               const end = start + SEGMENT_ANGLE
-              const isUnderPointer =
-                !domDrivenHighlight &&
-                highlightedIndex != null &&
-                highlightedIndex === seg.index
               const isWinner =
                 (phase === 'landed' || phase === 'wipe') &&
                 highlightedIndex != null &&
                 highlightedIndex === seg.index
+              const isWinnerFlash = phase === 'landed' && isWinner
+              const isUnderPointer =
+                !domDrivenHighlight &&
+                highlightedIndex != null &&
+                highlightedIndex === seg.index &&
+                !isWinnerFlash
               const segmentPath = describeSegment(cx, cy, outerR, segInnerR, start, end)
               return (
                 <g key={`top-${seg.index}`} data-seg-top={seg.index}>
                   <path
-                    className="seg-sheen"
+                    className={cn('seg-sheen', isWinnerFlash && 'jackpot-winner-sheen-burst')}
                     d={segmentPath}
                     fill="url(#litSheen)"
                     stroke="none"
-                    opacity={domDrivenHighlight ? 0 : isUnderPointer ? 1 : 0}
+                    opacity={domDrivenHighlight ? 0 : isWinnerFlash ? undefined : isUnderPointer ? 1 : 0}
                   />
                   {isWinner && (
                     <path
-                      className="seg-winner-fill jackpot-winner-fill"
+                      className={cn(
+                        'seg-winner-fill',
+                        phase === 'landed'
+                          ? 'jackpot-winner-flash-burst'
+                          : 'jackpot-winner-fill'
+                      )}
                       d={segmentPath}
                       fill="#ffffff"
                       stroke="none"
@@ -755,7 +769,9 @@ function WheelSvg({
                     d={segmentPath}
                     fill="none"
                     stroke="#ffffff"
-                    strokeOpacity={domDrivenHighlight ? 0 : isUnderPointer ? 0.58 : 0}
+                    strokeOpacity={
+                      domDrivenHighlight || isWinnerFlash ? 0 : isUnderPointer ? 0.58 : 0
+                    }
                     strokeWidth={isWinner ? 3 : 2.5}
                     strokeLinejoin="round"
                     filter={
@@ -766,7 +782,12 @@ function WheelSvg({
                   />
                   {isWinner && (
                     <path
-                      className="seg-winner-edge jackpot-winner-edge"
+                      className={cn(
+                        'seg-winner-edge',
+                        phase === 'landed'
+                          ? 'jackpot-winner-edge-burst'
+                          : 'jackpot-winner-edge'
+                      )}
                       d={segmentPath}
                       fill="none"
                       stroke="#ffffff"
@@ -795,6 +816,20 @@ function WheelSvg({
   )
 }
 
+const MemoWheelSvg = memo(WheelSvg, (prev, next) => {
+  if (prev.phase === 'spin' && next.phase === 'spin') {
+    return (
+      prev.isMobile === next.isMobile && prev.wheelSizeClass === next.wheelSizeClass
+    )
+  }
+  return (
+    prev.highlightedIndex === next.highlightedIndex &&
+    prev.phase === next.phase &&
+    prev.isMobile === next.isMobile &&
+    prev.wheelSizeClass === next.wheelSizeClass
+  )
+})
+
 export interface JackpotWheelBonusProps {
   onComplete: (tier: JackpotTickerTierId) => void
   /** Fired when the wipe begins — mount the win overlay underneath before the wheel peels away. */
@@ -822,6 +857,8 @@ export function JackpotWheelBonus({
   const finishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handoffCancelRef = useRef<(() => void) | null>(null)
   const lastLitIndexRef = useRef<number | null>(null)
+  const lastFrameRotationRef = useRef(0)
+  const rotationDegRef = useRef(0)
   const wheelGroupRef = useRef<SVGGElement>(null)
   const wheelSvgRef = useRef<SVGSVGElement>(null)
   const closingInStartedRef = useRef(false)
@@ -833,11 +870,19 @@ export function JackpotWheelBonus({
   layoutRef.current = layout
 
   const applyWheelRotation = useCallback((deg: number) => {
+    rotationDegRef.current = deg
     wheelGroupRef.current?.setAttribute(
       'transform',
       `rotate(${deg} ${WHEEL_CX} ${WHEEL_CY})`
     )
   }, [])
+
+  // React re-renders can wipe SVG transform attrs — re-apply after each commit.
+  useLayoutEffect(() => {
+    if (phase === 'spin' || phase === 'landed' || phase === 'wipe') {
+      applyWheelRotation(rotationDegRef.current)
+    }
+  })
 
   const winTier = useMemo(() => winTierProp ?? pickWinTier(), [winTierProp])
 
@@ -868,6 +913,7 @@ export function JackpotWheelBonus({
     preloadJackpotWinHandoffAudio()
     preloadJackpotWheelAudio(JACKPOT_BG_VOLUME)
     startJackpotIntroAudio(JACKPOT_BG_VOLUME)
+    stopWheelHighlightTicks()
     applyWheelRotation(0)
   }, [applyWheelRotation])
 
@@ -881,6 +927,8 @@ export function JackpotWheelBonus({
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
       stopSound('jackpot-bg')
       stopSound('jackpot-wheel-spin')
+      stopSound('jackpot-transition')
+      stopWheelHighlightTicks()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -892,6 +940,9 @@ export function JackpotWheelBonus({
     playSpinNowSound(0.85)
     unlockAudioPlayback()
     resumeWheelTickAudio()
+    void ensureWheelTickBuffersReady()
+    stopWheelHighlightTicks()
+    stopSound('jackpot-transition')
     swapJackpotBedForWheelSpin(JACKPOT_WHEEL_SPIN_VOLUME, 500)
     setPhase('zoom')
     setPointerActive(true)
@@ -911,12 +962,18 @@ export function JackpotWheelBonus({
     // Wheel bed loops from Spin tap through land — intro bg already swapped out.
     ensureJackpotWheelSpinMusic(JACKPOT_WHEEL_SPIN_VOLUME)
     resumeWheelTickAudio()
+    stopWheelHighlightTicks()
 
     const targetRotation = rotationToLandOnSegment(winningSegmentIndex)
     const startRotation = rotation
     const totalTravel = targetRotation - startRotation
-    const startTime = performance.now()
+    const totalCrossings = Math.max(1, Math.ceil(totalTravel / SEGMENT_ANGLE))
+
+    let startTime = performance.now()
+
     lastLitIndexRef.current = segmentAtPointer(startRotation)
+    lastFrameRotationRef.current = startRotation
+    rotationDegRef.current = startRotation
     applyWheelRotation(startRotation)
     applyWheelSegmentHighlight(
       wheelSvgRef.current,
@@ -925,9 +982,10 @@ export function JackpotWheelBonus({
       isMobile
     )
 
-    const totalCrossings = Math.max(1, Math.ceil(totalTravel / SEGMENT_ANGLE))
-
-    // Last 10 crossings: explicit step ladder — pitch + volume climb each tick.
+    let spinComplete = false
+    let settling = false
+    let settleFromRotation = 0
+    let settleStartTime = 0
     let exciteStep = 0
 
     const playLightTick = (segmentsRemaining: number) => {
@@ -954,18 +1012,21 @@ export function JackpotWheelBonus({
       })
     }
 
-    let spinComplete = false
-    let settling = false
-    let settleFromRotation = 0
-    let settleStartTime = 0
+    /** Tick + highlight tied to the slice under the pointer this frame — stays in sync on slow CPUs. */
+    const syncSegmentAtRotation = (currentRot: number) => {
+      const endIdx = segmentAtPointer(currentRot)
+      if (endIdx === lastLitIndexRef.current) return
 
-    const syncSegmentAtRotation = (rotation: number) => {
-      const litIndex = segmentAtPointer(rotation)
-      if (litIndex === lastLitIndexRef.current) return
+      playLightTick(segmentsUntilStop(currentRot, targetRotation))
+
       const prev = lastLitIndexRef.current
-      lastLitIndexRef.current = litIndex
-      applyWheelSegmentHighlight(wheelSvgRef.current, prev, litIndex, isMobile)
-      playLightTick(segmentsUntilStop(rotation, targetRotation))
+      lastLitIndexRef.current = endIdx
+      applyWheelSegmentHighlight(
+        wheelSvgRef.current,
+        prev,
+        endIdx,
+        isMobile
+      )
     }
 
     const finishWinHandoff = () => {
@@ -994,33 +1055,61 @@ export function JackpotWheelBonus({
       })
 
       fadeOutSound('jackpot-wheel-spin', 500)
-
-      // Mount jackpot overlay + win-screen bed immediately with the riser — not after it ends.
-      onWipeStart?.(winTier)
+      stopWheelHighlightTicks()
 
       handoffCancelRef.current?.()
       if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
 
-      let cancelFinal: (() => void) | null = null
-      let cancelTransition: (() => void) | null = null
-      handoffCancelRef.current = () => {
-        cancelFinal?.()
-        cancelTransition?.()
+      const winnerPulseTimers: ReturnType<typeof setTimeout>[] = []
+      for (let i = 0; i < JACKPOT_WINNER_PULSE_COUNT; i++) {
+        winnerPulseTimers.push(
+          setTimeout(() => {
+            playSound('jackpot-final-segment', { volume: 0.88 })
+            playSound('final-selection-win', { volume: 0.9 })
+          }, i * JACKPOT_WINNER_PULSE_MS)
+        )
       }
 
-      const finalAudio = playSound('jackpot-final-segment', { volume: 0.88 })
-      const transitionAudio = playSound('jackpot-transition', { volume: 0.48 })
-      cancelFinal = afterSound(finalAudio, JACKPOT_FINAL_SEGMENT_MAX_MS, () => {})
-      cancelTransition = afterSound(
-        transitionAudio,
-        JACKPOT_TRANSITION_MAX_MS,
-        () => {
-          finishTimerRef.current = setTimeout(() => {
-            setPhase('wipe')
-            finishTimerRef.current = setTimeout(finish, WIPE_DURATION_MS)
-          }, JACKPOT_OVERLAY_BEAT_MS)
+      handoffCancelRef.current = () => {
+        for (const t of winnerPulseTimers) clearTimeout(t)
+        if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
+      }
+
+      // Winner segment pulses 3×, then riser + overlay mount, then wipe.
+      finishTimerRef.current = setTimeout(() => {
+        onWipeStart?.(winTier)
+
+        let cancelTransition: (() => void) | null = null
+        let riserFadeTimer: ReturnType<typeof setTimeout> | null = null
+        const prevCancel = handoffCancelRef.current
+        handoffCancelRef.current = () => {
+          prevCancel?.()
+          cancelTransition?.()
+          if (riserFadeTimer) clearTimeout(riserFadeTimer)
         }
-      )
+
+        const transitionAudio = playSound('jackpot-transition', { volume: 0.48 })
+        const riserFadeAt = Math.max(
+          0,
+          JACKPOT_TRANSITION_MAX_MS - JACKPOT_TRANSITION_FADE_MS
+        )
+        riserFadeTimer = setTimeout(
+          () => fadeOutSound('jackpot-transition', JACKPOT_TRANSITION_FADE_MS),
+          riserFadeAt
+        )
+        cancelTransition = afterSound(
+          transitionAudio,
+          JACKPOT_TRANSITION_MAX_MS,
+          () => {
+            stopSound('jackpot-transition')
+          }
+        )
+
+        finishTimerRef.current = setTimeout(() => {
+          setPhase('wipe')
+          finishTimerRef.current = setTimeout(finish, WIPE_DURATION_MS)
+        }, JACKPOT_POST_FLASH_BEAT_MS)
+      }, JACKPOT_WINNER_FLASH_MS)
     }
 
     const beginLandSettle = (fromRotation: number) => {
@@ -1047,7 +1136,8 @@ export function JackpotWheelBonus({
         return
       }
 
-      const t = Math.min(1, (now - startTime) / SPIN_DURATION_MS)
+      const elapsed = now - startTime
+      const t = Math.min(1, elapsed / SPIN_DURATION_MS)
       const current = startRotation + totalTravel * spinEase(t)
 
       // Slow camera push-in once we're into the decel tail.
@@ -1061,10 +1151,9 @@ export function JackpotWheelBonus({
         animate(wheelYMV, l.closeY, { duration: 12, ease: [0.33, 0, 0.15, 1] })
       }
 
-      // Drive rotation via DOM ref — avoids 60fps React re-renders of the heavy
-      // SVG which freezes real mobile devices.
-      applyWheelRotation(current)
       syncSegmentAtRotation(current)
+      applyWheelRotation(current)
+      lastFrameRotationRef.current = current
 
       const litIndex = segmentAtPointer(current)
 
@@ -1086,6 +1175,8 @@ export function JackpotWheelBonus({
       beginLandSettle(current)
       spinRafRef.current = requestAnimationFrame(tick)
     }
+
+    void ensureWheelTickBuffersReady()
 
     spinRafRef.current = requestAnimationFrame(tick)
     return () => {
@@ -1120,18 +1211,22 @@ export function JackpotWheelBonus({
       <FanDuelBackground phase={phase} isMobile={isMobile} />
       <IntroConfetti active={phase === 'intro'} />
 
-      {/* Gold flash the instant the wheel lands on the winner */}
+      {/* Gold flash — 3 pulses on the winner before handoff */}
       <AnimatePresence>
         {phase === 'landed' && (
           <motion.div
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 0 }}
+            initial={{ opacity: 0.95 }}
+            animate={{ opacity: [0.95, 0.4, 0.95, 0.4, 0.95, 0.4, 0.25] }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.1, ease: 'easeOut' }}
+            transition={{
+              duration: JACKPOT_WINNER_FLASH_MS / 1000,
+              times: [0, 0.14, 0.28, 0.42, 0.56, 0.7, 1],
+              ease: 'easeInOut',
+            }}
             className="pointer-events-none absolute inset-0 z-[15]"
             style={{
               background:
-                'radial-gradient(circle at 50% 38%, rgba(255,215,0,0.42) 0%, rgba(212,175,55,0.12) 42%, transparent 68%)',
+                'radial-gradient(circle at 50% 38%, rgba(255,215,0,0.48) 0%, rgba(212,175,55,0.16) 42%, transparent 68%)',
             }}
           />
         )}
@@ -1190,24 +1285,45 @@ export function JackpotWheelBonus({
             />
           )}
 
-          <motion.div
-            className="relative"
-            animate={phase === 'intro' ? { scale: [1, 1.035, 1] } : { scale: 1 }}
-            transition={
-              phase === 'intro'
-                ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' }
-                : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }
-            }
-          >
-            <WheelSvg
-              highlightedIndex={highlightedIndex}
-              phase={phase}
-              wheelSizeClass={layout.wheelSizeClass}
-              isMobile={isMobile}
-              wheelGroupRef={wheelGroupRef}
-              wheelSvgRef={wheelSvgRef}
-            />
-          </motion.div>
+          {phase === 'intro' ? (
+            <motion.div
+              role="button"
+              tabIndex={0}
+              aria-label="Spin to Win"
+              onClick={handleStartSpin}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleStartSpin()
+                }
+              }}
+              className="relative cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              animate={{ scale: [1, 1.035, 1] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <MemoWheelSvg
+                highlightedIndex={highlightedIndex}
+                phase={phase}
+                wheelSizeClass={layout.wheelSizeClass}
+                isMobile={isMobile}
+                wheelGroupRef={wheelGroupRef}
+                wheelSvgRef={wheelSvgRef}
+              />
+            </motion.div>
+          ) : (
+            <div className="relative">
+              <MemoWheelSvg
+                highlightedIndex={highlightedIndex}
+                phase={phase}
+                wheelSizeClass={layout.wheelSizeClass}
+                isMobile={isMobile}
+                wheelGroupRef={wheelGroupRef}
+                wheelSvgRef={wheelSvgRef}
+              />
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -1230,7 +1346,7 @@ export function JackpotWheelBonus({
       )}
 
       <AnimatePresence>
-        {(phase === 'landed' || phase === 'wipe') && highlightedIndex != null && (
+        {phase === 'wipe' && highlightedIndex != null && (
           <motion.div
             initial={{ opacity: 0, y: 16, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

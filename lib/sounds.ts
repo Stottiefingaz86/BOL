@@ -56,6 +56,9 @@ let wheelTickBuffer: AudioBuffer | null = null
 let wheelTickBuffer2: AudioBuffer | null = null
 let wheelTickBufferPromise: Promise<AudioBuffer | null> | null = null
 let wheelTickBuffer2Promise: Promise<AudioBuffer | null> | null = null
+let activeSpinTick: AudioBufferSourceNode | null = null
+let activeAnticipationTick: AudioBufferSourceNode | null = null
+const activeSpinTicks = new Set<AudioBufferSourceNode>()
 let bgVolumeRampRaf = 0
 
 /** Turn off pitch preservation so playbackRate changes the pitch (cross-browser). */
@@ -109,12 +112,73 @@ export function preloadWheelHighlightTicks(): void {
 function ensureWheelTickContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
   if (!wheelTickCtx) {
-    wheelTickCtx = new AudioContext()
+    wheelTickCtx = new AudioContext({ latencyHint: 'interactive' })
   }
   return wheelTickCtx
 }
 
 type WheelTickVariant = 'spin' | 'anticipation'
+
+export type WheelHighlightTickOptions = {
+  variant?: WheelTickVariant
+  volume?: number
+  basePitch?: number
+  pitchStep?: number
+  pitchBoost?: number
+  maxPitch?: number
+  playbackRate?: number
+}
+
+function createWheelTickSource(
+  variant: WheelTickVariant,
+  pitch: number,
+  volume: number,
+  whenSec: number
+): boolean {
+  const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
+  const ctx = ensureWheelTickContext()
+  if (!ctx || !buffer) return false
+  if (ctx.state === 'suspended') void ctx.resume()
+
+  const source = ctx.createBufferSource()
+  source.buffer = buffer
+  source.playbackRate.value = pitch
+  const gain = ctx.createGain()
+  gain.gain.value = volume
+  source.connect(gain)
+  gain.connect(ctx.destination)
+  source.start(Math.max(whenSec, ctx.currentTime))
+
+  if (variant === 'spin') {
+    activeSpinTicks.add(source)
+    activeSpinTick = source
+  } else {
+    activeAnticipationTick = source
+  }
+  source.onended = () => {
+    if (variant === 'spin') {
+      activeSpinTicks.delete(source)
+      if (activeSpinTick === source) activeSpinTick = null
+    } else if (activeAnticipationTick === source) {
+      activeAnticipationTick = null
+    }
+  }
+  return true
+}
+
+function resolveWheelTickPitch(
+  tickIndex: number,
+  options: WheelHighlightTickOptions
+): number {
+  const basePitch = options.basePitch ?? 0.96
+  const pitchStep = options.pitchStep ?? 0.032
+  const pitchBoost = options.pitchBoost ?? 0
+  const maxPitch = options.maxPitch ?? 2.2
+  return (
+    options.playbackRate ??
+    Math.min(maxPitch, basePitch + tickIndex * pitchStep + pitchBoost)
+  )
+}
 
 function loadWheelTickBuffer(
   variant: WheelTickVariant = 'anticipation'
@@ -154,6 +218,29 @@ function loadWheelTickBuffer(
   return wheelTickBufferPromise
 }
 
+function stopActiveWheelTick(variant: WheelTickVariant): void {
+  if (variant === 'spin') {
+    for (const source of activeSpinTicks) {
+      try {
+        source.stop()
+      } catch {
+        // already stopped
+      }
+    }
+    activeSpinTicks.clear()
+    activeSpinTick = null
+    return
+  }
+
+  if (!activeAnticipationTick) return
+  try {
+    activeAnticipationTick.stop()
+  } catch {
+    // already stopped
+  }
+  activeAnticipationTick = null
+}
+
 /** Resume Web Audio tick context — call from a user gesture before spin. */
 export function resumeWheelTickAudio(): void {
   const ctx = ensureWheelTickContext()
@@ -168,6 +255,31 @@ export function ensureWheelTickBuffersReady(): Promise<void> {
     loadWheelTickBuffer('anticipation'),
     loadWheelTickBuffer('spin'),
   ]).then(() => undefined)
+}
+
+/** Stop all in-flight wheel tick one-shots — prevents overlap desync on repeat spins. */
+export function stopWheelHighlightTicks(): void {
+  if (typeof window === 'undefined') return
+  stopActiveWheelTick('spin')
+  stopActiveWheelTick('anticipation')
+  for (const audio of initHighlightPool()) {
+    try {
+      audio.pause()
+      audio.currentTime = 0
+    } catch {
+      // no-op
+    }
+  }
+  for (const audio of initHighlight2Pool()) {
+    try {
+      audio.pause()
+      audio.currentTime = 0
+    } catch {
+      // no-op
+    }
+  }
+  highlightPoolIndex = 0
+  highlight2PoolIndex = 0
 }
 
 function getAudio(name: SoundName, volume: number): HTMLAudioElement | null {
@@ -490,36 +602,79 @@ export function swapJackpotBedForWheelSpin(
   return startJackpotWheelSpinMusic(wheelVolume)
 }
 
+/** Pre-schedule wheel ticks on the Web Audio clock — sample-accurate, immune to RAF jank. */
+export function scheduleWheelHighlightTicks(
+  events: Array<{
+    atSec: number
+    tickIndex: number
+    options?: WheelHighlightTickOptions
+  }>
+): boolean {
+  if (typeof window === 'undefined' || !events.length) return false
+  const ctx = ensureWheelTickContext()
+  if (!ctx || !wheelTickBuffer || !wheelTickBuffer2) return false
+  if (ctx.state === 'suspended') void ctx.resume()
+
+  let scheduled = 0
+  for (const ev of events) {
+    const variant = ev.options?.variant ?? 'anticipation'
+    const pitch = resolveWheelTickPitch(ev.tickIndex, ev.options ?? {})
+    const volume = Math.min(1, ev.options?.volume ?? 0.82)
+    if (createWheelTickSource(variant, pitch, volume, ev.atSec)) {
+      scheduled += 1
+    }
+  }
+  return scheduled === events.length
+}
+
+/** Schedule ticks relative to spin start (ms) — aligns with the wheel physics timeline. */
+export function scheduleWheelCrossingTicks(
+  events: Array<{
+    atMs: number
+    tickIndex: number
+    options?: WheelHighlightTickOptions
+  }>,
+  /** Ms already elapsed since the spin animation started — keeps audio aligned if buffers load late. */
+  elapsedMs = 0
+): boolean {
+  const ctx = ensureWheelTickContext()
+  if (!ctx || !events.length) return false
+  if (ctx.state === 'suspended') void ctx.resume()
+  const anchor = ctx.currentTime - elapsedMs / 1000
+  return scheduleWheelHighlightTicks(
+    events.map((ev) => ({
+      atSec: anchor + ev.atMs / 1000,
+      tickIndex: ev.tickIndex,
+      options: ev.options,
+    }))
+  )
+}
+
 /** One-shot wheel tick — pitch rises via Web Audio (reliable cross-browser). */
 export function playWheelHighlightTick(
   tickIndex: number,
-  options: {
-    /** `spin` = highlight_sound2 during main rotation; `anticipation` = highlight.mp3. */
-    variant?: WheelTickVariant
-    volume?: number
-    basePitch?: number
-    pitchStep?: number
-    pitchBoost?: number
-    maxPitch?: number
-    /** Override computed pitch (playbackRate). */
-    playbackRate?: number
-  } = {}
+  options: WheelHighlightTickOptions = {}
 ): void {
   if (typeof window === 'undefined') return
 
   const variant = options.variant ?? 'anticipation'
-  const basePitch = options.basePitch ?? 0.96
-  const pitchStep = options.pitchStep ?? 0.032
-  const pitchBoost = options.pitchBoost ?? 0
-  const maxPitch = options.maxPitch ?? 2.2
-  const pitch =
-    options.playbackRate ??
-    Math.min(maxPitch, basePitch + tickIndex * pitchStep + pitchBoost)
+  const pitch = resolveWheelTickPitch(tickIndex, options)
   const volume = Math.min(1, options.volume ?? 0.82)
 
   const playFromPool = (): boolean => {
     const pool = variant === 'spin' ? initHighlight2Pool() : initHighlightPool()
     if (!pool.length) return false
+
+    // Anticipation stays monophonic; spin ticks round-robin without cutting.
+    if (variant === 'anticipation') {
+      for (const pooled of pool) {
+        if (!pooled.paused) {
+          pooled.pause()
+          pooled.currentTime = 0
+        }
+      }
+    }
+
     const audio =
       variant === 'spin'
         ? pool[highlight2PoolIndex++ % pool.length]
@@ -539,30 +694,20 @@ export function playWheelHighlightTick(
     return true
   }
 
-  // HTML pool — lowest latency, stays in sync with segment crossings on all devices.
-  if (playFromPool()) {
-    return
+  const playViaWebAudio = (): boolean => {
+    const ctx = ensureWheelTickContext()
+    const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
+    if (!ctx || !buffer) return false
+    if (variant === 'anticipation') stopActiveWheelTick(variant)
+    return createWheelTickSource(variant, pitch, volume, ctx.currentTime)
   }
 
-  const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
-  const ctx = ensureWheelTickContext()
-  if (ctx && buffer) {
-    if (ctx.state === 'suspended') void ctx.resume()
-    const source = ctx.createBufferSource()
-    source.buffer = buffer
-    source.playbackRate.value = pitch
-    const gain = ctx.createGain()
-    gain.gain.value = volume
-    source.connect(gain)
-    gain.connect(ctx.destination)
-    source.start(0)
-    return
-  }
+  // Web Audio first — synchronous on the main thread; HTML pool can lag on busy CPUs.
+  if (playViaWebAudio()) return
+  if (playFromPool()) return
 
   void loadWheelTickBuffer(variant).then((decoded) => {
-    if (decoded) {
-      playWheelHighlightTick(tickIndex, options)
-    }
+    if (decoded) playWheelHighlightTick(tickIndex, options)
   })
 }
 

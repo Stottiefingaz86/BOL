@@ -233,11 +233,36 @@ img[decoding="sync"] {
   50%  { opacity: 0.58; }
   100% { opacity: 0.28; }
 }
+@keyframes jackpot-win-burst-fill {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.88; }
+}
+@keyframes jackpot-win-burst-edge {
+  0%, 100% { stroke-opacity: 0.12; }
+  50% { stroke-opacity: 1; }
+}
+@keyframes jackpot-win-burst-sheen {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
 .jackpot-winner-fill {
   animation: jackpot-win-flash 0.46s ease-in-out infinite;
 }
 .jackpot-winner-edge {
   animation: jackpot-win-edge-flash 0.46s ease-in-out infinite;
+}
+.jackpot-winner-flash-burst {
+  opacity: 0;
+  animation: jackpot-win-burst-fill 0.46s ease-in-out 3;
+  animation-fill-mode: forwards;
+}
+.jackpot-winner-edge-burst {
+  animation: jackpot-win-burst-edge 0.46s ease-in-out 3;
+  animation-fill-mode: forwards;
+}
+.jackpot-winner-sheen-burst {
+  animation: jackpot-win-burst-sheen 0.46s ease-in-out 3;
+  animation-fill-mode: forwards;
 }
 @keyframes jackpot-hub-ring-flash {
   0%   { opacity: 0.45; }

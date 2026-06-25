@@ -158,8 +158,17 @@ export const JACKPOT_WIN_COUNTUP_DURATION_MS = getJackpotWinCountUpDurationMs(9)
 export const JACKPOT_FINAL_SEGMENT_MAX_MS = 750
 /** Riser after win sting, before jackpot screen mounts */
 export const JACKPOT_TRANSITION_MAX_MS = 1300
+/** Riser tail — fade before win-screen bed takes over. */
+export const JACKPOT_TRANSITION_FADE_MS = 550
 /** Overlay mounted under wheel before wipe reveals it */
 export const JACKPOT_OVERLAY_BEAT_MS = 380
+/** Winner slice pulses on the wheel before jackpot screen handoff */
+export const JACKPOT_WINNER_PULSE_MS = 460
+export const JACKPOT_WINNER_PULSE_COUNT = 3
+export const JACKPOT_WINNER_FLASH_MS =
+  JACKPOT_WINNER_PULSE_MS * JACKPOT_WINNER_PULSE_COUNT + 900
+/** Mount overlay + riser after winner flash, then wipe */
+export const JACKPOT_POST_FLASH_BEAT_MS = 500
 
 export function formatJackpotSpinAddon(value: number): string {
   return new Intl.NumberFormat('en-US', {
