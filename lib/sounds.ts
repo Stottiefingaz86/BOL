@@ -162,6 +162,14 @@ export function resumeWheelTickAudio(): void {
   }
 }
 
+/** Decode both tick buffers before the spin loop starts. */
+export function ensureWheelTickBuffersReady(): Promise<void> {
+  return Promise.all([
+    loadWheelTickBuffer('anticipation'),
+    loadWheelTickBuffer('spin'),
+  ]).then(() => undefined)
+}
+
 function getAudio(name: SoundName, volume: number): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
   let audio = cache[name]
@@ -230,7 +238,7 @@ export function playSound(
               : name === 'final-selection-win'
               ? 0.9
               : name === 'jackpot-transition'
-                ? 0.62
+                ? 0.48
                 : 0.5
   const audio = getAudio(name, options.volume ?? defaultVolume)
   if (!audio) return null
@@ -271,7 +279,7 @@ export function afterSound(
 export function preloadJackpotWinHandoffAudio(): void {
   if (typeof window === 'undefined') return
   getAudio('jackpot-final-segment', 0.88)?.load()
-  getAudio('jackpot-transition', 0.62)?.load()
+  getAudio('jackpot-transition', 0.48)?.load()
   getAudio('jackpot-win-screen', 0.52)?.load()
 }
 
@@ -509,6 +517,33 @@ export function playWheelHighlightTick(
     Math.min(maxPitch, basePitch + tickIndex * pitchStep + pitchBoost)
   const volume = Math.min(1, options.volume ?? 0.82)
 
+  const playFromPool = (): boolean => {
+    const pool = variant === 'spin' ? initHighlight2Pool() : initHighlightPool()
+    if (!pool.length) return false
+    const audio =
+      variant === 'spin'
+        ? pool[highlight2PoolIndex++ % pool.length]
+        : pool[highlightPoolIndex++ % pool.length]
+    audio.volume = volume
+    disablePreservesPitch(audio)
+    audio.playbackRate = pitch
+    audio.currentTime = 0
+    try {
+      const result = audio.play()
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => {})
+      }
+    } catch {
+      // no-op
+    }
+    return true
+  }
+
+  // HTML pool — lowest latency, stays in sync with segment crossings on all devices.
+  if (playFromPool()) {
+    return
+  }
+
   const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
   const ctx = ensureWheelTickContext()
   if (ctx && buffer) {
@@ -524,32 +559,9 @@ export function playWheelHighlightTick(
     return
   }
 
-  // Fallback until buffer is decoded
   void loadWheelTickBuffer(variant).then((decoded) => {
     if (decoded) {
       playWheelHighlightTick(tickIndex, options)
-      return
-    }
-    const pool = variant === 'spin' ? initHighlight2Pool() : initHighlightPool()
-    if (!pool.length) return
-    const indexRef = variant === 'spin' ? highlight2PoolIndex : highlightPoolIndex
-    const audio = pool[indexRef % pool.length]
-    if (variant === 'spin') {
-      highlight2PoolIndex += 1
-    } else {
-      highlightPoolIndex += 1
-    }
-    audio.volume = volume
-    disablePreservesPitch(audio)
-    audio.playbackRate = pitch
-    audio.currentTime = 0
-    try {
-      const result = audio.play()
-      if (result && typeof result.catch === 'function') {
-        result.catch(() => {})
-      }
-    } catch {
-      // no-op
     }
   })
 }
