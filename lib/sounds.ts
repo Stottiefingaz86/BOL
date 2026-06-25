@@ -9,6 +9,8 @@
  * with the page — that's fine, we silently swallow the rejection.
  */
 
+import { WHEEL_TICK_AUDIO_LEAD_MS } from '@/lib/jackpot/constants'
+
 const SOUND_BASE = '/sound'
 
 export type SoundName =
@@ -641,9 +643,10 @@ export function scheduleWheelCrossingTicks(
   if (!ctx || !events.length) return false
   if (ctx.state === 'suspended') void ctx.resume()
   const anchor = ctx.currentTime - elapsedMs / 1000
+  const audioLeadSec = WHEEL_TICK_AUDIO_LEAD_MS / 1000
   return scheduleWheelHighlightTicks(
     events.map((ev) => ({
-      atSec: anchor + ev.atMs / 1000,
+      atSec: anchor + Math.max(0, ev.atMs) / 1000 - audioLeadSec,
       tickIndex: ev.tickIndex,
       options: ev.options,
     }))

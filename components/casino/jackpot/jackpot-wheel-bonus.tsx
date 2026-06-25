@@ -24,11 +24,11 @@ import {
   fadeOutSound,
   playSpinNowSound,
   playSound,
-  playWheelHighlightTick,
   preloadJackpotWheelAudio,
   preloadJackpotWinHandoffAudio,
   preloadWheelHighlightTicks,
   resumeWheelTickAudio,
+  scheduleWheelCrossingTicks,
   startJackpotIntroAudio,
   stopSound,
   stopWheelHighlightTicks,
@@ -222,6 +222,94 @@ function segmentsUntilStop(currentRotation: number, targetRotation: number): num
   const remainingDeg = Math.max(0, targetRotation - currentRotation)
   if (remainingDeg <= 0.5) return 0
   return Math.ceil(remainingDeg / SEGMENT_ANGLE - 1e-4)
+}
+
+function nextSegmentBoundaryAfter(rotationDeg: number): number {
+  const idx = segmentAtPointer(rotationDeg + 0.02)
+  let lo = rotationDeg + 0.02
+  let hi = rotationDeg + SEGMENT_ANGLE + 1
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2
+    if (segmentAtPointer(mid) === idx) lo = mid
+    else hi = mid
+  }
+  return hi
+}
+
+function spinProgressForRotation(
+  rotationDeg: number,
+  startRotation: number,
+  totalTravel: number
+): number {
+  const target = Math.min(1, Math.max(0, (rotationDeg - startRotation) / totalTravel))
+  let lo = 0
+  let hi = 1
+  for (let i = 0; i < 48; i++) {
+    const mid = (lo + hi) / 2
+    if (spinEase(mid) < target) lo = mid
+    else hi = mid
+  }
+  return (lo + hi) / 2
+}
+
+type CrossingEvent = {
+  atMs: number
+  segmentIndex: number
+  tickIndex: number
+  tickOptions: import('@/lib/sounds').WheelHighlightTickOptions
+}
+
+function buildCrossingSchedule(
+  startRotation: number,
+  targetRotation: number,
+  totalTravel: number,
+  totalCrossings: number
+): CrossingEvent[] {
+  const events: CrossingEvent[] = []
+  let r = startRotation
+  let exciteStep = 0
+
+  while (r < targetRotation - 1e-6 && events.length < 512) {
+    const boundary = nextSegmentBoundaryAfter(r)
+    if (boundary > targetRotation + 1e-6) break
+
+    const atMs =
+      spinProgressForRotation(boundary, startRotation, totalTravel) *
+      SPIN_DURATION_MS
+    const segmentsRemaining = segmentsUntilStop(boundary, targetRotation)
+    const progress = 1 - segmentsRemaining / totalCrossings
+
+    let tickIndex = 0
+    let tickOptions: CrossingEvent['tickOptions']
+
+    if (segmentsRemaining > EXCITE_SEGMENTS) {
+      exciteStep = 0
+      tickOptions = {
+        variant: 'spin',
+        volume: 0.14 + progress * 0.36,
+        playbackRate: 0.72 + progress * 0.22,
+      }
+    } else {
+      tickIndex = exciteStep
+      const rise = exciteStep / Math.max(1, EXCITE_SEGMENTS - 1)
+      exciteStep = Math.min(exciteStep + 1, EXCITE_SEGMENTS)
+      tickOptions = {
+        variant: 'anticipation',
+        volume: 0.58 + rise * 0.42,
+        playbackRate: 0.92 + rise * 1.12,
+      }
+    }
+
+    events.push({
+      atMs,
+      segmentIndex: segmentAtPointer(boundary + 0.02),
+      tickIndex,
+      tickOptions,
+    })
+    r = boundary + 0.02
+  }
+
+  return events
 }
 
 function adjustHex(hex: string, amount: number): string {
@@ -910,6 +998,7 @@ export function JackpotWheelBonus({
   // Preload only on mount; start music when this screen appears.
   useLayoutEffect(() => {
     preloadWheelHighlightTicks()
+    void ensureWheelTickBuffersReady()
     preloadJackpotWinHandoffAudio()
     preloadJackpotWheelAudio(JACKPOT_BG_VOLUME)
     startJackpotIntroAudio(JACKPOT_BG_VOLUME)
@@ -968,8 +1057,16 @@ export function JackpotWheelBonus({
     const startRotation = rotation
     const totalTravel = targetRotation - startRotation
     const totalCrossings = Math.max(1, Math.ceil(totalTravel / SEGMENT_ANGLE))
+    const crossingSchedule = buildCrossingSchedule(
+      startRotation,
+      targetRotation,
+      totalTravel,
+      totalCrossings
+    )
 
-    let startTime = performance.now()
+    let startTime = 0
+    let nextCrossingIndex = 0
+    let spinLoopStarted = false
 
     lastLitIndexRef.current = segmentAtPointer(startRotation)
     lastFrameRotationRef.current = startRotation
@@ -986,47 +1083,24 @@ export function JackpotWheelBonus({
     let settling = false
     let settleFromRotation = 0
     let settleStartTime = 0
-    let exciteStep = 0
 
-    const playLightTick = (segmentsRemaining: number) => {
-      const progress = 1 - segmentsRemaining / totalCrossings
-
-      if (segmentsRemaining > EXCITE_SEGMENTS) {
-        exciteStep = 0
-        playWheelHighlightTick(0, {
-          variant: 'spin',
-          volume: 0.14 + progress * 0.36,
-          playbackRate: 0.72 + progress * 0.22,
-        })
-        return
+    /** Visual crossings only — audio is pre-scheduled on the Web Audio clock. */
+    const processDueCrossings = (elapsedMs: number) => {
+      while (
+        nextCrossingIndex < crossingSchedule.length &&
+        crossingSchedule[nextCrossingIndex].atMs <= elapsedMs
+      ) {
+        const ev = crossingSchedule[nextCrossingIndex++]
+        if (ev.segmentIndex === lastLitIndexRef.current) continue
+        const prev = lastLitIndexRef.current
+        lastLitIndexRef.current = ev.segmentIndex
+        applyWheelSegmentHighlight(
+          wheelSvgRef.current,
+          prev,
+          ev.segmentIndex,
+          isMobile
+        )
       }
-
-      const step = exciteStep
-      exciteStep = Math.min(exciteStep + 1, EXCITE_SEGMENTS)
-      const rise = step / Math.max(1, EXCITE_SEGMENTS - 1)
-
-      playWheelHighlightTick(step, {
-        variant: 'anticipation',
-        volume: 0.58 + rise * 0.42,
-        playbackRate: 0.92 + rise * 1.12,
-      })
-    }
-
-    /** Tick + highlight tied to the slice under the pointer this frame — stays in sync on slow CPUs. */
-    const syncSegmentAtRotation = (currentRot: number) => {
-      const endIdx = segmentAtPointer(currentRot)
-      if (endIdx === lastLitIndexRef.current) return
-
-      playLightTick(segmentsUntilStop(currentRot, targetRotation))
-
-      const prev = lastLitIndexRef.current
-      lastLitIndexRef.current = endIdx
-      applyWheelSegmentHighlight(
-        wheelSvgRef.current,
-        prev,
-        endIdx,
-        isMobile
-      )
     }
 
     const finishWinHandoff = () => {
@@ -1120,6 +1194,8 @@ export function JackpotWheelBonus({
     }
 
     const tick = (now: number) => {
+      if (startTime === 0) return
+
       if (settling) {
         const settleT = Math.min(1, (now - settleStartTime) / LAND_SETTLE_MS)
         const settled =
@@ -1151,8 +1227,8 @@ export function JackpotWheelBonus({
         animate(wheelYMV, l.closeY, { duration: 12, ease: [0.33, 0, 0.15, 1] })
       }
 
-      syncSegmentAtRotation(current)
       applyWheelRotation(current)
+      processDueCrossings(elapsed)
       lastFrameRotationRef.current = current
 
       const litIndex = segmentAtPointer(current)
@@ -1176,10 +1252,23 @@ export function JackpotWheelBonus({
       spinRafRef.current = requestAnimationFrame(tick)
     }
 
-    void ensureWheelTickBuffersReady()
+    let spinCancelled = false
+    void ensureWheelTickBuffersReady().then(() => {
+      if (spinCancelled || spinLoopStarted) return
+      spinLoopStarted = true
+      startTime = performance.now()
+      scheduleWheelCrossingTicks(
+        crossingSchedule.map(({ atMs, tickIndex, tickOptions }) => ({
+          atMs,
+          tickIndex,
+          options: tickOptions,
+        }))
+      )
+      spinRafRef.current = requestAnimationFrame(tick)
+    })
 
-    spinRafRef.current = requestAnimationFrame(tick)
     return () => {
+      spinCancelled = true
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
