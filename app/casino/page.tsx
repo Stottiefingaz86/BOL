@@ -45,7 +45,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { playSound, fadeOutSound } from '@/lib/sounds'
+import { playSound, fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -8092,6 +8092,13 @@ function NavTestPageContent() {
       setShowJackpotWheel(false)
     }
   }, [jackpotOptedIn])
+
+  // Buffer wheel sounds while the game loads — playback starts when the wheel opens.
+  useEffect(() => {
+    if (!gameImageLoaded || !jackpotOptedIn) return
+    preloadJackpotWheelAudio(0.42)
+    preloadJackpotWinHandoffAudio()
+  }, [gameImageLoaded, jackpotOptedIn])
 
   // Demo win after game loads (only if already opted in at load time)
   useEffect(() => {

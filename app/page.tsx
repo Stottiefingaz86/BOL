@@ -142,7 +142,7 @@ import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import DynamicIsland from '@/components/dynamic-island'
 import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
 import { JackpotWheelBonus } from '@/components/casino/jackpot/jackpot-wheel-bonus'
-import { fadeOutSound } from '@/lib/sounds'
+import { fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { NotificationHub } from '@/components/account/notification-hub'
 
@@ -1354,6 +1354,13 @@ function HomePageContent() {
       setShowJackpotWheel(false)
     }
   }, [selectedGame])
+
+  // Preload jackpot bed while the game loads — ready before the wheel appears.
+  useEffect(() => {
+    if (!gameImageLoaded || !selectedGame) return
+    preloadJackpotWheelAudio(0.42)
+    preloadJackpotWinHandoffAudio()
+  }, [gameImageLoaded, selectedGame])
 
   // Jackpot overlay — show 5 seconds after game image loads
   useEffect(() => {

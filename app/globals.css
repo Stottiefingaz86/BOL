@@ -224,14 +224,14 @@ img[decoding="sync"] {
 
 /* Jackpot wheel — winning segment flash once the wheel has stopped */
 @keyframes jackpot-win-flash {
-  0%   { opacity: 0.15; }
-  50%  { opacity: 0.7; }
-  100% { opacity: 0.15; }
+  0%   { opacity: 0.08; }
+  50%  { opacity: 0.38; }
+  100% { opacity: 0.08; }
 }
 @keyframes jackpot-win-edge-flash {
-  0%   { opacity: 0.35; }
-  50%  { opacity: 1; }
-  100% { opacity: 0.35; }
+  0%   { opacity: 0.28; }
+  50%  { opacity: 0.58; }
+  100% { opacity: 0.28; }
 }
 .jackpot-winner-fill {
   animation: jackpot-win-flash 0.46s ease-in-out infinite;
@@ -244,8 +244,52 @@ img[decoding="sync"] {
   50%  { opacity: 1; }
   100% { opacity: 0.45; }
 }
+/* Tier slice logos fade in as the wheel scales up from the intro screen */
+@keyframes seg-logo-in {
+  0%   { opacity: 0; }
+  100% { opacity: 0.9; }
+}
 .jackpot-hub-ring {
   animation: jackpot-hub-ring-flash 0.75s ease-in-out infinite;
+}
+@keyframes jackpot-hub-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0.12));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 28px rgba(255, 255, 255, 0.28));
+  }
+}
+.jackpot-hub-pulse {
+  animation: jackpot-hub-pulse 2.8s ease-in-out infinite;
+}
+@keyframes jackpot-rim-dash-spin {
+  to {
+    stroke-dashoffset: -112;
+  }
+}
+.jackpot-rim-dash {
+  animation: jackpot-rim-dash-spin 7s linear infinite;
+}
+@keyframes jackpot-win-shake-keyframes {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-4px) rotate(-0.3deg); }
+  30% { transform: translateX(4px) rotate(0.3deg); }
+  45% { transform: translateX(-3px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-1px); }
+}
+.jackpot-win-shake {
+  animation: jackpot-win-shake-keyframes 0.45s ease-out;
+}
+@keyframes jackpot-landed-card-pulse {
+  0%, 100% { box-shadow: 0 0 48px rgba(251,191,36,0.35); }
+  50% { box-shadow: 0 0 72px rgba(251,191,36,0.55); }
+}
+.jackpot-landed-card {
+  animation: jackpot-landed-card-pulse 0.9s ease-in-out infinite;
 }
 
 @layer base {

@@ -1,18 +1,22 @@
 'use client'
 
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import React, { useEffect, useLayoutEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { IconShare, IconX } from '@tabler/icons-react'
 import {
   formatJackpotAmount,
   JACKPOT_TICKER_TIERS,
+  JACKPOT_ODOMETER_SPIN_MS,
+  JACKPOT_ODOMETER_STAGGER_MS,
   JACKPOT_WIN_COUNTUP_DELAY_MS,
-  JACKPOT_WIN_COUNTUP_DURATION_MS,
+  getJackpotWinCountUpDurationMs,
+  jackpotAmountDigitCount,
   type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { fadeOutSound, playSound, stopSound } from '@/lib/sounds'
+import { cn } from '@/lib/utils'
 
 // Gold particle rain background
 function GoldRain() {
@@ -31,7 +35,7 @@ function GoldRain() {
       wobble: number; wobbleSpeed: number; color: string
     }> = []
 
-    const colors = ['#FFD700', '#FFA500', '#FFDF00', '#DAA520', '#FFB347', '#E8B923']
+    const colors = ['#FFD700', '#F5E6A3', '#D4AF37', '#E8C547', '#FFF8DC']
 
     const resize = () => {
       canvas.width = canvas.offsetWidth * 2
@@ -41,7 +45,7 @@ function GoldRain() {
     resize()
     window.addEventListener('resize', resize)
 
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 120; i++) {
       particles.push({
         x: Math.random() * canvas.offsetWidth,
         y: Math.random() * canvas.offsetHeight * -2,
@@ -92,14 +96,25 @@ function GoldRain() {
   )
 }
 
-// Single spinning digit column — spins through many full rotations then lands
-function SpinDigit({ target, delay, spinning }: { target: number; delay: number; spinning: boolean }) {
-  const digitHeight = 1.15 // em per digit
-  // Each digit spins through 3 full cycles (0-9) + lands on target
-  const fullRotations = 3
-  const totalTravel = (fullRotations * 10 + target) * digitHeight
+// Single spinning digit column — equal spin speed per column, stops right → left
+function SpinDigit({
+  target,
+  startDelayMs,
+  spinDurationMs,
+  spinning,
+  digitKey,
+}: {
+  target: number
+  startDelayMs: number
+  spinDurationMs: number
+  spinning: boolean
+  digitKey: string
+}) {
+  const digitHeight = 1.15
+  const fullRotations = 6
+  const targetIndex = (fullRotations + 1) * 10 + target
+  const totalTravel = targetIndex * digitHeight
 
-  // Build a long strip: repeated 0-9 sets + final landing digits
   const digits = useMemo(() => {
     const arr: number[] = []
     for (let r = 0; r < fullRotations + 1; r++) {
@@ -107,7 +122,6 @@ function SpinDigit({ target, delay, spinning }: { target: number; delay: number;
         arr.push(d)
       }
     }
-    // Add the final target at the end
     for (let d = 0; d <= target; d++) {
       arr.push(d)
     }
@@ -116,18 +130,23 @@ function SpinDigit({ target, delay, spinning }: { target: number; delay: number;
 
   return (
     <span
-      className="inline-block overflow-hidden relative"
-      style={{ height: `${digitHeight}em`, width: '0.6em' }}
+      className="inline-block overflow-hidden relative align-bottom"
+      style={{ height: `${digitHeight}em`, width: '0.65em' }}
     >
       <motion.span
-        className="flex flex-col"
+        key={digitKey}
+        className="flex flex-col will-change-transform"
         initial={{ y: 0 }}
         animate={spinning ? { y: `-${totalTravel}em` } : { y: 0 }}
-        transition={spinning ? {
-          delay,
-          duration: 1.6 + delay * 0.5,
-          ease: [0.2, 0.8, 0.2, 1], // fast start, dramatic deceleration
-        } : { duration: 0 }}
+        transition={
+          spinning
+            ? {
+                delay: startDelayMs / 1000,
+                duration: spinDurationMs / 1000,
+                ease: [0.04, 0.62, 0.1, 1],
+              }
+            : { duration: 0 }
+        }
         style={{ lineHeight: `${digitHeight}em` }}
       >
         {digits.map((n, i) => (
@@ -167,15 +186,19 @@ function buildOdometerChars(amount: number): OdometerChar[] {
   )
 }
 
-// Full odometer display — spins to the live mega jackpot amount
+// Full odometer display — each column rolls at the same speed, lands right → left
 function OdometerAmount({
   amount,
   spinning,
   scale,
+  spinDurationMs,
+  staggerMs,
 }: {
   amount: number
   spinning: boolean
   scale: number
+  spinDurationMs: number
+  staggerMs: number
 }) {
   const chars = useMemo(() => buildOdometerChars(amount), [amount])
   const digitCount = chars.filter((char) => char.type === 'digit').length
@@ -201,22 +224,22 @@ function OdometerAmount({
       {chars.map((c, i) => {
         if (c.type === 'digit') {
           const idx = digitIndex++
-          const staggerDelay =
-            digitCount > 1
-              ? ((digitCount - 1 - idx) / (digitCount - 1)) * 0.6
-              : 0
+          const startDelayMs =
+            digitCount > 1 ? (digitCount - 1 - idx) * staggerMs : 0
           return (
             <SpinDigit
-              key={`${i}-${c.value}`}
+              key={`d-${idx}`}
+              digitKey={`d-${idx}-${c.value}`}
               target={c.value}
-              delay={staggerDelay}
+              startDelayMs={startDelayMs}
+              spinDurationMs={spinDurationMs}
               spinning={spinning}
             />
           )
         }
         return (
           <StaticChar
-            key={`${i}-${c.value}`}
+            key={`s-${i}-${c.value}`}
             char={c.value}
             delay={digitIndex / Math.max(digitCount, 1)}
             spinning={spinning}
@@ -246,7 +269,9 @@ export function JackpotOverlay({
   const [showCTA, setShowCTA] = useState(false)
   const [landed, setLanded] = useState(false)
   const [ambientOn, setAmbientOn] = useState(false)
-  const [scale, setScale] = useState(0.6)
+  const [scale, setScale] = useState(0.45)
+  const [shake, setShake] = useState(false)
+  const [flashOn, setFlashOn] = useState(false)
   const [winAmount, setWinAmount] = useState(0)
   const confettiFired = useRef(false)
   const wasVisibleRef = useRef(false)
@@ -256,18 +281,26 @@ export function JackpotOverlay({
   const fireConfetti = useCallback(() => {
     if (confettiFired.current) return
     confettiFired.current = true
-    const defaults = { startVelocity: 40, spread: 360, ticks: 100, zIndex: 100000, colors: ['#FFD700', '#FFA500', '#FFDF00', '#DAA520', '#fff', '#ee3536'] }
-    confetti({ ...defaults, particleCount: 100, origin: { x: 0.5, y: 0.35 } })
-    setTimeout(() => confetti({ ...defaults, particleCount: 50, origin: { x: 0.2, y: 0.45 } }), 200)
-    setTimeout(() => confetti({ ...defaults, particleCount: 50, origin: { x: 0.8, y: 0.45 } }), 400)
+    const defaults = {
+      startVelocity: 52,
+      spread: 360,
+      ticks: 120,
+      zIndex: 100000,
+      colors: ['#FFD700', '#F5E6A3', '#D4AF37', '#FFF8DC', '#ffffff'],
+    }
+    confetti({ ...defaults, particleCount: 160, origin: { x: 0.5, y: 0.32 } })
+    setTimeout(() => confetti({ ...defaults, particleCount: 90, origin: { x: 0.15, y: 0.42 } }), 120)
+    setTimeout(() => confetti({ ...defaults, particleCount: 90, origin: { x: 0.85, y: 0.42 } }), 240)
     setTimeout(() => {
-      confetti({ ...defaults, particleCount: 30, angle: 60, origin: { x: 0, y: 0.6 } })
-      confetti({ ...defaults, particleCount: 30, angle: 120, origin: { x: 1, y: 0.6 } })
-    }, 600)
-    // Extra burst
+      confetti({ ...defaults, particleCount: 50, angle: 60, spread: 80, origin: { x: 0, y: 0.55 } })
+      confetti({ ...defaults, particleCount: 50, angle: 120, spread: 80, origin: { x: 1, y: 0.55 } })
+    }, 400)
     setTimeout(() => {
-      confetti({ ...defaults, particleCount: 60, startVelocity: 55, origin: { x: 0.5, y: 0.5 } })
-    }, 900)
+      confetti({ ...defaults, particleCount: 100, startVelocity: 65, origin: { x: 0.5, y: 0.48 } })
+    }, 650)
+    setTimeout(() => {
+      confetti({ ...defaults, particleCount: 80, startVelocity: 48, scalar: 1.2, origin: { x: 0.5, y: 0.6 } })
+    }, 950)
   }, [])
 
   const tierConfig =
@@ -280,62 +313,69 @@ export function JackpotOverlay({
     wasVisibleRef.current = visible
   }, [visible])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!visible) {
+      stopSound('jackpot-win-screen')
       stopSound('jackpot-numbers')
       setSpinning(false)
       setShowCTA(false)
       setLanded(false)
       setAmbientOn(false)
-      setScale(0.6)
+      setScale(0.45)
+      setShake(false)
+      setFlashOn(false)
       setWinAmount(0)
       confettiFired.current = false
       cancelMegaWinRoll()
       return
     }
 
-    // Fade in gold/particle ambience after the wheel wipe — avoids an orange flash
-    // on mount while the win screen is still hidden underneath.
+    // Drop wheel bed; win screen carries its own looping bg.
+    stopSound('jackpot-bg')
+    playSound('jackpot-win-screen', { volume: 0.52, loop: true })
+
     const ambientTimer = setTimeout(() => setAmbientOn(true), 520)
 
     const tierAmount = useJackpotStore.getState().tickerAmounts[tier]
+    const rollDurationMs = getJackpotWinCountUpDurationMs(jackpotAmountDigitCount(tierAmount))
     setWinAmount(tierAmount)
 
     if (tier === 'mega') {
       useJackpotStore.setState({ lastWinAmount: tierAmount })
-      startMegaWinRoll(JACKPOT_WIN_COUNTUP_DURATION_MS, JACKPOT_WIN_COUNTUP_DELAY_MS)
+      startMegaWinRoll(rollDurationMs, JACKPOT_WIN_COUNTUP_DELAY_MS)
     } else {
-      // Pay out the pot to the player and reset that tier back to its seed so
-      // the jackpot ticker drops after the win, then climbs again.
       useJackpotStore.getState().registerJackpotWin(tier)
     }
 
-    // Phase 1: Start spinning after intro (0.4s)
     const t1 = setTimeout(() => {
       setSpinning(true)
-      playSound('jackpot-numbers', { volume: 0.68, loop: true })
+      playSound('jackpot-numbers', { volume: 1, loop: true })
     }, JACKPOT_WIN_COUNTUP_DELAY_MS)
 
-    // Phase 2: Scale up as digits spin (staggered)
-    const t2 = setTimeout(() => setScale(0.75), 600)
-    const t3 = setTimeout(() => setScale(0.9), 1200)
-    const t4 = setTimeout(() => setScale(1.0), 1800)
+    const t2 = setTimeout(() => setScale(0.72), JACKPOT_WIN_COUNTUP_DELAY_MS + rollDurationMs * 0.08)
+    const t3 = setTimeout(() => setScale(0.92), JACKPOT_WIN_COUNTUP_DELAY_MS + rollDurationMs * 0.32)
+    const t4 = setTimeout(() => setScale(1.02), JACKPOT_WIN_COUNTUP_DELAY_MS + rollDurationMs * 0.58)
 
-    // Phase 3: All digits landed — final scale + confetti (around 3s total)
+    const winLandAt = JACKPOT_WIN_COUNTUP_DELAY_MS + rollDurationMs
     const t5 = setTimeout(() => {
       stopSound('jackpot-numbers')
-      setScale(1.05)
+      setScale(1.12)
       setLanded(true)
+      setShake(true)
+      setFlashOn(true)
+      playSound('final-selection-win', { volume: 1 })
       fireConfetti()
-    }, JACKPOT_WIN_COUNTUP_DELAY_MS + JACKPOT_WIN_COUNTUP_DURATION_MS)
+    }, winLandAt)
 
-    // Phase 4: Show CTAs
     const t6 = setTimeout(() => {
       setScale(1.0)
+      setShake(false)
+      setFlashOn(false)
       setShowCTA(true)
-    }, 3400)
+    }, winLandAt + 1200)
 
     return () => {
+      stopSound('jackpot-win-screen')
       stopSound('jackpot-numbers')
       clearTimeout(ambientTimer)
       clearTimeout(t1)
@@ -366,6 +406,23 @@ export function JackpotOverlay({
             className="absolute inset-0 bg-[#06040c]/95 backdrop-blur-xl"
           />
 
+          {/* Gold flash on jackpot land */}
+          <AnimatePresence>
+            {flashOn && (
+              <motion.div
+                initial={{ opacity: 0.85 }}
+                animate={{ opacity: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+                className="pointer-events-none absolute inset-0 z-[100001]"
+                style={{
+                  background:
+                    'radial-gradient(circle at 50% 42%, rgba(255,215,0,0.45) 0%, rgba(212,175,55,0.12) 40%, transparent 68%)',
+                }}
+              />
+            )}
+          </AnimatePresence>
+
           {/* Gold rain — delayed so it doesn't bloom orange under the wheel wipe */}
           <motion.div
             className="absolute inset-0"
@@ -376,48 +433,63 @@ export function JackpotOverlay({
             <GoldRain />
           </motion.div>
 
-          {/* Radial glow — cool purple/cyan, ramps in with ambience */}
+          {/* Warm spotlight — single gold tone */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 2 }}>
             <motion.div
               animate={{
                 scale: landed ? 2.5 : spinning ? 1.5 : 0.5,
-                opacity: ambientOn ? (landed ? 0.38 : spinning ? 0.2 : 0.04) : 0,
+                opacity: ambientOn ? (landed ? 0.32 : spinning ? 0.16 : 0.04) : 0,
               }}
               transition={{ duration: landed ? 0.5 : 1, ease: 'easeOut' }}
               className="w-[400px] h-[400px] rounded-full"
               style={{
                 background:
-                  'radial-gradient(circle, rgba(167,139,250,0.16) 0%, rgba(56,189,248,0.08) 45%, transparent 72%)',
+                  'radial-gradient(circle, rgba(212,175,55,0.14) 0%, rgba(255,215,0,0.06) 45%, transparent 72%)',
               }}
             />
           </div>
 
           {/* Main content — slight delay so it appears as the wipe reveals it */}
           <motion.div
-            initial={{ scale: 0.92, opacity: 0, y: 28 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
+            initial={{ scale: 0.88, opacity: 0, y: 32 }}
+            animate={{
+              scale: shake ? [1, 1.02, 0.99, 1.01, 1] : 1,
+              opacity: 1,
+              y: 0,
+            }}
             exit={{ scale: 0.85, opacity: 0, y: 40 }}
-            transition={{ duration: 0.55, delay: 0.28, type: 'spring', stiffness: 180, damping: 18 }}
-            className="relative z-10 flex flex-col items-center gap-5 px-4 max-w-xl w-full"
+            transition={{
+              scale: shake
+                ? { duration: 0.45, ease: 'easeOut' }
+                : { duration: 0.55, delay: 0.28, type: 'spring', stiffness: 180, damping: 18 },
+              opacity: { duration: 0.55, delay: 0.28 },
+              y: { duration: 0.55, delay: 0.28, type: 'spring', stiffness: 180, damping: 18 },
+            }}
+            className={cn(
+              'relative z-10 flex flex-col items-center gap-5 px-4 max-w-xl w-full',
+              shake && 'jackpot-win-shake'
+            )}
           >
-            {/* Tier label */}
+            {/* Headline — gold kicker + white tier; no tier accent colours */}
             <motion.div
-              initial={{ scale: 0.85, opacity: 0, y: 12 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, type: 'spring', stiffness: 260, damping: 14 }}
-              className="flex flex-col items-center gap-0.5 text-center"
+              initial={{ scale: 0.7, opacity: 0, y: 16 }}
+              animate={{
+                scale: landed ? [1, 1.04, 1] : 1,
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                scale: landed ? { duration: 0.5, repeat: 2, ease: 'easeInOut' } : { delay: 0.15, type: 'spring', stiffness: 260, damping: 14 },
+                opacity: { delay: 0.15, type: 'spring', stiffness: 260, damping: 14 },
+                y: { delay: 0.15, type: 'spring', stiffness: 260, damping: 14 },
+              }}
+              className="flex flex-col items-center gap-3 text-center"
             >
-              <p
-                className="text-3xl font-bold tracking-[0.12em] sm:text-4xl"
-                style={{
-                  color: tierConfig.accent,
-                  textShadow: `0 0 32px ${tierConfig.accent}59`,
-                }}
-              >
-                {tierConfig.shortLabel}
+              <p className="text-[11px] font-semibold uppercase tracking-[0.42em] text-[#D4AF37]/90 sm:text-xs">
+                Jackpot Winner
               </p>
-              <p className="text-sm font-medium tracking-[0.2em] text-white/90 sm:text-base">
-                Jackpot
+              <p className="text-2xl font-bold uppercase tracking-[0.14em] text-white sm:text-3xl">
+                {tierConfig.shortLabel} Jackpot
               </p>
             </motion.div>
 
@@ -428,19 +500,35 @@ export function JackpotOverlay({
               transition={{ delay: 0.3, duration: 0.3 }}
               className="w-full"
             >
-              <OdometerAmount amount={winAmount} spinning={spinning} scale={scale} />
+              <OdometerAmount
+                amount={winAmount}
+                spinning={spinning}
+                scale={scale}
+                spinDurationMs={JACKPOT_ODOMETER_SPIN_MS}
+                staggerMs={JACKPOT_ODOMETER_STAGGER_MS}
+              />
             </motion.div>
 
             {/* Landed flash */}
             <AnimatePresence>
               {landed && (
-                <motion.div
-                  initial={{ opacity: 0.8, scaleX: 0 }}
-                  animate={{ opacity: 0, scaleX: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="w-64 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent"
-                />
+                <>
+                  <motion.div
+                    initial={{ opacity: 0.9, scaleX: 0 }}
+                    animate={{ opacity: 0, scaleX: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: [0, 1, 0.85], scale: 1 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-base font-semibold uppercase tracking-[0.35em] text-white/80 sm:text-lg"
+                  >
+                    You Won
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
 
@@ -449,9 +537,9 @@ export function JackpotOverlay({
               initial={{ opacity: 0 }}
               animate={{ opacity: spinning ? 1 : 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
-              className="text-white/40 text-sm text-center"
+              className="text-white/35 text-sm text-center"
             >
-              Won on <span className="text-white/70 font-medium">{gameName}</span>
+              Won on <span className="text-white/55">{gameName}</span>
             </motion.p>
 
             {/* CTAs */}

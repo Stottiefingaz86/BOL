@@ -138,9 +138,28 @@ export const JACKPOT_MIN_QUALIFYING_BET = 1
 /** @deprecated Use per-tier spinAddon — kept for legacy single-toggle UI */
 export const JACKPOT_PER_SPIN_ADDON = 0.1
 
-/** Demo mega win shown in game launcher overlay */
-export const JACKPOT_WIN_COUNTUP_DELAY_MS = 400
-export const JACKPOT_WIN_COUNTUP_DURATION_MS = 2600
+/** Win overlay — odometer starts after win-screen bg lands */
+export const JACKPOT_WIN_COUNTUP_DELAY_MS = 900
+/** Each digit column spins at the same speed for this long */
+export const JACKPOT_ODOMETER_SPIN_MS = 5200
+/** Gap between each column stopping, right → left */
+export const JACKPOT_ODOMETER_STAGGER_MS = 1050
+
+export function getJackpotWinCountUpDurationMs(digitCount: number): number {
+  if (digitCount <= 1) return JACKPOT_ODOMETER_SPIN_MS
+  return (digitCount - 1) * JACKPOT_ODOMETER_STAGGER_MS + JACKPOT_ODOMETER_SPIN_MS
+}
+
+/** Default for ~9-digit mega amounts */
+export const JACKPOT_WIN_COUNTUP_DURATION_MS = getJackpotWinCountUpDurationMs(9)
+
+/** Wheel land → win overlay handoff */
+/** Hold on wheel with winner flash + final win sting */
+export const JACKPOT_FINAL_SEGMENT_MAX_MS = 1100
+/** Riser after win sting, before jackpot screen mounts */
+export const JACKPOT_TRANSITION_MAX_MS = 1300
+/** Overlay mounted under wheel before wipe reveals it */
+export const JACKPOT_OVERLAY_BEAT_MS = 380
 
 export function formatJackpotSpinAddon(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -184,6 +203,10 @@ export function formatJackpotAmount(value: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
+}
+
+export function jackpotAmountDigitCount(amount: number): number {
+  return formatJackpotAmount(amount).replace(/\D/g, '').length
 }
 
 /** Numeric value + suffix for NumberFlow compact display */
