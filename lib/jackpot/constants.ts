@@ -169,8 +169,13 @@ export const JACKPOT_WINNER_FLASH_MS =
   JACKPOT_WINNER_PULSE_MS * JACKPOT_WINNER_PULSE_COUNT + 900
 /** Mount overlay + riser after winner flash, then wipe */
 export const JACKPOT_POST_FLASH_BEAT_MS = 500
-/** Play tick audio slightly before the visual crossing to compensate for output latency. */
+/** Pre-scheduled ticks only — reactive spin ticks use trim + same-frame play instead. */
 export const WHEEL_TICK_AUDIO_LEAD_MS = 45
+/** Skip leading silence in tick MP3s so the transient aligns with the segment flash. */
+export const WHEEL_TICK_TRIM_MS = {
+  anticipation: 38,
+  spin: 24,
+} as const
 
 export function formatJackpotSpinAddon(value: number): string {
   return new Intl.NumberFormat('en-US', {

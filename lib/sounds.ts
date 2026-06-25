@@ -9,7 +9,10 @@
  * with the page — that's fine, we silently swallow the rejection.
  */
 
-import { WHEEL_TICK_AUDIO_LEAD_MS } from '@/lib/jackpot/constants'
+import {
+  WHEEL_TICK_AUDIO_LEAD_MS,
+  WHEEL_TICK_TRIM_MS,
+} from '@/lib/jackpot/constants'
 
 const SOUND_BASE = '/sound'
 
@@ -131,11 +134,18 @@ export type WheelHighlightTickOptions = {
   playbackRate?: number
 }
 
+function wheelTickTrimSec(variant: WheelTickVariant): number {
+  return (
+    WHEEL_TICK_TRIM_MS[variant === 'spin' ? 'spin' : 'anticipation'] / 1000
+  )
+}
+
 function createWheelTickSource(
   variant: WheelTickVariant,
   pitch: number,
   volume: number,
-  whenSec: number
+  whenSec: number,
+  offsetSec = wheelTickTrimSec(variant)
 ): boolean {
   const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
   const ctx = ensureWheelTickContext()
@@ -149,7 +159,9 @@ function createWheelTickSource(
   gain.gain.value = volume
   source.connect(gain)
   gain.connect(ctx.destination)
-  source.start(Math.max(whenSec, ctx.currentTime))
+  const startAt = Math.max(whenSec, ctx.currentTime)
+  const maxOffset = Math.max(0, buffer.duration - 0.01)
+  source.start(startAt, Math.min(offsetSec, maxOffset))
 
   if (variant === 'spin') {
     activeSpinTicks.add(source)
@@ -667,13 +679,14 @@ export function playWheelHighlightTick(
   const playFromPool = (): boolean => {
     const pool = variant === 'spin' ? initHighlight2Pool() : initHighlightPool()
     if (!pool.length) return false
+    const trimSec = wheelTickTrimSec(variant)
 
     // Anticipation stays monophonic; spin ticks round-robin without cutting.
     if (variant === 'anticipation') {
       for (const pooled of pool) {
         if (!pooled.paused) {
           pooled.pause()
-          pooled.currentTime = 0
+          pooled.currentTime = trimSec
         }
       }
     }
@@ -685,7 +698,7 @@ export function playWheelHighlightTick(
     audio.volume = volume
     disablePreservesPitch(audio)
     audio.playbackRate = pitch
-    audio.currentTime = 0
+    audio.currentTime = trimSec
     try {
       const result = audio.play()
       if (result && typeof result.catch === 'function') {
@@ -705,7 +718,7 @@ export function playWheelHighlightTick(
     return createWheelTickSource(variant, pitch, volume, ctx.currentTime)
   }
 
-  // Web Audio first — synchronous on the main thread; HTML pool can lag on busy CPUs.
+  // Web Audio first — trim skips MP3 leading silence; lowest scheduling latency.
   if (playViaWebAudio()) return
   if (playFromPool()) return
 
