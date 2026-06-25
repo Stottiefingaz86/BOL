@@ -17,6 +17,7 @@ export type SoundName =
   | 'spin'
   | 'spin-now'
   | 'jackpot-bg'
+  | 'jackpot-wheel-spin'
   | 'jackpot-numbers'
   | 'jackpot-intro'
   | 'jackpot-win-screen'
@@ -24,6 +25,7 @@ export type SoundName =
   | 'final-selection-win'
   | 'jackpot-transition'
   | 'highlight'
+  | 'highlight-2'
 
 const FILE_MAP: Record<SoundName, string> = {
   // Note: existing assets use spaces in the file names — keep them encoded.
@@ -32,6 +34,7 @@ const FILE_MAP: Record<SoundName, string> = {
   spin: 'spin2.mp3',
   'spin-now': 'spin_now.mp3',
   'jackpot-bg': 'jackpot%20bg_music.mp3',
+  'jackpot-wheel-spin': 'wheel%20screen.mp3',
   'jackpot-numbers': 'jackpot%20animation_numbers.mp3',
   'jackpot-intro': 'jackpot%20first%20screen.wav',
   'jackpot-win-screen': 'jackpot%20win%20screen.mp3',
@@ -39,15 +42,20 @@ const FILE_MAP: Record<SoundName, string> = {
   'final-selection-win': 'final%20selection%20win.mp3',
   'jackpot-transition': 'transition_to_jackpot.mp3',
   highlight: 'highlight.mp3',
+  'highlight-2': 'highlight_sound2.mp3',
 }
 
 const cache: Partial<Record<SoundName, HTMLAudioElement>> = {}
 const HIGHLIGHT_POOL_SIZE = 16
 let highlightPool: HTMLAudioElement[] | null = null
 let highlightPoolIndex = 0
+let highlight2Pool: HTMLAudioElement[] | null = null
+let highlight2PoolIndex = 0
 let wheelTickCtx: AudioContext | null = null
 let wheelTickBuffer: AudioBuffer | null = null
+let wheelTickBuffer2: AudioBuffer | null = null
 let wheelTickBufferPromise: Promise<AudioBuffer | null> | null = null
+let wheelTickBuffer2Promise: Promise<AudioBuffer | null> | null = null
 let bgVolumeRampRaf = 0
 
 /** Turn off pitch preservation so playbackRate changes the pitch (cross-browser). */
@@ -77,10 +85,25 @@ function initHighlightPool(): HTMLAudioElement[] {
   return highlightPool
 }
 
-/** Warm the highlight pool + decode tick buffer for Web Audio pitch shifts. */
+function initHighlight2Pool(): HTMLAudioElement[] {
+  if (typeof window === 'undefined') return []
+  if (highlight2Pool) return highlight2Pool
+  highlight2Pool = Array.from({ length: HIGHLIGHT_POOL_SIZE }, () => {
+    const audio = new Audio(`${SOUND_BASE}/${FILE_MAP['highlight-2']}`)
+    audio.preload = 'auto'
+    disablePreservesPitch(audio)
+    audio.load()
+    return audio
+  })
+  return highlight2Pool
+}
+
+/** Warm both tick pools + decode buffers for Web Audio pitch shifts. */
 export function preloadWheelHighlightTicks(): void {
   initHighlightPool()
-  void loadWheelTickBuffer()
+  initHighlight2Pool()
+  void loadWheelTickBuffer('anticipation')
+  void loadWheelTickBuffer('spin')
 }
 
 function ensureWheelTickContext(): AudioContext | null {
@@ -91,7 +114,29 @@ function ensureWheelTickContext(): AudioContext | null {
   return wheelTickCtx
 }
 
-function loadWheelTickBuffer(): Promise<AudioBuffer | null> {
+type WheelTickVariant = 'spin' | 'anticipation'
+
+function loadWheelTickBuffer(
+  variant: WheelTickVariant = 'anticipation'
+): Promise<AudioBuffer | null> {
+  if (variant === 'spin') {
+    if (wheelTickBuffer2) return Promise.resolve(wheelTickBuffer2)
+    if (wheelTickBuffer2Promise) return wheelTickBuffer2Promise
+    wheelTickBuffer2Promise = (async () => {
+      const ctx = ensureWheelTickContext()
+      if (!ctx) return null
+      try {
+        const res = await fetch(`${SOUND_BASE}/${FILE_MAP['highlight-2']}`)
+        const data = await res.arrayBuffer()
+        wheelTickBuffer2 = await ctx.decodeAudioData(data)
+        return wheelTickBuffer2
+      } catch {
+        return null
+      }
+    })()
+    return wheelTickBuffer2Promise
+  }
+
   if (wheelTickBuffer) return Promise.resolve(wheelTickBuffer)
   if (wheelTickBufferPromise) return wheelTickBufferPromise
   wheelTickBufferPromise = (async () => {
@@ -148,7 +193,7 @@ export function playSpinNowSound(volume = 0.85): HTMLAudioElement | null {
 }
 
 interface PlaySoundOptions {
-  /** 0–1. Defaults: click 0.5, redeem 0.7, spin 0.5, jackpot-bg 0.4. */
+  /** 0–1. Defaults: click 0.5, redeem 0.7, spin 0.5, jackpot-bg 0.3. */
   volume?: number
   loop?: boolean
 }
@@ -169,19 +214,23 @@ export function playSound(
     name === 'redeem'
       ? 0.7
       : name === 'jackpot-bg'
-        ? 0.4
-        : name === 'jackpot-numbers'
+        ? 0.3
+        : name === 'jackpot-wheel-spin'
+          ? 0.38
+          : name === 'jackpot-numbers'
           ? 1
           : name === 'jackpot-win-screen'
             ? 0.52
             : name === 'highlight'
             ? 0.5
-            : name === 'spin-now'
+            : name === 'highlight-2'
+              ? 0.5
+              : name === 'spin-now'
               ? 0.85
               : name === 'final-selection-win'
               ? 0.9
               : name === 'jackpot-transition'
-                ? 0.85
+                ? 0.62
                 : 0.5
   const audio = getAudio(name, options.volume ?? defaultVolume)
   if (!audio) return null
@@ -222,12 +271,12 @@ export function afterSound(
 export function preloadJackpotWinHandoffAudio(): void {
   if (typeof window === 'undefined') return
   getAudio('jackpot-final-segment', 0.88)?.load()
-  getAudio('jackpot-transition', 0.85)?.load()
+  getAudio('jackpot-transition', 0.62)?.load()
   getAudio('jackpot-win-screen', 0.52)?.load()
 }
 
 /** Start the looping bed immediately — retries until buffered or playing. */
-export function startJackpotBgMusicImmediate(bgVolume = 0.42): HTMLAudioElement | null {
+export function startJackpotBgMusicImmediate(bgVolume = 0.3): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
   const bg = getAudio('jackpot-bg', bgVolume)
   if (!bg) return null
@@ -305,16 +354,17 @@ export function rampJackpotBgVolume(
 }
 
 /** Fade the looping jackpot bed in from silence (or ramp up if already playing). */
-export function fadeInJackpotBgMusic(targetVolume = 0.42, durationMs = 2400): HTMLAudioElement | null {
+export function fadeInJackpotBgMusic(targetVolume = 0.3, durationMs = 2400): HTMLAudioElement | null {
   return rampJackpotBgVolume(targetVolume, durationMs)
 }
 
 /** Preload wheel sounds only — does not start playback. */
-export function preloadJackpotWheelAudio(bgVolume = 0.42): void {
+export function preloadJackpotWheelAudio(bgVolume = 0.3): void {
   if (typeof window === 'undefined') return
   const bg = getAudio('jackpot-bg', bgVolume)
   const intro = getAudio('jackpot-intro', 0.92)
   getAudio('spin-now', 0.85)?.load()
+  getAudio('jackpot-wheel-spin', 0.38)?.load()
   if (bg) {
     bg.loop = true
     bg.load()
@@ -323,12 +373,12 @@ export function preloadJackpotWheelAudio(bgVolume = 0.42): void {
 }
 
 /** @deprecated Use preloadJackpotWheelAudio — load only, no autoplay. */
-export function preloadJackpotIntroAudio(bgVolume = 0.42): void {
+export function preloadJackpotIntroAudio(bgVolume = 0.3): void {
   preloadJackpotWheelAudio(bgVolume)
 }
 
 /** Intro screen — bed fades in; intro sting plays on top. */
-export function startJackpotIntroAudio(bgVolume = 0.42): void {
+export function startJackpotIntroAudio(bgVolume = 0.3): void {
   if (typeof window === 'undefined') return
   fadeInJackpotBgMusic(bgVolume, 2400)
 
@@ -351,7 +401,7 @@ export function startJackpotIntroAudio(bgVolume = 0.42): void {
 /** Looping jackpot bed — keeps playing if already started (wheel → overlay handoff). */
 export function playJackpotBgMusic(options: PlaySoundOptions = {}): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
-  const volume = options.volume ?? 0.4
+  const volume = options.volume ?? 0.3
   const existing = cache['jackpot-bg']
   if (existing && !existing.paused && existing.loop) {
     return existing
@@ -360,7 +410,7 @@ export function playJackpotBgMusic(options: PlaySoundOptions = {}): HTMLAudioEle
 }
 
 /** (Re)start the looping bed if it was paused — never drops volume while playing. */
-export function ensureJackpotBgMusic(volume = 0.42): HTMLAudioElement | null {
+export function ensureJackpotBgMusic(volume = 0.3): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null
   const existing = cache['jackpot-bg']
   if (existing) {
@@ -391,10 +441,53 @@ export function isJackpotBgAudible(threshold = 0.05): boolean {
   return !!(bg && !bg.paused && bg.volume > threshold && bg.currentTime > 0.05)
 }
 
+/** Looping wheel bed — plays during zoom/spin until jackpot handoff. */
+export function startJackpotWheelSpinMusic(volume = 0.38): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null
+  const existing = cache['jackpot-wheel-spin']
+  if (existing && !existing.paused && existing.loop) {
+    return existing
+  }
+  return playSound('jackpot-wheel-spin', { volume, loop: true })
+}
+
+/** Keep the wheel bed running if it was paused mid-spin. */
+export function ensureJackpotWheelSpinMusic(volume = 0.38): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null
+  const existing = cache['jackpot-wheel-spin']
+  if (existing) {
+    existing.loop = true
+    if (existing.paused) {
+      existing.volume = volume
+      try {
+        const result = existing.play()
+        if (result && typeof (result as Promise<void>).catch === 'function') {
+          ;(result as Promise<void>).catch(() => {})
+        }
+      } catch {
+        // no-op
+      }
+    }
+    return existing
+  }
+  return startJackpotWheelSpinMusic(volume)
+}
+
+/** Crossfade intro bed out and wheel bed in when the player taps Spin. */
+export function swapJackpotBedForWheelSpin(
+  wheelVolume = 0.38,
+  fadeOutMs = 500
+): HTMLAudioElement | null {
+  fadeOutSound('jackpot-bg', fadeOutMs)
+  return startJackpotWheelSpinMusic(wheelVolume)
+}
+
 /** One-shot wheel tick — pitch rises via Web Audio (reliable cross-browser). */
 export function playWheelHighlightTick(
   tickIndex: number,
   options: {
+    /** `spin` = highlight_sound2 during main rotation; `anticipation` = highlight.mp3. */
+    variant?: WheelTickVariant
     volume?: number
     basePitch?: number
     pitchStep?: number
@@ -406,6 +499,7 @@ export function playWheelHighlightTick(
 ): void {
   if (typeof window === 'undefined') return
 
+  const variant = options.variant ?? 'anticipation'
   const basePitch = options.basePitch ?? 0.96
   const pitchStep = options.pitchStep ?? 0.032
   const pitchBoost = options.pitchBoost ?? 0
@@ -413,13 +507,14 @@ export function playWheelHighlightTick(
   const pitch =
     options.playbackRate ??
     Math.min(maxPitch, basePitch + tickIndex * pitchStep + pitchBoost)
-  const volume = Math.min(1, options.volume ?? 0.72)
+  const volume = Math.min(1, options.volume ?? 0.82)
 
+  const buffer = variant === 'spin' ? wheelTickBuffer2 : wheelTickBuffer
   const ctx = ensureWheelTickContext()
-  if (ctx && wheelTickBuffer) {
+  if (ctx && buffer) {
     if (ctx.state === 'suspended') void ctx.resume()
     const source = ctx.createBufferSource()
-    source.buffer = wheelTickBuffer
+    source.buffer = buffer
     source.playbackRate.value = pitch
     const gain = ctx.createGain()
     gain.gain.value = volume
@@ -430,15 +525,20 @@ export function playWheelHighlightTick(
   }
 
   // Fallback until buffer is decoded
-  void loadWheelTickBuffer().then((buffer) => {
-    if (buffer) {
+  void loadWheelTickBuffer(variant).then((decoded) => {
+    if (decoded) {
       playWheelHighlightTick(tickIndex, options)
       return
     }
-    const pool = initHighlightPool()
+    const pool = variant === 'spin' ? initHighlight2Pool() : initHighlightPool()
     if (!pool.length) return
-    const audio = pool[highlightPoolIndex % pool.length]
-    highlightPoolIndex += 1
+    const indexRef = variant === 'spin' ? highlight2PoolIndex : highlightPoolIndex
+    const audio = pool[indexRef % pool.length]
+    if (variant === 'spin') {
+      highlight2PoolIndex += 1
+    } else {
+      highlightPoolIndex += 1
+    }
     audio.volume = volume
     disablePreservesPitch(audio)
     audio.playbackRate = pitch
@@ -484,26 +584,35 @@ export function fadeOutSound(name: SoundName, durationMs = 900): void {
 export function unlockAudioPlayback(): void {
   if (typeof window === 'undefined') return
   resumeWheelTickAudio()
-  void loadWheelTickBuffer()
+  void loadWheelTickBuffer('anticipation')
+  void loadWheelTickBuffer('spin')
   const pool = initHighlightPool()
+  initHighlight2Pool()
   // Make sure the sounds we'll fire later during the spin actually exist now, so
   // they get unlocked by this same gesture (otherwise iOS blocks them later).
   const primed: SoundName[] = [
     'jackpot-intro',
     'jackpot-win-screen',
     'jackpot-bg',
+    'jackpot-wheel-spin',
     'jackpot-numbers',
     'jackpot-final-segment',
     'final-selection-win',
     'jackpot-transition',
     'highlight',
+    'highlight-2',
   ]
   for (const name of primed) {
     if (name === 'jackpot-bg' && isJackpotBgAudible(0.02)) continue
+    if (name === 'jackpot-wheel-spin') {
+      const wheel = cache['jackpot-wheel-spin']
+      if (wheel && !wheel.paused && wheel.loop) continue
+    }
     getAudio(name, 0.0001)
   }
   const elements: HTMLAudioElement[] = [
     ...pool,
+    ...initHighlight2Pool(),
     ...primed
       .map((name) => cache[name])
       .filter((a): a is HTMLAudioElement => !!a),
@@ -511,7 +620,9 @@ export function unlockAudioPlayback(): void {
   for (const audio of elements) {
     // Only skip unlock rewind if the bed is already audibly playing mid-flow.
     const bed = cache['jackpot-bg']
+    const wheelBed = cache['jackpot-wheel-spin']
     if (audio === bed && !bed.paused && bed.currentTime > 0.05) continue
+    if (audio === wheelBed && !wheelBed.paused && wheelBed.loop) continue
     try {
       const wasMuted = audio.muted
       audio.muted = true

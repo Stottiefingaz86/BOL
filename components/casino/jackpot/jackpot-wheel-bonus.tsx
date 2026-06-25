@@ -15,19 +15,18 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile'
 import {
   afterSound,
-  ensureJackpotBgMusic,
+  ensureJackpotWheelSpinMusic,
   fadeOutSound,
-  fadeInJackpotBgMusic,
-  isJackpotBgAudible,
   playSpinNowSound,
   playSound,
   playWheelHighlightTick,
   preloadJackpotWheelAudio,
   preloadJackpotWinHandoffAudio,
   preloadWheelHighlightTicks,
-  rampJackpotBgVolume,
   resumeWheelTickAudio,
   startJackpotIntroAudio,
+  stopSound,
+  swapJackpotBedForWheelSpin,
   unlockAudioPlayback,
 } from '@/lib/sounds'
 import { cn } from '@/lib/utils'
@@ -37,18 +36,22 @@ const SEGMENTS_PER_TIER = 2
 const SEGMENT_COUNT = JACKPOT_TICKER_TIERS.length * SEGMENTS_PER_TIER
 const SEGMENT_ANGLE = 360 / SEGMENT_COUNT
 // Continuous spin — visible slow crawl at the end (high decel power freezes visually).
-const SPIN_DURATION_MS = 52000
-const EXTRA_SPINS = 12
+const SPIN_DURATION_MS = 44000
+const EXTRA_SPINS = 6
 /** Last N segment crossings: louder + higher pitch each step — the anticipation run. */
 const EXCITE_SEGMENTS = 10
 /** Land mid-slice so the wheel comes to rest dead-centre under the pointer. */
 const LAND_SEGMENT_FRACTION = 0.5
+/** Begin the final centre nudge once the winning slice is close enough. */
+const LAND_SNAP_TOLERANCE_DEG = SEGMENT_ANGLE * 0.32
+/** Spring settle into dead centre — slight overshoot so the stop feels physical. */
+const LAND_SETTLE_MS = 580
 /** Camera push-in as the wheel enters the slow tail. */
 const CLOSE_IN_AT = 0.4
 /** final-segment → transition → overlay → wipe */
 const WIPE_DURATION_MS = 920
-const JACKPOT_BG_VOLUME = 0.42
-const JACKPOT_BG_SPIN_VOLUME = 0.54
+const JACKPOT_BG_VOLUME = 0.30
+const JACKPOT_WHEEL_SPIN_VOLUME = 0.38
 /** Desktop zoom pushes into the top arc; mobile uses much lower scale so the
     wheel stays inside the viewport instead of clipping off-screen. */
 const DESKTOP_WHEEL_LAYOUT = {
@@ -172,12 +175,11 @@ function segmentAtPointer(rotationDeg: number): number {
 /**
  * Single continuous ease — velocity never resets mid-spin.
  *
- *  • Short quarter-sine launch (4% time).
- *  • One long decel (96% time) with power n ≈ 2.75:
- *      keeps meaningful velocity through the last ~10 segment crossings so
- *      anticipation ticks land with visible gaps — higher powers freeze early.
+ *  • Quarter-sine launch (~20% time) — soft takeoff, C¹-continuous into decel.
+ *  • One long decel (~80% time) with power n ≈ 2.75:
+ *      keeps meaningful velocity through the last ~10 segment crossings.
  */
-const SPIN_ACCEL_FRAC = 0.04
+const SPIN_ACCEL_FRAC = 0.20
 const SPIN_DECEL_POW = 2.75
 const SPIN_TWO_OVER_PI = 2 / Math.PI
 const SPIN_DECEL_SPAN = 1 - SPIN_ACCEL_FRAC
@@ -200,6 +202,15 @@ function spinEase(t: number): number {
   }
   const p = (t - SPIN_ACCEL_FRAC) / SPIN_DECEL_SPAN
   return SPIN_ACCEL_DIST + SPIN_DECEL_DIST * (1 - Math.pow(1 - p, SPIN_DECEL_POW))
+}
+
+/** Overshoots slightly past 1 — used for the final centre nudge. */
+function easeOutBack(t: number): number {
+  if (t >= 1) return 1
+  if (t <= 0) return 0
+  const c1 = 1.55
+  const c3 = c1 + 1
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2)
 }
 
 /** Segments left before the wheel reaches target — stable, no early rounding. */
@@ -855,6 +866,8 @@ export function JackpotWheelBonus({
       handoffCancelRef.current?.()
       handoffCancelRef.current = null
       if (spinRafRef.current) cancelAnimationFrame(spinRafRef.current)
+      stopSound('jackpot-bg')
+      stopSound('jackpot-wheel-spin')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -866,11 +879,7 @@ export function JackpotWheelBonus({
     playSpinNowSound(0.85)
     unlockAudioPlayback()
     resumeWheelTickAudio()
-    if (!isJackpotBgAudible()) {
-      rampJackpotBgVolume(JACKPOT_BG_SPIN_VOLUME, 1200)
-    } else {
-      rampJackpotBgVolume(JACKPOT_BG_SPIN_VOLUME, 700)
-    }
+    swapJackpotBedForWheelSpin(JACKPOT_WHEEL_SPIN_VOLUME, 500)
     setPhase('zoom')
     setPointerActive(true)
     setHighlightedIndex(segmentAtPointer(0))
@@ -886,8 +895,8 @@ export function JackpotWheelBonus({
 
     closingInStartedRef.current = false
 
-    // Bed keeps playing through the spin — volume already bumped on Spin tap.
-    ensureJackpotBgMusic(JACKPOT_BG_SPIN_VOLUME)
+    // Wheel bed loops from Spin tap through land — intro bg already swapped out.
+    ensureJackpotWheelSpinMusic(JACKPOT_WHEEL_SPIN_VOLUME)
     resumeWheelTickAudio()
 
     const targetRotation = rotationToLandOnSegment(winningSegmentIndex)
@@ -903,15 +912,20 @@ export function JackpotWheelBonus({
       isMobile
     )
 
+    const totalCrossings = Math.max(1, Math.ceil(totalTravel / SEGMENT_ANGLE))
+
     // Last 10 crossings: explicit step ladder — pitch + volume climb each tick.
     let exciteStep = 0
 
     const playLightTick = (segmentsRemaining: number) => {
+      const progress = 1 - segmentsRemaining / totalCrossings
+
       if (segmentsRemaining > EXCITE_SEGMENTS) {
         exciteStep = 0
         playWheelHighlightTick(0, {
-          volume: 0.24,
-          playbackRate: 0.9,
+          variant: 'spin',
+          volume: 0.14 + progress * 0.36,
+          playbackRate: 0.72 + progress * 0.22,
         })
         return
       }
@@ -921,12 +935,95 @@ export function JackpotWheelBonus({
       const rise = step / Math.max(1, EXCITE_SEGMENTS - 1)
 
       playWheelHighlightTick(step, {
-        volume: 0.55 + rise * 0.45,
+        variant: 'anticipation',
+        volume: 0.58 + rise * 0.42,
         playbackRate: 0.92 + rise * 1.12,
       })
     }
 
+    let spinComplete = false
+    let settling = false
+    let settleFromRotation = 0
+    let settleStartTime = 0
+
+    const finishWinHandoff = () => {
+      if (spinComplete) return
+      spinComplete = true
+      if (spinRafRef.current) {
+        cancelAnimationFrame(spinRafRef.current)
+        spinRafRef.current = null
+      }
+
+      applyWheelRotation(targetRotation)
+      setRotation(targetRotation)
+      if (winningSegmentIndex !== lastLitIndexRef.current) {
+        lastLitIndexRef.current = winningSegmentIndex
+        applyWheelSegmentHighlight(
+          wheelSvgRef.current,
+          null,
+          winningSegmentIndex,
+          isMobile
+        )
+      }
+
+      flushSync(() => {
+        setHighlightedIndex(winningSegmentIndex)
+        setPhase('landed')
+      })
+
+      fadeOutSound('jackpot-wheel-spin', 500)
+
+      handoffCancelRef.current?.()
+      if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
+
+      let cancelFinal: (() => void) | null = null
+      let cancelTransition: (() => void) | null = null
+      handoffCancelRef.current = () => {
+        cancelFinal?.()
+        cancelTransition?.()
+      }
+
+      const finalAudio = playSound('jackpot-final-segment', { volume: 0.88 })
+      cancelFinal = afterSound(finalAudio, JACKPOT_FINAL_SEGMENT_MAX_MS, () => {
+        const transitionAudio = playSound('jackpot-transition', { volume: 0.62 })
+        cancelTransition = afterSound(
+          transitionAudio,
+          JACKPOT_TRANSITION_MAX_MS,
+          () => {
+            onWipeStart?.(winTier)
+            finishTimerRef.current = setTimeout(() => {
+              setPhase('wipe')
+              finishTimerRef.current = setTimeout(finish, WIPE_DURATION_MS)
+            }, JACKPOT_OVERLAY_BEAT_MS)
+          }
+        )
+      })
+    }
+
+    const beginLandSettle = (fromRotation: number) => {
+      if (spinComplete || settling) return
+      settling = true
+      settleFromRotation = fromRotation
+      settleStartTime = performance.now()
+    }
+
     const tick = (now: number) => {
+      if (settling) {
+        const settleT = Math.min(1, (now - settleStartTime) / LAND_SETTLE_MS)
+        const settled =
+          settleFromRotation +
+          (targetRotation - settleFromRotation) * easeOutBack(settleT)
+        applyWheelRotation(settled)
+
+        if (settleT < 1) {
+          spinRafRef.current = requestAnimationFrame(tick)
+          return
+        }
+
+        finishWinHandoff()
+        return
+      }
+
       const t = Math.min(1, (now - startTime) / SPIN_DURATION_MS)
       const current = startRotation + totalTravel * spinEase(t)
 
@@ -956,56 +1053,23 @@ export function JackpotWheelBonus({
         playLightTick(segmentsRemaining)
       }
 
+      const remainingDeg = Math.max(0, targetRotation - current)
+      const onWinner = litIndex === winningSegmentIndex
+      const centredEnough = remainingDeg <= LAND_SNAP_TOLERANCE_DEG
+
+      if (onWinner && centredEnough) {
+        beginLandSettle(current)
+        spinRafRef.current = requestAnimationFrame(tick)
+        return
+      }
+
       if (t < 1) {
         spinRafRef.current = requestAnimationFrame(tick)
         return
       }
 
-      // Spin complete — winner flash + win sting immediately, then riser → jackpot screen.
-      applyWheelRotation(targetRotation)
-      setRotation(targetRotation)
-      if (winningSegmentIndex !== lastLitIndexRef.current) {
-        lastLitIndexRef.current = winningSegmentIndex
-        applyWheelSegmentHighlight(
-          wheelSvgRef.current,
-          null,
-          winningSegmentIndex,
-          isMobile
-        )
-      }
-
-      flushSync(() => {
-        setHighlightedIndex(winningSegmentIndex)
-        setPhase('landed')
-      })
-
-      fadeOutSound('jackpot-bg', 500)
-
-      handoffCancelRef.current?.()
-      if (finishTimerRef.current) clearTimeout(finishTimerRef.current)
-
-      let cancelFinal: (() => void) | null = null
-      let cancelTransition: (() => void) | null = null
-      handoffCancelRef.current = () => {
-        cancelFinal?.()
-        cancelTransition?.()
-      }
-
-      const finalAudio = playSound('jackpot-final-segment', { volume: 0.88 })
-      cancelFinal = afterSound(finalAudio, JACKPOT_FINAL_SEGMENT_MAX_MS, () => {
-        const transitionAudio = playSound('jackpot-transition', { volume: 0.85 })
-        cancelTransition = afterSound(
-          transitionAudio,
-          JACKPOT_TRANSITION_MAX_MS,
-          () => {
-            onWipeStart?.(winTier)
-            finishTimerRef.current = setTimeout(() => {
-              setPhase('wipe')
-              finishTimerRef.current = setTimeout(finish, WIPE_DURATION_MS)
-            }, JACKPOT_OVERLAY_BEAT_MS)
-          }
-        )
-      })
+      beginLandSettle(current)
+      spinRafRef.current = requestAnimationFrame(tick)
     }
 
     spinRafRef.current = requestAnimationFrame(tick)

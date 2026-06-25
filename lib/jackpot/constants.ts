@@ -155,7 +155,7 @@ export const JACKPOT_WIN_COUNTUP_DURATION_MS = getJackpotWinCountUpDurationMs(9)
 
 /** Wheel land → win overlay handoff */
 /** Hold on wheel with winner flash + final win sting */
-export const JACKPOT_FINAL_SEGMENT_MAX_MS = 1100
+export const JACKPOT_FINAL_SEGMENT_MAX_MS = 750
 /** Riser after win sting, before jackpot screen mounts */
 export const JACKPOT_TRANSITION_MAX_MS = 1300
 /** Overlay mounted under wheel before wipe reveals it */
