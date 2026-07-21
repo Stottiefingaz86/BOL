@@ -18,6 +18,9 @@ import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
 import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { SidebarPromos } from '@/components/sidebar-promos'
+import { HomeHero } from '@/components/home/home-hero'
+import { VipTablesSection } from '@/components/home/vip-tables-section'
+import { VipRewardsPromo } from '@/components/home/vip-rewards-promo'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
@@ -1081,11 +1084,19 @@ function HomePageContent() {
   const [originalsCarouselApi, setOriginalsCarouselApi] = useState<CarouselApi>()
   const [originalsCanScrollPrev, setOriginalsCanScrollPrev] = useState(false)
   const [originalsCanScrollNext, setOriginalsCanScrollNext] = useState(false)
+  const [topLeaguesCarouselApi, setTopLeaguesCarouselApi] = useState<CarouselApi>()
+  const [topLeaguesCanScrollPrev, setTopLeaguesCanScrollPrev] = useState(false)
+  const [topLeaguesCanScrollNext, setTopLeaguesCanScrollNext] = useState(false)
   const [vendorsCarouselApi, setVendorsCarouselApi] = useState<CarouselApi>()
   
   // Top Events scores state
   const [topEventsScores, setTopEventsScores] = useState<Record<number, { team1: number; team2: number; animating?: { team: number; from: number; to: number } }>>({})
   
+  // Homepage section toggles — set true to restore without deleting markup
+  const SHOW_TOP_SPORTS = false
+  const SHOW_WHY_BETONLINE = false
+  const SHOW_ACTIVITY = false
+
   // Activity Leaderboard state
   const [activityTab, setActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
   const [activityFeed, setActivityFeed] = useState<Array<{
@@ -1209,6 +1220,7 @@ function HomePageContent() {
   
   // Initialize and update activity feed
   useEffect(() => {
+    if (!SHOW_ACTIVITY) return
     // Initialize with 6 items
     const initialFeed = Array.from({ length: 6 }, () => generateActivity())
     setActivityFeed(initialFeed)
@@ -1254,6 +1266,16 @@ function HomePageContent() {
       setOriginalsCanScrollNext(originalsCarouselApi.canScrollNext())
     })
   }, [originalsCarouselApi])
+
+  useEffect(() => {
+    if (!topLeaguesCarouselApi) return
+    setTopLeaguesCanScrollPrev(topLeaguesCarouselApi.canScrollPrev())
+    setTopLeaguesCanScrollNext(topLeaguesCarouselApi.canScrollNext())
+    topLeaguesCarouselApi.on('select', () => {
+      setTopLeaguesCanScrollPrev(topLeaguesCarouselApi.canScrollPrev())
+      setTopLeaguesCanScrollNext(topLeaguesCarouselApi.canScrollNext())
+    })
+  }, [topLeaguesCarouselApi])
 
   // Mobile: Quick links scroll handler
   useEffect(() => {
@@ -1775,129 +1797,23 @@ function HomePageContent() {
           style={{ overflow: 'hidden' }}
         />
 
-        {/* Hero Banner Section */}
-        {isMobile ? (
-          /* Mobile: Casino-style SVG banner carousel */
-          <div className="py-4 px-3">
-            <Carousel className="w-full" opts={{ align: 'start', loop: false, duration: 15 }}>
-              <CarouselContent className="-ml-2">
-                {([
-                  { src: '/banners/mobile bannerBanner.svg', alt: 'Flaame Banner', href: 'https://www.flaame.co/' },
-                  { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1', href: '' },
-                  { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2', href: '' },
-                  { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3', href: '' },
-                  { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4', href: '' },
-                  { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5', href: '' },
-                ]).map((banner, i) => (
-                  <CarouselItem key={i} className="pl-2 basis-auto flex-shrink-0">
-                    <Card 
-                      className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-xl" 
-                      style={{ width: '300px', height: '148px' }}
-                      onClick={() => { if (banner.href) window.open(banner.href, '_blank') }}
-                    >
-                      <Image
-                        src={banner.src}
-                        alt={banner.alt}
-                        width={300}
-                        height={148}
-                        className="object-cover w-full h-full"
-                        unoptimized
-                        priority
-                      />
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          </div>
-        ) : (
-          /* Desktop: Full-width banner carousel */
-          <div className="py-4 md:py-6 px-6">
-            <Carousel className="w-full relative" opts={{ align: 'start', loop: false, duration: 15 }}>
-              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-              <CarouselContent className="ml-0 mr-0">
-                {/* Banner 1 - Originals */}
-                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
-                    <Image
-                      src="/banners/ori.svg"
-                      alt="Originals Banner"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={100}
-                      unoptimized
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-                {/* Banner 2 */}
-                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
-                    <Image
-                      src="/banners/banner1.svg"
-                      alt="Hero Banner"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={100}
-                      unoptimized
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-                {/* Banner 3 */}
-                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                  <div className="relative w-full overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
-                    <Image
-                      src="/banners/banner12.svg"
-                      alt="Banner 2"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={100}
-                      unoptimized
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-                {/* Banner 4 - Bracket */}
-                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
-                    <Image
-                      src="/banners/bracket.svg"
-                      alt="Bracket Banner"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={100}
-                      unoptimized
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-                {/* Banner 5 */}
-                <CarouselItem className="basis-full flex-shrink-0 pl-0 pr-0">
-                  <div className="relative w-full cursor-pointer hover:opacity-90 transition-opacity overflow-hidden rounded-2xl pr-4" style={{ aspectRatio: '4/1', minHeight: '200px' }}>
-                    <Image
-                      src="/banners/partners/banner4.svg"
-                      alt="Banner 5"
-                      fill
-                      className="object-cover"
-                      priority
-                      quality={100}
-                      unoptimized
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-              </CarouselContent>
-            </Carousel>
-          </div>
-        )}
+        {/* Hero — simplified Casino / Sports destinations */}
+        <div className={cn(isMobile ? 'px-3 py-4' : 'px-6 py-4 md:py-6')}>
+          <HomeHero
+            isLoggedIn={isUserLoggedIn}
+            onRegister={() => {
+              openAccountDrawer()
+              setAccountDrawerView('createAccount')
+            }}
+            onLogin={() => {
+              openAccountDrawer()
+              setAccountDrawerView('login')
+            }}
+          />
+        </div>
 
-        {/* Top Sports Carousel */}
+        {/* Top Sports Carousel — hidden while simplifying homepage; set SHOW_TOP_SPORTS = true to restore */}
+        {SHOW_TOP_SPORTS && (
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2 
@@ -2074,6 +1990,7 @@ function HomePageContent() {
             </Carousel>
           </div>
         </div>
+        )}
 
         {/* Slots Carousel Section */}
         <div className="mb-6">
@@ -2249,6 +2166,122 @@ function HomePageContent() {
           </div>
         </div>
 
+        {/* Top Sports */}
+        <div className="mb-6">
+          <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
+            <h2
+              className="text-lg font-semibold text-white cursor-pointer hover:text-white/80 transition-colors"
+              onClick={() => router.push('/sports/football')}
+            >
+              Top Sports
+            </h2>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                onClick={() => router.push('/sports/football')}
+              >
+                See More
+              </Button>
+              {!isMobile && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (topLeaguesCarouselApi) {
+                        const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
+                        topLeaguesCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
+                      }
+                    }}
+                    disabled={!topLeaguesCarouselApi || !topLeaguesCanScrollPrev}
+                  >
+                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (topLeaguesCarouselApi) {
+                        const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
+                        const slideCount = topLeaguesCarouselApi.scrollSnapList().length
+                        topLeaguesCarouselApi.scrollTo(Math.min(slideCount - 1, currentIndex + 2))
+                      }
+                    }}
+                    disabled={!topLeaguesCarouselApi || !topLeaguesCanScrollNext}
+                  >
+                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
+            <Carousel
+              setApi={setTopLeaguesCarouselApi}
+              className="w-full relative"
+              opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
+            >
+              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+                {[
+                  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl' },
+                  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba' },
+                  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb' },
+                  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl' },
+                  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer' },
+                  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis' },
+                  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
+                  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football' },
+                  { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
+                  { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports/rugby' },
+                  { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports/football' },
+                  { name: 'Volleyball', icon: '/sports_icons/volley.svg', href: '/sports/volleyball' },
+                  { name: 'Lacrosse', icon: '/sports_icons/lacrosse.svg', href: '/sports/lacrosse' },
+                  { name: 'Pool', icon: '/sports_icons/pool.svg', href: '/sports/pool' },
+                  { name: 'Table Tennis', icon: '/sports_icons/table_tennis.svg', href: '/sports/table-tennis' },
+                  { name: 'Horse Racing', icon: '/sports_icons/Horse-Racing-101.svg', href: '/sports/football' },
+                  { name: 'All Sports', icon: '/sports_icons/all sports.svg', href: '/sports' },
+                ].map((sport, index) => (
+                  <CarouselItem
+                    key={sport.name}
+                    className={cn(
+                      "pr-0 basis-auto flex-shrink-0",
+                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => router.push(sport.href)}
+                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.06] transition-colors hover:border-white/20 hover:bg-white/10 md:h-[100px] md:w-[100px]"
+                      aria-label={sport.name}
+                    >
+                      <Image
+                        src={sport.icon}
+                        alt=""
+                        width={44}
+                        height={44}
+                        className="h-10 w-10 object-contain md:h-11 md:w-11"
+                        unoptimized
+                      />
+                      <span className="max-w-[90%] truncate text-[10px] font-medium text-white/70">
+                        {sport.name}
+                      </span>
+                    </button>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        </div>
+
+        {/* VIP Tables — Live high-limit tables */}
+        <VipTablesSection onSelectGame={setSelectedGame} />
+
+        {/* VIP Rewards promo — opens VIP Hub */}
+        <VipRewardsPromo onExplore={openVipDrawer} />
+
         {/* Vendors Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
@@ -2311,7 +2344,8 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* Why BetOnline Section - Updated with left-aligned text and trust image */}
+        {/* Why BetOnline — hidden while simplifying homepage; set SHOW_WHY_BETONLINE = true to restore */}
+        {SHOW_WHY_BETONLINE && (
         <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
           <h2 className="text-lg font-semibold text-white mb-4">Why BetOnline?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2412,149 +2446,11 @@ function HomePageContent() {
             </Card>
           </div>
           
-          {/* USP Section - Single Block with Separators */}
-          <div className="mt-6 flex justify-center">
-            {isMobile ? (
-              /* Mobile Carousel */
-              <Carousel className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                <CarouselContent className="ml-0 mr-0">
-                  {[
-                    { icon: '/banners/partners/crypto.svg', title: 'DEPOSIT WITH CRYPTO', subtitle: 'FAST, EASY & RELIABLE' },
-                    { icon: '/banners/partners/vip-rewards.svg', title: 'VIP REWARDS', subtitle: 'LEVEL UP BONUSES, BOOSTS & MORE' },
-                    { icon: '/banners/partners/bettingicons-coloured.svg', title: 'BET BIG', subtitle: 'HIGH LIMITS AND RE-BET FUNCTIONALITY' },
-                    { icon: '/banners/partners/live-betting.svg', title: 'FASTEST PAYOUTS', subtitle: 'PAYOUTS WITHIN MINUTES' },
-                    { icon: 'lock', title: 'SAFE & SECURE', subtitle: 'TRUSTED & PROTECTED' },
-                  ].map((item, index) => (
-                    <CarouselItem key={index} className={cn("pr-2 basis-auto flex-shrink-0", index === 0 ? "pl-0" : "pl-2")}>
-                      <div className="p-3 min-w-[280px] group cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0">
-                            {item.icon === 'lock' ? (
-                              <IconLock size={32} className="text-white/60 group-hover:text-[#dc2626] transition-all duration-300" />
-                            ) : (
-                              <Image
-                                src={item.icon}
-                                alt={item.title}
-                                width={32}
-                                height={32}
-                                className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                                unoptimized
-                              />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">{item.title}</h3>
-                            <p className="text-white/60 text-[10px] uppercase leading-tight">{item.subtitle}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            ) : (
-              /* Desktop - Single Block with Small Separators */
-              <div className="inline-flex">
-                <div className="grid grid-cols-5">
-                  {/* Deposit With Crypto */}
-                  <div className="p-3 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src="/banners/partners/crypto.svg"
-                          alt="Crypto"
-                          width={32}
-                          height={32}
-                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                          unoptimized
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">DEPOSIT WITH CRYPTO</h3>
-                        <p className="text-white/60 text-[10px] uppercase leading-tight">FAST, EASY & RELIABLE</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* VIP Rewards */}
-                  <div className="p-3 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src="/banners/partners/vip-rewards.svg"
-                          alt="VIP Rewards"
-                          width={32}
-                          height={32}
-                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                          unoptimized
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">VIP REWARDS</h3>
-                        <p className="text-white/60 text-[10px] uppercase leading-tight">LEVEL UP BONUSES, BOOSTS & MORE</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bet Big */}
-                  <div className="p-3 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src="/banners/partners/bettingicons-coloured.svg"
-                          alt="Bet Big"
-                          width={32}
-                          height={32}
-                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                          unoptimized
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">BET BIG</h3>
-                        <p className="text-white/60 text-[10px] uppercase leading-tight">HIGH LIMITS AND RE-BET FUNCTIONALITY</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Fastest Payouts */}
-                  <div className="p-3 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src="/banners/partners/live-betting.svg"
-                          alt="Fast Payouts"
-                          width={32}
-                          height={32}
-                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                          unoptimized
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">FASTEST PAYOUTS</h3>
-                        <p className="text-white/60 text-[10px] uppercase leading-tight">PAYOUTS WITHIN MINUTES</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Safe & Secure */}
-                  <div className="p-3 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0">
-                        <IconLock size={32} className="text-white/60 group-hover:text-[#dc2626] transition-all duration-300" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-xs mb-0.5 uppercase leading-tight">SAFE & SECURE</h3>
-                        <p className="text-white/60 text-[10px] uppercase leading-tight">TRUSTED & PROTECTED</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
+        )}
 
-        {/* Activity Section */}
+        {/* Activity — hidden while simplifying homepage; set SHOW_ACTIVITY = true to restore */}
+        {SHOW_ACTIVITY && (
         <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
           <Separator className="mb-6 bg-white/10" />
           <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
@@ -2817,6 +2713,7 @@ function HomePageContent() {
             </CardContent>
           </Card>
         </div>
+        )}
 
         {/* Game Launcher - Full Screen Overlay */}
         <AnimatePresence>

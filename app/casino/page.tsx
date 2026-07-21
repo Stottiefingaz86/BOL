@@ -7405,6 +7405,7 @@ function NavTestPageContent() {
   
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
+  const [hubFocusMode, setHubFocusMode] = useState(false)
   const [accountDrawerView, setAccountDrawerView] = useState<'account' | 'notifications'>('account')
   const webInboxUnreadCount = 2
 
@@ -8217,6 +8218,10 @@ function NavTestPageContent() {
   }, [])
 
   const handleVipDrawerOpenChange = React.useCallback((open: boolean) => {
+    if (hubFocusMode && !open) {
+      return
+    }
+
     if (!open) {
       // Drawer is closing — animate any pending balance from claimed boosts
       const pendingAmount = pendingBalanceRef.current
@@ -8257,7 +8262,24 @@ function NavTestPageContent() {
       }
     }
     setVipDrawerOpen(open)
-  }, [isMobile])
+  }, [hubFocusMode, isMobile])
+
+  useEffect(() => {
+    if (!hubFocusMode || !vipDrawerOpen) return
+
+    const html = document.documentElement
+    const body = document.body
+    const prevHtmlOverflow = html.style.overflow
+    const prevBodyOverflow = body.style.overflow
+
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow
+      body.style.overflow = prevBodyOverflow
+    }
+  }, [hubFocusMode, vipDrawerOpen])
 
   // Brand configurations using design system tokens
   const brands = {
@@ -8435,6 +8457,7 @@ function NavTestPageContent() {
           setActiveSubNav={setActiveSubNav}
           setInitialVipSidebarItem={setInitialVipSidebarItem}
           setVipActiveSidebarItem={setVipActiveSidebarItem}
+          setHubFocusMode={setHubFocusMode}
         />
       </Suspense>
       {/* Mobile: Quick Links - Above main menu, pushes it down when open */}
@@ -12806,9 +12829,12 @@ function NavTestPageContent() {
           onOpenChange={handleVipDrawerOpenChange}
           direction={isMobile ? "bottom" : "right"}
           shouldScaleBackground={false}
+          dismissible={!hubFocusMode}
         >
           <DrawerContent 
-            showOverlay={isMobile}
+            showOverlay={isMobile || hubFocusMode}
+            overlayClassName={hubFocusMode ? 'bg-black/80 backdrop-blur-md' : undefined}
+            onOverlayClick={hubFocusMode ? () => {} : undefined}
             className={cn(
               "bg-[#1a1a1a] text-white flex flex-col relative",
               "w-full sm:max-w-md border-l border-white/10 overflow-hidden",

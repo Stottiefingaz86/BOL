@@ -21,6 +21,7 @@ export type CasinoSearchParamsEffectsProps = {
   setActiveSubNav: (val: string) => void
   setInitialVipSidebarItem: (v: string | null) => void
   setVipActiveSidebarItem: (v: string) => void
+  setHubFocusMode: (v: boolean) => void
 }
 
 /**
@@ -41,13 +42,17 @@ export function CasinoSearchParamsEffects({
   setActiveSubNav,
   setInitialVipSidebarItem,
   setVipActiveSidebarItem,
+  setHubFocusMode,
 }: CasinoSearchParamsEffectsProps) {
   const searchParams = useSearchParams()
 
   useEffect(() => {
+    if (searchParams.get('hubFocus') === 'true') {
+      setHubFocusMode(true)
+    }
+
     const vipRewardsPageParam = searchParams.get('vipRewardsPage')
     if (vipRewardsPageParam === 'true') {
-      setVipDrawerOpen(false)
       setShowPoker(false)
       setShowSports(false)
       setShowVipRewards(true)
@@ -56,7 +61,21 @@ export function CasinoSearchParamsEffects({
         setInitialVipSidebarItem(promoSectionParam)
       }
       window.scrollTo(0, 0)
+
+      const openHub = searchParams.get('vip') === 'true'
+      if (!openHub) {
+        setVipDrawerOpen(false)
+      }
+
       router.replace('/casino', { scroll: false })
+
+      if (openHub) {
+        const hubSection = searchParams.get('hubSection') ?? 'Overview'
+        requestAnimationFrame(() => {
+          openVipDrawer()
+          setVipActiveSidebarItem(hubSection)
+        })
+      }
     } else {
       const vipParam = searchParams.get('vip')
       if (vipParam === 'true') {
@@ -99,6 +118,7 @@ export function CasinoSearchParamsEffects({
     setShowVipRewards,
     setVipActiveSidebarItem,
     setVipDrawerOpen,
+    setHubFocusMode,
   ])
 
   useEffect(() => {

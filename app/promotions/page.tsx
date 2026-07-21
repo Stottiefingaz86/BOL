@@ -9,10 +9,13 @@ function PromotionsRedirectInner() {
 
   useEffect(() => {
     const section = searchParams.get('section')
-    const url = section
-      ? `/casino?vipRewardsPage=true&section=${encodeURIComponent(section)}`
-      : '/casino?vipRewardsPage=true'
-    router.replace(url)
+    const vip = searchParams.get('vip')
+    const hubSection = searchParams.get('hubSection')
+    const params = new URLSearchParams({ vipRewardsPage: 'true' })
+    if (section) params.set('section', section)
+    if (vip === 'true') params.set('vip', 'true')
+    if (hubSection) params.set('hubSection', hubSection)
+    router.replace(`/casino?${params.toString()}`)
   }, [router, searchParams])
 
   return (
