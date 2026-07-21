@@ -231,14 +231,14 @@ export function HomeHero({
         className
       )}
     >
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
+      <div className="absolute inset-0 bg-[#1a1a1a]" />
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <Image
           src="/banners/new_home.png"
           alt=""
           fill
           priority
-          className="scale-110 object-cover object-[center_82%] blur-[2.5px]"
+          className="scale-110 object-cover object-[center_82%] blur-[2.5px] opacity-75"
           sizes="100vw"
           unoptimized
         />
@@ -247,8 +247,8 @@ export function HomeHero({
         className="pointer-events-none absolute inset-0"
         style={{
           background: `
-            linear-gradient(90deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.42) 36%, rgba(0,0,0,0.22) 58%, rgba(0,0,0,0.48) 100%),
-            linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.5) 100%)
+            linear-gradient(90deg, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.35) 40%, rgba(26,26,26,0.25) 60%, rgba(26,26,26,0.5) 100%),
+            linear-gradient(180deg, rgba(26,26,26,0.35) 0%, transparent 28%, transparent 72%, rgba(26,26,26,0.45) 100%)
           `,
         }}
       />
