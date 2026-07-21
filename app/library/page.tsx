@@ -209,7 +209,7 @@ function FamilyDrawerPreview() {
                   transition={{ duration: 0.2 }}
                   className="px-4 pb-4 flex flex-col items-center gap-3"
                 >
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center mt-2" style={{ backgroundColor: '#8BC34A' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center mt-2" style={{ backgroundColor: '#97c43c' }}>
                     <IconCheck className="w-5 h-5 text-white" />
                   </div>
                   <p className="text-xs font-semibold text-white">Bet Placed!</p>
@@ -3608,7 +3608,7 @@ import { BetslipNumberPad } from '@/components/betslip/number-pad'
   "pageBg": "#1a1a1a",
   "sidebarBg": "#2d2d2d",
   "cardBg": "#2d2d2d",
-  "accentGreen": "#8ac500",
+  "accentGreen": "#97c43c",
   "primaryTextBlack": false
 }
 
@@ -3747,7 +3747,7 @@ import { BetslipNumberPad } from '@/components/betslip/number-pad'
                 <span className="text-xl font-bold text-white tabular-nums">2 - 1</span>
                 <span className="text-[11px] text-white font-medium">ARS</span>
               </div>
-              <div className="text-[9px] mt-1" style={{ color: 'var(--ds-accent-green, #8ac500)' }}>67&apos;</div>
+              <div className="text-[9px] mt-1" style={{ color: 'var(--ds-accent-green, #97c43c)' }}>67&apos;</div>
             </div>
           </div>
         </div>

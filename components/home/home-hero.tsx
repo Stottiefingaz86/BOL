@@ -77,7 +77,7 @@ function HeroUspBar() {
                   alt=""
                   width={28}
                   height={28}
-                  className="object-contain grayscale transition-all duration-300 group-hover:grayscale-0"
+                  className="object-contain"
                   unoptimized
                 />
               )}
@@ -264,9 +264,13 @@ export function HomeHero({
 
       <div className="relative z-10 flex flex-col gap-8 px-4 py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:py-10 lg:gap-10 lg:px-10">
         <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[320px] md:items-start md:text-left">
-          <h1 className="text-[32px] font-bold leading-[1.05] tracking-tight text-white sm:text-[40px] md:text-[44px] lg:text-[48px]">
-            <span className="block">Bet On.</span>
-            <span className="block text-[#ee3536]">BetOnline</span>
+          <h1 className="flex flex-col gap-1.5">
+            <span className="block text-[44px] font-bold leading-[0.95] tracking-tight text-white sm:text-[52px] md:text-[56px] lg:text-[64px]">
+              Bet On.
+            </span>
+            <span className="block text-[28px] font-bold tracking-tight text-white sm:text-[34px] md:text-[38px] lg:text-[42px]">
+              BetOnline
+            </span>
           </h1>
 
           {!isLoggedIn ? (

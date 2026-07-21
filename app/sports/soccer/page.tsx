@@ -4719,7 +4719,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
 
                     {/* Stake Input - Smaller, tighter */}
                     <div className="flex-shrink-0 w-[100px] min-w-[100px]">
-                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8BC34A] focus-within:ring-1 focus-within:ring-[#8BC34A]/30 transition-all", numpadTarget === bet.id ? "border-[#8BC34A] ring-1 ring-[#8BC34A]/30" : "border-black/10")}>
+                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#97c43c] focus-within:ring-1 focus-within:ring-[#97c43c]/30 transition-all", numpadTarget === bet.id ? "border-[#97c43c] ring-1 ring-[#97c43c]/30" : "border-black/10")}>
                           <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                           <input
                             data-vaul-no-drag=""
@@ -4842,7 +4842,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
 
                   {/* Parlay Stake Input - Smaller */}
                   <div className="flex-shrink-0 w-[100px] min-w-[100px]">
-                    <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8BC34A] focus-within:ring-1 focus-within:ring-[#8BC34A]/30 transition-all", numpadTarget === 'parlay' ? "border-[#8BC34A] ring-1 ring-[#8BC34A]/30" : "border-black/10")}>
+                    <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#97c43c] focus-within:ring-1 focus-within:ring-[#97c43c]/30 transition-all", numpadTarget === 'parlay' ? "border-[#97c43c] ring-1 ring-[#97c43c]/30" : "border-black/10")}>
                       <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                       <input
                         type="text"
@@ -4965,7 +4965,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       className={cn(
                   "w-full py-3 rounded-lg transition-all flex flex-col items-center justify-center font-medium shadow-sm",
                         totalStake > 0 
-                    ? "bg-[#8BC34A] text-white hover:bg-[#7CB342] active:scale-[0.98]" 
+                    ? "bg-[#97c43c] text-white hover:bg-[#7fa832] active:scale-[0.98]" 
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       )}
                     >
@@ -5020,7 +5020,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         <div className="flex flex-col items-center justify-center px-6 py-6">
           {/* Success Icon */}
           <div className="mb-4">
-            <div className="w-16 h-16 rounded-full bg-[#8BC34A] flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-[#97c43c] flex items-center justify-center">
               <IconCheck className="w-8 h-8 text-white" strokeWidth={3} />
             </div>
           </div>
@@ -13578,7 +13578,7 @@ function NavTestPageContent() {
                   width: '20px', 
                   height: '20px', 
                   borderRadius: '50%', 
-                  backgroundColor: '#8BC34A', 
+                  backgroundColor: '#97c43c', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center',

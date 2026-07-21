@@ -46,6 +46,20 @@ const config: Config = {
   				DEFAULT: 'hsl(var(--popover))',
   				foreground: 'hsl(var(--popover-foreground))',
   			},
+  			/** BOL CTA green — remaps Tailwind emerald so Create Account / green CTAs match brand lime */
+  			emerald: {
+  				50: '#f5fbe8',
+  				100: '#e8f6c8',
+  				200: '#d4ec96',
+  				300: '#bede64',
+  				400: '#abd456',
+  				500: '#a5cf4a',
+  				600: '#97c43c',
+  				700: '#7fa832',
+  				800: '#668528',
+  				900: '#4d641e',
+  				950: '#2f3d12',
+  			},
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',

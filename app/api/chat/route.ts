@@ -318,7 +318,7 @@ Example response for "wild casino colour pallete" or "what are wild casino color
 "Wild Casino brand uses a neon green color palette. Here are the colors:
 
 Primary colors: WildNeonGreen 2 (#6cea75)
-Secondary colors: betGreen (#8ac500)
+Secondary colors: betGreen (#97c43c)
 Accent colors: WildNeonGreen 2 (#6cea75)
 Background colors: grey-900, grey-800, common/black (#000000)
 
@@ -606,7 +606,7 @@ async function buildImageGenerationPrompt(
   // Default colors if none found
   if (brandColors.length === 0) {
     if (brandName === 'BetOnline') {
-      brandColors = ['betRed (#ee3536)', 'betGreen (#8ac500)', 'betNavy (#2d6f88)']
+      brandColors = ['betRed (#ee3536)', 'betGreen (#97c43c)', 'betNavy (#2d6f88)']
     } else if (brandName === 'Wild Casino') {
       brandColors = ['WildNeonGreen 2 (#6cea75)', 'grey-900', 'grey-800']
     } else if (brandName === 'Tiger Gaming') {
