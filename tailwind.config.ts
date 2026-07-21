@@ -87,10 +87,16 @@ const config: Config = {
   					transform: 'translateX(calc(-1 * var(--reel-idle-shift, 0px)))',
   				},
   			},
+  			'wallet-shimmer': {
+  				'0%, 78%': { transform: 'translateX(-140%)' },
+  				'90%': { transform: 'translateX(140%)' },
+  				'100%': { transform: 'translateX(140%)' },
+  			},
   		},
   		animation: {
   			'vip-reel-idle':
   				'vip-reel-idle var(--reel-idle-ms, 28s) linear infinite',
+  			'wallet-shimmer': 'wallet-shimmer 7s ease-in-out infinite',
   		},
   	}
   },

@@ -1,9 +1,11 @@
 'use client'
 
-import { IconCrown } from '@tabler/icons-react'
+import Image from 'next/image'
 import { useAuthSession } from '@/hooks/use-auth-session'
 import { useChatStore } from '@/lib/store/chatStore'
 import { cn } from '@/lib/utils'
+
+const VIP_GOLD = '227, 158, 61'
 
 type VipCrownNavButtonProps = {
   active?: boolean
@@ -11,6 +13,7 @@ type VipCrownNavButtonProps = {
   onClick?: () => void
 }
 
+/** Matches Figma Header IconButton (VIP) — 36px, radius 8, gold fill/border */
 export function VipCrownNavButton({ active = false, className, onClick }: VipCrownNavButtonProps) {
   const { isLoggedIn } = useAuthSession()
 
@@ -28,20 +31,37 @@ export function VipCrownNavButton({ active = false, className, onClick }: VipCro
   return (
     <button
       type="button"
+      data-drawer-toggle="vip"
       onClick={handleClick}
-      aria-label={isLoggedIn ? 'Open VIP Hub' : 'Open VIP Hub — log in to claim rewards'}
+      aria-label={
+        active
+          ? 'Close VIP Hub'
+          : isLoggedIn
+            ? 'Open VIP Hub'
+            : 'Open VIP Hub — log in to claim rewards'
+      }
       className={cn(
-        'flex h-8 w-8 items-center justify-center rounded-full border transition-colors',
-        isLoggedIn
-          ? 'border-yellow-400/30 bg-yellow-400/20 hover:border-yellow-400/40 hover:bg-yellow-400/30 active:bg-gray-500/20'
-          : 'border-white/20 bg-white/10 hover:border-white/30 hover:bg-white/15 active:bg-white/20',
-        active && isLoggedIn && 'border-yellow-400/40 bg-yellow-400/30',
-        active && !isLoggedIn && 'border-white/30 bg-white/15',
+        'relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border p-2.5 transition-colors',
+        active && 'brightness-110',
         className
       )}
-      style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+      style={{
+        pointerEvents: 'auto',
+        cursor: 'pointer',
+        backgroundColor: isLoggedIn ? `rgba(${VIP_GOLD}, 0.2)` : 'rgba(255,255,255,0.05)',
+        borderColor: isLoggedIn ? `rgba(${VIP_GOLD}, 0.6)` : 'rgba(255,255,255,0.06)',
+      }}
     >
-      <IconCrown className={cn('h-4 w-4', isLoggedIn ? 'text-yellow-400' : 'text-white/35')} />
+      <span className={cn('relative flex size-4 items-center justify-center overflow-hidden', !isLoggedIn && 'opacity-40')}>
+        <Image
+          src="/icons/header/crown.svg"
+          alt=""
+          width={16}
+          height={16}
+          className="size-4"
+          unoptimized
+        />
+      </span>
     </button>
   )
 }

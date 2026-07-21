@@ -1,6 +1,7 @@
 'use client'
 
 import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
+import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import React, { Suspense } from 'react'
@@ -150,6 +151,8 @@ import { colorTokenMap } from '@/lib/agent/designSystem'
 import type { ProductToggles } from '@/components/design-customizer'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { VipBenefitTiles } from '@/components/vip/vip-benefit-tiles'
+import { VipHubOverview } from '@/components/vip/vip-hub-overview'
+import { VipDailyRaces } from '@/components/vip/vip-daily-races'
 import { LevelUpSpinner } from '@/components/vip/level-up-spinner'
 import { RedeemPromoCode } from '@/components/vip/redeem-promo-code'
 import { MyBenefitsAccordion } from '@/components/vip/my-benefits-accordion'
@@ -2167,7 +2170,7 @@ function VipDrawerContent({
     if (!vipDrawerOpen) return
     const container = vipTabsContainerRef.current
     if (!container) return
-    const tabs = ['Overview', 'Level Up', 'Loot Crates', 'Bet & Get', 'Benefits']
+    const tabs = ['VIP', 'Benefits', 'Daily Races', 'Bet & Get', 'Cash Drop Codes']
     const activeIndex = tabs.indexOf(vipActiveTab)
     if (activeIndex === -1) return
     const tabButtons = container.querySelectorAll('button')
@@ -2251,7 +2254,7 @@ function VipDrawerContent({
               pointerEvents: 'auto'
             }}
           >
-            {['Overview', 'Level Up', 'Loot Crates', 'Bet & Get', 'Benefits'].map((tab) => (
+            {['VIP', 'Benefits', 'Daily Races', 'Bet & Get', 'Cash Drop Codes'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setVipActiveTab(tab)}
@@ -2280,53 +2283,18 @@ function VipDrawerContent({
       </div>
 
       <VipHubScrollBody isMobile={isMobile}>
-        {vipActiveTab === 'Overview' && (
-          <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10">
-              <CardContent className="p-4">
-                <CardTitle className="text-sm text-white/70 mb-2">Gold To Platinum I</CardTitle>
-                <VipTierProgressBar value={45} nextTierLabel="Platinum I" wagerRemaining="$2,750" />
-              </CardContent>
-            </Card>
+        {vipActiveTab === 'VIP' && (
+          <VipHubOverview />
+        )}
 
-            <DailySpinCard />
-            <VipBenefitTiles
-              onClaim={(tile) => console.log('VIP claim', tile.id)}
-              onTileClick={(tile) => console.log('VIP tile click', tile.id)}
-            />
-
-            <RedeemPromoCode />
-
-            {/* Telegram CTA */}
-            <a
-              href="https://t.me/betonline"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#229ED9]/10 to-[#229ED9]/5 border border-[#229ED9]/20 hover:border-[#229ED9]/40 p-4 transition-all"
-            >
-              <div className="w-12 h-12 rounded-xl bg-[#229ED9]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#229ED9]/30 transition-colors">
-                <IconBrandTelegram className="w-6 h-6 text-[#229ED9]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white mb-0.5">Join our Telegram</p>
-                <p className="text-xs text-white/40 leading-snug">
-                  Get exclusive Cash Drop codes, promotions & rewards delivered straight to you.
-                </p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className="px-3 py-1.5 rounded-lg bg-[#229ED9] text-white text-xs font-semibold group-hover:bg-[#1a8bc2] transition-colors">
-                  Join
-                </div>
-              </div>
-            </a>
-
+        {vipActiveTab === 'Benefits' && (
+          <div className="space-y-3">
+            <MyBenefitsAccordion />
           </div>
         )}
 
-        {vipActiveTab === 'Loot Crates' && (
-          <div className="space-y-3">
-            <RewardCrates variant="compact" />
-          </div>
+        {vipActiveTab === 'Daily Races' && (
+          <VipDailyRaces />
         )}
 
         {vipActiveTab === 'Bet & Get' && (
@@ -2335,15 +2303,9 @@ function VipDrawerContent({
           </div>
         )}
 
-        {vipActiveTab === 'Level Up' && (
+        {vipActiveTab === 'Cash Drop Codes' && (
           <div className="space-y-3">
-            <LevelUpSpinner />
-          </div>
-        )}
-        
-        {vipActiveTab === 'Benefits' && (
-          <div className="space-y-3">
-            <MyBenefitsAccordion />
+            <CashDropCode />
           </div>
         )}
 
@@ -2379,7 +2341,7 @@ function AccountPageContent() {
   const webInboxUnreadCount = 2
   const [depositDrawerOpen, setDepositDrawerOpen] = useState(false)
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
-  const [vipActiveTab, setVipActiveTab] = useState('Overview')
+  const [vipActiveTab, setVipActiveTab] = useState('VIP')
   const [profitBoostOptedIn, setProfitBoostOptedIn] = useState(false)
   const profitBoostRequiredBetMarket = 'Premier League'
   const profitBoostRequiredBetStake = 50
@@ -2428,29 +2390,47 @@ function AccountPageContent() {
 
   // ─── Drawer open helpers (panel exclusivity) ───
   const openAccountDrawer = useCallback(() => {
+    if (accountDrawerOpen) {
+      setAccountDrawerOpen(false)
+      return
+    }
     trackClick('account-drawer', 'My Account')
     setVipDrawerOpen(false)
     setDepositDrawerOpen(false)
     setAccountDrawerOpen(true)
     useChatStore.getState().setIsOpen(false)
-  }, [trackClick])
+  }, [accountDrawerOpen, trackClick])
   const openVipDrawer = useCallback(() => {
-    trackClick('vip-hub', 'Overview')
+    if (vipDrawerOpen) {
+      setVipDrawerOpen(false)
+      return
+    }
+    trackClick('vip-hub', 'VIP')
     setAccountDrawerOpen(false)
     setDepositDrawerOpen(false)
     setVipDrawerOpen(true)
     useChatStore.getState().setIsOpen(false)
-  }, [trackClick])
+  }, [vipDrawerOpen, trackClick])
 
   // Listen for the global VIP Hub open event so sub-component nav handlers
   // can launch the drawer without needing to thread `openVipDrawer` down
   // through props.
   useEffect(() => {
-    const handler = () => openVipDrawer()
+    const handler = () => {
+      setVipDrawerOpen((open) => {
+        if (open) return false
+        queueMicrotask(() => {
+          setAccountDrawerOpen(false)
+          setDepositDrawerOpen(false)
+          useChatStore.getState().setIsOpen(false)
+        })
+        return true
+      })
+    }
     if (typeof window === 'undefined') return
     window.addEventListener('vip:open-drawer', handler)
     return () => window.removeEventListener('vip:open-drawer', handler)
-  }, [openVipDrawer])
+  }, [])
 
   // Daily Spin (and other promo popups) dispatch this event so the VIP hub
   // doesn't stay stacked behind their dialog. Keeps each modal feeling like
@@ -2462,12 +2442,16 @@ function AccountPageContent() {
     return () => window.removeEventListener('vip:close-drawer', handler)
   }, [])
   const openDepositDrawer = useCallback(() => {
+    if (depositDrawerOpen) {
+      setDepositDrawerOpen(false)
+      return
+    }
     trackClick('deposit', 'Deposit')
     setAccountDrawerOpen(false)
     setVipDrawerOpen(false)
     setDepositDrawerOpen(true)
     useChatStore.getState().setIsOpen(false)
-  }, [trackClick])
+  }, [depositDrawerOpen, trackClick])
 
   useEffect(() => {
     const handler = () => openDepositDrawer()
@@ -2870,115 +2854,16 @@ function AccountPageContent() {
           )}
         </div>
 
-        {/* Right side — exact casino pattern: VIP crown, separator, avatar+balance, deposit, chat */}
-        <div className={cn("flex items-center", isMobile ? "gap-2" : "gap-3")} style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}>
-          {/* VIP Crown Button - Desktop */}
-          {!isMobile && (
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                openVipDrawer()
-              }}
-              className={cn(
-                "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                "active:bg-gray-500/20",
-                vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                "h-8 w-8"
-              )}
-              style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-            >
-              <IconCrown className="text-yellow-400 w-4 h-4" />
-            </button>
-          )}
-
-          {/* Separator - Desktop */}
-          {!isMobile && <div className="h-6 w-px bg-white/20" />}
-
-          {/* Balance and Avatar Button */}
-          <Button
-            variant="ghost"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              openAccountDrawer()
-            }}
-            className={cn(
-              "flex items-center rounded-small transition-colors group",
-              "bg-white/5 hover:bg-white/10",
-              "active:bg-gray-500/20",
-              accountDrawerOpen && "text-white",
-              isMobile ? "gap-1 px-1.5 py-1" : "gap-1.5 px-2 py-1"
-            )}
-            style={accountDrawerOpen ? { pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer', backgroundColor: brandPrimary } : { pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-          >
-            <div className="relative">
-              <Avatar className={cn(
-                "border border-white/20 group-hover:border-white/40 transition-colors",
-                isMobile ? "h-5 w-5" : "h-6 w-6"
-              )}>
-                <AvatarFallback className="bg-white/10 text-white flex items-center justify-center font-semibold tracking-tight" style={{ fontSize: isMobile ? '9px' : '10px' }}>
-                  CH
-                </AvatarFallback>
-              </Avatar>
-              {/* Red dot indicator for notifications */}
-              <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500" />
-            </div>
-            <span className={cn(
-              "font-medium text-white text-right tabular-nums transition-all duration-300",
-              isMobile ? "text-[10px] min-w-[60px]" : "text-xs min-w-[70px]"
-            )}>
-              $<NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
-            </span>
-          </Button>
-
-          {/* VIP Crown Button - Mobile only */}
-          {isMobile && (
-          <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                openVipDrawer()
-              }}
-              className={cn(
-                "rounded-full bg-yellow-400/20 border border-yellow-400/30 flex items-center justify-center transition-colors",
-                "hover:bg-yellow-400/30 hover:border-yellow-400/40",
-                "active:bg-gray-500/20",
-                vipDrawerOpen && "bg-yellow-400/30 border-yellow-400/40",
-                "h-8 w-8"
-              )}
-              style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-          >
-              <IconCrown className="text-yellow-400 w-4 h-4" />
-          </button>
-          )}
-
-          {/* Deposit Button - Desktop only */}
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                openDepositDrawer()
-              }}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-small transition-colors group",
-                "bg-white/5 hover:bg-white/10",
-                "active:bg-gray-500/20",
-                "text-xs font-semibold text-white cursor-pointer"
-              )}
-              style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative', cursor: 'pointer' }}
-            >
-              <IconWallet className="w-3.5 h-3.5 text-white" />
-              <span className="text-white">Wallet</span>
-            </Button>
-          )}
-
-          {/* Chat Toggle - Desktop only */}
-          {!isMobile && <ChatNavToggle />}
-        </div>
+        {/* Right side — shared header controls */}
+        <HeaderUserControls
+          isLoggedIn
+          balance={displayBalance}
+          currencySymbol="$"
+          vipDrawerOpen={vipDrawerOpen}
+          onOpenAccount={openAccountDrawer}
+          onOpenVip={openVipDrawer}
+          onOpenDeposit={openDepositDrawer}
+        />
       </motion.header>
 
       {/* ═══ Layout: Sidebar + Content ═══ */}
@@ -3660,18 +3545,6 @@ function AccountPageContent() {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                {accountDrawerView === 'notifications' ? null : (
-                  <button
-                    onClick={() => setAccountDrawerView('notifications')}
-                    className={cn(
-                      "h-8 w-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0",
-                      "bg-gray-100 hover:bg-gray-200 relative"
-                    )}
-                  >
-                    <IconBell className="h-4 w-4 text-gray-600" />
-                    <div className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 border-2 border-white" />
-                  </button>
-                )}
                 {!isMobile && (
                   <DrawerClose asChild>
                     <button className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
@@ -3704,27 +3577,22 @@ function AccountPageContent() {
 
                 <Separator className="bg-gray-200 mb-3" />
 
-                {/* Deposit and Withdraw */}
-                <div className="space-y-0.5 w-full mb-3">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
-                    onClick={() => {
-                      setAccountDrawerOpen(false)
-                      openDepositDrawer()
-                    }}
-                  >
-                    <IconCreditCard className="w-5 h-5 mr-3 text-gray-700" />
-                    <span className="flex-1 text-left text-gray-900">Deposit</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
-                  >
-                    <IconArrowRight className="w-5 h-5 mr-3 text-gray-700 rotate-180" />
-                    <span className="flex-1 text-left text-gray-900">Withdraw</span>
-                  </Button>
-                </div>
+                  {/* Notifications */}
+                  <div className="space-y-0.5 w-full mb-3">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
+                      onClick={() => setAccountDrawerView('notifications')}
+                    >
+                      <IconBell className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
+                      <span className="flex-1 text-left text-gray-900">Notifications</span>
+                      {webInboxUnreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
+                          {webInboxUnreadCount}
+                        </span>
+                      )}
+                    </Button>
+                  </div>
 
                 <Separator className="bg-gray-200 mb-6" />
 
@@ -3740,21 +3608,6 @@ function AccountPageContent() {
                   >
                     <IconUser className="w-5 h-5 mr-3 text-gray-700" />
                     <span className="flex-1 text-left text-gray-900">My Account</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3 min-w-0"
-                    onClick={() => {
-                      setAccountDrawerView('notifications')
-                    }}
-                  >
-                    <IconBell className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
-                    <span className="flex-1 text-left text-gray-900">Notifications</span>
-                    {webInboxUnreadCount > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
-                        {webInboxUnreadCount}
-                      </span>
-                    )}
                   </Button>
                   <Button
                     variant="ghost"

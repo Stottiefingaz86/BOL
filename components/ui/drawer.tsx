@@ -90,10 +90,16 @@ const DrawerHandle = React.forwardRef<
 })
 DrawerHandle.displayName = "DrawerHandle"
 
+/** Header icon buttons that toggle drawers live outside the panel; without this,
+ * vaul closes on pointerdown and the button click re-opens (open animation again). */
+function isDrawerToggleTarget(target: EventTarget | null) {
+  return target instanceof Element && Boolean(target.closest('[data-drawer-toggle]'))
+}
+
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean; showOverlay?: boolean; overlayClassName?: string; onOverlayClick?: () => void; noDrag?: boolean }
->(({ className, children, noOverlay = false, showOverlay = false, overlayClassName, onOverlayClick, noDrag = false, style, ...props }, ref) => {
+>(({ className, children, noOverlay = false, showOverlay = false, overlayClassName, onOverlayClick, noDrag = false, style, onPointerDownOutside, onInteractOutside, onFocusOutside, ...props }, ref) => {
   return (
     <DrawerPortal>
       {showOverlay && (
@@ -119,6 +125,18 @@ const DrawerContent = React.forwardRef<
           display: 'flex',
           ...style,
         } as React.CSSProperties}
+        onPointerDownOutside={(e) => {
+          if (isDrawerToggleTarget(e.target)) e.preventDefault()
+          onPointerDownOutside?.(e)
+        }}
+        onInteractOutside={(e) => {
+          if (isDrawerToggleTarget(e.target)) e.preventDefault()
+          onInteractOutside?.(e)
+        }}
+        onFocusOutside={(e) => {
+          if (isDrawerToggleTarget(e.target)) e.preventDefault()
+          onFocusOutside?.(e)
+        }}
         {...props}
       >
         {children}

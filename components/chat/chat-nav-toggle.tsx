@@ -1,13 +1,10 @@
 "use client"
 
-import { IconMessageCircle2 } from "@tabler/icons-react"
+import Image from "next/image"
 import { useChatStore } from "@/lib/store/chatStore"
 import { cn } from "@/lib/utils"
 
-/**
- * Chat toggle button for the main nav header.
- * Sits next to the Wallet button. Shows online indicator when chat is closed.
- */
+/** Matches Figma Header IconButton — 36px, radius 8 */
 export default function ChatNavToggle() {
   const { isOpen, toggleChat } = useChatStore()
 
@@ -19,26 +16,24 @@ export default function ChatNavToggle() {
         toggleChat()
       }}
       className={cn(
-        "flex items-center justify-center rounded-small transition-colors relative cursor-pointer",
-        "h-[32px] w-[32px]",
+        "relative flex size-9 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border p-2.5 transition-colors",
         isOpen
-          ? "bg-[#ee3536]/20 border border-[#ee3536]/40 hover:bg-[#ee3536]/30"
-          : "bg-white/5 hover:bg-white/10 border border-transparent"
+          ? "border-[#ee3536]/40 bg-[#ee3536]/20 hover:bg-[#ee3536]/30"
+          : "border-white/[0.06] bg-white/5 hover:brightness-110"
       )}
-      style={{ pointerEvents: 'auto', zIndex: 101, position: 'relative' }}
+      style={{ pointerEvents: "auto", zIndex: 101, position: "relative" }}
       aria-label="Toggle Chat"
     >
-      <IconMessageCircle2
-        className={cn(
-          "w-4 h-4 transition-colors",
-          isOpen ? "text-[#ee3536]" : "text-white/70"
-        )}
-        strokeWidth={2}
-      />
-      {/* Online pulse dot */}
-      {!isOpen && (
-        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-[#2d2d2d] animate-pulse" />
-      )}
+      <span className="relative flex size-4 -scale-x-100 items-center justify-center overflow-hidden">
+        <Image
+          src="/icons/header/chat.svg"
+          alt=""
+          width={16}
+          height={16}
+          className="size-4"
+          unoptimized
+        />
+      </span>
     </button>
   )
 }
