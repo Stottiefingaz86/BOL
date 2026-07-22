@@ -5,6 +5,7 @@ import {
   IconBrandTelegram,
   IconCheck,
   IconInfoCircle,
+  IconLoader2,
   IconLock,
   IconRefresh,
   IconSparkles,
@@ -317,27 +318,31 @@ function ClaimStyleButton({
   onClick,
   disabled,
   className,
+  ...props
 }: {
   children: React.ReactNode
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
   className?: string
-}) {
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"
-      disabled={disabled}
-      onClick={onClick}
       style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
       className={cn(
-        'relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] duration-150 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60',
+        'relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] duration-150 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-80',
         className
       )}
+      {...props}
+      disabled={disabled}
+      onClick={onClick}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
-      />
+      {!disabled ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
+        />
+      ) : null}
       <span className="relative">{children}</span>
     </button>
   )
@@ -354,6 +359,7 @@ function BenefitRow({
   const rowRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const [claimed, setClaimed] = useState(false)
+  const [claiming, setClaiming] = useState(false)
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = rowRef.current
@@ -371,29 +377,37 @@ function BenefitRow({
   const handleClaim = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
-      if (claimed || row.kind !== 'claim') return
-      playSound('redeem')
-      fireClaimConfetti(buttonRef.current)
-      const amount = row.amount
+      if (claimed || claiming || row.kind !== 'claim') return
+      buttonRef.current = e.currentTarget
+      setClaiming(true)
+
+      // Simulate pending DB / claim API round-trip
+      const delayMs = 1100 + Math.floor(Math.random() * 500)
       window.setTimeout(() => {
-        playSound('button-click')
-        toast.success(
-          amount != null ? `Claimed $${amount.toFixed(2)}` : `Claimed ${row.name}`,
-          {
-            description: `${row.name} has been added to your balance.`,
-            duration: 3500,
-          }
-        )
-      }, 2000)
-      if (typeof window !== 'undefined' && amount != null && amount > 0) {
-        window.dispatchEvent(
-          new CustomEvent('notification:claim-reward', { detail: { amount } })
-        )
-      }
-      setClaimed(true)
-      onClaimed?.(row.id, Boolean(row.removeOnClaim))
+        playSound('redeem')
+        fireClaimConfetti(buttonRef.current)
+        const amount = row.amount
+        window.setTimeout(() => {
+          playSound('button-click')
+          toast.success(
+            amount != null ? `Claimed $${amount.toFixed(2)}` : `Claimed ${row.name}`,
+            {
+              description: `${row.name} has been added to your balance.`,
+              duration: 3500,
+            }
+          )
+        }, 2000)
+        if (typeof window !== 'undefined' && amount != null && amount > 0) {
+          window.dispatchEvent(
+            new CustomEvent('notification:claim-reward', { detail: { amount } })
+          )
+        }
+        setClaiming(false)
+        setClaimed(true)
+        onClaimed?.(row.id, Boolean(row.removeOnClaim))
+      }, delayMs)
     },
-    [claimed, onClaimed, row]
+    [claimed, claiming, onClaimed, row]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -407,6 +421,11 @@ function BenefitRow({
     !isLoggedIn ||
     row.kind === 'login' ||
     (row.kind === 'claim' && !claimed)
+
+  const claimLabel =
+    row.kind === 'claim' && row.amount != null
+      ? `Claim $${row.amount.toFixed(2)}`
+      : 'Claim'
 
   return (
     <div
@@ -493,12 +512,19 @@ function BenefitRow({
           </div>
         ) : (
           <ClaimStyleButton
-            onClick={(e) => {
-              buttonRef.current = e.currentTarget
-              handleClaim(e)
-            }}
+            disabled={claiming}
+            className="min-w-[7.5rem]"
+            onClick={handleClaim}
+            aria-busy={claiming}
           >
-            {row.amount != null ? `Claim $${row.amount.toFixed(2)}` : 'Claim'}
+            {claiming ? (
+              <span className="inline-flex items-center gap-1.5">
+                <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
+                Claiming
+              </span>
+            ) : (
+              claimLabel
+            )}
           </ClaimStyleButton>
         )}
       </div>
