@@ -240,9 +240,9 @@ import {
 } from '@/components/animate-ui/components/buttons/icon'
 import { Heart } from 'lucide-react'
 import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
-import {
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
 import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
+import {
   FamilyDrawerAnimatedContent,
   FamilyDrawerAnimatedWrapper,
   FamilyDrawerButton,

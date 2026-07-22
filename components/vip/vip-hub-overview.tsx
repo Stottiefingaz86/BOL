@@ -54,7 +54,7 @@ type HubRow =
       info?: string
       icon: IconKind
       kind: 'cooldown'
-      subtitle: string
+      subtitle?: string
       cooldownLabel: string
     }
   | {
