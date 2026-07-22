@@ -959,10 +959,10 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
   position: fixed !important;
 }
 
-/* Ensure Sheet/Modal overlays appear above everything */
+/* Ensure Sheet/Modal overlays appear above fixed header (z 101–110) and drawers */
 [data-radix-dialog-overlay],
 [data-radix-sheet-overlay] {
-  z-index: 150 !important;
+  z-index: 100000 !important;
   visibility: visible !important;
   opacity: 1 !important;
   display: block !important;
@@ -971,7 +971,7 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 
 [data-radix-dialog-content],
 [data-radix-sheet-content] {
-  z-index: 160 !important;
+  z-index: 100001 !important;
   visibility: visible !important;
   opacity: 1 !important;
   display: block !important;
@@ -1034,6 +1034,23 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
     z-index: 100002 !important;
     isolation: isolate;
   }
+}
+
+/* Auth login/register modal must cover the main nav (header is 100002 on desktop) */
+[data-auth-modal-overlay] {
+  z-index: 100010 !important;
+  inset: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: auto !important;
+  pointer-events: auto !important;
+}
+
+[data-auth-modal-content] {
+  z-index: 100011 !important;
+  pointer-events: auto !important;
 }
 
 /* Vaul portal container must not inherit transforms that break position:fixed on iOS */

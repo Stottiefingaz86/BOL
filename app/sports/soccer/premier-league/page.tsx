@@ -259,6 +259,8 @@ import {
   type ViewsRegistry,
 } from '@/components/ui/family-drawer'
 import { BetslipNumberPad } from '@/components/betslip/number-pad'
+import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
+import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
 
 // Available square tile images
 const squareTileImages = [
@@ -12602,8 +12604,8 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
-              "border-l border-gray-200",
+              "w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col",
+              "border-l border-white/10",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -12613,72 +12615,67 @@ function NavTestPageContent() {
               bottom: 'auto',
             } : undefined}
           >
-            {isMobile && <DrawerHandle />}
+            {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
-              <div className="flex items-center justify-between gap-3">
-                {accountDrawerView === 'notifications' ? (
-                  <div className="flex items-center gap-3 flex-1">
-                    <Button 
+              {accountDrawerView === 'notifications' ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setAccountDrawerView('account')}
+                    className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                    aria-label="Back"
+                  >
+                    <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                  </Button>
+                  <h2 className="text-base font-semibold text-white">Notifications</h2>
+                </div>
+              ) : accountDrawerView === 'createAccount' || accountDrawerView === 'createAccountConfirmation' || accountDrawerView === 'login' ? (
+                <div className="flex items-center gap-2">
+                  {accountDrawerView === 'createAccount' || accountDrawerView === 'login' ? (
+                    <Button
                       variant="ghost"
                       onClick={() => setAccountDrawerView('account')}
-                      className="h-8 w-8 p-0 hover:bg-gray-100 -ml-2"
+                      className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                      aria-label="Back"
                     >
-                      <IconChevronLeft className="h-5 w-5 text-gray-600" />
+                      <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
                     </Button>
-                    <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
-                  </div>
-                ) : accountDrawerView === 'createAccount' || accountDrawerView === 'createAccountConfirmation' || accountDrawerView === 'login' ? (
-                  <div className="flex items-center gap-3 flex-1">
-                    {accountDrawerView === 'createAccount' || accountDrawerView === 'login' ? (
-                      <Button
-                        variant="ghost"
-                        onClick={() => setAccountDrawerView('account')}
-                        className="h-8 w-8 p-0 hover:bg-gray-100 -ml-2"
-                      >
-                        <IconChevronLeft className="h-5 w-5 text-gray-600" />
-                      </Button>
-                    ) : (
-                      <div className="w-6" />
-                    )}
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {accountDrawerView === 'createAccount' ? 'Create Account' : accountDrawerView === 'login' ? 'Log In' : 'Confirm Your Email'}
-                    </h2>
-                  </div>
-                ) : isUserLoggedIn ? (
-                  <div className="flex items-center gap-3 flex-1">
-                    <Avatar className="h-10 w-10 border border-gray-200">
-                      <AvatarFallback className="bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-semibold">
-                        ch
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <div className="text-sm font-medium text-gray-900 text-left">ch</div>
-                      <div className="text-xs text-gray-500 text-left">b1767721</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 flex-1">
-                    <Avatar className="h-10 w-10 border border-gray-200">
-                      <AvatarFallback className="bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-semibold">
-                        G
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <div className="text-sm font-medium text-gray-900 text-left">Guest</div>
-                      <div className="text-xs text-gray-500 text-left">Not signed in</div>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  {!isMobile && (
+                  ) : (
                     <DrawerClose asChild>
-                      <button className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
-                        <IconX className="h-4 w-4 text-gray-600" />
+                      <button
+                        type="button"
+                        className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                        aria-label="Back"
+                      >
+                        <IconChevronLeft className="h-5 w-5" stroke={2} />
                       </button>
                     </DrawerClose>
                   )}
+                  <h2 className="text-base font-semibold text-white">
+                    {accountDrawerView === 'createAccount' ? 'Create Account' : accountDrawerView === 'login' ? 'Log In' : 'Confirm Your Email'}
+                  </h2>
                 </div>
-              </div>
+              ) : (
+                <div className="flex w-full items-center gap-2">
+                  <DrawerClose asChild>
+                    <button
+                      type="button"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      aria-label="Back"
+                    >
+                      <IconChevronLeft className="h-5 w-5" stroke={2} />
+                    </button>
+                  </DrawerClose>
+                  <AccountDrawerIdentity
+                    loggedIn={isUserLoggedIn}
+                    name="ch"
+                    accountId="b1767721"
+                  />
+                  <AccountDrawerSettingsButton
+                    onBeforeNavigate={() => setAccountDrawerOpen(false)}
+                  />
+                </div>
+              )}
             </DrawerHeader>
             
             <div
@@ -12691,54 +12688,58 @@ function NavTestPageContent() {
                     <>
                   {/* Balance Information */}
                   <div className="mb-4">
-                    <div className="bg-gray-50 rounded-lg px-3 py-3 space-y-3">
+                    <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Available Balance</span>
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm text-white/60">Available Balance</span>
+                        <span className="text-sm font-semibold text-white">
                   {currentBrand.symbol}
                   <NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                         </span>
                 </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Free Bet</span>
-                        <span className="text-sm font-semibold text-gray-900">$0.00</span>
+                        <span className="text-sm text-white/60">Free Bet</span>
+                        <span className="text-sm font-semibold text-white">$0.00</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                     </div>
               </div>
               
-                  <Separator className="bg-gray-200 mb-3" />
+                  <Separator className="bg-white/10 mb-3" />
                   
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
-                      <span className="flex-1 text-left text-gray-900">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
+                      <span className="flex-1 text-left text-white">Notifications</span>
                     </Button>
                   </div>
                   
-                  <Separator className="bg-gray-200 mb-6" />
+                  <Separator className="bg-white/10 mb-6" />
                   
                   {/* Navigation List */}
                   <div className="space-y-1 w-full mb-8">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3 min-w-0"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       router.push('/account')
                     }}
                     >
-                      <IconUser className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">My Account</span>
+                      <IconUser className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">My Account</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3 min-w-0"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         setMyBetsInitialFilter('pending')
@@ -12749,9 +12750,9 @@ function NavTestPageContent() {
                         }
                       }}
                     >
-                      <IconFileText className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
-                      <span className="flex-1 text-left text-gray-900">Pending Bets</span>
-                      <span className="text-sm text-gray-600 ml-auto flex items-center gap-1.5">
+                      <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
+                      <span className="flex-1 text-left text-white">Pending Bets</span>
+                      <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
                         {sampleBets.filter(b => !b.status && !b.isLive).length > 0 && (
                           <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{sampleBets.filter(b => !b.status && !b.isLive).length}</span>
                         )}
@@ -12761,51 +12762,54 @@ function NavTestPageContent() {
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">My Bonus</span>
+                      <IconGift className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">My Bonus</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Transactions History</span>
+                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Transactions History</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconTicket className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Bet History</span>
+                      <IconTicket className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Bet History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconUserPlus className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Refer a Friend</span>
+                      <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Refer a Friend</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      onClick={() => {
+                        openVipDrawer()
+                      }}
                     >
-                      <IconCrown className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">VIP Rewards</span>
+                      <IconCrown className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">VIP Hub</span>
                 </Button>
               </div>
                   
-                  <Separator className={cn("bg-gray-200", isMobile ? "my-4" : "my-5")} />
+                  <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
                   
                   {/* Logout Button */}
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-600 h-10 px-2 min-w-0"
+                    className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
                     onClick={() => {
                       logout()
                       setAccountDrawerView('account')
@@ -12816,16 +12820,16 @@ function NavTestPageContent() {
                     </>
                   ) : (
                     <>
-                      <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-4">
-                        <p className="text-sm font-semibold text-gray-900">You are logged out</p>
-                        <p className="mt-1 text-xs text-gray-600">Log back in or create an account to place bets and access your wallet.</p>
+                      <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-4">
+                        <p className="text-sm font-semibold text-white">You are logged out</p>
+                        <p className="mt-1 text-xs text-white/60">Log back in or create an account to place bets and access your wallet.</p>
                       </div>
 
                       <div className="mb-4 grid grid-cols-2 gap-2">
                         <Button
                           variant="ghost"
                           onClick={() => setAccountDrawerView('login')}
-                          className="h-10 rounded-small border border-gray-300 bg-white !text-gray-900 hover:bg-gray-100 hover:!text-gray-900"
+                          className="h-10 rounded-small border border-white/20 bg-transparent !text-white hover:bg-white/10 hover:!text-white"
                         >
                           Login
                         </Button>
@@ -12838,35 +12842,35 @@ function NavTestPageContent() {
                         </Button>
                       </div>
 
-                      <Separator className="bg-gray-200 mb-3" />
+                      <Separator className="bg-white/10 mb-3" />
 
                       <div className="space-y-1 w-full mb-2">
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-11 px-3"
+                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
                           onClick={() => {
                             openDepositDrawer()
                           }}
                         >
-                          <IconWallet className="w-5 h-5 mr-3 text-gray-700" />
-                          <span className="flex-1 text-left text-gray-900">Banking</span>
+                          <IconWallet className="w-5 h-5 mr-3 text-white/70" />
+                          <span className="flex-1 text-left text-white">Banking</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-11 px-3"
+                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
                         >
-                          <IconLifebuoy className="w-5 h-5 mr-3 text-gray-700" />
-                          <span className="flex-1 text-left text-gray-900">Help Center</span>
+                          <IconLifebuoy className="w-5 h-5 mr-3 text-white/70" />
+                          <span className="flex-1 text-left text-white">Help Center</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-11 px-3"
+                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
                           onClick={() => {
                             openVipDrawer()
                           }}
                         >
-                          <IconCrown className="w-5 h-5 mr-3 text-gray-700" />
-                          <span className="flex-1 text-left text-gray-900">VIP Rewards</span>
+                          <IconCrown className="w-5 h-5 mr-3 text-white/70" />
+                          <span className="flex-1 text-left text-white">VIP Hub</span>
                         </Button>
                       </div>
                     </>
@@ -12874,9 +12878,9 @@ function NavTestPageContent() {
                 </>
               ) : accountDrawerView === 'login' ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-gray-200 bg-white p-3 space-y-3">
+                  <div className="rounded-lg border border-white/10 bg-white p-3 space-y-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-gray-700">Email or Account Number</label>
+                      <label className="text-xs font-medium text-white/70">Email or Account Number</label>
                       <input
                         value={loginForm.identifier}
                         onChange={(e) => setLoginForm((prev) => ({ ...prev, identifier: e.target.value }))}
@@ -12886,8 +12890,8 @@ function NavTestPageContent() {
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-gray-700">Password</label>
-                        <button type="button" className="text-xs font-semibold text-gray-600 hover:text-gray-900">Forgot Password?</button>
+                        <label className="text-xs font-medium text-white/70">Password</label>
+                        <button type="button" className="text-xs font-semibold text-white/60 hover:text-white">Forgot Password?</button>
                       </div>
                       <div className="relative">
                         <input
@@ -12900,7 +12904,7 @@ function NavTestPageContent() {
                         <button
                           type="button"
                           onClick={() => setLoginPasswordVisible((prev) => !prev)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70"
                           aria-label={loginPasswordVisible ? 'Hide password' : 'Show password'}
                         >
                           {loginPasswordVisible ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
@@ -12911,16 +12915,16 @@ function NavTestPageContent() {
                       <Checkbox
                         checked={loginForm.keepLoggedIn}
                         onCheckedChange={(checked) => setLoginForm((prev) => ({ ...prev, keepLoggedIn: checked === true }))}
-                        className="h-5 w-5 rounded-[4px] border-gray-300 bg-white data-[state=checked]:bg-[#ee3536] data-[state=checked]:border-[#ee3536]"
+                        className="h-5 w-5 rounded-[4px] border-white/30 bg-white/5 data-[state=checked]:bg-[#ee3536] data-[state=checked]:border-[#ee3536]"
                       />
-                      <span className="text-sm text-gray-700">Keep me logged in</span>
+                      <span className="text-sm text-white/70">Keep me logged in</span>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button type="button" className="text-gray-500 hover:text-gray-700">
+                          <button type="button" className="text-white/50 hover:text-white/70">
                             <IconInfoCircle className="h-4 w-4" />
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent align="center" side="top" className="w-[320px] bg-white border border-gray-300 text-gray-700 p-4 shadow-xl">
+                        <PopoverContent align="center" side="top" className="w-[320px] bg-[#2a2a2a] border border-white/10 text-white/70 p-4 shadow-xl">
                           <p className="text-sm leading-relaxed">
                             Choosing <span className="font-semibold">"Keep me logged in"</span> reduces the number of times you&apos;re asked to Log-In on this device.
                           </p>
@@ -12936,7 +12940,7 @@ function NavTestPageContent() {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full h-11 rounded-small border border-gray-300 bg-white text-gray-900 hover:bg-gray-100"
+                      className="w-full h-11 rounded-small border border-white/20 bg-transparent text-white hover:bg-white/10"
                       onClick={() => {
                         setLoginForm((prev) => ({ ...prev, identifier: 'face-id@betonline.com', password: '******' }))
                         setIsUserLoggedIn(true)
@@ -12954,7 +12958,7 @@ function NavTestPageContent() {
                   <Button
                     type="button"
                     disabled={!canSubmitLogin}
-                    className="w-full h-11 rounded-small bg-[#059669] hover:bg-[#10b981] text-white disabled:bg-gray-300 disabled:text-gray-500"
+                    className="w-full h-11 rounded-small bg-[#059669] hover:bg-[#10b981] text-white disabled:bg-white/15 disabled:text-white/40"
                     onClick={() => {
                       setIsUserLoggedIn(true)
                       setAccountDrawerOpen(false)
@@ -12967,7 +12971,7 @@ function NavTestPageContent() {
                   <div className="text-center">
                     <button
                       type="button"
-                      className="text-xs font-medium text-gray-700 hover:text-gray-900"
+                      className="text-xs font-medium text-white/70 hover:text-white"
                       onClick={() => setAccountDrawerView('createAccount')}
                     >
                       Don&apos;t have an account yet? <span className="text-[#ee3536] font-semibold">Sign Up!</span>
@@ -12986,9 +12990,9 @@ function NavTestPageContent() {
                       sizes="(max-width: 768px) 100vw, 600px"
                     />
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-white p-3 space-y-3">
+                  <div className="rounded-lg border border-white/10 bg-white p-3 space-y-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-gray-700">Full Name *</label>
+                      <label className="text-xs font-medium text-white/70">Full Name *</label>
                       <input
                         value={createAccountForm.fullName}
                         onChange={(e) => setCreateAccountForm((prev) => ({ ...prev, fullName: e.target.value }))}
@@ -13000,7 +13004,7 @@ function NavTestPageContent() {
                       )}
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-gray-700">Email *</label>
+                      <label className="text-xs font-medium text-white/70">Email *</label>
                       <input
                         type="email"
                         value={createAccountForm.email}
@@ -13013,7 +13017,7 @@ function NavTestPageContent() {
                       )}
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-gray-700">Password *</label>
+                      <label className="text-xs font-medium text-white/70">Password *</label>
                       <div className="relative">
                         <input
                           type={createAccountPasswordVisible ? 'text' : 'password'}
@@ -13025,7 +13029,7 @@ function NavTestPageContent() {
                         <button
                           type="button"
                           onClick={() => setCreateAccountPasswordVisible((prev) => !prev)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70"
                           aria-label={createAccountPasswordVisible ? 'Hide password' : 'Show password'}
                         >
                           {createAccountPasswordVisible ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
@@ -13036,7 +13040,7 @@ function NavTestPageContent() {
                       )}
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-700">Phone Number *</label>
+                      <label className="text-xs font-medium text-white/70">Phone Number *</label>
                       <div className="grid grid-cols-[120px_1fr] gap-2 mt-1">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -13049,23 +13053,23 @@ function NavTestPageContent() {
                                   {createAccountForm.countryCode === '+1' ? 'US +1' : createAccountForm.countryCode === '+44' ? 'UK +44' : createAccountForm.countryCode === '+34' ? 'ES +34' : 'AU +61'}
                                 </span>
                               </span>
-                              <IconChevronDown className="h-4 w-4 text-gray-600" />
+                              <IconChevronDown className="h-4 w-4 text-white/60" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-[150px] bg-white border border-gray-200">
-                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+1' }))} className="text-gray-900 hover:bg-gray-100">
+                          <DropdownMenuContent align="start" className="w-[150px] bg-white border border-white/10">
+                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+1' }))} className="text-white hover:bg-white/10">
                               <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white text-xs ring-1 ring-gray-200 mr-2">🇺🇸</span>
                               US +1
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+44' }))} className="text-gray-900 hover:bg-gray-100">
+                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+44' }))} className="text-white hover:bg-white/10">
                               <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white text-xs ring-1 ring-gray-200 mr-2">🇬🇧</span>
                               UK +44
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+34' }))} className="text-gray-900 hover:bg-gray-100">
+                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+34' }))} className="text-white hover:bg-white/10">
                               <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white text-xs ring-1 ring-gray-200 mr-2">🇪🇸</span>
                               ES +34
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+61' }))} className="text-gray-900 hover:bg-gray-100">
+                            <DropdownMenuItem onClick={() => setCreateAccountForm((prev) => ({ ...prev, countryCode: '+61' }))} className="text-white hover:bg-white/10">
                               <span className="inline-flex h-5 w-5 items-center justify-center overflow-hidden rounded-full bg-white text-xs ring-1 ring-gray-200 mr-2">🇦🇺</span>
                               AU +61
                             </DropdownMenuItem>
@@ -13084,7 +13088,7 @@ function NavTestPageContent() {
                       )}
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-700">Date of Birth *</label>
+                      <label className="text-xs font-medium text-white/70">Date of Birth *</label>
                       <div className="grid grid-cols-3 gap-2 mt-1">
                         <input
                           ref={dobDayRef}
@@ -13141,34 +13145,34 @@ function NavTestPageContent() {
                       setAccountDrawerView('createAccountConfirmation')
                     }}
                     disabled={!isCreateAccountStepValid}
-                    className="w-full h-11 rounded-small bg-[#059669] hover:bg-[#10b981] text-white disabled:bg-gray-300 disabled:text-gray-500"
+                    className="w-full h-11 rounded-small bg-[#059669] hover:bg-[#10b981] text-white disabled:bg-white/15 disabled:text-white/40"
                   >
                     Continue
                   </Button>
                   <div className="text-center">
                     <button
                       type="button"
-                      className="text-xs font-medium text-gray-600 hover:text-gray-900 underline underline-offset-2"
+                      className="text-xs font-medium text-white/60 hover:text-white underline underline-offset-2"
                       onClick={() => setAccountDrawerView('login')}
                     >
                       Already have an account? Log in
                     </button>
                   </div>
 
-                  <div className="border-t border-gray-200 pt-4">
+                  <div className="border-t border-white/10 pt-4">
                     <div className="flex flex-col items-center gap-2">
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center text-gray-600 gap-1.5">
+                        <div className="flex items-center text-white/60 gap-1.5">
                           <IconShield className="text-green-600 w-3.5 h-3.5" />
                           <span className="text-xs font-medium">SAFE &amp; SECURE</span>
                         </div>
-                        <div className="w-px h-3.5 bg-gray-300" />
-                        <div className="flex items-center text-gray-600 gap-1.5">
+                        <div className="w-px h-3.5 bg-white/20" />
+                        <div className="flex items-center text-white/60 gap-1.5">
                           <IconLock className="text-blue-600 w-3.5 h-3.5" />
                           <span className="text-xs font-medium">TRUSTED EXPERIENCE</span>
                         </div>
                       </div>
-                      <p className="text-gray-500 text-center text-xs">
+                      <p className="text-white/50 text-center text-xs">
                         Your details are encrypted and protected.
                       </p>
                     </div>
@@ -13180,20 +13184,20 @@ function NavTestPageContent() {
                     <div className="flex-1 h-1.5 rounded-full bg-[#ee3536]" />
                     <div className="flex-1 h-1.5 rounded-full bg-[#ee3536]" />
                   </div>
-                  <div className="text-xs text-gray-500">Step 2 of 2: Verify your email</div>
+                  <div className="text-xs text-white/50">Step 2 of 2: Verify your email</div>
 
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4">
+                  <div className="rounded-lg border border-white/10 bg-white/[0.06] px-4 py-4">
                     <div className="flex items-center gap-2">
                       <span className="h-5 w-5 rounded-full bg-[#059669] flex items-center justify-center">
                         <IconCheck className="h-3.5 w-3.5 text-white" />
                       </span>
-                      <p className="text-sm font-semibold text-gray-900">Account created</p>
+                      <p className="text-sm font-semibold text-white">Account created</p>
                     </div>
-                    <p className="mt-1 text-sm text-gray-600">
-                      We sent an activation email to <span className="font-medium text-gray-900">{createAccountForm.email || 'your email'}</span>. Activate your account from that email to start betting.
+                    <p className="mt-1 text-sm text-white/60">
+                      We sent an activation email to <span className="font-medium text-white">{createAccountForm.email || 'your email'}</span>. Activate your account from that email to start betting.
                     </p>
                     <div className="mt-3 space-y-1">
-                      <label className="text-xs font-medium text-gray-700">Alias / Nickname (optional)</label>
+                      <label className="text-xs font-medium text-white/70">Alias / Nickname (optional)</label>
                       <input
                         value={createAccountAlias}
                         onChange={(e) => setCreateAccountAlias(e.target.value)}
@@ -13224,50 +13228,50 @@ function NavTestPageContent() {
                     <div className="flex items-center justify-between mb-4">
                       <Button 
                         variant="ghost" 
-                        className="h-8 px-2 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        className="h-8 px-2 text-xs text-white/60 hover:text-white hover:bg-white/10"
                       >
                         View All
                       </Button>
                 </div>
                     <div className="space-y-2">
-                      <div className="flex items-start gap-3 p-3 rounded-small bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small bg-white/[0.06] hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">New Promotion Available!</p>
-                          <p className="text-xs text-gray-500 mt-1">Claim your free spins now!</p>
-                          <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
+                          <p className="text-sm text-white font-medium">New Promotion Available!</p>
+                          <p className="text-xs text-white/50 mt-1">Claim your free spins now!</p>
+                          <p className="text-xs text-white/45 mt-1">2 hours ago</p>
                 </div>
               </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small bg-white/[0.06] hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Your Bet has been settled!</p>
-                          <p className="text-xs text-gray-500 mt-1">Check your winnings now!</p>
-                          <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
+                          <p className="text-sm text-white font-medium">Your Bet has been settled!</p>
+                          <p className="text-xs text-white/50 mt-1">Check your winnings now!</p>
+                          <p className="text-xs text-white/45 mt-1">5 hours ago</p>
                 </div>
                 </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Weekly summary</p>
-                          <p className="text-xs text-gray-500 mt-1">View your weekly betting activity</p>
-                          <p className="text-xs text-gray-400 mt-1">1 day ago</p>
+                          <p className="text-sm text-white font-medium">Weekly summary</p>
+                          <p className="text-xs text-white/50 mt-1">View your weekly betting activity</p>
+                          <p className="text-xs text-white/45 mt-1">1 day ago</p>
               </div>
               </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Bet settled</p>
-                          <p className="text-xs text-gray-500 mt-1">Your bet on Liverpool has been settled</p>
-                          <p className="text-xs text-gray-400 mt-1">2 days ago</p>
+                          <p className="text-sm text-white font-medium">Bet settled</p>
+                          <p className="text-xs text-white/50 mt-1">Your bet on Liverpool has been settled</p>
+                          <p className="text-xs text-white/45 mt-1">2 days ago</p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">New bonus code available</p>
-                          <p className="text-xs text-gray-500 mt-1">Use code BONUS50 for 50% match</p>
-                          <p className="text-xs text-gray-400 mt-1">3 days ago</p>
+                          <p className="text-sm text-white font-medium">New bonus code available</p>
+                          <p className="text-xs text-white/50 mt-1">Use code BONUS50 for 50% match</p>
+                          <p className="text-xs text-white/45 mt-1">3 days ago</p>
                         </div>
                       </div>
                     </div>
@@ -13300,19 +13304,18 @@ function NavTestPageContent() {
             } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
             {isMobile && <DrawerHandle variant="light" />}
-            
-            {/* Title + Close button for desktop only */}
-            {!isMobile && (
-              <div className="relative px-4 pt-4 pb-2 flex-shrink-0 flex items-center justify-between z-50">
-                <h2 className="text-base font-semibold text-white">VIP Hub</h2>
-                <DrawerClose asChild>
-                  <button className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0">
-                    <IconX className="h-4 w-4 text-white/70" />
-                  </button>
-                </DrawerClose>
-              </div>
-            )}
-            
+            <div className="relative z-50 flex flex-shrink-0 items-center gap-2 px-4 pb-2 pt-4">
+              <DrawerClose asChild>
+                <button
+                  type="button"
+                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                  aria-label="Back"
+                >
+                  <IconChevronLeft className="h-5 w-5" stroke={2} />
+                </button>
+              </DrawerClose>
+              <h2 className="text-base font-semibold text-white">VIP Hub</h2>
+            </div>
             <VipDrawerContent 
               vipActiveTab={vipActiveTab}
               setVipActiveTab={setVipActiveTab}

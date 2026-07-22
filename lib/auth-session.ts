@@ -2,6 +2,7 @@ export const AUTH_STORAGE_KEY = 'bol-auth-logged-in'
 export const AUTH_PENDING_LOGIN_KEY = 'bol-pending-login'
 export const AUTH_SESSION_CHANGED_EVENT = 'auth:session-changed'
 export const AUTH_REQUEST_LOGIN_EVENT = 'auth:request-login'
+export const AUTH_REQUEST_REGISTER_EVENT = 'auth:request-register'
 
 export function readAuthLoggedIn(): boolean {
   if (typeof window === 'undefined') return true
@@ -33,6 +34,11 @@ export function requestLogin() {
     // ignore
   }
   window.dispatchEvent(new CustomEvent(AUTH_REQUEST_LOGIN_EVENT))
+}
+
+export function requestRegister() {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(AUTH_REQUEST_REGISTER_EVENT))
 }
 
 export function consumePendingLogin(): boolean {

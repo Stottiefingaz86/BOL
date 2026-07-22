@@ -3876,9 +3876,9 @@ openWidget({
 >
   <DrawerContent
     showOverlay={isMobile}
-    className="w-full sm:max-w-md bg-white text-gray-900 flex flex-col border-l border-gray-200"
+    className="w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col border-l border-white/10"
   >
-    {isMobile && <DrawerHandle />}
+    {isMobile && <DrawerHandle variant="dark" />}
     <DrawerHeader>
       <Avatar /> <span>Username</span>
     </DrawerHeader>

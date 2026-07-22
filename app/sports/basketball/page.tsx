@@ -257,6 +257,8 @@ import {
   type ViewsRegistry,
 } from '@/components/ui/family-drawer'
 import { BetslipNumberPad } from '@/components/betslip/number-pad'
+import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
+import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
 
 // Available square tile images
 const squareTileImages = [
@@ -12493,8 +12495,8 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "w-full sm:max-w-md bg-white text-gray-900 flex flex-col",
-              "border-l border-gray-200",
+              "w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col",
+              "border-l border-white/10",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -12504,43 +12506,40 @@ function NavTestPageContent() {
               bottom: 0,
             } : undefined}
           >
-            {isMobile && <DrawerHandle />}
+            {isMobile && <DrawerHandle variant="dark" />}
             <DrawerHeader className={cn("flex-shrink-0", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-4 pb-3")}>
-              <div className="flex items-center justify-between gap-3">
-                {accountDrawerView === 'notifications' ? (
-                  <div className="flex items-center gap-3 flex-1">
-                    <Button 
-                      variant="ghost"
-                      onClick={() => setAccountDrawerView('account')}
-                      className="h-8 w-8 p-0 hover:bg-gray-100 -ml-2"
-                    >
-                      <IconChevronLeft className="h-5 w-5 text-gray-600" />
-                    </Button>
-                    <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 flex-1">
-                    <Avatar className="h-10 w-10 border border-gray-200">
-                      <AvatarFallback className="bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-semibold">
-                        ch
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <div className="text-sm font-medium text-gray-900 text-left">ch</div>
-                      <div className="text-xs text-gray-500 text-left">b1767721</div>
-                    </div>
-                  </div>
-                )}
+              {accountDrawerView === 'notifications' ? (
                 <div className="flex items-center gap-2">
-                  {!isMobile && (
-                    <DrawerClose asChild>
-                      <button className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
-                        <IconX className="h-4 w-4 text-gray-600" />
-                      </button>
-                    </DrawerClose>
-                  )}
+                  <Button
+                    variant="ghost"
+                    onClick={() => setAccountDrawerView('account')}
+                    className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                    aria-label="Back"
+                  >
+                    <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                  </Button>
+                  <h2 className="text-base font-semibold text-white">Notifications</h2>
                 </div>
-              </div>
+              ) : (
+                <div className="flex w-full items-center gap-2">
+                  <DrawerClose asChild>
+                    <button
+                      type="button"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      aria-label="Back"
+                    >
+                      <IconChevronLeft className="h-5 w-5" stroke={2} />
+                    </button>
+                  </DrawerClose>
+                  <AccountDrawerIdentity
+                    name="ch"
+                    accountId="b1767721"
+                  />
+                  <AccountDrawerSettingsButton
+                    onBeforeNavigate={() => setAccountDrawerOpen(false)}
+                  />
+                </div>
+              )}
             </DrawerHeader>
             
             <div className={cn("flex-1 overflow-y-auto", isMobile ? "px-4 pt-4 pb-4" : "px-4 pt-6 pb-4")}>
@@ -12548,54 +12547,58 @@ function NavTestPageContent() {
                 <>
                   {/* Balance Information */}
                   <div className="mb-4">
-                    <div className="bg-gray-50 rounded-lg px-3 py-3 space-y-3">
+                    <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Available Balance</span>
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-sm text-white/60">Available Balance</span>
+                        <span className="text-sm font-semibold text-white">
                   {currentBrand.symbol}
                   <NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                         </span>
                 </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Free Bet</span>
-                        <span className="text-sm font-semibold text-gray-900">$0.00</span>
+                        <span className="text-sm text-white/60">Free Bet</span>
+                        <span className="text-sm font-semibold text-white">$0.00</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                     </div>
               </div>
               
-                  <Separator className="bg-gray-200 mb-3" />
+                  <Separator className="bg-white/10 mb-3" />
                   
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-10 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
-                      <span className="flex-1 text-left text-gray-900">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
+                      <span className="flex-1 text-left text-white">Notifications</span>
                     </Button>
                   </div>
                   
-                  <Separator className="bg-gray-200 mb-6" />
+                  <Separator className="bg-white/10 mb-6" />
                   
                   {/* Navigation List */}
                   <div className="space-y-1 w-full mb-8">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3 min-w-0"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       router.push('/account')
                     }}
                     >
-                      <IconUser className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">My Account</span>
+                      <IconUser className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">My Account</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3 min-w-0"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         setMyBetsInitialFilter('pending')
@@ -12606,9 +12609,9 @@ function NavTestPageContent() {
                         }
                       }}
                     >
-                      <IconFileText className="w-5 h-5 mr-3 text-gray-700 flex-shrink-0" />
-                      <span className="flex-1 text-left text-gray-900">Pending Bets</span>
-                      <span className="text-sm text-gray-600 ml-auto flex items-center gap-1.5">
+                      <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
+                      <span className="flex-1 text-left text-white">Pending Bets</span>
+                      <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
                         {sampleBets.filter(b => !b.status && !b.isLive).length > 0 && (
                           <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{sampleBets.filter(b => !b.status && !b.isLive).length}</span>
                         )}
@@ -12618,51 +12621,54 @@ function NavTestPageContent() {
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">My Bonus</span>
+                      <IconGift className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">My Bonus</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Transactions History</span>
+                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Transactions History</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconTicket className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Bet History</span>
+                      <IconTicket className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Bet History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
                     >
-                      <IconUserPlus className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">Refer a Friend</span>
+                      <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">Refer a Friend</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-gray-900 hover:bg-gray-100 hover:text-gray-900 h-12 px-3"
+                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      onClick={() => {
+                        openVipDrawer()
+                      }}
                     >
-                      <IconCrown className="w-5 h-5 mr-3 text-gray-700" />
-                      <span className="flex-1 text-left text-gray-900">VIP Rewards</span>
+                      <IconCrown className="w-5 h-5 mr-3 text-white/70" />
+                      <span className="flex-1 text-left text-white">VIP Hub</span>
                 </Button>
               </div>
                   
-                  <Separator className={cn("bg-gray-200", isMobile ? "my-4" : "my-5")} />
+                  <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
                   
                   {/* Logout Button */}
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-600 h-10 px-2 min-w-0"
+                    className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
                   >
                     <span className="text-sm">Log out</span>
                   </Button>
@@ -12674,50 +12680,50 @@ function NavTestPageContent() {
                     <div className="flex items-center justify-between mb-4">
                       <Button 
                         variant="ghost" 
-                        className="h-8 px-2 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        className="h-8 px-2 text-xs text-white/60 hover:text-white hover:bg-white/10"
                       >
                         View All
                       </Button>
                 </div>
                     <div className="space-y-2">
-                      <div className="flex items-start gap-3 p-3 rounded-small bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small bg-white/[0.06] hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">New Promotion Available!</p>
-                          <p className="text-xs text-gray-500 mt-1">Claim your free spins now!</p>
-                          <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
+                          <p className="text-sm text-white font-medium">New Promotion Available!</p>
+                          <p className="text-xs text-white/50 mt-1">Claim your free spins now!</p>
+                          <p className="text-xs text-white/45 mt-1">2 hours ago</p>
                 </div>
               </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small bg-white/[0.06] hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Your Bet has been settled!</p>
-                          <p className="text-xs text-gray-500 mt-1">Check your winnings now!</p>
-                          <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
+                          <p className="text-sm text-white font-medium">Your Bet has been settled!</p>
+                          <p className="text-xs text-white/50 mt-1">Check your winnings now!</p>
+                          <p className="text-xs text-white/45 mt-1">5 hours ago</p>
                 </div>
                 </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Weekly summary</p>
-                          <p className="text-xs text-gray-500 mt-1">View your weekly betting activity</p>
-                          <p className="text-xs text-gray-400 mt-1">1 day ago</p>
+                          <p className="text-sm text-white font-medium">Weekly summary</p>
+                          <p className="text-xs text-white/50 mt-1">View your weekly betting activity</p>
+                          <p className="text-xs text-white/45 mt-1">1 day ago</p>
               </div>
               </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">Bet settled</p>
-                          <p className="text-xs text-gray-500 mt-1">Your bet on Liverpool has been settled</p>
-                          <p className="text-xs text-gray-400 mt-1">2 days ago</p>
+                          <p className="text-sm text-white font-medium">Bet settled</p>
+                          <p className="text-xs text-white/50 mt-1">Your bet on Liverpool has been settled</p>
+                          <p className="text-xs text-white/45 mt-1">2 days ago</p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-gray-100 cursor-pointer transition-colors">
+                      <div className="flex items-start gap-3 p-3 rounded-small hover:bg-white/10 cursor-pointer transition-colors">
                         <div className="h-2 w-2 rounded-full bg-transparent mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900 font-medium">New bonus code available</p>
-                          <p className="text-xs text-gray-500 mt-1">Use code BONUS50 for 50% match</p>
-                          <p className="text-xs text-gray-400 mt-1">3 days ago</p>
+                          <p className="text-sm text-white font-medium">New bonus code available</p>
+                          <p className="text-xs text-white/50 mt-1">Use code BONUS50 for 50% match</p>
+                          <p className="text-xs text-white/45 mt-1">3 days ago</p>
                         </div>
                       </div>
                     </div>
@@ -12750,19 +12756,18 @@ function NavTestPageContent() {
             } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
             {isMobile && <DrawerHandle variant="light" />}
-            
-            {/* Title + Close button for desktop only */}
-            {!isMobile && (
-              <div className="relative px-4 pt-4 pb-2 flex-shrink-0 flex items-center justify-between z-50">
-                <h2 className="text-base font-semibold text-white">VIP Hub</h2>
-                <DrawerClose asChild>
-                  <button className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0">
-                    <IconX className="h-4 w-4 text-white/70" />
-                  </button>
-                </DrawerClose>
-              </div>
-            )}
-            
+            <div className="relative z-50 flex flex-shrink-0 items-center gap-2 px-4 pb-2 pt-4">
+              <DrawerClose asChild>
+                <button
+                  type="button"
+                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                  aria-label="Back"
+                >
+                  <IconChevronLeft className="h-5 w-5" stroke={2} />
+                </button>
+              </DrawerClose>
+              <h2 className="text-base font-semibold text-white">VIP Hub</h2>
+            </div>
             <VipDrawerContent 
               vipActiveTab={vipActiveTab}
               setVipActiveTab={setVipActiveTab}

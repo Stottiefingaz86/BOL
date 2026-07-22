@@ -8,6 +8,7 @@ import {
   IconGift,
   IconRefresh,
 } from '@tabler/icons-react'
+import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
@@ -173,8 +174,11 @@ export function VipRewardsPromo({ onExplore, className }: VipRewardsPromoProps) 
                   key={benefit.id}
                   className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-3"
                 >
-                  <div className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] text-white/40">
-                    <Icon className="h-6 w-6" />
+                  <div
+                    className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-white/95"
+                    style={rewardAccentStyle(benefit.id)}
+                  >
+                    <Icon className="h-6 w-6" strokeWidth={1.6} />
                   </div>
                   <div className="mb-1 text-[13px] font-semibold leading-snug text-white">
                     {benefit.title}

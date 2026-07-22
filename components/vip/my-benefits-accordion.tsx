@@ -10,6 +10,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
+import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { cn } from '@/lib/utils'
 
 interface MyBenefitsAccordionProps {
@@ -18,6 +19,32 @@ interface MyBenefitsAccordionProps {
   /** Render the surrounding heading. Disable when nesting in a tab that already labels itself. */
   showHeading?: boolean
   className?: string
+}
+
+
+function BenefitLine({
+  label,
+  muted = false,
+}: {
+  label: string
+  muted?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-2 text-sm',
+        muted ? 'text-white/50' : 'text-white',
+      )}
+    >
+      <div
+        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-white/95"
+        style={rewardAccentStyle(label)}
+      >
+        <IconCheck className="h-3 w-3" strokeWidth={2.25} />
+      </div>
+      <span>{label}</span>
+    </div>
+  )
 }
 
 export function MyBenefitsAccordion({
@@ -43,12 +70,7 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white/50">$0</div>
               <div className="text-sm text-white/50">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white/50">
-                  <div className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Daily Cash Race</span>
-                </div>
+                <BenefitLine label="Daily Cash Race" muted />
               </div>
               <div className="pt-2">
                 <div className="text-xs text-white/50 font-medium">Complete</div>
@@ -72,18 +94,8 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white/50">$10K</div>
               <div className="text-sm text-white/50">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white/50">
-                  <div className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Daily Cash Race</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/50">
-                  <div className="h-4 w-4 rounded-full bg-white/10 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Birthday Rewards</span>
-                </div>
+                <BenefitLine label="Daily Cash Race" muted />
+                <BenefitLine label="Birthday Rewards" muted />
               </div>
               <div className="pt-2">
                 <div className="text-xs text-white/50 font-medium">Complete</div>
@@ -118,36 +130,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$50K</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Daily Cash Race</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Birthday Rewards</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Weekly Cash Boost</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Monthly Cash Boost</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Level Up Bonuses</span>
-                </div>
+                <BenefitLine label="Daily Cash Race" />
+                <BenefitLine label="Birthday Rewards" />
+                <BenefitLine label="Weekly Cash Boost" />
+                <BenefitLine label="Monthly Cash Boost" />
+                <BenefitLine label="Level Up Bonuses" />
               </div>
             </div>
           </AccordionContent>
@@ -165,36 +152,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$100K - 500K</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Daily Cash Race</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Birthday Rewards</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Weekly Cash Boost</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Monthly Cash Boost</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Level Up Bonuses</span>
-                </div>
+                <BenefitLine label="Daily Cash Race" />
+                <BenefitLine label="Birthday Rewards" />
+                <BenefitLine label="Weekly Cash Boost" />
+                <BenefitLine label="Monthly Cash Boost" />
+                <BenefitLine label="Level Up Bonuses" />
               </div>
             </div>
           </AccordionContent>
@@ -212,36 +174,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$1M - 5M</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>All Platinum I - III Benefits</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Monthly Cash Boost</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Level Up Bonuses</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Prioritized Withdrawals</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Dedicated VIP Team</span>
-                </div>
+                <BenefitLine label="All Platinum I - III Benefits" />
+                <BenefitLine label="Monthly Cash Boost" />
+                <BenefitLine label="Level Up Bonuses" />
+                <BenefitLine label="Prioritized Withdrawals" />
+                <BenefitLine label="Dedicated VIP Team" />
               </div>
             </div>
           </AccordionContent>
@@ -259,36 +196,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$100M - 500M</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>All Diamond I - III Benefits</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Free Crypto Withdrawals</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Reduced Deposit Fees</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Exclusive Refer-A-Friend</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Dedicated VIP Team</span>
-                </div>
+                <BenefitLine label="All Diamond I - III Benefits" />
+                <BenefitLine label="Free Crypto Withdrawals" />
+                <BenefitLine label="Reduced Deposit Fees" />
+                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Dedicated VIP Team" />
               </div>
             </div>
           </AccordionContent>
@@ -306,36 +218,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$100M+</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>All Elite I - III Benefits</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Reduced Deposit Fees</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Exclusive Refer-A-Friend</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Tailored Gifts & Rewards</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Dedicated VIP Team</span>
-                </div>
+                <BenefitLine label="All Elite I - III Benefits" />
+                <BenefitLine label="Reduced Deposit Fees" />
+                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Tailored Gifts & Rewards" />
+                <BenefitLine label="Dedicated VIP Team" />
               </div>
             </div>
           </AccordionContent>
@@ -353,36 +240,11 @@ export function MyBenefitsAccordion({
               <div className="text-lg font-semibold text-white">$1B+</div>
               <div className="text-sm text-white/70">Wager Amount</div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>All Black I - III Benefits</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Reduced Deposit Fees</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Exclusive Refer-A-Friend</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Tailored Gifts & Rewards</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white">
-                  <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center">
-                    <IconCheck className="h-3 w-3" />
-                  </div>
-                  <span>Dedicated VIP Team</span>
-                </div>
+                <BenefitLine label="All Black I - III Benefits" />
+                <BenefitLine label="Reduced Deposit Fees" />
+                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Tailored Gifts & Rewards" />
+                <BenefitLine label="Dedicated VIP Team" />
               </div>
             </div>
           </AccordionContent>

@@ -20,6 +20,7 @@ import {
 } from '@tabler/icons-react'
 import { useAuthSession } from '@/hooks/use-auth-session'
 import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
+import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { cn } from '@/lib/utils'
 
 type Tier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | 'Host'
@@ -270,21 +271,14 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
       />
 
       <div className="relative z-10 flex flex-col items-center text-center min-h-[148px]">
-        {/* Icon — chip background uses inline style so opacity on CSS var works */}
+        {/* Colored gradient chip — unique per reward for scannability */}
         <div
           className={cn(
-            'flex items-center justify-center w-12 h-12 rounded-xl mb-2.5',
-            isClaimable
-              ? 'text-[var(--ds-primary,#ee3536)]'
-              : isHostGated
-                ? 'bg-white/[0.04] text-white/30'
-                : 'bg-white/[0.04] text-white/40'
+            'mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-white/95',
+            isHostGated && 'opacity-45 grayscale',
+            isLocked && !isHostGated && 'opacity-70'
           )}
-          style={
-            isClaimable
-              ? { backgroundColor: 'color-mix(in srgb, var(--ds-primary, #ee3536) 15%, transparent)' }
-              : undefined
-          }
+          style={rewardAccentStyle(tile.name)}
         >
           {tile.icon}
         </div>

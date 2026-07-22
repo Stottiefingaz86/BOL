@@ -1,17 +1,11 @@
 'use client'
 
-import Image from 'next/image'
-import NumberFlow from '@number-flow/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useCallback, useRef, useState } from 'react'
 import {
   IconBrandTelegram,
-  IconCalendar,
   IconCheck,
   IconInfoCircle,
   IconRefresh,
-  IconStar,
-  IconStopwatch,
 } from '@tabler/icons-react'
 import { fireConfetti } from '@/lib/confetti'
 import { playSound } from '@/lib/sounds'
@@ -25,6 +19,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { rewardAccentStyle } from '@/components/vip/reward-accent'
+import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
+import {
+  VipIconMonthly,
+  VipIconPostMonthly,
+  VipIconSpecial,
+  VipIconWeekly,
+} from '@/components/vip/vip-row-icons'
 
 type IconKind =
   | 'rakeback'
@@ -91,6 +93,14 @@ const LOGGED_IN_ROWS: HubRow[] = [
     amount: 1,
     subtitle: '2 of 5 claimed',
   },
+  {
+    id: 'weekly-boost',
+    name: 'Weekly Boost',
+    info: 'Boost your balance every week as you climb the VIP ladder.',
+    icon: 'boost-7',
+    kind: 'cooldown',
+    cooldownLabel: '2d',
+  },
 ]
 
 /** Logged-out VIP tab — full reward list with Log in CTAs (Figma) */
@@ -154,33 +164,25 @@ const LOGGED_OUT_ROWS: HubRow[] = [
 ]
 
 function RowIcon({ type }: { type: IconKind }) {
-  if (type === 'rakeback') {
-    return <IconRefresh className="size-5 text-white/80" strokeWidth={1.75} />
-  }
+  const cls = 'size-5 text-white'
 
-  if (type.startsWith('reload')) {
-    const label =
-      type === 'reload-30' ? '30' : type === 'reload-15' ? '15' : null
-    return (
-      <span className="relative flex size-5 items-center justify-center text-white/80">
-        <IconStopwatch className="size-5" strokeWidth={1.5} />
-        <span className="absolute inset-0 flex items-center justify-center pt-0.5 text-[8px] font-bold tabular-nums leading-none">
-          {label ?? <IconStar className="size-2.5 fill-current" strokeWidth={0} />}
-        </span>
-      </span>
-    )
+  switch (type) {
+    case 'rakeback':
+      return <IconRefresh className={cls} strokeWidth={1.75} />
+    case 'reload-30':
+    case 'boost-30':
+      return <VipIconMonthly className={cls} />
+    case 'reload-15':
+    case 'boost-15':
+      return <VipIconPostMonthly className={cls} />
+    case 'boost-7':
+      return <VipIconWeekly className={cls} />
+    case 'reload-star':
+    case 'boost-star':
+      return <VipIconSpecial className={cls} />
+    default:
+      return <IconRefresh className={cls} strokeWidth={1.75} />
   }
-
-  const label =
-    type === 'boost-7' ? '7' : type === 'boost-15' ? '15' : type === 'boost-30' ? '30' : null
-  return (
-    <span className="relative flex size-5 items-center justify-center text-white/80">
-      <IconCalendar className="size-5" strokeWidth={1.5} />
-      <span className="absolute inset-0 flex items-center justify-center pt-1 text-[8px] font-bold tabular-nums leading-none">
-        {label ?? <IconStar className="size-2.5 fill-current" strokeWidth={0} />}
-      </span>
-    </span>
-  )
 }
 
 function fireClaimConfetti(buttonEl: HTMLElement | null) {
@@ -306,7 +308,7 @@ function BenefitRow({ row }: { row: HubRow }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'group relative flex items-center gap-3 overflow-hidden rounded-xl border bg-white/[0.04] px-3 py-3 transition-colors duration-200',
+        'group relative flex items-center gap-3 overflow-visible rounded-xl border bg-white/[0.04] px-3 py-3 transition-colors duration-200',
         showClaimHighlight
           ? 'border-white/[0.06] hover:border-[var(--ds-primary,#ee3536)]/50'
           : 'border-white/[0.06] hover:border-white/15'
@@ -329,10 +331,13 @@ function BenefitRow({ row }: { row: HubRow }) {
         }}
       />
 
-      <div className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06]">
+      <div
+        className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl text-white/95"
+        style={rewardAccentStyle(row.name)}
+      >
         <RowIcon type={row.icon} />
       </div>
-      <div className="relative z-10 min-w-0 flex-1">
+      <div className="relative z-20 min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold text-white">{row.name}</span>
           {row.info ? (
@@ -341,7 +346,7 @@ function BenefitRow({ row }: { row: HubRow }) {
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="text-white/35 transition-colors hover:text-white/60"
+                    className="relative z-30 text-white/35 transition-colors hover:text-white/60"
                     aria-label={`${row.name} info`}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -350,7 +355,7 @@ function BenefitRow({ row }: { row: HubRow }) {
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="max-w-[240px] border-white/10 bg-[#f5f5f5] text-xs text-[#1a1a1a]"
+                  className="z-[200] max-w-[240px] border-white/10 bg-[#f5f5f5] text-xs text-[#1a1a1a]"
                 >
                   {row.info}
                 </TooltipContent>
@@ -391,57 +396,7 @@ function BenefitRow({ row }: { row: HubRow }) {
 }
 
 function ProgressCard() {
-  const [animatedPercent, setAnimatedPercent] = useState(0)
-  const value = 25
-
-  useEffect(() => {
-    const duration = 1200
-    const start = performance.now()
-    let raf = 0
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration)
-      const eased = 1 - (1 - t) ** 3
-      setAnimatedPercent(value * eased)
-      if (t < 1) raf = requestAnimationFrame(step)
-    }
-    raf = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-3.5">
-      <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 flex-col items-center justify-center gap-1">
-          <Image
-            src="/icons/header/crown.svg"
-            alt=""
-            width={22}
-            height={22}
-            className="size-[22px]"
-            unoptimized
-          />
-          <span className="h-px w-5 bg-[#EAAF6D]/70" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">Bronze to Silver</p>
-          <div className="mt-2 flex items-center gap-2.5">
-            <div className="relative h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/10">
-              <motion.div
-                className="h-full rounded-full bg-[#EAAF6D]"
-                initial={false}
-                animate={{ width: `${animatedPercent}%` }}
-                transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-              />
-            </div>
-            <span className="shrink-0 text-xs font-medium tabular-nums text-white/80">
-              <NumberFlow value={Math.round(animatedPercent)} />%
-            </span>
-          </div>
-          <p className="mt-2 text-[11px] text-white/40">Updated 24/25/2024, 8:00 PM ET</p>
-        </div>
-      </div>
-    </div>
-  )
+  return <VipTierProgressCard fromTier="Bronze" toTier="Silver" percent={25} />
 }
 
 function TelegramCta() {

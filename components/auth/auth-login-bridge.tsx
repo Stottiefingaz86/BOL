@@ -1,33 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
-import { AUTH_REQUEST_LOGIN_EVENT, consumePendingLogin } from '@/lib/auth-session'
-
-type AuthLoginBridgeProps = {
-  onRequestLogin: () => void
-}
-
 /**
- * Bridges VIP "Log in" CTAs to the page account drawer.
- * Mount once per page shell that owns account drawer state.
+ * @deprecated Auth login is handled globally by `AuthModal` in the root layout.
+ * Kept as a no-op so existing page mounts don't break.
  */
-export function AuthLoginBridge({ onRequestLogin }: AuthLoginBridgeProps) {
-  useEffect(() => {
-    document.documentElement.dataset.authLoginBridge = 'true'
-    return () => {
-      delete document.documentElement.dataset.authLoginBridge
-    }
-  }, [])
-
-  useEffect(() => {
-    if (consumePendingLogin()) {
-      onRequestLogin()
-    }
-
-    const handler = () => onRequestLogin()
-    window.addEventListener(AUTH_REQUEST_LOGIN_EVENT, handler)
-    return () => window.removeEventListener(AUTH_REQUEST_LOGIN_EVENT, handler)
-  }, [onRequestLogin])
-
+export function AuthLoginBridge(_props: { onRequestLogin?: () => void }) {
   return null
 }
+
+export default AuthLoginBridge

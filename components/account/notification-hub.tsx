@@ -636,42 +636,42 @@ export function NotificationHub() {
     const text = `${item.title} ${item.description}`.toLowerCase()
     if (item.type === "vip-progress" || item.type === "vip-cash" || text.includes("platinum") || text.includes("vip")) {
       return (
-        <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
           <IconCrown className="h-5 w-5 text-[#c4ad30]" />
         </div>
       )
     }
     if (text.includes("deposit") || text.includes("bitcoin")) {
       return (
-        <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-          <IconCurrencyDollar className="h-5 w-5 text-gray-700" />
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
+          <IconCurrencyDollar className="h-5 w-5 text-white/70" />
         </div>
       )
     }
     if (text.includes("free spin") || text.includes("spin")) {
       return (
-        <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-          <IconDice className="h-5 w-5 text-gray-700" />
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
+          <IconDice className="h-5 w-5 text-white/70" />
         </div>
       )
     }
     if (text.includes("sport") || text.includes("bet")) {
       return (
-        <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-          <IconBallFootball className="h-5 w-5 text-gray-700" />
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
+          <IconBallFootball className="h-5 w-5 text-white/70" />
         </div>
       )
     }
     if (text.includes("reward") || text.includes("bonus")) {
       return (
-        <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-          <IconGift className="h-5 w-5 text-gray-700" />
+        <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
+          <IconGift className="h-5 w-5 text-white/70" />
         </div>
       )
     }
     return (
-      <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center">
-        <IconBellRinging className="h-5 w-5 text-gray-700" />
+      <div className="h-10 w-10 rounded-full border border-white/10 bg-white/10 flex items-center justify-center">
+        <IconBellRinging className="h-5 w-5 text-white/70" />
       </div>
     )
   }
@@ -685,7 +685,7 @@ export function NotificationHub() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="mb-3 rounded-small border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800"
+            className="mb-3 rounded-small border border-emerald-500/30 bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300"
           >
             {claimAlertMessage}
           </motion.div>
@@ -699,7 +699,7 @@ export function NotificationHub() {
             size="icon"
             onClick={() => setPreferencesOpen((prev) => !prev)}
             className={cn(
-              "h-8 w-8 shrink-0 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+              "h-8 w-8 shrink-0 rounded-full border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white",
               preferencesOpen && "border-[var(--ds-primary,#ee3536)] text-[var(--ds-primary,#ee3536)]",
             )}
             aria-label="Notification preferences"
@@ -707,7 +707,7 @@ export function NotificationHub() {
           >
             <IconSettings className="h-4 w-4" />
           </Button>
-          <div className="inline-flex w-fit max-w-full items-center rounded-full bg-gray-100 p-1">
+          <div className="inline-flex w-fit max-w-full items-center rounded-full bg-white/10 p-1">
           <button
             type="button"
             onClick={() => setTab("all")}
@@ -715,7 +715,7 @@ export function NotificationHub() {
               "inline-flex h-8 min-w-[96px] items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors appearance-none focus:outline-none",
               tab === "all"
                 ? "bg-[var(--ds-primary,#ee3536)] text-white shadow-sm"
-                : "text-gray-700 hover:text-gray-900",
+                : "text-white/70 hover:text-white",
             )}
           >
             <span>All</span>
@@ -727,13 +727,13 @@ export function NotificationHub() {
               "inline-flex h-8 min-w-[96px] items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors appearance-none focus:outline-none",
               tab === "unread"
                 ? "bg-[var(--ds-primary,#ee3536)] text-white shadow-sm"
-                : "text-gray-700 hover:text-gray-900",
+                : "text-white/70 hover:text-white",
             )}
           >
             <span>Unread</span>
             <span className={cn(
               "inline-flex h-5 min-w-[22px] items-center justify-center rounded-full px-1.5 text-[11px] leading-none",
-              tab === "unread" ? "bg-white/25 text-white" : "bg-gray-200 text-gray-600"
+              tab === "unread" ? "bg-white/25 text-white" : "bg-white/15 text-white/70"
             )}>
               {unreadCount}
             </span>
@@ -741,18 +741,18 @@ export function NotificationHub() {
           </div>
         </div>
         {preferencesOpen && (
-          <div className="rounded-small border border-gray-200 bg-white p-4 md:p-5">
+          <div className="rounded-small border border-white/10 bg-white/[0.06] p-4 md:p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-gray-900">Notification preferences</p>
-              <p className="text-xs text-gray-500">Manage channels and campaign topics</p>
+              <p className="text-sm font-semibold text-white">Notification preferences</p>
+              <p className="text-xs text-white/50">Manage channels and campaign topics</p>
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              <div className="rounded-small bg-gray-50 p-3.5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Channels</p>
+              <div className="rounded-small bg-white/[0.04] p-3.5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">Channels</p>
                 <div className="space-y-2">
                   {CHANNELS.map((channel) => (
                     <div key={channel.key} className="flex items-center justify-between gap-3 py-0.5">
-                      <span className="text-sm text-gray-700">{channel.label}</span>
+                      <span className="text-sm text-white/80">{channel.label}</span>
                       <button
                         type="button"
                         role="switch"
@@ -760,7 +760,7 @@ export function NotificationHub() {
                         onClick={() => toggleChannelPreference(channel.key)}
                         className={cn(
                           "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
-                          preferences.channels[channel.key] ? "bg-[var(--ds-primary,#ee3536)]" : "bg-gray-300",
+                          preferences.channels[channel.key] ? "bg-[var(--ds-primary,#ee3536)]" : "bg-white/25",
                         )}
                       >
                         <span
@@ -774,14 +774,14 @@ export function NotificationHub() {
                   ))}
                 </div>
               </div>
-              <div className="rounded-small bg-gray-50 p-3.5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Campaigns</p>
+              <div className="rounded-small bg-white/[0.04] p-3.5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-white/50">Campaigns</p>
                 <div className="space-y-2">
                   {CAMPAIGNS.map((campaign) => (
                     <div key={campaign.key} className="flex items-center justify-between gap-3 py-0.5">
-                      <span className="min-w-0 text-sm text-gray-700">
+                      <span className="min-w-0 text-sm text-white/80">
                         {campaign.label}
-                        <span className="ml-1 whitespace-nowrap text-xs text-gray-500">({campaignCounts[campaign.key]})</span>
+                        <span className="ml-1 whitespace-nowrap text-xs text-white/50">({campaignCounts[campaign.key]})</span>
                       </span>
                       <button
                         type="button"
@@ -790,7 +790,7 @@ export function NotificationHub() {
                         onClick={() => toggleCampaignPreference(campaign.key)}
                         className={cn(
                           "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
-                          preferences.campaigns[campaign.key] ? "bg-[var(--ds-primary,#ee3536)]" : "bg-gray-300",
+                          preferences.campaigns[campaign.key] ? "bg-[var(--ds-primary,#ee3536)]" : "bg-white/25",
                         )}
                       >
                         <span
@@ -812,8 +812,8 @@ export function NotificationHub() {
       <div className="overflow-visible">
         {groupedItems.map((group) => (
           <section key={group.label} className="mb-4">
-            <h4 className="mb-1 text-[15px] font-semibold leading-6 text-gray-500">{group.label}</h4>
-            <div className="rounded-small bg-white">
+            <h4 className="mb-1 text-[15px] font-semibold leading-6 text-white/50">{group.label}</h4>
+            <div className="overflow-hidden rounded-small border border-white/[0.06] bg-white/[0.04]">
               <AnimatePresence initial={false}>
                 {group.items.map((item) => {
                   const cta = resolveCta(item)
@@ -826,7 +826,7 @@ export function NotificationHub() {
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.16, ease: "easeOut" }}
                       className={cn(
-                        "group relative border-b border-gray-100 last:border-b-0 transition-colors duration-200 hover:bg-gray-50/70",
+                        "group relative border-b border-white/10 last:border-b-0 transition-colors duration-200 hover:bg-white/[0.06]/70",
                         isMobile
                           ? (activeMenuId === item.id ? "overflow-visible" : "overflow-hidden")
                           : "overflow-visible",
@@ -916,10 +916,10 @@ export function NotificationHub() {
                         <span className="text-[11px] font-semibold uppercase tracking-wide">Delete</span>
                       </div>
 
-                      <div data-notification-inner className="relative z-10 w-full bg-white py-4 transition-colors duration-200 group-hover:bg-gray-50/40">
+                      <div data-notification-inner className="relative z-10 w-full bg-transparent px-3 py-4 transition-colors duration-200 group-hover:bg-white/[0.04]">
                       <button
                         type="button"
-                        className="absolute right-0 top-4 h-8 w-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="absolute right-0 top-4 h-8 w-8 rounded-full flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white/70"
                         onClick={(e) => {
                           e.stopPropagation()
                           setActiveMenuId((prev) => (prev === item.id ? null : item.id))
@@ -929,10 +929,10 @@ export function NotificationHub() {
                         <IconDots className="h-4 w-4" />
                       </button>
                       {activeMenuId === item.id && (
-                        <div className="absolute right-0 top-12 z-[90] w-56 rounded-small border border-blue-100 bg-white p-2 shadow-lg">
+                        <div className="absolute right-0 top-12 z-[90] w-56 rounded-small border border-white/10 bg-[#2a2a2a] p-2 shadow-lg">
                           <button
                             type="button"
-                            className="flex w-full items-center justify-between rounded-small px-3 py-2 text-left text-[15px] font-medium text-gray-900 hover:bg-gray-50"
+                            className="flex w-full items-center justify-between rounded-small px-3 py-2 text-left text-[15px] font-medium text-white hover:bg-white/5"
                             onClick={() => {
                               markAsRead(item.id)
                               setActiveMenuId(null)
@@ -943,7 +943,7 @@ export function NotificationHub() {
                           </button>
                           <button
                             type="button"
-                            className="mt-1 w-full rounded-small px-3 py-2 text-left text-[15px] font-medium text-gray-900 hover:bg-gray-50"
+                            className="mt-1 w-full rounded-small px-3 py-2 text-left text-[15px] font-medium text-white hover:bg-white/5"
                             onClick={() => {
                               removeItem(item.id)
                               setActiveMenuId(null)
@@ -953,7 +953,7 @@ export function NotificationHub() {
                           </button>
                           <button
                             type="button"
-                            className="mt-1 w-full rounded-small px-3 py-2 text-left text-[15px] font-medium text-gray-900 hover:bg-gray-50"
+                            className="mt-1 w-full rounded-small px-3 py-2 text-left text-[15px] font-medium text-white hover:bg-white/5"
                             onClick={() => {
                               setPreferencesOpen(true)
                               setActiveMenuId(null)
@@ -967,17 +967,17 @@ export function NotificationHub() {
                       <div className="flex items-start gap-3 pr-9">
                         {renderAvatar(item)}
                         <div className="min-w-0 flex-1">
-                          <p className="text-[15px] font-semibold text-gray-900 leading-snug">{item.title}</p>
-                          <p className="mt-1 text-[13px] leading-[1.4] text-gray-700">{item.description}</p>
+                          <p className="text-[15px] font-semibold text-white leading-snug">{item.title}</p>
+                          <p className="mt-1 text-[13px] leading-[1.4] text-white/70">{item.description}</p>
 
                           {item.type === "vip-progress" && (
-                            <div className="mt-3 rounded-small bg-gray-100 p-3.5">
-                              <div className="mb-2 text-sm font-semibold text-gray-700">
+                            <div className="mt-3 rounded-small bg-white/10 p-3.5">
+                              <div className="mb-2 text-sm font-semibold text-white/70">
                                 {item.progressLabel ?? "Gold to Platinum I"}
                               </div>
                               <div className="flex items-center gap-2">
-                                <Progress value={item.progressValue ?? 45} className="h-2 bg-gray-200 [&>div]:bg-[#c4ad30]" />
-                                <span className="text-sm font-semibold text-gray-600">{item.progressValue ?? 45}%</span>
+                                <Progress value={item.progressValue ?? 45} className="h-2 bg-white/10 [&>div]:bg-[#c4ad30]" />
+                                <span className="text-sm font-semibold text-white/60">{item.progressValue ?? 45}%</span>
                               </div>
                             </div>
                           )}
@@ -992,7 +992,7 @@ export function NotificationHub() {
                             </Button>
                           )}
 
-                          <p className="mt-2 text-xs text-gray-400">{item.timeLabel}</p>
+                          <p className="mt-2 text-xs text-white/45">{item.timeLabel}</p>
                         </div>
                       </div>
                       {item.unread && <div className="absolute right-2 top-11 h-2.5 w-2.5 rounded-full bg-[#ee3536]" />}
@@ -1007,10 +1007,10 @@ export function NotificationHub() {
       </div>
 
       {filteredItems.length === 0 && (
-        <div className="mt-8 rounded-small border border-dashed border-gray-200 bg-gray-50 p-6 text-center">
-          <IconBellRinging className="mx-auto mb-2 h-5 w-5 text-gray-400" />
-          <p className="text-sm font-medium text-gray-700">No notifications</p>
-          <p className="mt-1 text-xs text-gray-500">You are all caught up.</p>
+        <div className="mt-8 rounded-small border border-dashed border-white/10 bg-white/[0.06] p-6 text-center">
+          <IconBellRinging className="mx-auto mb-2 h-5 w-5 text-white/40" />
+          <p className="text-sm font-medium text-white/70">No notifications</p>
+          <p className="mt-1 text-xs text-white/50">You are all caught up.</p>
         </div>
       )}
 
@@ -1028,17 +1028,17 @@ export function NotificationHub() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 6 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="w-full max-w-sm rounded-small border border-white/20 bg-white p-4 shadow-2xl"
+              className="w-full max-w-sm rounded-small border border-white/10 bg-[#1a1a1a] p-4 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-base font-semibold text-gray-900">Mystery Wheel</p>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="text-base font-semibold text-white">Mystery Wheel</p>
+              <p className="mt-1 text-sm text-white/60">
                 Spin now to reveal your 5-day streak reward.
               </p>
               <div className="mt-4 flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  className="h-9 rounded-small border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+                  className="h-9 rounded-small border border-white/20 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white/10"
                   onClick={() => setMysteryWheelNotificationId(null)}
                 >
                   Close
