@@ -298,7 +298,7 @@ import {
 } from '@/components/ui/family-drawer'
 import { NotificationHub } from '@/components/account/notification-hub'
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
-import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
+import { AccountDrawerHeaderActions } from '@/components/account/account-drawer-header-actions'
 
 // Helper function to get vendor icon path
 const getVendorIconPath = (vendorName: string): string => {
@@ -435,11 +435,11 @@ function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
         />
         <GameTagBadge tag={metaTag} vendor={getTileVendor(game.id)} />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-2">
-          <div className="text-white text-xs font-bold truncate leading-tight mb-0.5">{game.title}</div>
-          <div className="text-white/70 text-[10px] truncate">{game.provider}</div>
+          <div className="text-[var(--ds-fg)] text-xs font-bold truncate leading-tight mb-0.5">{game.title}</div>
+          <div className="text-[var(--ds-fg-muted)] text-[10px] truncate">{game.provider}</div>
         </div>
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <IconInfoCircle className="w-4 h-4 text-white drop-shadow-lg" strokeWidth={2} />
+          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
         </div>
       </div>
     </div>
@@ -475,7 +475,7 @@ function PaymentLogo({ method, className }: { method: string; className?: string
           }}
             />
           ) : (
-            <span className="text-xs font-semibold text-white/70">{method}</span>
+            <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">{method}</span>
           )}
         </div>
   )
@@ -600,7 +600,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
     return (
       <div className="w-full aspect-square">
         <div 
-          className="w-full h-full rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group"
+          className="w-full h-full rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
           onClick={() => {
             if (onTileClick) {
               onTileClick({
@@ -646,7 +646,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
     >
       {isVisible ? (
         <div 
-          className="w-full h-full rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group"
+          className="w-full h-full rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
           onClick={() => {
             if (onTileClick) {
               onTileClick({
@@ -676,7 +676,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
         </div>
       ) : (
-        <div className="w-full h-full rounded-small bg-white/5 animate-pulse" />
+        <div className="w-full h-full rounded-small bg-[var(--ds-control-bg)] animate-pulse" />
       )}
     </motion.div>
   )
@@ -715,10 +715,10 @@ function TotalRewardsCard() {
 
   return (
     <div ref={containerRef} className="flex-shrink-0 w-full md:w-[280px]">
-      <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 transition-colors duration-300 h-full">
+      <Card className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100 dark:bg-[var(--ds-control-bg)] border-[var(--ds-border)] dark:border-[var(--ds-border)] border-gray-200 dark:border-[var(--ds-border)] transition-colors duration-300 h-full">
         <CardContent className="p-4 flex flex-col justify-center items-center h-full text-center">
-          <CardTitle className="text-xs text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
-          <div className="text-2xl font-bold text-white dark:text-white text-gray-900 dark:text-white transition-colors duration-300">
+          <CardTitle className="text-xs text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-800 dark:text-[var(--ds-fg-muted)] mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
+          <div className="text-2xl font-bold text-[var(--ds-fg)] dark:text-[var(--ds-fg)] text-gray-900 dark:text-[var(--ds-fg)] transition-colors duration-300">
             $<NumberFlow 
               value={shouldAnimate ? targetValue : 0}
               format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }}
@@ -736,7 +736,7 @@ function VendorIcon({ vendor }: { vendor: string }) {
   const iconPath = getVendorIconPath(vendor)
   
   if (imageError) {
-    return <div className="w-5 h-5 rounded-full bg-white/10 flex-shrink-0" />
+    return <div className="w-5 h-5 rounded-full bg-[var(--ds-control-hover)] flex-shrink-0" />
   }
   
   return (
@@ -804,10 +804,10 @@ function getTagConfig(tag: MetaTag): { bg: string; border: string; text: string;
   switch (tag) {
     case 'Early': return { bg: 'bg-emerald-900/80', border: 'border-emerald-500/60', text: 'text-white', iconColor: 'text-emerald-400' }
     case 'Hot': return { bg: 'bg-red-950/80', border: 'border-red-500/60', text: 'text-white', iconColor: 'text-red-400' }
-    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-white', iconColor: 'text-indigo-300' }
-    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-white', iconColor: 'text-yellow-400' }
-    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-white/80' }
-    default: return { bg: 'bg-white/10', border: 'border-white/20', text: 'text-white', iconColor: 'text-white' }
+    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-[var(--ds-fg)]', iconColor: 'text-indigo-300' }
+    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-[var(--ds-fg)]', iconColor: 'text-yellow-400' }
+    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-[var(--ds-fg-muted)]' }
+    default: return { bg: 'bg-[var(--ds-control-hover)]', border: 'border-white/20', text: 'text-[var(--ds-fg)]', iconColor: 'text-[var(--ds-fg)]' }
   }
 }
 
@@ -829,7 +829,7 @@ function VendorBadge({ vendor }: { vendor: string }) {
           unoptimized
         />
       ) : (
-        <span className="text-[8px] font-bold text-white/80 leading-none">
+        <span className="text-[8px] font-bold text-[var(--ds-fg-muted)] leading-none">
           {vendor.charAt(0).toUpperCase()}
         </span>
       )}
@@ -943,7 +943,7 @@ function RouletteHistory({ results: initialResults }: { results: number[] }) {
             exit={{ scale: 0, opacity: 0, width: 0 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.8 }}
             className={cn(
-              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-white flex-shrink-0",
+              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-[var(--ds-fg)] flex-shrink-0",
               rouletteColor(item.num)
             )}
           >
@@ -987,7 +987,7 @@ function BaccaratHistory({ results: initialResults }: { results: string[] }) {
             exit={{ scale: 0, opacity: 0, width: 0 }}
             transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.8 }}
             className={cn(
-              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-white flex-shrink-0",
+              "w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-semibold text-[var(--ds-fg)] flex-shrink-0",
               item.result === 'B' ? "bg-red-600" :
               item.result === 'P' ? "bg-blue-600" :
               "bg-emerald-600"
@@ -1005,8 +1005,8 @@ function BaccaratHistory({ results: initialResults }: { results: string[] }) {
 function BlackjackSeats({ occupied, total }: { occupied: number; total: number }) {
   return (
     <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
-      <IconUser className="w-3 h-3 text-white/70" />
-      <span className="text-[10px] font-semibold text-white">{occupied}/{total}</span>
+      <IconUser className="w-3 h-3 text-[var(--ds-fg-muted)]" />
+      <span className="text-[10px] font-semibold text-[var(--ds-fg)]">{occupied}/{total}</span>
     </div>
   )
 }
@@ -1089,7 +1089,7 @@ function LiveCasinoTile({
     <div 
       data-content-item 
       className={cn(
-        "rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0",
+        "rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0",
         className
       )}
       style={style}
@@ -1108,12 +1108,12 @@ function LiveCasinoTile({
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
       
       {/* Limit Tag - glass pill with record dot */}
-      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/10 backdrop-blur-md rounded-full px-2 py-0.5 border border-white/15">
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[var(--ds-control-hover)] backdrop-blur-md rounded-full px-2 py-0.5 border border-white/15">
         <div className="relative w-1.5 h-1.5 flex-shrink-0">
           <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
           <div className="relative w-1.5 h-1.5 rounded-full bg-red-500" />
         </div>
-        <span className="text-white text-[10px] font-medium">{bettingRange}</span>
+        <span className="text-[var(--ds-fg)] text-[10px] font-medium">{bettingRange}</span>
       </div>
       
       {/* Content at bottom */}
@@ -1121,9 +1121,9 @@ function LiveCasinoTile({
         {/* Game Title */}
         <div className="mb-1.5">
           {subtitle && (
-            <div className="text-white/60 text-[10px] font-medium uppercase tracking-wider mb-0.5">{subtitle}</div>
+            <div className="text-[var(--ds-fg-muted)] text-[10px] font-medium uppercase tracking-wider mb-0.5">{subtitle}</div>
           )}
-          <div className="text-white font-bold text-sm leading-tight">{title}</div>
+          <div className="text-[var(--ds-fg)] font-bold text-sm leading-tight">{title}</div>
         </div>
         
         {/* History Tracker / Seats */}
@@ -1155,10 +1155,10 @@ function LiveCasinoTile({
                 unoptimized
               />
             </div>
-            <span className="text-white/50 text-[10px] font-medium">{vendor.name}</span>
+            <span className="text-[var(--ds-fg-subtle)] text-[10px] font-medium">{vendor.name}</span>
           </div>
-          <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center">
-            <IconInfoCircle className="w-3.5 h-3.5 text-white/60" strokeWidth={2} />
+          <div className="w-5 h-5 rounded-full bg-[var(--ds-control-hover)] flex items-center justify-center">
+            <IconInfoCircle className="w-3.5 h-3.5 text-[var(--ds-fg-muted)]" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -1423,8 +1423,8 @@ function LevelsCarousel() {
     <div className="mb-8 md:mb-12 w-full mt-8 md:mt-12 flex flex-col items-center">
       {/* Title and Subtitle */}
       <div className="text-center mb-5 md:mb-8 px-4">
-        <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-3 tracking-tight">The Levels</h2>
-        <p className="text-xs md:text-sm text-white/80 max-w-2xl mx-auto leading-relaxed">
+        <h2 className="text-2xl md:text-4xl font-bold text-[var(--ds-fg)] mb-2 md:mb-3 tracking-tight">The Levels</h2>
+        <p className="text-xs md:text-sm text-[var(--ds-fg-muted)] max-w-2xl mx-auto leading-relaxed">
           At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
         </p>
       </div>
@@ -1450,14 +1450,14 @@ function LevelsCarousel() {
                         }
                       }}
                     >
-                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#1a1a1a] border-2 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full bg-[var(--ds-page-bg)] border-2 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
                         isActive ? 'border-white scale-110' : 'border-white/30'
                       }`}>
                         <IconCrown className={`w-3.5 h-3.5 md:w-5 md:h-5 ${tier.iconColor}`} />
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-[#2d2d2d] border-white/20 text-white">
+                  <TooltipContent side="top" className="bg-[var(--ds-surface-raised)] border-white/20 text-[var(--ds-fg)]">
                     <p>{tier.name}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -1473,7 +1473,7 @@ function LevelsCarousel() {
           <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
             {allLevels.map((level, index) => (
               <CarouselItem key={index} className="pl-0 pr-3 md:pr-4 basis-auto flex-shrink-0">
-                <Card className="bg-white/5 border-white/10 relative flex-shrink-0 overflow-hidden w-[180px] md:w-[240px] min-h-[260px] md:min-h-[320px]">
+                <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] relative flex-shrink-0 overflow-hidden w-[180px] md:w-[240px] min-h-[260px] md:min-h-[320px]">
                   {level.isActive && (
                     <div className="absolute inset-0 opacity-100 pointer-events-none rounded-lg tile-shimmer" />
                   )}
@@ -1484,16 +1484,16 @@ function LevelsCarousel() {
                         {level.name}
                       </span>
                     </div>
-                    <div className={`text-base md:text-lg font-semibold mb-0.5 md:mb-1 ${level.isActive ? 'text-white' : 'text-white/50'}`}>
+                    <div className={`text-base md:text-lg font-semibold mb-0.5 md:mb-1 ${level.isActive ? 'text-[var(--ds-fg)]' : 'text-[var(--ds-fg-subtle)]'}`}>
                       {level.wager}
                     </div>
-                    <div className={`text-xs md:text-sm mb-3 md:mb-4 ${level.isActive ? 'text-white/70' : 'text-white/50'}`}>
+                    <div className={`text-xs md:text-sm mb-3 md:mb-4 ${level.isActive ? 'text-[var(--ds-fg-muted)]' : 'text-[var(--ds-fg-subtle)]'}`}>
                       Wager Amount
                     </div>
                     <div className="space-y-1.5 md:space-y-2">
                       {level.benefits.map((benefit, benefitIndex) => (
-                        <div key={benefitIndex} className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${level.isActive ? 'text-white' : 'text-white/50'}`}>
-                          <div className={`h-3.5 w-3.5 md:h-4 md:w-4 rounded-full flex items-center justify-center flex-shrink-0 ${level.isActive ? 'bg-white/20' : 'bg-white/10'}`}>
+                        <div key={benefitIndex} className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${level.isActive ? 'text-[var(--ds-fg)]' : 'text-[var(--ds-fg-subtle)]'}`}>
+                          <div className={`h-3.5 w-3.5 md:h-4 md:w-4 rounded-full flex items-center justify-center flex-shrink-0 ${level.isActive ? 'bg-white/20' : 'bg-[var(--ds-control-hover)]'}`}>
                             <IconCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
                           </div>
                           <span className="truncate">{benefit}</span>
@@ -1516,7 +1516,7 @@ function LevelsCarousel() {
                 api.scrollTo(targetIndex)
               }
             }}
-            className="!left-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
+            className="!left-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-[var(--ds-fg)] border-white/20 hover:bg-[var(--ds-control-hover)] bg-[var(--ds-page-bg)]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
             variant="outline"
             size="icon"
             disabled={!api || !canScrollPrev}
@@ -1533,7 +1533,7 @@ function LevelsCarousel() {
                 api.scrollTo(targetIndex)
               }
             }}
-            className="!right-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
+            className="!right-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-[var(--ds-fg)] border-white/20 hover:bg-[var(--ds-control-hover)] bg-[var(--ds-page-bg)]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
             variant="outline"
             size="icon"
             disabled={!api || !canScrollNext}
@@ -1731,7 +1731,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
   }
   
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white">
+    <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
       <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto w-full">
         {/* Cash Races Title with Back Button */}
         <div className="flex items-center gap-4 mb-6">
@@ -1765,24 +1765,24 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                   window.scrollTo(0, 0)
                 }
               }}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 transition-colors duration-300 text-gray-800 dark:text-white/70 hover:text-black dark:hover:text-white"
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] transition-colors duration-300 text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)]"
               aria-label="Go back"
             >
               <IconChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Cash Races</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)]">Cash Races</h1>
         </div>
         
         {/* Sub Nav Tabs */}
         <div className="mb-6">
           <AnimateTabs value={activeRaceTab} onValueChange={(value) => setActiveRaceTab(value as 'Daily' | 'Weekly' | 'Monthly')} className="w-full">
-            <AnimateTabsList className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+            <AnimateTabsList className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
               {['Daily', 'Weekly', 'Monthly'].map((tab) => (
                 <TabsTab
                   key={tab}
                   value={tab} 
-                  className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                  className="relative z-10 text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                 >
                   {activeRaceTab === tab && (
                     <motion.div
@@ -1808,8 +1808,8 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
         {activeRaceTab !== 'Daily' ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-2">Coming Soon</h2>
-              <p className="text-white/70 text-sm">{activeRaceTab} races will be available soon!</p>
+              <h2 className="text-2xl font-bold text-[var(--ds-fg)] mb-2">Coming Soon</h2>
+              <p className="text-[var(--ds-fg-muted)] text-sm">{activeRaceTab} races will be available soon!</p>
             </div>
           </div>
         ) : (
@@ -1820,7 +1820,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
             {/* Left Column: Daily Race Info Card and Stats Card */}
             <div className="flex flex-col gap-6">
             {/* Info Card */}
-            <Card className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border-white/10 dark:border-white/10">
+            <Card className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] border-[var(--ds-border)] dark:border-[var(--ds-border)]">
               <CardContent className="p-6">
                 {/* Race Title and Icon */}
                 <div className="flex items-center gap-4 mb-4">
@@ -1835,13 +1835,13 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                     />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-white mb-1">$25,000 Race</h1>
-                    <p className="text-white/70 text-sm">Daily Races Every 24 Hours</p>
+                    <h1 className="text-2xl font-bold text-[var(--ds-fg)] mb-1">$25,000 Race</h1>
+                    <p className="text-[var(--ds-fg-muted)] text-sm">Daily Races Every 24 Hours</p>
                   </div>
                 </div>
                 
                 {/* Description */}
-                <div className="text-white/70 text-sm mb-4 space-y-3">
+                <div className="text-[var(--ds-fg-muted)] text-sm mb-4 space-y-3">
                   <p>
                     Feel the excitement at BetOnline, where $25,000 in cash is up for grabs every 24 hours!
                   </p>
@@ -1859,11 +1859,11 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
             </Card>
             
             {/* Stats Card: Time Remaining and Position */}
-            <Card className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border-white/10 dark:border-white/10">
+            <Card className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] border-[var(--ds-border)] dark:border-[var(--ds-border)]">
               <CardContent className="p-4">
                 {/* Time Remaining Section */}
                 <div className="mb-4">
-                  <div className="text-white/70 text-xs mb-2">Time Remaining:</div>
+                  <div className="text-[var(--ds-fg-muted)] text-xs mb-2">Time Remaining:</div>
                   <div className="scale-75 origin-left">
                     <DailyRacesTimer />
                   </div>
@@ -1871,17 +1871,17 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                 
                 {/* User's Current Status - Using Daily Race Card Components */}
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
+                    <div className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] rounded-small p-2.5 border border-[var(--ds-border)] dark:border-[var(--ds-border)] transition-colors duration-300">
+                      <div className="text-gray-800 dark:text-[var(--ds-fg)] font-semibold mb-0.5 transition-colors duration-300">3rd</div>
+                      <div className="text-gray-600 dark:text-[var(--ds-fg-subtle)] text-[10px] transition-colors duration-300">Position</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
+                    <div className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] rounded-small p-2.5 border border-[var(--ds-border)] dark:border-[var(--ds-border)] transition-colors duration-300">
+                      <div className="text-gray-800 dark:text-[var(--ds-fg)] font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
+                      <div className="text-gray-600 dark:text-[var(--ds-fg-subtle)] text-[10px] transition-colors duration-300">Wagered</div>
                     </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
+                    <div className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] rounded-small p-2.5 border border-[var(--ds-border)] dark:border-[var(--ds-border)] transition-colors duration-300">
+                      <div className="text-gray-800 dark:text-[var(--ds-fg)] font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
+                      <div className="text-gray-600 dark:text-[var(--ds-fg-subtle)] text-[10px] transition-colors duration-300">Current Prize</div>
                     </div>
                 </div>
               </CardContent>
@@ -1890,41 +1890,41 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
           
           {/* Right Column: Leaderboard */}
           <div>
-            <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
+            <div className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] border border-[var(--ds-border)] dark:border-[var(--ds-border)] rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Rank</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-white/70">Nickname</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Wagered</th>
-                      <th className="text-right py-3 px-4 text-sm font-medium text-white/70">Prize</th>
+                    <tr className="border-b border-[var(--ds-border)]">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-[var(--ds-fg-muted)]">Rank</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-[var(--ds-fg-muted)]">Nickname</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-[var(--ds-fg-muted)]">Wagered</th>
+                      <th className="text-right py-3 px-4 text-sm font-medium text-[var(--ds-fg-muted)]">Prize</th>
                     </tr>
                   </thead>
                   <tbody>
                     {leaderboardData.map((entry) => (
-                      <tr key={entry.rank} className="border-b border-white/10 hover:bg-white/10 transition-colors">
+                      <tr key={entry.rank} className="border-b border-[var(--ds-border)] hover:bg-[var(--ds-control-hover)] transition-colors">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             {entry.medal === 'gold' && <IconTrophy className="w-5 h-5 text-yellow-400" />}
                             {entry.medal === 'silver' && <IconTrophy className="w-5 h-5 text-gray-400" />}
                             {entry.medal === 'bronze' && <IconTrophy className="w-5 h-5 text-orange-400" />}
-                            {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
+                            {!entry.medal && <span className="text-[var(--ds-fg-muted)] text-sm">{entry.rank}th</span>}
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-white">{entry.nickname}</td>
-                        <td className="py-3 px-4 text-right text-white">{entry.betMade}</td>
-                        <td className="py-3 px-4 text-right text-white font-semibold">{entry.prize}</td>
+                        <td className="py-3 px-4 text-[var(--ds-fg)]">{entry.nickname}</td>
+                        <td className="py-3 px-4 text-right text-[var(--ds-fg)]">{entry.betMade}</td>
+                        <td className="py-3 px-4 text-right text-[var(--ds-fg)] font-semibold">{entry.prize}</td>
                       </tr>
                     ))}
                     {/* User's Position Row */}
-                    <tr className="border-t-2 border-white/20 bg-white/5">
+                    <tr className="border-t-2 border-white/20 bg-[var(--ds-control-bg)]">
                       <td className="py-3 px-4">
-                        <span className="text-white text-sm font-semibold">{userPosition.rank}th</span>
+                        <span className="text-[var(--ds-fg)] text-sm font-semibold">{userPosition.rank}th</span>
                       </td>
-                      <td className="py-3 px-4 text-white font-semibold">{userPosition.nickname}</td>
-                      <td className="py-3 px-4 text-right text-white font-semibold">{userPosition.betMade}</td>
-                      <td className="py-3 px-4 text-right text-white font-semibold">{userPosition.prize}</td>
+                      <td className="py-3 px-4 text-[var(--ds-fg)] font-semibold">{userPosition.nickname}</td>
+                      <td className="py-3 px-4 text-right text-[var(--ds-fg)] font-semibold">{userPosition.betMade}</td>
+                      <td className="py-3 px-4 text-right text-[var(--ds-fg)] font-semibold">{userPosition.prize}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1936,9 +1936,9 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
         
         {/* Terms & Conditions */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">Terms & Conditions</h3>
-          <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg p-6">
-            <ul className="text-white/70 text-sm leading-relaxed space-y-2 list-disc list-inside">
+          <h3 className="text-lg font-semibold text-[var(--ds-fg)] mb-4">Terms & Conditions</h3>
+          <div className="bg-[var(--ds-surface-raised)] dark:bg-[var(--ds-surface-raised)] border border-[var(--ds-border)] dark:border-[var(--ds-border)] rounded-lg p-6">
+            <ul className="text-[var(--ds-fg-muted)] text-sm leading-relaxed space-y-2 list-disc list-inside">
               <li>All players will automatically start their climb up the leaderboard after placing their first qualifying bet</li>
               <li>Each Daily Cash Race will start and end at 12:00 am ET every 24 hours, 7 days a week</li>
               <li>Only bets in the Sportsbook, Casino, Casino in Poker, Racebook or Esports will qualify</li>
@@ -1972,14 +1972,14 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
   ]
 
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white">
+    <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
       {/* Banner Carousel - Full Width with Arrows */}
       <div className="pt-6 md:pt-8 mb-6 md:mb-8">
           <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
           {!isMobile && (
             <>
-              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
+              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
             </>
           )}
           <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
@@ -2011,17 +2011,17 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
         {/* Promos Section */}
         <div className="w-full">
           {/* Title */}
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">All Promotions</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 md:mb-6">All Promotions</h1>
 
           {/* Tabs - Using AnimateTabs like Casino */}
           <div className="mb-6">
             <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <AnimateTabsList className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+              <AnimateTabsList className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {['Deposit Bonus', 'Sports', 'Casino', 'Poker'].map((tab) => (
                   <TabsTab 
                     key={tab}
                     value={tab} 
-                    className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                    className="relative z-10 text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                   >
                     {activeTab === tab && (
                       <motion.div
@@ -2046,17 +2046,17 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
           {/* Promo Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {promoData.map((promo) => (
-              <Card key={promo.id} className="bg-white/5 border-white/10 overflow-hidden">
+              <Card key={promo.id} className="bg-[var(--ds-promo-card-bg)] border-[var(--ds-promo-card-border)] text-[var(--ds-promo-card-fg)] overflow-hidden">
                 {/* Image Placeholder with Glare Animation */}
                 <div className="w-full h-48 bg-white/5 relative overflow-hidden">
                   <div className="absolute inset-0 tile-shimmer"></div>
                 </div>
                 <CardContent className="p-4">
                   <CardTitle className="text-lg font-semibold text-white mb-2">{promo.title}</CardTitle>
-                  <p className="text-sm text-white/70 mb-4 line-clamp-3">{promo.description}</p>
+                  <p className="text-sm text-white/65 mb-4 line-clamp-3">{promo.description}</p>
                   <Button
                     variant="ghost"
-                    className="w-full rounded-md border border-white/20 bg-transparent text-white shadow-none hover:bg-white/[0.06] hover:text-white hover:border-white/30"
+                    className="w-full rounded-md border border-white/20 bg-transparent text-white shadow-none hover:bg-white/10 hover:text-white hover:border-white/30"
                   >
                     MORE INFO
                   </Button>
@@ -2138,7 +2138,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
     {
       header: "Code",
       accessorKey: "code",
-      cell: ({ row }) => <div className="text-white/80 text-sm">{row.getValue("code")}</div>,
+      cell: ({ row }) => <div className="text-[var(--ds-fg-muted)] text-sm">{row.getValue("code")}</div>,
       size: 180,
       filterFn: multiColumnFilterFn,
       enableHiding: false
@@ -2146,19 +2146,19 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
     {
       header: "Amount",
       accessorKey: "amount",
-      cell: ({ row }) => <div className="text-white/80 text-sm">{row.getValue("amount")}</div>,
+      cell: ({ row }) => <div className="text-[var(--ds-fg-muted)] text-sm">{row.getValue("amount")}</div>,
       size: 120
     },
     {
       header: "Rollover",
       accessorKey: "rollover",
-      cell: ({ row }) => <div className="text-white/80 text-sm">{row.getValue("rollover")}</div>,
+      cell: ({ row }) => <div className="text-[var(--ds-fg-muted)] text-sm">{row.getValue("rollover")}</div>,
       size: 120
     },
     {
       header: "Date",
       accessorKey: "date",
-      cell: ({ row }) => <div className="text-white/80 text-sm">{row.getValue("date")}</div>,
+      cell: ({ row }) => <div className="text-[var(--ds-fg-muted)] text-sm">{row.getValue("date")}</div>,
       size: 120
     },
     {
@@ -2246,16 +2246,16 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
   };
 
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white">
+    <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
       <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto w-full">
 
         {/* My Bonus Section */}
         <div className="w-full">
           {/* Title + demo auth toggle */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
-            <h1 className="text-2xl font-bold text-white md:text-3xl">My Bonus</h1>
+            <h1 className="text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">My Bonus</h1>
             <div
-              className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-0.5"
+              className="flex items-center gap-1 rounded-full border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0.5"
               role="group"
               aria-label="Demo login state"
             >
@@ -2271,7 +2271,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                       'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
                       active
                         ? 'bg-[var(--ds-primary,#ee3536)] text-white'
-                        : 'text-white/60 hover:text-white'
+                        : 'text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]'
                     )}
                   >
                     {label}
@@ -2284,12 +2284,12 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
           {/* Tabs - Using AnimateTabs like Casino */}
           <div className="mb-4 md:mb-6">
             <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <AnimateTabsList className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+              <AnimateTabsList className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {['Sports', 'Casino'].map((tab) => (
                   <TabsTab 
                     key={tab}
                     value={tab} 
-                    className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                    className="relative z-10 text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                   >
                     {activeTab === tab && (
                       <motion.div
@@ -2312,13 +2312,13 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
           </div>
 
           {!isLoggedIn ? (
-            <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-6 py-12 md:min-h-[360px] md:px-8">
+            <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-[var(--ds-border)] bg-[var(--ds-overlay)] px-6 py-12 md:min-h-[360px] md:px-8">
               <div className="flex max-w-md flex-col items-center gap-4 text-center">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
-                  <IconGift className="h-5 w-5 text-white/50" aria-hidden />
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--ds-control-hover)]">
+                  <IconGift className="h-5 w-5 text-[var(--ds-fg-subtle)]" aria-hidden />
                 </div>
                 <div className="space-y-1.5">
-                  <h2 className="text-lg font-semibold text-white md:text-xl">
+                  <h2 className="text-lg font-semibold text-[var(--ds-fg)] md:text-xl">
                     Log in to view your bonuses
                   </h2>
                   <p className="text-sm leading-relaxed text-white/55">
@@ -2346,19 +2346,19 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                 <Popover>
                   <div className="flex items-center gap-3 mb-4">
                     <PopoverTrigger asChild>
-                      <button className="flex items-center gap-2 text-sm font-semibold text-white/80 uppercase tracking-wide">
-                        <IconFilter className="w-4 h-4 text-white/50" />
+                      <button className="flex items-center gap-2 text-sm font-semibold text-[var(--ds-fg-muted)] uppercase tracking-wide">
+                        <IconFilter className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
                         Add Filter
                       </button>
                     </PopoverTrigger>
-                    <div className="h-5 w-px bg-white/10" />
-                    <span className="text-sm text-white/40">
+                    <div className="h-5 w-px bg-[var(--ds-control-hover)]" />
+                    <span className="text-sm text-[var(--ds-fg-subtle)]">
                       {selectedStatuses.length > 0 ? `${selectedStatuses.length} filter${selectedStatuses.length > 1 ? 's' : ''} applied` : 'No filters applied'}
                     </span>
                   </div>
-                  <PopoverContent className="w-auto min-w-36 p-3 bg-[#2d2d2d] border-white/10" align="start">
+                  <PopoverContent className="w-auto min-w-36 p-3 bg-[var(--ds-surface-raised)] border-[var(--ds-border)]" align="start">
                     <div className="space-y-3">
-                      <div className="text-white/70 text-xs font-medium">Filter by Status</div>
+                      <div className="text-[var(--ds-fg-muted)] text-xs font-medium">Filter by Status</div>
                       <div className="space-y-3">
                         {uniqueStatusValues.map((value, i) => (
                           <div key={value} className="flex items-center gap-2">
@@ -2370,9 +2370,9 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                             />
                             <Label
                               htmlFor={`${id}-m-${i}`}
-                              className="flex grow justify-between gap-2 font-normal text-white">
+                              className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]">
                               {value}{" "}
-                              <span className="text-white/50 ms-2 text-xs">
+                              <span className="text-[var(--ds-fg-subtle)] ms-2 text-xs">
                                 {statusCounts.get(value)}
                               </span>
                             </Label>
@@ -2391,7 +2391,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                   id={`${id}-input`}
                   ref={inputRef}
                   className={cn(
-                        "peer min-w-60 ps-9 bg-white/5 border-white/10 text-white placeholder:text-white/50 text-sm",
+                        "peer min-w-60 ps-9 bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] text-sm",
                     Boolean(table.getColumn("code")?.getFilterValue()) && "pe-9"
                   )}
                   value={(table.getColumn("code")?.getFilterValue() ?? "") as string}
@@ -2400,12 +2400,12 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                   type="text"
                   aria-label="Filter by code or amount"
                 />
-                <div className="text-white/50 pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+                <div className="text-[var(--ds-fg-subtle)] pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
                   <ListFilterIcon size={16} aria-hidden="true" />
                 </div>
                 {Boolean(table.getColumn("code")?.getFilterValue()) && (
                   <button
-                    className="text-white/50 hover:text-white focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                     aria-label="Clear filter"
                     onClick={() => {
                       table.getColumn("code")?.setFilterValue("");
@@ -2420,19 +2420,19 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
               {/* Filter by status */}
               <Popover>
                 <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 h-9 px-3 text-xs">
+                      <Button variant="outline" size="sm" className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] h-9 px-3 text-xs">
                     <FilterIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     Status
                     {selectedStatuses.length > 0 && (
-                      <span className="bg-white/10 text-white/70 -me-1 inline-flex h-5 max-h-full items-center rounded border border-white/20 px-1 font-[inherit] text-[0.625rem] font-medium">
+                      <span className="bg-[var(--ds-control-hover)] text-[var(--ds-fg-muted)] -me-1 inline-flex h-5 max-h-full items-center rounded border border-white/20 px-1 font-[inherit] text-[0.625rem] font-medium">
                         {selectedStatuses.length}
                       </span>
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto min-w-36 p-3 bg-[#2d2d2d] border-white/10" align="start">
+                <PopoverContent className="w-auto min-w-36 p-3 bg-[var(--ds-surface-raised)] border-[var(--ds-border)]" align="start">
                   <div className="space-y-3">
-                    <div className="text-white/70 text-xs font-medium">Filters</div>
+                    <div className="text-[var(--ds-fg-muted)] text-xs font-medium">Filters</div>
                     <div className="space-y-3">
                       {uniqueStatusValues.map((value, i) => (
                         <div key={value} className="flex items-center gap-2">
@@ -2444,9 +2444,9 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                           />
                           <Label
                             htmlFor={`${id}-${i}`}
-                            className="flex grow justify-between gap-2 font-normal text-white">
+                            className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]">
                             {value}{" "}
-                            <span className="text-white/50 ms-2 text-xs">
+                            <span className="text-[var(--ds-fg-subtle)] ms-2 text-xs">
                               {statusCounts.get(value)}
                             </span>
                           </Label>
@@ -2459,13 +2459,13 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
               {/* Toggle columns visibility */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 h-9 px-3 text-xs">
+                      <Button variant="outline" size="sm" className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] h-9 px-3 text-xs">
                     <Columns3Icon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     View
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-[#2d2d2d] border-white/10">
-                  <DropdownMenuLabel className="text-white">Toggle columns</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)]">
+                  <DropdownMenuLabel className="text-[var(--ds-fg)]">Toggle columns</DropdownMenuLabel>
                   {table
                     .getAllColumns()
                     .filter((column) => column.getCanHide())
@@ -2473,7 +2473,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                       return (
                         <DropdownMenuCheckboxItem
                           key={column.id}
-                          className="capitalize text-white"
+                          className="capitalize text-[var(--ds-fg)]"
                           checked={column.getIsVisible()}
                           onCheckedChange={(value) => column.toggleVisibility(!!value)}
                           onSelect={(event) => event.preventDefault()}>
@@ -2488,12 +2488,12 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
               {/* Mobile: Card-based list */}
               {isMobile ? (
-          <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4" style={{ touchAction: 'pan-y' }}>
+          <div className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4" style={{ touchAction: 'pan-y' }}>
                   {/* Header row */}
-                  <div className="flex items-center px-4 py-3 border-b border-white/10">
-                    <span className="flex-1 text-sm font-medium text-white/60">Code</span>
-                    <span className="w-[100px] text-sm font-medium text-white/60">Date</span>
-                    <span className="w-[100px] text-sm font-medium text-white/60 text-center">Status</span>
+                  <div className="flex items-center px-4 py-3 border-b border-[var(--ds-border)]">
+                    <span className="flex-1 text-sm font-medium text-[var(--ds-fg-muted)]">Code</span>
+                    <span className="w-[100px] text-sm font-medium text-[var(--ds-fg-muted)]">Date</span>
+                    <span className="w-[100px] text-sm font-medium text-[var(--ds-fg-muted)] text-center">Status</span>
                     <span className="w-8" />
                   </div>
                   {/* Data rows */}
@@ -2503,7 +2503,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                       const statusColors: Record<string, { text: string; border: string }> = {
                         'ACTIVE': { text: 'text-green-500', border: 'border-green-500/50' },
                         'EXPIRED': { text: 'text-orange-400', border: 'border-orange-400/50' },
-                        'CANCELLED': { text: 'text-white/50', border: 'border-white/20' },
+                        'CANCELLED': { text: 'text-[var(--ds-fg-subtle)]', border: 'border-white/20' },
                         'COMPLETE': { text: 'text-blue-400', border: 'border-blue-400/50' },
                       }
                       const colors = statusColors[item.status] || statusColors['ACTIVE']
@@ -2514,11 +2514,11 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                             tabIndex={0}
                             onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
                             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpandedRow(expandedRow === row.id ? null : row.id) }}
-                            className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors text-left cursor-pointer"
+                            className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-[var(--ds-control-bg)] transition-colors text-left cursor-pointer"
                             style={{ touchAction: 'pan-y' }}
                           >
-                            <span className="flex-1 text-sm font-semibold text-white truncate pr-2">{item.code}</span>
-                            <span className="w-[100px] text-sm text-white/70 shrink-0">{item.date}</span>
+                            <span className="flex-1 text-sm font-semibold text-[var(--ds-fg)] truncate pr-2">{item.code}</span>
+                            <span className="w-[100px] text-sm text-[var(--ds-fg-muted)] shrink-0">{item.date}</span>
                             <span className="w-[100px] flex justify-center shrink-0">
                               <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium border", colors.text, colors.border)}>
                                 {item.status}
@@ -2527,22 +2527,22 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                             <span className="w-8 flex justify-center shrink-0">
                               <IconChevronDown 
                                 className={cn(
-                                  "w-4 h-4 text-white/40 transition-transform",
+                                  "w-4 h-4 text-[var(--ds-fg-subtle)] transition-transform",
                                   expandedRow === row.id && "rotate-180"
                                 )} 
                               />
                             </span>
                           </div>
                           {expandedRow === row.id && (
-                            <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                            <div className="px-4 py-3 bg-[var(--ds-control-bg)] border-b border-[var(--ds-border)]">
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div>
-                                  <span className="text-white/40 text-xs">Amount</span>
-                                  <p className="text-white font-medium">{item.amount}</p>
+                                  <span className="text-[var(--ds-fg-subtle)] text-xs">Amount</span>
+                                  <p className="text-[var(--ds-fg)] font-medium">{item.amount}</p>
                                 </div>
                                 <div>
-                                  <span className="text-white/40 text-xs">Rollover</span>
-                                  <p className="text-white font-medium">{item.rollover}</p>
+                                  <span className="text-[var(--ds-fg-subtle)] text-xs">Rollover</span>
+                                  <p className="text-[var(--ds-fg)] font-medium">{item.rollover}</p>
                                 </div>
                               </div>
                             </div>
@@ -2551,23 +2551,23 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                       )
                     })
                   ) : (
-                    <div className="px-4 py-8 text-center text-white/40 text-sm">No results.</div>
+                    <div className="px-4 py-8 text-center text-[var(--ds-fg-subtle)] text-sm">No results.</div>
                   )}
                 </div>
               ) : (
                 /* Desktop: Full table */
-                <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+                <div className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4">
                   <div className="overflow-x-auto">
                     <Table className="table-fixed min-w-[540px]">
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-white/10">
+                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-[var(--ds-border)]">
                     {headerGroup.headers.map((header) => {
                       return (
                         <TableHead
                           key={header.id}
                           style={{ width: `${header.getSize()}px` }}
-                          className="h-11 text-white/60 text-xs font-normal">
+                          className="h-11 text-[var(--ds-fg-muted)] text-xs font-normal">
                           {header.isPlaceholder ? null : header.column.getCanSort() ? (
                             <div
                               className={cn(
@@ -2589,14 +2589,14 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                               {{
                                 asc: (
                                   <ChevronUpIcon
-                                    className="shrink-0 opacity-60 text-white"
+                                    className="shrink-0 opacity-60 text-[var(--ds-fg)]"
                                     size={16}
                                     aria-hidden="true"
                                   />
                                 ),
                                 desc: (
                                   <ChevronDownIcon
-                                    className="shrink-0 opacity-60 text-white"
+                                    className="shrink-0 opacity-60 text-[var(--ds-fg)]"
                                     size={16}
                                     aria-hidden="true"
                                   />
@@ -2616,7 +2616,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <React.Fragment key={row.id}>
-                      <TableRow className="border-white/10 hover:bg-white/5">
+                      <TableRow className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)]">
                         {row.getVisibleCells().map((cell) => {
                           // Skip rendering the actions cell in the main row
                           if (cell.column.id === "actions") {
@@ -2635,7 +2635,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                           >
                             <IconChevronDown 
                               className={cn(
-                                "w-4 h-4 text-white/70 transition-transform",
+                                "w-4 h-4 text-[var(--ds-fg-muted)] transition-transform",
                                 expandedRow === row.id && "rotate-180"
                               )} 
                             />
@@ -2643,11 +2643,11 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                         </TableCell>
                       </TableRow>
                       {expandedRow === row.id && (
-                        <TableRow className="border-white/10">
-                          <TableCell colSpan={columns.length} className="py-4 bg-white/5">
+                        <TableRow className="border-[var(--ds-border)]">
+                          <TableCell colSpan={columns.length} className="py-4 bg-[var(--ds-control-bg)]">
                             <div className="space-y-2 pl-4">
-                              <div className="text-sm text-white/70">
-                                <strong className="text-white">Bonus Details:</strong> Additional information about this bonus will appear here.
+                              <div className="text-sm text-[var(--ds-fg-muted)]">
+                                <strong className="text-[var(--ds-fg)]">Bonus Details:</strong> Additional information about this bonus will appear here.
                               </div>
                             </div>
                           </TableCell>
@@ -2657,7 +2657,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center text-white/70">
+                    <TableCell colSpan={columns.length} className="h-24 text-center text-[var(--ds-fg-muted)]">
                       No results.
                     </TableCell>
                   </TableRow>
@@ -2674,11 +2674,11 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
           {activeTab === 'Casino' && (
             <>
               {/* Mobile: Single container table-style (matches Sports tab) */}
-              <div className="md:hidden bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4" style={{ touchAction: 'pan-y' }}>
+              <div className="md:hidden bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4" style={{ touchAction: 'pan-y' }}>
                 {/* Header row */}
-                <div className="flex items-center px-4 py-3 border-b border-white/10">
-                  <span className="flex-1 text-sm font-medium text-white/60">Name</span>
-                  <span className="w-[120px] text-sm font-medium text-white/60 text-right pr-6">Action</span>
+                <div className="flex items-center px-4 py-3 border-b border-[var(--ds-border)]">
+                  <span className="flex-1 text-sm font-medium text-[var(--ds-fg-muted)]">Name</span>
+                  <span className="w-[120px] text-sm font-medium text-[var(--ds-fg-muted)] text-right pr-6">Action</span>
                   <span className="w-8" />
                 </div>
                 {/* Data rows */}
@@ -2690,10 +2690,10 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                         tabIndex={0}
                         onClick={() => setExpandedCasinoRow(expandedCasinoRow === bonus.id ? null : bonus.id)}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpandedCasinoRow(expandedCasinoRow === bonus.id ? null : bonus.id) }}
-                        className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors text-left cursor-pointer"
+                        className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-[var(--ds-control-bg)] transition-colors text-left cursor-pointer"
                         style={{ touchAction: 'pan-y' }}
                       >
-                        <span className="flex-1 text-sm font-semibold text-white truncate pr-2">{bonus.name}</span>
+                        <span className="flex-1 text-sm font-semibold text-[var(--ds-fg)] truncate pr-2">{bonus.name}</span>
                         <span className="w-[120px] flex justify-end pr-2 shrink-0">
                           <span
                             onClick={(e) => {
@@ -2708,33 +2708,33 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                           </span>
                         </span>
                         <span className="w-8 flex justify-center shrink-0">
-                          <IconChevronDown className={cn("w-4 h-4 text-white/40 transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
+                          <IconChevronDown className={cn("w-4 h-4 text-[var(--ds-fg-subtle)] transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
                         </span>
                       </div>
                       {expandedCasinoRow === bonus.id && (
-                        <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                        <div className="px-4 py-3 bg-[var(--ds-control-bg)] border-b border-[var(--ds-border)]">
                           <div className="grid grid-cols-3 gap-3 text-sm mb-3">
                             <div>
-                              <span className="text-white/40 text-xs">Code</span>
-                              <p className="text-white font-medium">{bonus.code}</p>
+                              <span className="text-[var(--ds-fg-subtle)] text-xs">Code</span>
+                              <p className="text-[var(--ds-fg)] font-medium">{bonus.code}</p>
                             </div>
                             <div>
-                              <span className="text-white/40 text-xs">Bonus Fund</span>
-                              <p className="text-white font-medium">{bonus.bonusFunds}</p>
+                              <span className="text-[var(--ds-fg-subtle)] text-xs">Bonus Fund</span>
+                              <p className="text-[var(--ds-fg)] font-medium">{bonus.bonusFunds}</p>
                             </div>
                             <div>
-                              <span className="text-white/40 text-xs">Free Spins</span>
-                              <p className="text-white font-medium">{bonus.freeSpins}</p>
+                              <span className="text-[var(--ds-fg-subtle)] text-xs">Free Spins</span>
+                              <p className="text-[var(--ds-fg)] font-medium">{bonus.freeSpins}</p>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                              <span className="text-white/40 text-xs">Expiry Date</span>
-                              <p className="text-white font-medium">{bonus.expiryDate}</p>
+                              <span className="text-[var(--ds-fg-subtle)] text-xs">Expiry Date</span>
+                              <p className="text-[var(--ds-fg)] font-medium">{bonus.expiryDate}</p>
                             </div>
                             <div>
-                              <span className="text-white/40 text-xs">Rollover</span>
-                              <p className="text-white font-medium">{bonus.rollover}</p>
+                              <span className="text-[var(--ds-fg-subtle)] text-xs">Rollover</span>
+                              <p className="text-[var(--ds-fg)] font-medium">{bonus.rollover}</p>
                             </div>
                           </div>
                         </div>
@@ -2742,36 +2742,36 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                     </React.Fragment>
                   ))
                 ) : (
-                  <div className="px-4 py-8 text-center text-white/40 text-sm">No results.</div>
+                  <div className="px-4 py-8 text-center text-[var(--ds-fg-subtle)] text-sm">No results.</div>
                 )}
               </div>
 
               {/* Desktop: Full data table in same wrapper style as Sports tab */}
-              <div className="hidden md:block bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+              <div className="hidden md:block bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4">
                 <div className="overflow-x-auto">
                   <Table className="table-fixed min-w-[800px]">
                     <TableHeader>
-                      <TableRow className="hover:bg-transparent border-white/10">
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[140px]">Name</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[140px]">Code</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[100px]">Bonus Fund</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[110px]">Expiry Date</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[120px]">Rollover</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[80px]">Free Spins</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[130px]">Action</TableHead>
-                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[60px]"></TableHead>
+                      <TableRow className="hover:bg-transparent border-[var(--ds-border)]">
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[140px]">Name</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[140px]">Code</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[100px]">Bonus Fund</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[110px]">Expiry Date</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[120px]">Rollover</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[80px]">Free Spins</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[130px]">Action</TableHead>
+                        <TableHead className="text-[var(--ds-fg-muted)] text-xs font-normal h-11 w-[60px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {casinoBonusPaginated.map((bonus) => (
                         <React.Fragment key={bonus.id}>
-                          <TableRow className="border-white/10 hover:bg-white/5">
-                            <TableCell className="text-sm text-white">{bonus.name}</TableCell>
-                            <TableCell className="text-sm text-white">{bonus.code}</TableCell>
-                            <TableCell className="text-sm text-white">{bonus.bonusFunds}</TableCell>
-                            <TableCell className="text-sm text-white">{bonus.expiryDate}</TableCell>
-                            <TableCell className="text-sm text-white">{bonus.rollover}</TableCell>
-                            <TableCell className="text-sm text-white">{bonus.freeSpins}</TableCell>
+                          <TableRow className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)]">
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.name}</TableCell>
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.code}</TableCell>
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.bonusFunds}</TableCell>
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.expiryDate}</TableCell>
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.rollover}</TableCell>
+                            <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.freeSpins}</TableCell>
                             <TableCell>
                               <button
                                 onClick={() => {
@@ -2789,18 +2789,18 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                                 onClick={() => setExpandedCasinoRow(expandedCasinoRow === bonus.id ? null : bonus.id)}
                                 className="flex items-center justify-center w-full h-full"
                               >
-                                <IconChevronDown className={cn("w-4 h-4 text-white/70 transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
+                                <IconChevronDown className={cn("w-4 h-4 text-[var(--ds-fg-muted)] transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
                               </button>
                             </TableCell>
                           </TableRow>
                           {expandedCasinoRow === bonus.id && (
-                            <TableRow className="border-white/10">
-                              <TableCell colSpan={8} className="py-4 bg-white/5">
+                            <TableRow className="border-[var(--ds-border)]">
+                              <TableCell colSpan={8} className="py-4 bg-[var(--ds-control-bg)]">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-4">
-                                  <div><span className="text-white/40 block text-xs mb-0.5">Initial Bonus Amount</span><span className="text-white">{bonus.initialBonusAmount}</span></div>
-                                  <div><span className="text-white/40 block text-xs mb-0.5">Locked Cash Fund</span><span className="text-white">{bonus.lockedCashFund}</span></div>
-                                  <div><span className="text-white/40 block text-xs mb-0.5">Awarded Date</span><span className="text-white">{bonus.awardedDate}</span></div>
-                                  <div><span className="text-white/40 block text-xs mb-0.5">Available On</span><span className="text-white">{bonus.availableOn}</span></div>
+                                  <div><span className="text-[var(--ds-fg-subtle)] block text-xs mb-0.5">Initial Bonus Amount</span><span className="text-[var(--ds-fg)]">{bonus.initialBonusAmount}</span></div>
+                                  <div><span className="text-[var(--ds-fg-subtle)] block text-xs mb-0.5">Locked Cash Fund</span><span className="text-[var(--ds-fg)]">{bonus.lockedCashFund}</span></div>
+                                  <div><span className="text-[var(--ds-fg-subtle)] block text-xs mb-0.5">Awarded Date</span><span className="text-[var(--ds-fg)]">{bonus.awardedDate}</span></div>
+                                  <div><span className="text-[var(--ds-fg-subtle)] block text-xs mb-0.5">Available On</span><span className="text-[var(--ds-fg)]">{bonus.availableOn}</span></div>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -2814,23 +2814,23 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
               {/* Pagination */}
               {casinoBonuses.length > casinoBonusRowsPerPage && (
-                <div className="flex items-center justify-end gap-4 mt-4 text-sm text-white/60">
+                <div className="flex items-center justify-end gap-4 mt-4 text-sm text-[var(--ds-fg-muted)]">
                   <span>Page: {casinoBonusRowsPerPage}</span>
                   <span>{casinoBonusPage * casinoBonusRowsPerPage + 1}-{Math.min((casinoBonusPage + 1) * casinoBonusRowsPerPage, casinoBonuses.length)} of {casinoBonuses.length}</span>
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setCasinoBonusPage(Math.max(0, casinoBonusPage - 1))}
                       disabled={casinoBonusPage === 0}
-                      className={cn("p-1 rounded hover:bg-white/10 transition-colors", casinoBonusPage === 0 && "opacity-30 cursor-not-allowed")}
+                      className={cn("p-1 rounded hover:bg-[var(--ds-control-hover)] transition-colors", casinoBonusPage === 0 && "opacity-30 cursor-not-allowed")}
                     >
-                      <IconChevronLeft className="w-4 h-4 text-white/60" />
+                      <IconChevronLeft className="w-4 h-4 text-[var(--ds-fg-muted)]" />
                     </button>
                     <button
                       onClick={() => setCasinoBonusPage(Math.min(casinoBonusTotalPages - 1, casinoBonusPage + 1))}
                       disabled={casinoBonusPage >= casinoBonusTotalPages - 1}
-                      className={cn("p-1 rounded hover:bg-white/10 transition-colors", casinoBonusPage >= casinoBonusTotalPages - 1 && "opacity-30 cursor-not-allowed")}
+                      className={cn("p-1 rounded hover:bg-[var(--ds-control-hover)] transition-colors", casinoBonusPage >= casinoBonusTotalPages - 1 && "opacity-30 cursor-not-allowed")}
                     >
-                      <IconChevronRight className="w-4 h-4 text-white/60" />
+                      <IconChevronRight className="w-4 h-4 text-[var(--ds-fg-muted)]" />
                     </button>
                   </div>
                 </div>
@@ -2847,18 +2847,18 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
 function VipSectionWireframe({ title }: { title: string }) {
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white min-h-[60vh]">
+    <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)] min-h-[60vh]">
       <div className="px-4 md:px-6 py-8 max-w-3xl mx-auto w-full">
         <div className="rounded-xl border-2 border-dashed border-white/25 bg-white/[0.03] p-8 md:p-12">
           <div className="space-y-4">
-            <div className="h-8 w-48 rounded-md bg-white/10" />
-            <div className="h-4 w-full max-w-md rounded-md bg-white/5" />
-            <div className="h-4 w-[80%] max-w-sm rounded-md bg-white/5" />
+            <div className="h-8 w-48 rounded-md bg-[var(--ds-control-hover)]" />
+            <div className="h-4 w-full max-w-md rounded-md bg-[var(--ds-control-bg)]" />
+            <div className="h-4 w-[80%] max-w-sm rounded-md bg-[var(--ds-control-bg)]" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
               <div className="h-32 rounded-lg border border-dashed border-white/15 bg-white/[0.02]" />
               <div className="h-32 rounded-lg border border-dashed border-white/15 bg-white/[0.02]" />
             </div>
-            <p className="text-sm text-white/45 pt-2">
+            <p className="text-sm text-[var(--ds-fg-subtle)] pt-2">
               {title} — wireframe. Full design coming soon.
             </p>
           </div>
@@ -2902,19 +2902,19 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
   const isMobileVip = useIsMobile()
   
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-[var(--ds-page-bg)]">
       
       {/* Mobile VIP Navigation — fixed below header like casino sub nav */}
       {isMobileVip && (
         <motion.div 
-          className="md:hidden fixed left-0 right-0 z-[90] bg-[#1a1a1a]/60 backdrop-blur-xl border-b border-white/10"
+          className="md:hidden fixed left-0 right-0 z-[90] bg-[var(--ds-page-bg)]/60 backdrop-blur-xl border-b border-[var(--ds-border)]"
           initial={false}
           animate={{ top: quickLinksOpen ? 104 : 64 }}
           transition={{ type: "tween", ease: "linear", duration: 0.3 }}
         >
           <div className="overflow-x-auto scrollbar-hide px-3 py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
             <AnimateTabs value={vipActiveSidebarItem} onValueChange={(value) => setVipActiveSidebarItem?.(value)} className="w-max">
-              <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+              <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {[
                   { id: 'Promos', label: 'All Promotions' },
                   { id: 'My Bonus', label: 'My Bonus' },
@@ -2927,7 +2927,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                   <TabsTab
                     key={item.id}
                     value={item.id}
-                    className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
+                    className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
                   >
                     {vipActiveSidebarItem === item.id && (
                       <motion.div
@@ -2981,7 +2981,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
         vipActiveSidebarItem === 'Raffles' ? (
         <VipSectionWireframe title={vipActiveSidebarItem} />
       ) : (
-        <SidebarInset className="bg-[#1a1a1a] text-white">
+        <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
         {/* Hero Image */}
         <div className="w-full relative">
           <img 
@@ -2996,18 +2996,18 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           {/* Cards from Casino Banner - Centered */}
           <div className="mb-8 w-full flex justify-center mt-4 md:mt-8">
             <div className="flex flex-col gap-3 w-full max-w-[720px]">
-              <h1 className="text-xl md:text-2xl font-bold text-white">Hi, CH</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-[var(--ds-fg)]">Hi, CH</h1>
               <div className="flex flex-col md:flex-row gap-3">
               {/* VIP Rewards Card - Wider */}
-              <Card className="flex-shrink-0 w-full border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5 md:w-[300px]" style={{ minHeight: '140px' }}>
+              <Card className="flex-shrink-0 w-full border border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] transition-colors duration-300 md:w-[300px]" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
-                  <CardTitle className="text-sm font-semibold text-white dark:text-white mb-4 transition-colors duration-300">Gold To Platinum I</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-white mb-4 transition-colors duration-300">Gold To Platinum I</CardTitle>
                   <VipTierProgressBar value={45} nextTierLabel="Platinum I" wagerRemaining="$2,750" />
                 </CardContent>
               </Card>
               
               {/* Daily Races Card - Wider */}
-              <Card className="flex-shrink-0 w-full border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5 md:w-[300px]" style={{ minHeight: '140px' }}>
+              <Card className="flex-shrink-0 w-full border border-amber-400/35 bg-[var(--ds-promo-card-bg)] bg-gradient-to-br from-amber-400/[0.12] to-transparent text-[var(--ds-promo-card-fg)] transition-colors duration-300 md:w-[300px]" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-4">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -3072,28 +3072,28 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 />
               </div>
               {/* Title */}
-              <h2 className="text-2xl md:text-3xl font-bold text-white">The Rewards</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)]">The Rewards</h2>
             </div>
-            <p className="text-white/70 mb-12 max-w-3xl mx-auto text-center">
+            <p className="text-[var(--ds-fg-muted)] mb-12 max-w-3xl mx-auto text-center">
               At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
             </p>
             
             {/* Reward Cards - Single Card with Separators */}
             <div className="max-w-4xl mx-auto">
-              <Card className="bg-white/5 border-white/10">
+              <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)]">
                 <CardContent className="p-6">
                   {/* Reloads */}
                   <div className="pb-6">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-white">Reloads</h3>
+                      <h3 className="text-xl font-semibold text-[var(--ds-fg)]">Reloads</h3>
                     </div>
-                    <p className="text-white/70 text-sm mb-4">
+                    <p className="text-[var(--ds-fg-muted)] text-sm mb-4">
                       At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
                     </p>
                     <div className="flex gap-2">
                       <Button 
                         variant="ghost" 
-                        className="bg-white/10 text-white hover:bg-white/20"
+                        className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20"
                         onClick={() => {
                           setVipDrawerOpen(true)
                           setVipActiveTab('Reloads')
@@ -3101,26 +3101,26 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                       >
                         Open
                       </Button>
-                      <Button variant="ghost" className="bg-white/10 text-white hover:bg-white/20">
+                      <Button variant="ghost" className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20">
                         Learn More
                       </Button>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 my-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] my-6" />
 
                   {/* Cash Drop Codes */}
                   <div className="pb-6">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-white">Cash Drop Codes</h3>
+                      <h3 className="text-xl font-semibold text-[var(--ds-fg)]">Cash Drop Codes</h3>
                     </div>
-                    <p className="text-white/70 text-sm mb-4">
+                    <p className="text-[var(--ds-fg-muted)] text-sm mb-4">
                       At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
                     </p>
                     <div className="flex gap-2">
                       <Button 
                         variant="ghost" 
-                        className="bg-white/10 text-white hover:bg-white/20"
+                        className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20"
                         onClick={() => {
                           setVipDrawerOpen(true)
                           setVipActiveTab('Cash Drop')
@@ -3128,26 +3128,26 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                       >
                         Open
                       </Button>
-                      <Button variant="ghost" className="bg-white/10 text-white hover:bg-white/20">
+                      <Button variant="ghost" className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20">
                         Learn More
                       </Button>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 my-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] my-6" />
 
                   {/* Bet & Get */}
                   <div className="pb-6">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-white">Bet & Get</h3>
+                      <h3 className="text-xl font-semibold text-[var(--ds-fg)]">Bet & Get</h3>
                     </div>
-                    <p className="text-white/70 text-sm mb-4">
+                    <p className="text-[var(--ds-fg-muted)] text-sm mb-4">
                       At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
                     </p>
                     <div className="flex gap-2">
                       <Button 
                         variant="ghost" 
-                        className="bg-white/10 text-white hover:bg-white/20"
+                        className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20"
                         onClick={() => {
                           setVipDrawerOpen(true)
                           setVipActiveTab('Bet & Get')
@@ -3155,26 +3155,26 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                       >
                         Open
                       </Button>
-                      <Button variant="ghost" className="bg-white/10 text-white hover:bg-white/20">
+                      <Button variant="ghost" className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20">
                         Learn More
                       </Button>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 my-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] my-6" />
 
                   {/* Cash Boosts */}
                   <div>
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-white">Cash Boosts</h3>
+                      <h3 className="text-xl font-semibold text-[var(--ds-fg)]">Cash Boosts</h3>
                     </div>
-                    <p className="text-white/70 text-sm mb-4">
+                    <p className="text-[var(--ds-fg-muted)] text-sm mb-4">
                       At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
                     </p>
                     <div className="flex gap-2">
                       <Button 
                         variant="ghost" 
-                        className="bg-white/10 text-white hover:bg-white/20"
+                        className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20"
                         onClick={() => {
                           setVipDrawerOpen(true)
                           setVipActiveTab('VIP')
@@ -3182,7 +3182,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                       >
                         Open
                       </Button>
-                      <Button variant="ghost" className="bg-white/10 text-white hover:bg-white/20">
+                      <Button variant="ghost" className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-white/20">
                         Learn More
                       </Button>
                     </div>
@@ -3195,94 +3195,94 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
       </SidebarInset>
       )}
       {/* VIP Footer - inside sidebar layout so it respects the sidebar width */}
-      <SidebarInset className="bg-[#1a1a1a] text-white !min-h-0">
-        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+      <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)] !min-h-0">
+        <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-12 relative z-0">
           <div className="w-full px-4 md:px-6 py-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                 </ul>
               </div>
             </div>
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
                 <IconShield className="w-4 h-4" />
               </div>
-              <p className="text-xs text-white/70 mb-4 max-w-2xl">
+              <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                 At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
               </p>
               <div className="flex flex-wrap items-center gap-3">
@@ -3295,11 +3295,11 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                 <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                  <span className="text-[10px] font-bold text-white">18+</span>
+                  <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
                 </div>
               </div>
             </div>
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-3">
                 <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
@@ -3319,24 +3319,24 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandFacebook className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandInstagram className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandX className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandYoutube className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandTiktok className="w-4 h-4" />
                 </Button>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+            <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
               <div>Copyright ©2024 BetOnline.ag. All rights reserved.</div>
               <div></div>
             </div>
@@ -3946,7 +3946,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       className={cn(
                         "w-full text-[15px] font-semibold uppercase tracking-[0.46px] py-2 px-[22px] rounded-[4px] transition-colors",
                         totalStake > 0 
-                          ? "bg-[#059669] text-white hover:bg-[#10b981] cursor-pointer" 
+                          ? "bg-[#059669] text-[var(--ds-fg)] hover:bg-[#10b981] cursor-pointer" 
                           : "bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed"
                       )}
                     >
@@ -3967,7 +3967,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   }
 
   return (
-    <div className="flex w-full min-h-screen bg-[#1a1a1a]">
+    <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)]">
       {/* Sports Sidebar — full height, same as poker */}
       <Sidebar 
         collapsible="icon"
@@ -3976,11 +3976,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         mobileNoDrag
         mobileBg="#2d2d2d"
         mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-        className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+        className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
       >
         {/* Sidebar Header — logo with collapse animation */}
         <SidebarHeader
-          className="px-4 h-14 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
+          className="px-4 h-16 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
           style={{
             backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
             WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
@@ -3991,7 +3991,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             {isMobile && (
               <button
                 onClick={() => setOpenMobile(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/40 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] rounded-lg hover:bg-[var(--ds-control-hover)] transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -4050,7 +4050,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         {/* Quick Links — mobile only */}
         {isMobile && (
           <div 
-            className="sticky top-14 z-20 border-b border-white/5"
+            className="sticky top-16 z-20 border-b border-white/5"
             style={{
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)',
@@ -4079,7 +4079,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     }}
                     className={cn(
                       "flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative",
-                      isCurrentPage ? "text-white font-bold" : "text-white/35 font-medium hover:text-white/60"
+                      isCurrentPage ? "text-[var(--ds-fg)] font-bold" : "text-white/35 font-medium hover:text-[var(--ds-fg-muted)]"
                     )}
                   >
                     {item.label}
@@ -4097,7 +4097,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           <TooltipProvider>
 
             <SidebarGroup>
-              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">FEATURES</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-[var(--ds-fg-subtle)]">FEATURES</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsFeatures.map((item, index) => {
@@ -4116,7 +4116,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                               style={item.active ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
@@ -4125,7 +4125,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                               <p>{item.label}</p>
                             </TooltipContent>
                           )}
@@ -4138,7 +4138,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </SidebarGroup>
             
             <SidebarGroup>
-              <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">SPORTS</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-2 py-1 text-xs text-[var(--ds-fg-subtle)]">SPORTS</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sportsCategories.map((sport, index) => {
@@ -4161,7 +4161,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                   className={cn(
                                     "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                     "data-[active=true]:text-white data-[active=true]:font-medium",
-                                    "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                    "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                   )}
                                   style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                                 >
@@ -4174,7 +4174,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 </SidebarMenuButton>
                               </TooltipTrigger>
                               {sidebarState === 'collapsed' && (
-                                <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                   <p>{sport.label}</p>
                                 </TooltipContent>
                               )}
@@ -4202,7 +4202,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                             e.stopPropagation()
                                                   toggleSubSport(sport.label, subItem.label)
                                           }}
-                                                className="pl-8 text-xs text-white/70 hover:text-white hover:bg-white/5 cursor-pointer flex items-center justify-between"
+                                                className="pl-8 text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer flex items-center justify-between"
                                         >
                                                 <div className="flex items-center gap-2">
                                                   {subItem.icon && <subItem.icon className="w-3 h-3" />}
@@ -4231,7 +4231,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                                               e.stopPropagation()
                                                               console.log('Sub-sub-item clicked:', subSubItem.label)
                                                             }}
-                                                            className="pl-12 text-xs text-white/70 hover:text-white hover:bg-white/5 cursor-pointer flex items-center justify-between"
+                                                            className="pl-12 text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer flex items-center justify-between"
                                                           >
                                                             {subSubItem.label}
                                                             {subSubItem.badge && <subSubItem.badge className="w-3 h-3 text-yellow-400" />}
@@ -4250,7 +4250,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                                 e.stopPropagation()
                                                 console.log('Sub-item clicked:', subItem.label)
                                               }}
-                                              className="pl-8 text-xs text-white/70 hover:text-white hover:bg-white/5 cursor-pointer flex items-center justify-between"
+                                              className="pl-8 text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer flex items-center justify-between"
                                             >
                                               <div className="flex items-center gap-2">
                                                 {subItem.icon && <subItem.icon className="w-3 h-3" />}
@@ -4280,7 +4280,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 className={cn(
                                   "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                   "data-[active=true]:text-white data-[active=true]:font-medium",
-                                  "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                  "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                 )}
                                 style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                               >
@@ -4289,7 +4289,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               </SidebarMenuButton>
                             </TooltipTrigger>
                             {sidebarState === 'collapsed' && (
-                              <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                 <p>{sport.label}</p>
                               </TooltipContent>
                             )}
@@ -4305,7 +4305,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             {/* Spacer to push bottom items down */}
             <div className="flex-1" />
 
-            <Separator className="bg-white/10 mx-2" />
+            <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
             {/* Bottom section — Loyalty Hub, Banking, Need Help */}
             <SidebarGroup>
@@ -4330,7 +4330,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               }}
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                "text-white/70 hover:text-white hover:bg-white/5"
+                                "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                             >
                               <Icon strokeWidth={1.5} className="w-5 h-5" />
@@ -4338,7 +4338,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                               <p>{item.label}</p>
                             </TooltipContent>
                           )}
@@ -4360,8 +4360,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       <SidebarMenuButton
                         className={cn(
                           "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                          "text-white/70 hover:text-white hover:bg-white/5",
-                          sportsbookSettingsOpen && "bg-white/5 text-white"
+                          "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
+                          sportsbookSettingsOpen && "bg-[var(--ds-control-bg)] text-[var(--ds-fg)]"
                         )}
                         onClick={() => {
                           if (isMobile) {
@@ -4372,14 +4372,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           }
                         }}
                       >
-                        <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", sportsbookSettingsOpen ? "bg-white/20" : "bg-white/10")}>
+                        <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", sportsbookSettingsOpen ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
                           <IconSettings strokeWidth={1.5} className="w-4 h-4" />
                         </div>
                         <span>Settings</span>
                       </SidebarMenuButton>
                     </TooltipTrigger>
                     {sidebarState === 'collapsed' && (
-                      <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                      <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                         <p>Settings</p>
                       </TooltipContent>
                     )}
@@ -4398,22 +4398,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         <div className="fixed inset-0 z-[10002] flex items-center justify-center pt-[10px] md:pt-0" onClick={() => setSportsbookSettingsOpen(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div 
-            className="relative w-[85vw] max-w-sm bg-[#2d2d2d] border border-white/10 rounded-xl shadow-2xl overflow-hidden"
+            className="relative w-[85vw] max-w-sm bg-[var(--ds-surface-raised)] border border-[var(--ds-border)] rounded-xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-3 border-b border-white/10">
+            <div className="flex items-center justify-between p-3 border-b border-[var(--ds-border)]">
               <div className="flex items-center gap-2">
-                <IconSettings strokeWidth={1.5} className="w-4 h-4 text-white/70" />
-                <span className="text-sm font-semibold text-white">Settings</span>
+                <IconSettings strokeWidth={1.5} className="w-4 h-4 text-[var(--ds-fg-muted)]" />
+                <span className="text-sm font-semibold text-[var(--ds-fg)]">Settings</span>
               </div>
-              <button onClick={() => setSportsbookSettingsOpen(false)} className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/5 transition-colors">
+              <button onClick={() => setSportsbookSettingsOpen(false)} className="p-1 rounded-md text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] transition-colors">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
 
             {/* Odds Format */}
-            <div className="p-3 border-b border-white/10">
-              <p className="text-xs text-white/50 font-medium mb-2 uppercase tracking-wider">Odds Format</p>
+            <div className="p-3 border-b border-[var(--ds-border)]">
+              <p className="text-xs text-[var(--ds-fg-subtle)] font-medium mb-2 uppercase tracking-wider">Odds Format</p>
               <div className="space-y-0.5">
                 {(['American', 'Fractional', 'Decimal'] as const).map((format) => (
                   <button
@@ -4422,8 +4422,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     className={cn(
                       "w-full text-left px-2.5 py-2 rounded-md text-sm transition-colors flex items-center gap-2",
                       oddsFormat === format
-                        ? "text-white bg-white/5"
-                        : "text-white/70 hover:text-white hover:bg-white/5"
+                        ? "text-[var(--ds-fg)] bg-[var(--ds-control-bg)]"
+                        : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                     )}
                   >
                     <span className="w-4 flex-shrink-0">
@@ -4436,8 +4436,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </div>
 
             {/* Betslip Settings */}
-            <div className="p-3 border-b border-white/10">
-              <p className="text-xs text-white/50 font-medium mb-2 uppercase tracking-wider">Betslip Settings</p>
+            <div className="p-3 border-b border-[var(--ds-border)]">
+              <p className="text-xs text-[var(--ds-fg-subtle)] font-medium mb-2 uppercase tracking-wider">Betslip Settings</p>
               <div className="space-y-0.5">
                 {([
                   { value: 'dont_accept' as const, label: "Don't accept odds changes" },
@@ -4450,8 +4450,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     className={cn(
                       "w-full text-left px-2.5 py-2 rounded-md text-sm transition-colors flex items-center gap-2",
                       betslipOddsSetting === option.value
-                        ? "text-white bg-white/5"
-                        : "text-white/70 hover:text-white hover:bg-white/5"
+                        ? "text-[var(--ds-fg)] bg-[var(--ds-control-bg)]"
+                        : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                     )}
                   >
                     <span className="w-4 flex-shrink-0">
@@ -4482,7 +4482,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     )}
                   />
                 </div>
-                <span className="text-sm text-white/70 ml-3">Show Confirmation</span>
+                <span className="text-sm text-[var(--ds-fg-muted)] ml-3">Show Confirmation</span>
               </button>
             </div>
           </div>
@@ -4491,7 +4491,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       )}
       
       {/* Main Content */}
-      <SidebarInset className="bg-[#1a1a1a] text-white" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
+      <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
         <div className="px-6 py-4">
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 mb-4">
@@ -4501,120 +4501,120 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 e.stopPropagation()
                 onBack()
               }} 
-              className="p-1 hover:bg-white/5 rounded cursor-pointer transition-colors"
+              className="p-1 hover:bg-[var(--ds-control-bg)] rounded cursor-pointer transition-colors"
             >
-              <IconChevronLeft className="w-4 h-4 text-white/70" />
+              <IconChevronLeft className="w-4 h-4 text-[var(--ds-fg-muted)]" />
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
             <button 
-              className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] flex items-center gap-1 cursor-pointer transition-colors"
             >
               Soccer
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
+              <DropdownMenuContent align="start" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Football')}
                 >
                   Football
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Basketball')}
                 >
                   Basketball
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Baseball')}
                 >
                   Baseball
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Golf')}
                 >
                   Golf
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Tennis')}
                 >
                   Tennis
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <span className="text-white/50">/</span>
+            <span className="text-[var(--ds-fg-subtle)]">/</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
             <button 
-              className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] flex items-center gap-1 cursor-pointer transition-colors"
             >
               England
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
+              <DropdownMenuContent align="start" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Spain')}
                 >
                   Spain
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Italy')}
                 >
                   Italy
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: USA')}
                 >
                   USA
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <span className="text-white/50">/</span>
+            <span className="text-[var(--ds-fg-subtle)]">/</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
             <button 
-              className="text-sm text-white/70 hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] flex items-center gap-1 cursor-pointer transition-colors"
             >
               Premier League
               <IconChevronDown className="w-3 h-3" />
             </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="bg-[#2d2d2d] border-white/10 text-white">
+              <DropdownMenuContent align="start" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: Championship')}
                 >
                   Championship
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: League 1')}
                 >
                   League 1
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: League 2')}
                 >
                   League 2
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: FA Cup')}
                 >
                   FA Cup
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                   onClick={() => console.log('Selected: League Cup')}
                 >
                   League Cup
@@ -4647,12 +4647,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       className="object-contain"
                     />
                   ) : (
-                    <IconTrophy className="w-6 h-6 text-white" />
+                    <IconTrophy className="w-6 h-6 text-[var(--ds-fg)]" />
                   )
                 })()}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">Premier League</h1>
+                <h1 className="text-lg font-bold text-[var(--ds-fg)]">Premier League</h1>
               </div>
               <div className="ml-auto">
                 <Button 
@@ -4662,7 +4662,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     e.stopPropagation()
                     console.log('View All clicked')
                   }}
-                  className="text-white/70 hover:text-white hover:bg-white/10 text-xs cursor-pointer"
+                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] text-xs cursor-pointer"
                 >
                   View All
                 </Button>
@@ -4675,14 +4675,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             <div className="flex items-center gap-1.5">
                 {/* Icon Tabs - Left Side - Search */}
                 <div className="flex-shrink-0">
-                  <div className="bg-white/5 p-0.5 h-auto gap-0.5 rounded-3xl border-0 flex items-center transition-colors duration-300">
+                  <div className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-0.5 rounded-3xl border-0 flex items-center transition-colors duration-300">
                     <button
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
                         onSearchClick()
                       }}
-                      className="bg-transparent text-white/70 hover:text-white hover:bg-white/5 rounded-2xl p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 ease-in-out"
+                      className="bg-transparent text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 ease-in-out"
                     >
                       <IconSearch className="w-3.5 h-3.5" />
                     </button>
@@ -4693,12 +4693,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <AnimateTabs value={activeTab} onValueChange={(value) => { 
                   onTabChange(value)
                 }} className="flex-1">
-                  <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+                  <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                     {['Events', 'Outrights', 'Boosts', 'Specials', 'All Leagues'].map((tab) => (
                       <TabsTab 
                         key={tab}
                         value={tab} 
-                        className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
+                        className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
                       >
                         {activeTab === tab && (
                           <motion.div
@@ -4721,13 +4721,13 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 
                 {/* Events Filter - Right Side */}
                 <div className="flex-shrink-0 flex items-center gap-2 ml-auto">
-                  <span className="text-xs text-white/50 whitespace-nowrap">Events ordered by: {eventOrderBy}</span>
+                  <span className="text-xs text-[var(--ds-fg-subtle)] whitespace-nowrap">Events ordered by: {eventOrderBy}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/5 cursor-pointer"
+                        className="h-8 w-8 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer"
                       >
                         <IconFilter className="w-4 h-4" />
                       </Button>
@@ -4735,7 +4735,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     <DropdownMenuContent 
                       align="end" 
                       sideOffset={5}
-                      className="w-[180px] bg-[#2d2d2d] border-white/10 z-[120]"
+                      className="w-[180px] bg-[var(--ds-surface-raised)] border-[var(--ds-border)] z-[120]"
                       style={{ zIndex: 120 }}
                     >
                       {eventOrderOptions.map((option) => (
@@ -4743,8 +4743,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           key={option.value}
                           onClick={() => setEventOrderBy(option.value)}
                           className={cn(
-                            "text-white/70 hover:text-white hover:bg-white/5 cursor-pointer",
-                            eventOrderBy === option.value && "bg-white/10 text-white"
+                            "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] cursor-pointer",
+                            eventOrderBy === option.value && "bg-[var(--ds-control-hover)] text-[var(--ds-fg)]"
                           )}
                         >
                           {option.label}
@@ -4770,7 +4770,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         "flex-shrink-0 w-20 h-20 rounded-small border transition-colors flex items-center justify-center cursor-pointer",
                         isSelected 
                           ? "bg-white/15 border-white/20" 
-                          : "bg-white/5 border-white/10 hover:bg-white/10",
+                          : "bg-[var(--ds-control-bg)] border-[var(--ds-border)] hover:bg-[var(--ds-control-hover)]",
                         index === 0 ? "ml-6 mr-0" : "ml-2 md:ml-4"
                       )}
                       onClick={(e) => {
@@ -4790,15 +4790,15 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             className="object-contain"
                           />
                         ) : (
-                          <league.icon className="w-8 h-8 text-white/70" />
+                          <league.icon className="w-8 h-8 text-[var(--ds-fg-muted)]" />
                         )}
                       </div>
                     </button>
                   )
                 })}
                 {/* Scroll indicator */}
-                <button className="flex-shrink-0 w-20 h-20 bg-white/5 border border-white/10 rounded-small hover:bg-white/10 transition-colors flex items-center justify-center cursor-pointer ml-2 md:ml-4">
-                  <IconChevronRight className="w-5 h-5 text-white/70" />
+                <button className="flex-shrink-0 w-20 h-20 bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small hover:bg-[var(--ds-control-hover)] transition-colors flex items-center justify-center cursor-pointer ml-2 md:ml-4">
+                  <IconChevronRight className="w-5 h-5 text-[var(--ds-fg-muted)]" />
                 </button>
               </div>
             </div>
@@ -4807,7 +4807,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* Top Events Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white/70">TOP EVENTS</h2>
+              <h2 className="text-sm font-semibold text-[var(--ds-fg-muted)]">TOP EVENTS</h2>
               <Button 
                 variant="ghost" 
                 onClick={(e) => {
@@ -4815,7 +4815,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   e.stopPropagation()
                   console.log('View All clicked for Top Events')
                 }}
-                className="text-xs text-white/70 hover:text-white cursor-pointer"
+                className="text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer"
               >
                 View All
               </Button>
@@ -4825,7 +4825,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <CarouselContent className="ml-6 mr-0">
                   {/* First event - Manchester City vs Liverpool (Live) */}
                   <CarouselItem className="pl-0 pr-0 basis-auto flex-shrink-0">
-                    <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                    <div className="w-[320px] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                       {/* Header: League info and Live status */}
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-1.5">
@@ -4836,12 +4836,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             height={16}
                             className="object-contain"
                           />
-                          <span className="text-[10px] text-white">Premier League | England</span>
+                          <span className="text-[10px] text-[var(--ds-fg)]">Premier League | England</span>
                   </div>
                         <div className="flex items-center gap-1.5">
                           <div className="flex items-center gap-1 bg-[#ee3536] px-1.5 py-0.5 rounded-full">
                             <div className="w-1 h-1 bg-white rounded-full"></div>
-                            <span className="text-[10px] font-semibold text-white">LIVE</span>
+                            <span className="text-[10px] font-semibold text-[var(--ds-fg)]">LIVE</span>
                   </div>
                           <span className="text-[10px] text-[#ee3536]">H2 ET 90'+6</span>
                         </div>
@@ -4860,17 +4860,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             quality={100}
                             unoptimized
                           />
-                          <span className="text-xs font-semibold text-white truncate">Manchester City</span>
+                          <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">Manchester City</span>
                         </div>
                         
                         {/* Score */}
                         <div className="flex items-center justify-center mx-3 flex-shrink-0">
-                          <div className="text-base font-bold text-white leading-none">4 - 0</div>
+                          <div className="text-base font-bold text-[var(--ds-fg)] leading-none">4 - 0</div>
                         </div>
                         
                         {/* Team 2 - Liverpool */}
                         <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                          <span className="text-xs font-semibold text-white truncate">Liverpool</span>
+                          <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">Liverpool</span>
                           <Image 
                             src="/banners/sports_league/liverpool.png" 
                             alt="Liverpool"
@@ -4892,7 +4892,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'MCI', '+350')
                           }}
                           className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                            "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                             isBetSelected(4, 'Moneyline', 'MCI') && "bg-red-500"
                           )}
                       onMouseEnter={(e) => {
@@ -4906,7 +4906,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             }
                       }}
                     >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">MCI</div>
+                          <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">MCI</div>
                           <div className="text-xs font-bold leading-none">+350</div>
                     </button>
                         <button 
@@ -4916,7 +4916,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'Tie', '+350')
                           }}
                           className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                            "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                             isBetSelected(4, 'Moneyline', 'Tie') && "bg-red-500"
                           )}
                           onMouseEnter={(e) => {
@@ -4930,7 +4930,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             }
                           }}
                         >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div>
+                          <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">Tie</div>
                           <div className="text-xs font-bold leading-none">+350</div>
                         </button>
                         <button 
@@ -4940,7 +4940,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             addBetToSlip(4, 'Manchester City v Liverpool', 'Moneyline', 'LIV', '+350')
                           }}
                           className={cn(
-                            "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                            "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                             isBetSelected(4, 'Moneyline', 'LIV') && "bg-red-500"
                           )}
                           onMouseEnter={(e) => {
@@ -4954,21 +4954,21 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             }
                           }}
                         >
-                          <div className="text-[10px] text-white/70 leading-none mb-0.5">LIV</div>
+                          <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">LIV</div>
                           <div className="text-xs font-bold leading-none">+350</div>
                     </button>
                   </div>
                       
                       {/* Popularity Bar */}
                       <div className="space-y-0.5">
-                        <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
-                        <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="text-[10px] text-[var(--ds-fg-subtle)] text-center mb-1">Moneyline</div>
+                        <div className="flex h-1.5 bg-[var(--ds-control-hover)] rounded-full overflow-hidden">
                           <div className="bg-[#ee3536] h-full" style={{ width: '94%' }}></div>
                           <div className="bg-white h-full" style={{ width: '6%' }}></div>
                 </div>
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-white/50">94% MCI</span>
-                          <span className="text-white/50">6% LIV</span>
+                          <span className="text-[var(--ds-fg-subtle)]">94% MCI</span>
+                          <span className="text-[var(--ds-fg-subtle)]">6% LIV</span>
                         </div>
                       </div>
                     </div>
@@ -4977,7 +4977,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   {/* Other events - duplicate for carousel */}
                   {[4, 5, 6].map((eventId) => (
                     <CarouselItem key={eventId} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                      <div className="w-[320px] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
@@ -4988,12 +4988,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">Premier League | England</span>
+                            <span className="text-[10px] text-[var(--ds-fg)]">Premier League | England</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <div className="flex items-center gap-1 bg-[#ee3536] px-1.5 py-0.5 rounded-full">
                               <div className="w-1 h-1 bg-white rounded-full"></div>
-                              <span className="text-[10px] font-semibold text-white">LIVE</span>
+                              <span className="text-[10px] font-semibold text-[var(--ds-fg)]">LIVE</span>
                             </div>
                             <span className="text-[10px] text-[#ee3536]">H2 ET 90'+6</span>
                           </div>
@@ -5012,17 +5012,17 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               quality={100}
                               unoptimized
                             />
-                            <span className="text-xs font-semibold text-white truncate">Manchester City</span>
+                            <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">Manchester City</span>
                           </div>
                           
                           {/* Score */}
                           <div className="flex items-center justify-center mx-3 flex-shrink-0">
-                            <div className="text-base font-bold text-white leading-none">4 - 0</div>
+                            <div className="text-base font-bold text-[var(--ds-fg)] leading-none">4 - 0</div>
                           </div>
                           
                           {/* Team 2 - Liverpool */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                            <span className="text-xs font-semibold text-white truncate">Liverpool</span>
+                            <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">Liverpool</span>
                             <Image 
                               src="/banners/sports_league/liverpool.png" 
                               alt="Liverpool"
@@ -5044,7 +5044,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'MCI', '+350')
                             }}
                             className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                               isBetSelected(eventId, 'Moneyline', 'MCI') && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
@@ -5058,7 +5058,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               }
                             }}
                           >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">MCI</div>
+                            <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">MCI</div>
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                           <button 
@@ -5068,7 +5068,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'Tie', '+350')
                             }}
                             className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                               isBetSelected(eventId, 'Moneyline', 'Tie') && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
@@ -5082,7 +5082,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               }
                             }}
                           >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div>
+                            <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">Tie</div>
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                           <button 
@@ -5092,7 +5092,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               addBetToSlip(eventId, 'Manchester City v Liverpool', 'Moneyline', 'LIV', '+350')
                             }}
                             className={cn(
-                              "bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
+                              "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                               isBetSelected(eventId, 'Moneyline', 'LIV') && "bg-red-500"
                             )}
                             onMouseEnter={(e) => {
@@ -5106,21 +5106,21 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               }
                             }}
                           >
-                            <div className="text-[10px] text-white/70 leading-none mb-0.5">LIV</div>
+                            <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5">LIV</div>
                             <div className="text-xs font-bold leading-none">+350</div>
                           </button>
                         </div>
                         
                         {/* Popularity Bar */}
                         <div className="space-y-0.5">
-                          <div className="text-[10px] text-white/50 text-center mb-1">Moneyline</div>
-                          <div className="flex h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className="text-[10px] text-[var(--ds-fg-subtle)] text-center mb-1">Moneyline</div>
+                          <div className="flex h-1.5 bg-[var(--ds-control-hover)] rounded-full overflow-hidden">
                             <div className="bg-[#ee3536] h-full" style={{ width: '94%' }}></div>
                             <div className="bg-white h-full" style={{ width: '6%' }}></div>
                           </div>
                           <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-white/50">94% MCI</span>
-                            <span className="text-white/50">6% LIV</span>
+                            <span className="text-[var(--ds-fg-subtle)]">94% MCI</span>
+                            <span className="text-[var(--ds-fg-subtle)]">6% LIV</span>
                           </div>
                         </div>
                       </div>
@@ -5134,7 +5134,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* Live Events Section - Exactly matching Figma layout */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white/70">LIVE</h2>
+              <h2 className="text-sm font-semibold text-[var(--ds-fg-muted)]">LIVE</h2>
             </div>
             <div className="space-y-2">
               {liveEvents.map((event) => {
@@ -5156,7 +5156,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   const seconds = elapsedTime % 60
                   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
                   
-                  return <span className="text-[10px] text-white/70">{formattedTime}</span>
+                  return <span className="text-[10px] text-[var(--ds-fg-muted)]">{formattedTime}</span>
                 }
                 
                 // Scroll state for markets
@@ -5243,7 +5243,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             e.stopPropagation()
                             scrollLeft()
                           }}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#2d2d2d]/90 backdrop-blur-sm border border-white/20 hover:bg-[#2d2d2d] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+                          className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20 flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
                           style={{ pointerEvents: 'auto' }}
                         >
                           <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
@@ -5275,7 +5275,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <React.Fragment key={marketIndex}>
                               <div className="flex flex-col items-center flex-shrink-0">
                                 {/* Market Title - Centered */}
-                                <div className="text-[10px] text-white/50 mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
+                                <div className="text-[10px] text-[var(--ds-fg-subtle)] mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
                                 {/* Market Options - Centered, Fixed width for alignment */}
                                 <div className="flex gap-1 h-[38px] items-center">
                                   {market.options.map((option, optionIndex) => {
@@ -5290,10 +5290,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                           addBetToSlip(event.id, eventName, market.title, option.label, option.odds)
                                         }}
                                         className={cn(
-                                          "text-white rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
+                                          "text-[var(--ds-fg)] rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
                                           isSelected 
                                             ? "bg-red-500 hover:bg-red-600" 
-                                            : "bg-white/10 hover:bg-white/20"
+                                            : "bg-[var(--ds-control-hover)] hover:bg-white/20"
                                         )}
                                         onMouseEnter={(e) => {
                                           if (!isSelected) {
@@ -5306,7 +5306,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                           }
                                         }}
                                       >
-                                        <div className="text-[10px] text-white/70 leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
+                                        <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
                                         <div className="text-xs font-bold leading-none">{option.odds}</div>
                                       </button>
                                     )
@@ -5315,7 +5315,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
-                                <div className="w-px h-[32px] bg-white/10 mx-2 flex-shrink-0" />
+                                <div className="w-px h-[32px] bg-[var(--ds-control-hover)] mx-2 flex-shrink-0" />
                               )}
                             </React.Fragment>
                           ))}
@@ -5330,7 +5330,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             e.stopPropagation()
                             scrollRight()
                           }}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#2d2d2d]/90 backdrop-blur-sm border border-white/20 hover:bg-[#2d2d2d] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20 flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
                           style={{ pointerEvents: 'auto' }}
                         >
                           <IconChevronRight className="h-4 w-4" strokeWidth={2} />
@@ -5341,7 +5341,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 }
                 
                 return (
-                  <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible' }}>
+                  <div key={event.id} className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small" style={{ overflow: 'visible' }}>
                     {/* Header Section - Premier League | England, Soccer */}
                     <div className="px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -5357,14 +5357,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain"
                             />
                           ) : (
-                            <IconTrophy className="w-4 h-4 text-white/70" />
+                            <IconTrophy className="w-4 h-4 text-[var(--ds-fg-muted)]" />
                           )
                         })()}
-                        <span className="text-xs text-white/70">{event.league}</span>
-                        <span className="text-xs text-white/50">|</span>
-                        <span className="text-xs text-white/70">{event.country}</span>
-                        <span className="text-xs text-white/50">,</span>
-                        <span className="text-xs text-white/70">Soccer</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">{event.league}</span>
+                        <span className="text-xs text-[var(--ds-fg-subtle)]">|</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">{event.country}</span>
+                        <span className="text-xs text-[var(--ds-fg-subtle)]">,</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">Soccer</span>
                       </div>
                       <button
                         onClick={(e) => {
@@ -5372,7 +5372,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           e.stopPropagation()
                           console.log('Watch Live clicked for event:', event.id)
                         }}
-                        className="text-xs text-white/70 hover:text-white transition-colors cursor-pointer"
+                        className="text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] transition-colors cursor-pointer"
                       >
                         Watch Live
                       </button>
@@ -5387,23 +5387,23 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <span className="text-[10px] font-semibold text-red-400">LIVE</span>
                           </div>
                           <MatchTimer />
-                          <span className="text-[10px] text-white/70">1st half</span>
+                          <span className="text-[10px] text-[var(--ds-fg-muted)]">1st half</span>
                         </div>
                       )}
                       
                       {/* Teams - Fixed width for alignment */}
                       <div className="flex flex-col gap-1 min-w-0 flex-shrink-0 justify-center w-[140px]">
-                        <div className="text-sm font-semibold text-white truncate leading-tight">{event.team1}</div>
-                        <div className="text-sm font-semibold text-white truncate leading-tight">{event.team2}</div>
+                        <div className="text-sm font-semibold text-[var(--ds-fg)] truncate leading-tight">{event.team1}</div>
+                        <div className="text-sm font-semibold text-[var(--ds-fg)] truncate leading-tight">{event.team2}</div>
                       </div>
                       
                       {/* Score - Fixed width container for alignment across all events */}
                       {event.score && (
                         <div className="flex flex-col items-center justify-center gap-0.5 flex-shrink-0 w-[40px] mx-4">
-                          <div className="bg-white/5 border border-white/10 rounded-small px-1.5 py-1.5 w-full">
-                            <div className="text-sm font-bold text-white leading-tight text-center">{event.score.team1}</div>
+                          <div className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small px-1.5 py-1.5 w-full">
+                            <div className="text-sm font-bold text-[var(--ds-fg)] leading-tight text-center">{event.score.team1}</div>
                             <div className="h-px w-full bg-white/20 my-0.5"></div>
-                            <div className="text-sm font-bold text-white leading-tight text-center">{event.score.team2}</div>
+                            <div className="text-sm font-bold text-[var(--ds-fg)] leading-tight text-center">{event.score.team2}</div>
                           </div>
                         </div>
                       )}
@@ -5420,7 +5420,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* Top Bet Boosts Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white/70">TOP BET BOOSTS</h2>
+              <h2 className="text-sm font-semibold text-[var(--ds-fg-muted)]">TOP BET BOOSTS</h2>
               <Button 
                 variant="ghost" 
                 onClick={(e) => {
@@ -5428,7 +5428,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   e.stopPropagation()
                   console.log('View All clicked for Top Bet Boosts')
                 }}
-                className="text-xs text-white/70 hover:text-white cursor-pointer"
+                className="text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer"
               >
                 View All
               </Button>
@@ -5444,7 +5444,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     { id: 4, marketName: 'Market Name Here On More Than One Line', time: 'TODAY 10:30PM' },
                   ].map((boost, index) => (
                     <CarouselItem key={boost.id} className={index === 0 ? "pl-0 pr-0 basis-auto flex-shrink-0" : "pl-2 md:pl-4 basis-auto flex-shrink-0"}>
-                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(31, 238, 245, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                      <div className="w-[320px] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(31, 238, 245, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Time */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
@@ -5455,9 +5455,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">Premier League | England, Soccer</span>
+                            <span className="text-[10px] text-[var(--ds-fg)]">Premier League | England, Soccer</span>
                   </div>
-                          <span className="text-[10px] text-white">{boost.time}</span>
+                          <span className="text-[10px] text-[var(--ds-fg)]">{boost.time}</span>
                   </div>
                         
                         {/* Market Name */}
@@ -5473,7 +5473,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         e.stopPropagation()
                               console.log('Bet Boost clicked:', boost.id)
                       }}
-                            className="bg-white/10 text-white text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
+                            className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'
                       }}
@@ -5489,7 +5489,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         e.stopPropagation()
                               console.log('Bet Boost clicked:', boost.id)
                       }}
-                            className="bg-white/10 text-white text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
+                            className="bg-[var(--ds-control-hover)] text-[var(--ds-fg)] text-sm font-bold px-4 py-2.5 rounded-small flex-1 transition-colors cursor-pointer"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'
                       }}
@@ -5503,8 +5503,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         
                         {/* Information Disclaimer */}
                         <div className="flex items-start gap-1.5">
-                          <IconInfoCircle className="w-3.5 h-3.5 text-white/50 flex-shrink-0 mt-0.5" />
-                          <span className="text-[10px] text-white/50 leading-tight">
+                          <IconInfoCircle className="w-3.5 h-3.5 text-[var(--ds-fg-subtle)] flex-shrink-0 mt-0.5" />
+                          <span className="text-[10px] text-[var(--ds-fg-subtle)] leading-tight">
                             Player Must Play. If No TD's Are Scored Wager Will Be Graded As A Loss
                           </span>
                 </div>
@@ -5518,7 +5518,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           
           {/* Upcoming Events */}
           <div className="mb-8">
-            <h2 className="text-sm font-semibold text-white/70 mb-4">UPCOMING</h2>
+            <h2 className="text-sm font-semibold text-[var(--ds-fg-muted)] mb-4">UPCOMING</h2>
             <div className="space-y-2">
               {upcomingEvents.map((event) => {
                 // Scroll state for markets
@@ -5605,7 +5605,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           e.stopPropagation()
                             scrollLeft()
                           }}
-                          className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#2d2d2d]/90 backdrop-blur-sm border border-white/20 hover:bg-[#2d2d2d] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+                          className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20 flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
                           style={{ pointerEvents: 'auto' }}
                         >
                           <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
@@ -5637,7 +5637,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                             <React.Fragment key={marketIndex}>
                               <div className="flex flex-col items-center flex-shrink-0">
                                 {/* Market Title - Centered */}
-                                <div className="text-[10px] text-white/50 mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
+                                <div className="text-[10px] text-[var(--ds-fg-subtle)] mb-1.5 leading-none text-center whitespace-nowrap px-1">{market.title}</div>
                                 {/* Market Options - Centered, Fixed width for alignment */}
                                 <div className="flex gap-1 h-[38px] items-center">
                                   {market.options.map((option, optionIndex) => {
@@ -5652,10 +5652,10 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                           addBetToSlip(event.id, eventName, market.title, option.label, option.odds)
                                         }}
                                         className={cn(
-                                          "text-white rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
+                                          "text-[var(--ds-fg)] rounded-small w-[68px] h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2 flex-shrink-0",
                                           isSelected 
                                             ? "bg-red-500 hover:bg-red-600" 
-                                            : "bg-white/10 hover:bg-white/20"
+                                            : "bg-[var(--ds-control-hover)] hover:bg-white/20"
                                         )}
                         onMouseEnter={(e) => {
                                           if (!isSelected) {
@@ -5668,7 +5668,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                           }
                         }}
                       >
-                                        <div className="text-[10px] text-white/70 leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
+                                        <div className="text-[10px] text-[var(--ds-fg-muted)] leading-none mb-0.5 truncate w-full text-center">{option.label}</div>
                                         <div className="text-xs font-bold leading-none">{option.odds}</div>
                       </button>
                                     )
@@ -5677,7 +5677,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               </div>
                               {/* Vertical Divider */}
                               {marketIndex < event.markets.length - 1 && (
-                                <div className="w-px h-[32px] bg-white/10 mx-2 flex-shrink-0" />
+                                <div className="w-px h-[32px] bg-[var(--ds-control-hover)] mx-2 flex-shrink-0" />
                               )}
                             </React.Fragment>
                           ))}
@@ -5692,7 +5692,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           e.stopPropagation()
                             scrollRight()
                         }}
-                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#2d2d2d]/90 backdrop-blur-sm border border-white/20 hover:bg-[#2d2d2d] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20 flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
                           style={{ pointerEvents: 'auto' }}
                       >
                           <IconChevronRight className="h-4 w-4" strokeWidth={2} />
@@ -5703,7 +5703,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 }
                 
                 return (
-                  <div key={event.id} className="bg-white/5 border border-white/10 rounded-small" style={{ overflow: 'visible' }}>
+                  <div key={event.id} className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small" style={{ overflow: 'visible' }}>
                     {/* Header Section - Premier League | England, Soccer */}
                     <div className="px-3 py-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -5719,14 +5719,14 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                               className="object-contain"
                             />
                           ) : (
-                            <IconTrophy className="w-4 h-4 text-white/70" />
+                            <IconTrophy className="w-4 h-4 text-[var(--ds-fg-muted)]" />
                           )
                         })()}
-                        <span className="text-xs text-white/70">{event.league}</span>
-                        <span className="text-xs text-white/50">|</span>
-                        <span className="text-xs text-white/70">{event.country}</span>
-                        <span className="text-xs text-white/50">,</span>
-                        <span className="text-xs text-white/70">Soccer</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">{event.league}</span>
+                        <span className="text-xs text-[var(--ds-fg-subtle)]">|</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">{event.country}</span>
+                        <span className="text-xs text-[var(--ds-fg-subtle)]">,</span>
+                        <span className="text-xs text-[var(--ds-fg-muted)]">Soccer</span>
                       </div>
                       <button 
                         onClick={(e) => {
@@ -5734,7 +5734,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           e.stopPropagation()
                           console.log('Watch Live clicked for event:', event.id)
                         }}
-                        className="text-xs text-white/70 hover:text-white transition-colors cursor-pointer"
+                        className="text-xs text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] transition-colors cursor-pointer"
                       >
                         Watch Live
                       </button>
@@ -5744,16 +5744,16 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     <div className="px-3 py-3 flex items-center gap-4" style={{ overflow: 'visible' }}>
                       {/* Status/Time Badge - Starting in */}
                       <div className="flex flex-col items-start justify-center gap-1 flex-shrink-0 w-[100px]">
-                        <div className="flex items-center gap-1 bg-white/10 border border-white/20 rounded px-1.5 py-0.5 whitespace-nowrap">
-                          <span className="text-[10px] font-semibold text-white/70">Starting in</span>
+                        <div className="flex items-center gap-1 bg-[var(--ds-control-hover)] border border-white/20 rounded px-1.5 py-0.5 whitespace-nowrap">
+                          <span className="text-[10px] font-semibold text-[var(--ds-fg-muted)]">Starting in</span>
                   </div>
-                        <span className="text-[10px] text-white/70">{event.time}</span>
+                        <span className="text-[10px] text-[var(--ds-fg-muted)]">{event.time}</span>
                 </div>
                       
                       {/* Teams - Fixed width for alignment */}
                       <div className="flex flex-col gap-1 min-w-0 flex-shrink-0 justify-center w-[140px]">
-                        <div className="text-sm font-semibold text-white truncate leading-tight">{event.team1}</div>
-                        <div className="text-sm font-semibold text-white truncate leading-tight">{event.team2}</div>
+                        <div className="text-sm font-semibold text-[var(--ds-fg)] truncate leading-tight">{event.team1}</div>
+                        <div className="text-sm font-semibold text-[var(--ds-fg)] truncate leading-tight">{event.team2}</div>
                       </div>
                       
                       {/* Betting Markets - Scrollable with Carousel Arrows */}
@@ -5767,95 +5767,95 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         </div>
         
         {/* Footer - responsive to sidebar state */}
-        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+        <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-12 relative z-0">
           <div className="w-full px-6 py-6">
             {/* Quick Links Section - More compact */}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                 </ul>
               </div>
             </div>
 
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
             {/* Trust & Security Section - More compact */}
             <div className="mb-6">
@@ -5863,7 +5863,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
                 <IconShield className="w-4 h-4" />
               </div>
-              <p className="text-xs text-white/70 mb-4 max-w-2xl">
+              <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                 At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
               </p>
               <div className="flex flex-wrap items-center gap-3">
@@ -5879,12 +5879,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                 <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                  <span className="text-[10px] font-bold text-white">18+</span>
+                  <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
             </div>
           </div>
         </div>
 
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
             {/* Partners & Social Media - More compact */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
@@ -5907,26 +5907,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </div>
               <div className="flex items-center gap-1.5">
                 {/* Social media icons using Button components */}
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandFacebook className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandInstagram className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandX className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandYoutube className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandTiktok className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
             {/* Timestamp and Copyright */}
-            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+            <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
               <div>
                 Copyright ©2024 BetOnline.ag. All rights reserved.
               </div>
@@ -6133,7 +6133,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipLeft && (
           <button
             onClick={scrollVipLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginLeft: '12px' }}
           >
             <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
@@ -6169,7 +6169,7 @@ function VipDrawerContent({
           onScroll={checkScroll}
         >
           <div 
-            className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
+            className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
             style={{
               minWidth: 'max-content',
               width: 'max-content',
@@ -6190,7 +6190,7 @@ function VipDrawerContent({
                   "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                   vipActiveTab === tab
                     ? "text-black bg-[#fef3c7]"
-                    : "text-white/70 hover:text-white hover:bg-white/5 dark:hover:bg-white/5 bg-transparent"
+                    : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] bg-transparent"
                 )}
                 style={{
                   scrollSnapAlign: 'start',
@@ -6207,7 +6207,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipRight && (
           <button
             onClick={scrollVipRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginRight: '8px' }}
           >
             <IconChevronRight className="h-4 w-4" strokeWidth={2} />
@@ -6527,7 +6527,7 @@ function TournamentCountdown({ endDate }: { endDate: Date }) {
   const isExpired = d === 0 && h === 0 && m === 0 && s === 0
   if (isExpired) return <span className="text-xs font-semibold text-red-400">Ended</span>
   return (
-    <div className="text-xs font-semibold text-white/60 flex items-center tabular-nums">
+    <div className="text-xs font-semibold text-[var(--ds-fg-muted)] flex items-center tabular-nums">
       <NumberFlow value={d} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
       <NumberFlow value={h} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
       <NumberFlow value={m} format={{ minimumIntegerDigits: 2 }} /><span className="text-white/20 mx-0.5">:</span>
@@ -6595,7 +6595,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
   ]
 
   return (
-    <div className="flex w-full min-h-screen bg-[#1a1a1a]" data-sidebar-full-height>
+    <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)]" data-sidebar-full-height>
       {/* Poker Sidebar — full height, above main nav */}
       <Sidebar
         collapsible="icon"
@@ -6604,11 +6604,11 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
         mobileNoDrag
         mobileBg="#2d2d2d"
         mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-        className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+        className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
       >
         {/* Sidebar Header — sticky, clean */}
         <SidebarHeader 
-          className="px-4 h-14 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
+          className="px-4 h-16 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
           style={{
             backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
             WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
@@ -6620,7 +6620,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             {isMobile && (
               <button
                 onClick={() => setOpenMobile(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/40 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] rounded-lg hover:bg-[var(--ds-control-hover)] transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -6690,7 +6690,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
         {/* Quick Links — mobile only, below logo, sticky */}
         {isMobile && (
           <div 
-            className="sticky top-14 z-20 border-b border-white/5"
+            className="sticky top-16 z-20 border-b border-white/5"
             style={{
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)',
@@ -6723,8 +6723,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                     className={cn(
                       "flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative",
                       isCurrentPage 
-                        ? "text-white font-bold" 
-                        : "text-white/35 font-medium hover:text-white/60"
+                        ? "text-[var(--ds-fg)] font-bold" 
+                        : "text-white/35 font-medium hover:text-[var(--ds-fg-muted)]"
                     )}
                   >
                     {item.label}
@@ -6737,7 +6737,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
               {/* Other — inline dropdown toggle */}
               <button 
                 onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-white/60 flex items-center gap-0.5"
+                className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
               >
                 Other
                 <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
@@ -6770,7 +6770,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                       key={item.label}
                       href={item.href}
                       onClick={() => setOpenMobile(false)}
-                      className="flex-shrink-0 px-3 py-2 text-[13px] text-white/50 font-medium hover:text-white whitespace-nowrap transition-colors"
+                      className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
                     >
                       {item.label}
                     </a>
@@ -6786,10 +6786,10 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             <SidebarPromos
               collapsed={sidebarState === 'collapsed' && !isMobile}
             />
-            <Separator className="bg-white/10 mx-2" />
+            <Separator className="bg-[var(--ds-control-hover)] mx-2 group-data-[collapsible=icon]:hidden" />
             {/* Poker Menu section — square icon style like sports FEATURES */}
             <SidebarGroup className="mt-3">
-              {isMobile && <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">POKER MENU</SidebarGroupLabel>}
+              {isMobile && <SidebarGroupLabel className="px-2 py-1 text-xs text-[var(--ds-fg-subtle)]">POKER MENU</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
                   {pokerPlayNow.map((item, index) => {
@@ -6809,18 +6809,18 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                               style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
-                              <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-white/10")}>
+                              <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
                                 <Icon strokeWidth={1.5} className="w-4 h-4" />
                 </div>
                               <span>{item.label}</span>
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                               <p>{item.label}</p>
                             </TooltipContent>
                           )}
@@ -6832,7 +6832,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <Separator className="bg-white/10 mx-2" />
+            <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
             {/* POKER nav items */}
             <SidebarGroup>
@@ -6855,7 +6855,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                               style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
@@ -6864,7 +6864,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                               <p>{item.label}</p>
                             </TooltipContent>
                           )}
@@ -6879,7 +6879,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             {/* Spacer to push bottom items down */}
             <div className="flex-1" />
 
-            <Separator className="bg-white/10 mx-2" />
+            <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
             {/* Bottom section — Loyalty Hub, Banking, Need Help (like casino) */}
             <SidebarGroup>
@@ -6902,7 +6902,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                               style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
@@ -6911,7 +6911,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                               <p>{item.label}</p>
                             </TooltipContent>
                           )}
@@ -6929,7 +6929,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
       </Sidebar>
 
       {/* Main Content */}
-      <SidebarInset className="bg-[#1a1a1a] text-white" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
+      <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
         <div className="flex flex-col">
 
           {/* HERO */}
@@ -6962,10 +6962,10 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-10 max-w-6xl mx-auto">
               {/* Left — text content, left-aligned on desktop */}
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight">
+                <h1 className="text-3xl md:text-5xl font-bold text-[var(--ds-fg)] mb-3 leading-tight">
                   The BetOnline<br />Poker Platform
                 </h1>
-                <p className="text-sm md:text-base text-white/60 mb-6 max-w-lg">
+                <p className="text-sm md:text-base text-[var(--ds-fg-muted)] mb-6 max-w-lg">
                   Play online or download the BetOnline poker app today,<br />available on IOS, PC, and Android.
                 </p>
                 <div className="flex items-center md:justify-start justify-center gap-3 mb-6">
@@ -6973,7 +6973,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                     <IconDownload className="w-4 h-4" strokeWidth={2} />
                     DOWNLOAD &amp; PLAY
                   </Button>
-                  <Button variant="outline" className="text-white font-semibold text-sm px-6 py-3 h-11 rounded-small border-white/20 bg-transparent hover:bg-white/5">
+                  <Button variant="outline" className="text-[var(--ds-fg)] font-semibold text-sm px-6 py-3 h-11 rounded-small border-white/20 bg-transparent hover:bg-[var(--ds-control-bg)]">
                     PLAY ONLINE
                   </Button>
                 </div>
@@ -6991,11 +6991,11 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   ].map((platform, idx) => {
                     const Icon = platform.icon
                     return (
-                      <button key={idx} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all group">
-                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-white/50 group-hover:text-white/80 transition-colors flex-shrink-0" strokeWidth={1.5} />
+                      <button key={idx} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-[var(--ds-overlay)] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all group">
+                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-[var(--ds-fg-subtle)] group-hover:text-[var(--ds-fg-muted)] transition-colors flex-shrink-0" strokeWidth={1.5} />
                         <div className="text-left">
                           <div className="text-[7px] md:text-[8px] text-white/35 uppercase tracking-wider leading-none">{platform.sublabel}</div>
-                          <div className="text-[10px] md:text-xs font-semibold text-white/80">{platform.label}</div>
+                          <div className="text-[10px] md:text-xs font-semibold text-[var(--ds-fg-muted)]">{platform.label}</div>
                         </div>
                       </button>
                     )
@@ -7021,8 +7021,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
           {/* OUR TOP FEATURES — Carousel */}
           <section className="py-10 bg-white/[0.02]">
             <div className="px-4 md:px-6 text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Our Top Features</h2>
-              <p className="text-sm text-white/50 max-w-lg mx-auto">
+              <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-2">Our Top Features</h2>
+              <p className="text-sm text-[var(--ds-fg-subtle)] max-w-lg mx-auto">
                 Some of the features available. Play Now or Download our poker software to try them out.
                   </p>
                 </div>
@@ -7030,15 +7030,15 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
               <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                 {!isMobile && (
                   <>
-                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
+                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                   </>
                 )}
                 <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
                   {topFeatures.map((feature, index) => (
                     <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-3 md:pl-4'} basis-auto flex-shrink-0`}>
-                      <Card className="bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.06] transition-colors h-full w-[260px] md:w-[300px] overflow-hidden">
-                        <div className="w-full aspect-[16/10] bg-white/[0.06] overflow-hidden relative">
+                      <Card className="bg-[var(--ds-overlay)] border-[var(--ds-control-border)] hover:bg-[var(--ds-control-bg)] transition-colors h-full w-[260px] md:w-[300px] overflow-hidden">
+                        <div className="w-full aspect-[16/10] bg-[var(--ds-control-bg)] overflow-hidden relative">
                           {feature.image ? (
                             <div className="absolute inset-0 -right-[20px] overflow-hidden">
                               <Image src={feature.image} alt={feature.title} fill className="object-cover object-right" />
@@ -7051,8 +7051,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                           )}
                         </div>
                         <CardContent className="p-4">
-                          <h3 className="text-base font-semibold text-white mb-2 text-left">{feature.title}</h3>
-                          <p className="text-xs text-white/50 leading-relaxed text-left line-clamp-3">{feature.description}</p>
+                          <h3 className="text-base font-semibold text-[var(--ds-fg)] mb-2 text-left">{feature.title}</h3>
+                          <p className="text-xs text-[var(--ds-fg-subtle)] leading-relaxed text-left line-clamp-3">{feature.description}</p>
             </CardContent>
           </Card>
                     </CarouselItem>
@@ -7071,12 +7071,12 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
           <section className="px-4 md:px-6 py-10">
             <div className="max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-md rounded-xl bg-white/[0.06] overflow-hidden relative">
+                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-md rounded-xl bg-[var(--ds-control-bg)] overflow-hidden relative">
                   <Image src="/banners/poker/new to betonline.jpg" alt="New to BetOnline Poker" fill className="object-cover" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 italic">New to Betonline Poker ?</h2>
-                  <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 italic">New to Betonline Poker ?</h2>
+                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
                     Find out how to register, how to transfer funds to your poker wallet, what games you can play here and what is the strongest hand at the tables.
                   </p>
                   <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
@@ -7092,17 +7092,17 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             <div className="max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 leading-tight">
                     Ensuring a Fair and Trustworthy Poker Experience
                   </h2>
-                  <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
                     Poker tournaments offer varied experiences, from highly competitive Sunday majors with big prize pools to casual daily events perfect for beginners. Our advanced security systems ensure fair play at every table.
                   </p>
                   <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
                     MORE INFO
                   </Button>
                 </div>
-                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-sm rounded-xl bg-white/[0.06] flex items-center justify-center overflow-hidden relative">
+                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-sm rounded-xl bg-[var(--ds-control-bg)] flex items-center justify-center overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
                   <svg className="w-12 h-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
@@ -7115,7 +7115,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
             <div className="max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row items-center gap-8">
                 <div className="flex-1 w-full md:w-auto max-w-sm">
-                  <div className="aspect-square rounded-xl bg-white/[0.06] flex items-center justify-center overflow-hidden relative">
+                  <div className="aspect-square rounded-xl bg-[var(--ds-control-bg)] flex items-center justify-center overflow-hidden relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
                     <div className="relative flex flex-col items-center gap-2 text-white/20">
                       <IconShield className="w-16 h-16" strokeWidth={1} />
@@ -7124,8 +7124,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 italic">Keeping the Games Clean and Fair</h2>
-                  <p className="text-sm text-white/60 mb-6 leading-relaxed">
+                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 italic">Keeping the Games Clean and Fair</h2>
+                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
                     We use industry-leading anti-fraud technology and independent auditing to guarantee the integrity of every game. Your safety and trust are our top priorities.
                   </p>
                   <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
@@ -7139,8 +7139,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
           {/* DOWNLOAD SECTION */}
           <section className="px-4 md:px-6 py-10 bg-white/[0.02]">
             <div className="max-w-5xl mx-auto text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Download Our Poker App</h2>
-              <p className="text-sm text-white/50 mb-8 max-w-lg mx-auto">
+              <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-3">Download Our Poker App</h2>
+              <p className="text-sm text-[var(--ds-fg-subtle)] mb-8 max-w-lg mx-auto">
                 Available on all major platforms. Get the best poker experience on any device.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
@@ -7152,11 +7152,11 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                 ].map((platform, idx) => {
                   const Icon = platform.icon
                   return (
-                    <button key={idx} className="flex items-center gap-3 px-5 py-3 rounded-small bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/10 transition-all group">
-                      <Icon className="w-8 h-8 text-white/70 group-hover:text-white transition-colors" strokeWidth={1.5} />
+                    <button key={idx} className="flex items-center gap-3 px-5 py-3 rounded-small bg-[var(--ds-overlay)] border border-[var(--ds-control-border)] hover:bg-white/[0.08] hover:border-[var(--ds-border)] transition-all group">
+                      <Icon className="w-8 h-8 text-[var(--ds-fg-muted)] group-hover:text-[var(--ds-fg)] transition-colors" strokeWidth={1.5} />
                       <div className="text-left">
-                        <div className="text-[10px] text-white/40 uppercase tracking-wide">{platform.sublabel}</div>
-                        <div className="text-sm font-semibold text-white">{platform.label}</div>
+                        <div className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wide">{platform.sublabel}</div>
+                        <div className="text-sm font-semibold text-[var(--ds-fg)]">{platform.label}</div>
                       </div>
                     </button>
                   )
@@ -7166,93 +7166,93 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
           </section>
 
           {/* POKER FOOTER */}
-          <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-0 relative z-0">
+          <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-0 relative z-0">
             <div className="w-full px-6 py-6">
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                   </ul>
                 </div>
               </div>
-              <Separator className="bg-white/10 mb-6" />
+              <Separator className="bg-[var(--ds-control-hover)] mb-6" />
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <h3 className="font-semibold text-base">A TRUSTED &amp; SAFE EXPERIENCE</h3>
                   <IconShield className="w-4 h-4" />
                 </div>
-                <p className="text-xs text-white/70 mb-4 max-w-2xl">
+                <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                   At BetOnline, our company&apos;s guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
@@ -7265,11 +7265,11 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                   <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                   <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                    <span className="text-[10px] font-bold text-white">18+</span>
+                    <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
                   </div>
                 </div>
               </div>
-              <Separator className="bg-white/10 mb-6" />
+              <Separator className="bg-[var(--ds-control-hover)] mb-6" />
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
                 <div className="flex items-center gap-3">
                   <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
@@ -7283,14 +7283,14 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small"><IconBrandFacebook className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small"><IconBrandInstagram className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small"><IconBrandX className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small"><IconBrandYoutube className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small"><IconBrandTiktok className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small"><IconBrandFacebook className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small"><IconBrandInstagram className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small"><IconBrandX className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small"><IconBrandYoutube className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small"><IconBrandTiktok className="w-4 h-4" /></Button>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+              <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
                 <div>Copyright ©2024 BetOnline.ag. All rights reserved.</div>
               </div>
             </div>
@@ -8299,7 +8299,7 @@ function NavTestPageContent() {
       primaryHover: colorTokenMap['WildNeonGreen 2/700']?.hex || '#56c65f',
       logo: (
         <div className="flex items-center justify-center h-full">
-          <span className="text-white font-bold text-lg tracking-wide">WILD CASINO</span>
+          <span className="text-[var(--ds-fg)] font-bold text-lg tracking-wide">WILD CASINO</span>
         </div>
       )
     },
@@ -8311,7 +8311,7 @@ function NavTestPageContent() {
       primaryHover: colorTokenMap['Supercyan/700']?.hex || '#18e9e6',
       logo: (
         <div className="flex items-center justify-center h-full">
-          <span className="text-white font-bold text-lg tracking-wide">SUPER SLOTS</span>
+          <span className="text-[var(--ds-fg)] font-bold text-lg tracking-wide">SUPER SLOTS</span>
         </div>
       )
     }
@@ -8419,7 +8419,7 @@ function NavTestPageContent() {
   return (
     <div 
       data-page-bg
-      className="w-full text-gray-900 dark:text-white font-figtree overflow-x-hidden min-h-screen transition-colors duration-300" 
+      className="w-full text-gray-900 dark:text-[var(--ds-fg)] font-figtree overflow-x-hidden min-h-screen transition-colors duration-300" 
       style={{ 
         width: '100%', 
         maxWidth: '100vw', 
@@ -8472,7 +8472,7 @@ function NavTestPageContent() {
             boxShadow: '0 -200px 0 0 var(--ds-nav-bg, #2D2E2C)',
           }}
         >
-          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-white/10">
+          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-[var(--ds-border)]">
                 {[
                   { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setQuickLinksOpen(false); } },
                   { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
@@ -8495,14 +8495,14 @@ function NavTestPageContent() {
                       (item.label === 'Sports' && showSports) ||
                       (item.label === 'Poker' && showPoker) ||
                       (item.label === 'Promotions' && showVipRewards)
-                        ? "text-white"
-                        : "text-white/70 hover:text-white"
+                        ? "text-[var(--ds-fg)]"
+                        : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
                     )}
                   >
                     <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
                     {loadingQuickLink === item.label && (
                       <span className="absolute inset-0 flex items-center justify-center">
-                        <IconLoader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                        <IconLoader2 className="w-3.5 h-3.5 text-[var(--ds-fg)] animate-spin" />
                       </span>
                     )}
                   </button>
@@ -8515,7 +8515,7 @@ function NavTestPageContent() {
       <motion.header 
         data-nav-header
         className={cn(
-          "border-b border-white/10 h-16 flex items-center justify-between z-[101] fixed right-0 transition-[left,background-color] duration-200 ease-linear",
+          "border-b border-[var(--ds-border)] h-16 flex items-center justify-between z-[101] fixed right-0 transition-[left,background-color] duration-200 ease-linear",
           isMobile ? "left-0 px-3" : (sidebarOpen ? "left-[16rem] px-6" : "left-[3rem] px-6"),
           isMobile && quickLinksOpen && "border-t-0"
         )}
@@ -8543,7 +8543,7 @@ function NavTestPageContent() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-white hover:bg-white/5"
+                className="h-7 w-7 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -8556,7 +8556,7 @@ function NavTestPageContent() {
                 {openMobile ? (
                   <IconX className="h-4 w-4" strokeWidth={1.5} />
                 ) : (
-                  <svg className="h-4 w-4 text-white" viewBox="0 0 16 16" fill="none">
+                  <svg className="h-4 w-4 text-[var(--ds-fg)]" viewBox="0 0 16 16" fill="none">
                     <rect x="1" y="2.75" width="14" height="2" rx="1" fill="currentColor" />
                     <rect x="1" y="7" width="10" height="2" rx="1" fill="currentColor" />
                     <rect x="1" y="11.25" width="6" height="2" rx="1" fill="currentColor" />
@@ -8580,27 +8580,27 @@ function NavTestPageContent() {
               <nav className="flex-1 flex items-center z-[110] -ml-1 overflow-visible" style={{ pointerEvents: 'auto' }}>
                 <SidebarMenu className="flex flex-row items-center gap-2">
                   {/* Sidebar collapse toggle — always visible on desktop */}
-                  <div className="flex items-center gap-1.5 mr-1">
+                  <div className="flex shrink-0 items-center gap-1.5 mr-1">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => toggleSidebar()}
-                      className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10"
+                      className="h-8 w-8 text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="3" width="18" height="18" rx="2" />
                         <line x1="9" y1="3" x2="9" y2="21" />
                       </svg>
                     </Button>
-                    <div className="w-px h-5 bg-white/20" />
+                    <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
                   </div>
                   {visibleProducts.sports && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       className={cn(
                         "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
+                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                        "text-[var(--ds-fg-muted)] cursor-pointer",
                         showSports && "!text-white"
                       )}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -8631,8 +8631,8 @@ function NavTestPageContent() {
                     <SidebarMenuButton
                       className={cn(
                         "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
+                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                        "text-[var(--ds-fg-muted)] cursor-pointer",
                         !showSports && !showVipRewards && !showPoker && activeSubNav !== 'Live' && "!text-white"
                       )}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -8670,8 +8670,8 @@ function NavTestPageContent() {
                     <SidebarMenuButton
                       className={cn(
                         "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
+                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                        "text-[var(--ds-fg-muted)] cursor-pointer",
                         showPoker && "!text-white"
                       )}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -8705,8 +8705,8 @@ function NavTestPageContent() {
                     <SidebarMenuButton
                       className={cn(
                         "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
+                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                        "text-[var(--ds-fg-muted)] cursor-pointer",
                         showVipRewards && "!text-white"
                       )}
                       onClick={(e) => {
@@ -8740,9 +8740,9 @@ function NavTestPageContent() {
                         <SidebarMenuButton
                           className={cn(
                             "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center",
-                            "hover:bg-white/5 hover:text-white transition-colors",
-                            "data-[active=true]:bg-white/10 data-[active=true]:text-white",
-                            "text-white/70 data-[state=open]:text-white data-[state=open]:bg-white/10"
+                            "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                            "data-[active=true]:bg-[var(--ds-control-hover)] data-[active=true]:text-[var(--ds-fg)]",
+                            "text-[var(--ds-fg-muted)] data-[state=open]:text-[var(--ds-fg)] data-[state=open]:bg-[var(--ds-control-hover)]"
                           )}
                           style={{ pointerEvents: 'auto' }}
                         >
@@ -8755,18 +8755,18 @@ function NavTestPageContent() {
                       <DropdownMenuContent 
                         align="end" 
                         sideOffset={5}
-                        className="z-[200] w-[200px] border-white/10 bg-[#2d2d2d]"
+                        className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                       >
-                        <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="/esports" className="w-full">Esports</a>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="#" className="w-full">Racebook</a>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="#" className="w-full">Contests</a>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="#" className="w-full">Virtuals</a>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -8861,13 +8861,22 @@ function NavTestPageContent() {
         <div className="flex relative" style={{ marginTop: '64px' }}>
           {/* Persistent sidebar backdrop — prevents black flash during page transitions */}
           {!isMobile && (
+            <>
             <div 
-              className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear border-r border-white/10"
+              className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear"
               style={{ 
                 width: sidebarOpen ? '16rem' : '3rem',
-                backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)'
+                backgroundColor: '#2d2d2d'
               }}
             />
+            {/* Prod-matching vertical divide: logo column | header/nav */}
+            <div
+              aria-hidden
+              data-sidebar-rail
+              className="transition-[left] duration-200 ease-linear"
+              style={{ left: sidebarOpen ? 'calc(16rem - 1px)' : 'calc(3rem - 1px)' }}
+            />
+            </>
           )}
           {/* Sidebar — full height, same as poker — Hide on Sports and Poker */}
           {!showSports && !showPoker && (
@@ -8878,11 +8887,11 @@ function NavTestPageContent() {
             mobileNoDrag
             mobileBg="#2d2d2d"
             mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-            className="!bg-[#2d2d2d] dark:!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] dark:[&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+            className="!bg-[#2d2d2d] !border-r-0 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
           >
             {/* Sidebar Header — logo with collapse animation */}
             <SidebarHeader
-              className="px-4 h-14 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
+              className="px-4 h-16 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
               style={{
                 backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
                 WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
@@ -8894,7 +8903,7 @@ function NavTestPageContent() {
                 {isMobile && (
                   <button
                     onClick={() => setOpenMobile(false)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/40 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] rounded-lg hover:bg-[var(--ds-control-hover)] transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -8963,7 +8972,7 @@ function NavTestPageContent() {
             {/* Quick Links — mobile only, below logo, sticky + glass */}
             {isMobile && (
               <div 
-                className="sticky top-14 z-20 border-b border-white/5"
+                className="sticky top-16 z-20 border-b border-white/5"
                 style={{
                   backdropFilter: 'blur(16px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(16px) saturate(180%)',
@@ -9020,8 +9029,8 @@ function NavTestPageContent() {
                         className={cn(
                           "flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative",
                           isCurrentPage 
-                            ? "text-white font-bold" 
-                            : "text-white/35 font-medium hover:text-white/60"
+                            ? "text-[var(--ds-fg)] font-bold" 
+                            : "text-white/35 font-medium hover:text-[var(--ds-fg-muted)]"
                         )}
                       >
                         {item.label}
@@ -9034,7 +9043,7 @@ function NavTestPageContent() {
                   {/* Other — inline dropdown toggle */}
                   <button 
                     onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                    className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-white/60 flex items-center gap-0.5"
+                    className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
                   >
                     Other
                     <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
@@ -9067,7 +9076,7 @@ function NavTestPageContent() {
                           key={item.label}
                           href={item.href}
                           onClick={() => setOpenMobile(false)}
-                          className="flex-shrink-0 px-3 py-2 text-[13px] text-white/50 font-medium hover:text-white whitespace-nowrap transition-colors"
+                          className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
                         >
                           {item.label}
                         </a>
@@ -9085,7 +9094,7 @@ function NavTestPageContent() {
                     <SidebarPromos
                       collapsed={sidebarState === 'collapsed' && !isMobile}
                     />
-                    <Separator className="bg-white/10 mx-2" />
+                    <Separator className="bg-[var(--ds-control-hover)] mx-2 group-data-[collapsible=icon]:hidden" />
                     {/* VIP Rewards sidebar items */}
                     <SidebarGroup>
                       <SidebarGroupContent>
@@ -9104,7 +9113,7 @@ function NavTestPageContent() {
                             if (item.type === 'separator') {
                               return (
                                 <React.Fragment key={`vip-sep-${index}`}>
-                                  <Separator className="bg-white/10 my-2" />
+                                  <Separator className="bg-[var(--ds-control-hover)] my-2" />
                                 </React.Fragment>
                               )
                             }
@@ -9136,8 +9145,8 @@ function NavTestPageContent() {
                                         {!isCollapsed && (
                                           <>
                                             <div className="flex-1 min-w-0">
-                                              <p className="text-xs font-semibold text-white leading-tight">Join our Telegram</p>
-                                              <p className="text-[11px] text-white/40 leading-snug truncate">Codes, promos & rewards</p>
+                                              <p className="text-xs font-semibold text-[var(--ds-fg)] leading-tight">Join our Telegram</p>
+                                              <p className="text-[11px] text-[var(--ds-fg-subtle)] leading-snug truncate">Codes, promos & rewards</p>
                                             </div>
                                             <div className="flex-shrink-0">
                                               <div className="px-2 py-1 rounded-md bg-[#229ED9] text-white text-[11px] font-semibold group-hover:bg-[#1a8bc2] transition-colors">
@@ -9149,7 +9158,7 @@ function NavTestPageContent() {
                                       </a>
                                     </TooltipTrigger>
                                     {isCollapsed && (
-                                      <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                      <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                         <p>Join our Telegram</p>
                                       </TooltipContent>
                                     )}
@@ -9172,7 +9181,7 @@ function NavTestPageContent() {
                                       className={cn(
                                         "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                         "data-[active=true]:text-white data-[active=true]:font-medium",
-                                        "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                        "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                       )}
                                       style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                                     >
@@ -9181,7 +9190,7 @@ function NavTestPageContent() {
                                     </SidebarMenuButton>
                                   </TooltipTrigger>
                                   {sidebarState === 'collapsed' && (
-                                    <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                    <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                       <p>{item.label}</p>
                                     </TooltipContent>
                                   )}
@@ -9193,7 +9202,7 @@ function NavTestPageContent() {
                       </SidebarGroupContent>
                     </SidebarGroup>
                     <div className="flex-1" />
-                    <Separator className="bg-white/10 mx-2" />
+                    <Separator className="bg-[var(--ds-control-hover)] mx-2" />
                     <SidebarGroup>
                       <SidebarGroupContent>
                         <SidebarMenu>
@@ -9221,14 +9230,14 @@ function NavTestPageContent() {
                                           openDepositDrawer()
                                         }
                                       }}
-                                      className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer text-white/70 hover:text-white hover:bg-white/5"
+                                      className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                     >
                                       <Icon strokeWidth={1.5} className="w-5 h-5" />
                                       <span>{item.label}</span>
                                     </SidebarMenuButton>
                                   </TooltipTrigger>
                                   {sidebarState === 'collapsed' && (
-                                    <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                    <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                       <p>{item.label}</p>
                                     </TooltipContent>
                                   )}
@@ -9248,10 +9257,10 @@ function NavTestPageContent() {
                 <SidebarPromos
                   collapsed={sidebarState === 'collapsed' && !isMobile}
                 />
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-[var(--ds-control-hover)] mx-2 group-data-[collapsible=icon]:hidden" />
                 {/* Featured top items — square icon style like poker */}
                 <SidebarGroup className="mt-3">
-                  {isMobile && <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">CASINO MENU</SidebarGroupLabel>}
+                  {isMobile && <SidebarGroupLabel className="px-2 py-1 text-xs text-[var(--ds-fg-subtle)]">CASINO MENU</SidebarGroupLabel>}
                   <SidebarGroupContent>
                     <SidebarMenu>
                       {casinoTopItems.map((item, index) => {
@@ -9302,16 +9311,16 @@ function NavTestPageContent() {
                                   className={cn(
                                     "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                     "data-[active=true]:text-white data-[active=true]:font-medium",
-                                    "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                    "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                   )}
                                   style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                                 >
                                   {item.image ? (
-                                    <div className="w-7 h-7 rounded-md flex-shrink-0 overflow-hidden bg-white/10">
+                                    <div className="w-7 h-7 rounded-md flex-shrink-0 overflow-hidden bg-[var(--ds-control-hover)]">
                                       <img src={item.image} alt={item.label} className="w-full h-full object-cover" />
                                     </div>
                                   ) : (
-                                    <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-white/10")}>
+                                    <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
                                       {Icon && <Icon strokeWidth={1.5} className="w-4 h-4" />}
                                     </div>
                                   )}
@@ -9319,7 +9328,7 @@ function NavTestPageContent() {
                                     item.gameName ? (
                                       <div className="flex flex-col leading-tight">
                                         <span>{item.label}</span>
-                                        <span className="text-[11px] text-white/40 font-normal">{item.gameName}</span>
+                                        <span className="text-[11px] text-[var(--ds-fg-subtle)] font-normal">{item.gameName}</span>
                                       </div>
                                     ) : (
                                       <span>{item.label}</span>
@@ -9328,9 +9337,9 @@ function NavTestPageContent() {
                                 </SidebarMenuButton>
                               </TooltipTrigger>
                               {sidebarState === 'collapsed' && (
-                                <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                   <p>{item.label}</p>
-                                  {item.gameName && <p className="text-xs text-white/50">{item.gameName}</p>}
+                                  {item.gameName && <p className="text-xs text-[var(--ds-fg-subtle)]">{item.gameName}</p>}
                                 </TooltipContent>
                               )}
                             </Tooltip>
@@ -9341,7 +9350,7 @@ function NavTestPageContent() {
                   </SidebarGroupContent>
                 </SidebarGroup>
 
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
                 {/* Regular casino menu items */}
                 <SidebarGroup>
@@ -9369,7 +9378,7 @@ function NavTestPageContent() {
                                     className={cn(
                                       "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                       "data-[active=true]:text-white data-[active=true]:font-medium",
-                                      "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5",
+                                      "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
                                       isActive && '[&[data-active=true]]:!bg-[var(--brand-primary)]'
                                     )}
                                     onClick={(e) => {
@@ -9454,7 +9463,7 @@ function NavTestPageContent() {
                                   </SidebarMenuButton>
                                 </TooltipTrigger>
                                 {sidebarState === 'collapsed' && (
-                                  <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                  <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                     <p>{item.label}</p>
                                   </TooltipContent>
                                 )}
@@ -9469,7 +9478,7 @@ function NavTestPageContent() {
                 {/* Spacer to push bottom items down */}
                 <div className="flex-1" />
 
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
                 {/* Bottom section — Banking + Need Help. Loyalty Hub now
                     lives inside the Promotions card at the top of this
@@ -9498,7 +9507,7 @@ function NavTestPageContent() {
                                   }}
                                   className={cn(
                                     "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                    "text-white/70 hover:text-white hover:bg-white/5"
+                                    "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                   )}
                                 >
                                   <Icon strokeWidth={1.5} className="w-5 h-5" />
@@ -9506,7 +9515,7 @@ function NavTestPageContent() {
                                 </SidebarMenuButton>
                               </TooltipTrigger>
                               {sidebarState === 'collapsed' && (
-                                <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                                <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                   <p>{item.label}</p>
                                 </TooltipContent>
                               )}
@@ -9530,7 +9539,7 @@ function NavTestPageContent() {
 
           {/* Main Content - Empty for now */}
           <SidebarInset 
-            className="min-h-0 bg-[#1a1a1a] text-white transition-colors duration-700"
+            className="min-h-0 bg-[var(--ds-page-bg)] text-[var(--ds-fg)] transition-colors duration-700"
             style={{
               width: 'auto', 
               flex: '1 1 0%', 
@@ -9543,7 +9552,7 @@ function NavTestPageContent() {
             <motion.div 
               data-sub-nav
               className={cn(
-                "fixed z-[90] bg-white dark:bg-[#1a1a1a]/60 dark:backdrop-blur-xl border-b border-gray-200 dark:border-white/10 py-3 shadow-sm",
+                "fixed z-[90] bg-white dark:bg-[var(--ds-page-bg)]/60 dark:backdrop-blur-xl border-b border-gray-200 dark:border-[var(--ds-border)] py-3 shadow-sm",
                 isMobile ? "left-0 right-0 overflow-hidden" : "px-6"
               )}
               initial={false}
@@ -9605,14 +9614,14 @@ function NavTestPageContent() {
                     {/* Icon Tabs - Left Side (Desktop Only) */}
                     {!isMobile && (
                       <div className="flex-shrink-0">
-                        <div className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-0.5 rounded-3xl border-0 flex items-center transition-colors duration-300">
+                        <div className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-0.5 rounded-3xl border-0 flex items-center transition-colors duration-300">
                           <button
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
                               setSearchOverlayOpen(true)
                             }}
-                            className="bg-transparent text-gray-800 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/5 rounded-2xl p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 ease-in-out"
+                            className="bg-transparent text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-gray-200/80 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 ease-in-out"
                           >
                             <IconSearch className="w-3.5 h-3.5" />
                           </button>
@@ -9627,8 +9636,8 @@ function NavTestPageContent() {
                             className={cn(
                               "bg-transparent rounded-2xl p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 ease-in-out",
                               activeIconTab === 'favorite'
-                                ? "text-pink-500 dark:text-pink-500 bg-gray-200/80 dark:bg-white/10"
-                                : "text-gray-800 dark:text-white/70 hover:text-black dark:hover:text-white hover:bg-gray-200/80 dark:hover:bg-white/5"
+                                ? "text-pink-500 dark:text-pink-500 bg-gray-200/80 dark:bg-[var(--ds-control-hover)]"
+                                : "text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-gray-200/80 dark:hover:bg-[var(--ds-control-bg)]"
                             )}
                           >
                             <IconHeart 
@@ -9683,7 +9692,7 @@ function NavTestPageContent() {
                       }
                     }} className="w-full">
                       <AnimateTabsList className={cn(
-                        "bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300",
+                        "bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300",
                         isMobile && "flex-nowrap"
                       )}
                       style={isMobile ? {
@@ -9701,7 +9710,7 @@ function NavTestPageContent() {
                             value={tab}
                             data-tab-item
                             className={cn(
-                              "relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5 flex-shrink-0",
+                              "relative z-10 text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5 flex-shrink-0",
                               isMobile && index === 0 && "scroll-snap-start",
                               isMobile && index === ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].length - 1 && "scroll-snap-end mr-12"
                             )}
@@ -9866,48 +9875,47 @@ function NavTestPageContent() {
                   <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                     {!isMobile && (
                       <>
-                        <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                        <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+                        <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
+                        <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                       </>
                     )}
                     <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                      {/* VIP Rewards Card */}
+                      {/* VIP Rewards Card — Figma light banner tile */}
                       <CarouselItem className={cn(
                         "pr-0 basis-auto flex-shrink-0",
                         isMobile ? "pl-3" : "pl-6"
                       )}>
                         <Card 
-                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5" 
+                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border-0 bg-[#eeeeee] shadow-none transition-colors dark:bg-white/[0.06]" 
                           style={{ width: '300px', height: '164px' }}
                           onClick={() => {
                             openVipDrawer()
                           }}
                         >
-                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
-                            <CardTitle className="text-xs font-semibold text-white dark:text-white shrink-0 mb-0 transition-colors duration-300 leading-tight">
-                              Gold To Platinum I
-                            </CardTitle>
-                            <div className="mt-3 flex min-h-0 flex-1 flex-col">
-                              <VipTierProgressBar
-                                value={45}
-                                variant="compact"
-                                bannerTile
-                                showOriginalsNote
-                                nextTierLabel="Platinum I"
-                                wagerRemaining="$2,750"
-                                className="mt-0"
-                              />
+                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col justify-between p-4">
+                            <div className="min-w-0">
+                              <CardTitle className="mb-1 text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
+                                VIP Rewards
+                              </CardTitle>
+                              <p className="text-sm font-medium text-black/45 dark:text-white/55">
+                                Gold To Platinum I
+                              </p>
                             </div>
+                            <VipTierProgressBar
+                              value={45}
+                              variant="compact"
+                              showOriginalsNote={false}
+                              className="mt-0"
+                            />
                           </CardContent>
-                          {/* Sweep effect */}
-                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
+                          <span className="pointer-events-none absolute inset-0 z-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full dark:via-white/15" />
                         </Card>
                       </CarouselItem>
                       
-                      {/* Daily Races Card */}
+                      {/* Daily Races Card — Figma light banner tile */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                         <Card 
-                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5" 
+                          className="group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border-0 bg-[#eeeeee] shadow-none transition-colors dark:bg-white/[0.06]" 
                           style={{ width: '300px', height: '164px' }}
                           onClick={() => {
                             // Save current page state before navigating
@@ -9922,48 +9930,32 @@ function NavTestPageContent() {
                             window.scrollTo(0, 0)
                           }}
                         >
-                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
-                            <div className="mb-2 flex shrink-0 items-start justify-between gap-2">
-                              <div className="flex min-w-0 flex-1 items-center gap-2">
-                                <div
-                                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md"
-                                  style={{ background: 'rgba(245, 158, 11, 0.12)' }}
-                                >
-                                  <IconTrophy
-                                    strokeWidth={1.8}
-                                    className="h-4 w-4 text-amber-400"
-                                  />
-                                </div>
-                                <CardTitle className="mb-0 text-sm font-semibold leading-tight text-amber-100 transition-colors duration-300 dark:text-amber-100">
-                                  $25K Daily Race
-                                </CardTitle>
-                              </div>
-                              <div className="shrink-0 text-right">
-                                <DailyRacesTimer
-                                  className="text-xl font-bold tabular-nums text-amber-600 dark:text-amber-200"
-                                  colonClassName="text-amber-500/70 dark:text-amber-300/80"
-                                />
-                              </div>
+                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col justify-between p-4">
+                            <div className="flex shrink-0 items-start justify-between gap-2">
+                              <CardTitle className="mb-0 text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
+                                Daily Races
+                              </CardTitle>
+                              <DailyRacesTimer
+                                className="text-base font-bold tabular-nums text-[#1a1a1a] dark:text-white"
+                                colonClassName="text-black/40 dark:text-white/50"
+                              />
                             </div>
-                            <div className="flex min-h-0 flex-1 items-center">
-                              <div className="grid w-full grid-cols-3 gap-2 text-xs">
-                              <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30 transition-colors duration-300">
-                                <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                                <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Position</div>
+                            <div className="grid w-full grid-cols-3 gap-2">
+                              <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                                <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">3rd</div>
+                                <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Position</div>
                               </div>
-                              <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 transition-colors duration-300 dark:border-amber-400/30">
-                                <div className="text-amber-100 font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                                <div className="text-[10px] text-amber-200/70 transition-colors duration-300">Wagered</div>
+                              <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                                <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">$80.000</div>
+                                <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Wagered</div>
                               </div>
-                              <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 dark:border-amber-400/40 transition-colors duration-300">
-                                <div className="text-amber-50 font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                                <div className="text-[10px] text-amber-200/80 transition-colors duration-300">Current Prize</div>
+                              <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                                <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">$160.000</div>
+                                <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Current Prize</div>
                               </div>
-                            </div>
                             </div>
                           </CardContent>
-                          {/* Sweep effect */}
-                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
+                          <span className="pointer-events-none absolute inset-0 z-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full dark:via-white/15" />
                         </Card>
                       </CarouselItem>
                       
@@ -10097,7 +10089,7 @@ function NavTestPageContent() {
                                     setActiveSubNav('For You')
                                     setActiveIconTab('search')
                                   }}
-                                  className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 transition-colors duration-300 text-gray-800 dark:text-white/70 hover:text-black dark:hover:text-white"
+                                  className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] transition-colors duration-300 text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)]"
                                   aria-label="Go back"
                                 >
                                   <IconChevronLeft className="w-5 h-5" />
@@ -10106,7 +10098,7 @@ function NavTestPageContent() {
                             })()}
 
                         <motion.h2 
-                              className="text-2xl font-bold text-black dark:text-white transition-colors duration-300 flex-shrink-0"
+                              className="text-2xl font-bold text-black dark:text-[var(--ds-fg)] transition-colors duration-300 flex-shrink-0"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
@@ -10120,7 +10112,7 @@ function NavTestPageContent() {
                             
                             {/* Show selected filter */}
                             {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && gameSortFilter !== 'popular' && (
-                              <span className="text-sm text-white/60 dark:text-white/60 px-3 py-1 rounded-lg bg-white/5 dark:bg-white/5 border border-white/10 dark:border-white/10">
+                              <span className="text-sm text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] px-3 py-1 rounded-lg bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] border border-[var(--ds-border)] dark:border-[var(--ds-border)]">
                                 {gameSortFilter === 'hot' ? 'Hot' : 
                                  gameSortFilter === 'latest' ? 'Latest' : 
                                  gameSortFilter === 'oldest' ? 'Oldest' : 
@@ -10135,18 +10127,18 @@ function NavTestPageContent() {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
-                                  className="bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 rounded-full p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 text-gray-800 dark:text-white/70 hover:text-black dark:hover:text-white"
+                                  className="bg-gray-200 dark:bg-[var(--ds-control-bg)] hover:bg-gray-300 dark:hover:bg-[var(--ds-control-hover)] rounded-full p-1.5 h-9 w-9 flex items-center justify-center transition-all duration-300 text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)]"
                                 >
                                   <IconFilter className="w-4 h-4" />
                                 </button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48 bg-[#2d2d2d] border-white/10 text-white">
+                              <DropdownMenuContent align="end" className="w-48 bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                 <DropdownMenuLabel>Sort by</DropdownMenuLabel>
                                 <DropdownMenuItem
                                   onClick={() => setGameSortFilter('popular')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'popular' && "bg-white/10"
+                                    gameSortFilter === 'popular' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   Popular
@@ -10155,7 +10147,7 @@ function NavTestPageContent() {
                                   onClick={() => setGameSortFilter('hot')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'hot' && "bg-white/10"
+                                    gameSortFilter === 'hot' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   Hot
@@ -10164,7 +10156,7 @@ function NavTestPageContent() {
                                   onClick={() => setGameSortFilter('latest')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'latest' && "bg-white/10"
+                                    gameSortFilter === 'latest' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   Latest
@@ -10173,7 +10165,7 @@ function NavTestPageContent() {
                                   onClick={() => setGameSortFilter('oldest')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'oldest' && "bg-white/10"
+                                    gameSortFilter === 'oldest' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   Oldest
@@ -10182,7 +10174,7 @@ function NavTestPageContent() {
                                   onClick={() => setGameSortFilter('a-z')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'a-z' && "bg-white/10"
+                                    gameSortFilter === 'a-z' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   A-Z
@@ -10191,7 +10183,7 @@ function NavTestPageContent() {
                                   onClick={() => setGameSortFilter('z-a')}
                                   className={cn(
                                     "cursor-pointer",
-                                    gameSortFilter === 'z-a' && "bg-white/10"
+                                    gameSortFilter === 'z-a' && "bg-[var(--ds-control-hover)]"
                                   )}
                                 >
                                   Z-A
@@ -10201,7 +10193,7 @@ function NavTestPageContent() {
                                   <DropdownMenuSubTrigger className="cursor-pointer">
                                     Vendors
                                   </DropdownMenuSubTrigger>
-                                  <DropdownMenuSubContent className="w-56 bg-[#2d2d2d] border-white/10 text-white max-h-[400px] overflow-y-auto">
+                                  <DropdownMenuSubContent className="w-56 bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)] max-h-[400px] overflow-y-auto">
                                     {[
                                       'Dragon Gaming',
                                       'BetSoft',
@@ -10247,7 +10239,7 @@ function NavTestPageContent() {
                                         }}
                                         className={cn(
                                           "cursor-pointer",
-                                          selectedVendor === vendor && "bg-white/10"
+                                          selectedVendor === vendor && "bg-[var(--ds-control-hover)]"
                                         )}
                                       >
                                         {vendor}
@@ -10270,8 +10262,8 @@ function NavTestPageContent() {
                               <Carousel setApi={setSlotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                                 {!isMobile && (
                                   <>
-                                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+                                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
+                                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                                   </>
                                 )}
                                 <CarouselContent className="ml-0 -mr-2 md:-mr-4" style={{ overflow: 'visible' }}>
@@ -10312,7 +10304,7 @@ function NavTestPageContent() {
                                       index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
                                     )}>
                                       <button
-                                        className="group relative bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-white/70 hover:bg-gray-200/80 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
+                                        className="group relative bg-gray-100/80 dark:bg-[var(--ds-control-bg)] border border-gray-200 dark:border-[var(--ds-border)] rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-[var(--ds-fg-muted)] hover:bg-gray-200/80 dark:hover:bg-[var(--ds-control-hover)] hover:text-black dark:hover:text-[var(--ds-fg)] transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
                                         onClick={() => {
                                           setSelectedVendor(vendor)
                                           setSelectedCategory('')
@@ -10339,11 +10331,11 @@ function NavTestPageContent() {
                         {selectedCategory === 'Tournaments' && (
                           <div className="px-6 pb-8">
                             {/* Info Banner */}
-                            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] mb-6">
-                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center">
-                                <IconBell className="w-4 h-4 text-white/50" />
+                            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-[var(--ds-control-border)] mb-6">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--ds-control-bg)] flex items-center justify-center">
+                                <IconBell className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
                               </div>
-                              <p className="text-sm text-white/60">
+                              <p className="text-sm text-[var(--ds-fg-muted)]">
                                 {tournamentTab === 'cash' 
                                   ? 'Cash Tournaments are played with real money. No entry fee required!'
                                   : 'Freeroll Tournaments are free to enter. No entry fee required!'}
@@ -10357,8 +10349,8 @@ function NavTestPageContent() {
                                 className={cn(
                                   "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
                                   tournamentTab === 'cash'
-                                    ? "text-white"
-                                    : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                                    ? "text-[var(--ds-fg)]"
+                                    : "bg-[var(--ds-overlay)] text-[var(--ds-fg-subtle)] hover:bg-white/[0.08] hover:text-[var(--ds-fg-muted)]"
                                 )}
                                 style={tournamentTab === 'cash' ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                               >
@@ -10369,8 +10361,8 @@ function NavTestPageContent() {
                                 className={cn(
                                   "px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
                                   tournamentTab === 'freeroll'
-                                    ? "text-white"
-                                    : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70"
+                                    ? "text-[var(--ds-fg)]"
+                                    : "bg-[var(--ds-overlay)] text-[var(--ds-fg-subtle)] hover:bg-white/[0.08] hover:text-[var(--ds-fg-muted)]"
                                 )}
                                 style={tournamentTab === 'freeroll' ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                               >
@@ -10390,7 +10382,7 @@ function NavTestPageContent() {
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ duration: 0.4, delay: tIdx * 0.06, type: "spring", bounce: 0.2 }}
                                   whileHover={{ y: -4 }}
-                                  className="group relative flex flex-col overflow-hidden rounded-xl bg-[#1a1a1a] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+                                  className="group relative flex flex-col overflow-hidden rounded-xl bg-[var(--ds-page-bg)] border border-[var(--ds-control-border)] hover:border-white/[0.12] transition-all duration-300"
                                 >
                                   {/* Image */}
                                   <div className="relative h-28 w-full overflow-hidden">
@@ -10398,7 +10390,7 @@ function NavTestPageContent() {
                                     <Image src={tournament.image} alt={tournament.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 25vw" />
                                     {/* Overlaid name + prize */}
                                     <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
-                                      <h3 className="text-[13px] font-bold text-white leading-tight truncate">{tournament.name}</h3>
+                                      <h3 className="text-[13px] font-bold text-[var(--ds-fg)] leading-tight truncate">{tournament.name}</h3>
                                       <div className="flex items-center gap-1.5 mt-0.5">
                                         <IconTrophy className="w-3 h-3 text-yellow-400" />
                                         <span className="text-xs font-bold text-yellow-400">{tournament.prizePool}</span>
@@ -10416,15 +10408,15 @@ function NavTestPageContent() {
                                     {/* Info rows */}
                                     <div className="space-y-1">
                                       {[
-                                        { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
-                                        { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
-                                        { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },
-                                        { icon: <IconClock className="w-3 h-3 shrink-0 text-white/50" />, label: 'Period', value: `${tournament.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${tournament.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, noTruncate: true },
+                                        { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Type', value: tournament.gameType },
+                                        { icon: <IconRefresh className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Rounds', value: tournament.rounds },
+                                        { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Bets', value: tournament.betRange },
+                                        { icon: <IconClock className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Period', value: `${tournament.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${tournament.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, noTruncate: true },
                                       ].map((row: { icon: React.ReactNode; label: string; value: string; bold?: boolean; noTruncate?: boolean }) => (
                                         <div key={row.label} className="flex items-center gap-1.5 text-[11px] min-w-0">
                                           {row.icon}
-                                          <span className="text-white/40 shrink-0">{row.label}</span>
-                                          <span className={cn("ml-auto text-right", row.noTruncate ? "text-[10px]" : "truncate", row.bold ? "font-semibold text-white" : "font-medium text-white/70")}>{row.value}</span>
+                                          <span className="text-[var(--ds-fg-subtle)] shrink-0">{row.label}</span>
+                                          <span className={cn("ml-auto text-right", row.noTruncate ? "text-[10px]" : "truncate", row.bold ? "font-semibold text-[var(--ds-fg)]" : "font-medium text-[var(--ds-fg-muted)]")}>{row.value}</span>
                                         </div>
                                       ))}
                                     </div>
@@ -10432,17 +10424,17 @@ function NavTestPageContent() {
                                     <div className="flex-1" />
 
                                     {/* Divider */}
-                                    <div className="w-full border-t border-white/[0.06] my-0.5" />
+                                    <div className="w-full border-t border-[var(--ds-control-border)] my-0.5" />
 
                                     {/* Bottom: leaderboard + play */}
                                     <div className="flex items-center gap-2">
                                       <button 
                                         onClick={(e) => { e.stopPropagation(); setLeaderboardTournament(tournament) }}
-                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--ds-control-bg)] hover:bg-white/[0.1] transition-colors"
                                       >
-                                        <IconTrophy className="w-3.5 h-3.5 text-white" />
+                                        <IconTrophy className="w-3.5 h-3.5 text-[var(--ds-fg)]" />
                                         {tournament.leaderboard.find(e => e.isMe) && (
-                                          <span className="text-[10px] font-bold text-white/70">
+                                          <span className="text-[10px] font-bold text-[var(--ds-fg-muted)]">
                                             #{tournament.leaderboard.find(e => e.isMe)?.rank}
                                           </span>
                                         )}
@@ -10450,7 +10442,7 @@ function NavTestPageContent() {
                                       <div className="flex-1" />
                                       <button 
                                         onClick={() => setSelectedGame({ title: tournament.name, image: tournament.image, provider: tournament.provider, features: [`${tournament.gameType}`, `${tournament.rounds}`, `Prize Pool: ${tournament.prizePool}`] })}
-                                        className="flex-1 py-1.5 rounded-md text-xs font-bold text-white text-center transition-all duration-200 hover:brightness-110 active:scale-95"
+                                        className="flex-1 py-1.5 rounded-md text-xs font-bold text-[var(--ds-fg)] text-center transition-all duration-200 hover:brightness-110 active:scale-95"
                                         style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                                       >
                                         Play
@@ -10492,27 +10484,27 @@ function NavTestPageContent() {
                                           <Image src={leaderboardTournament.image} alt="" fill className="object-cover" sizes="40px" />
                                         </div>
                                         <div>
-                                          <h3 className="text-base font-bold text-white">{leaderboardTournament.name}</h3>
-                                          <p className="text-xs text-white/40">Game ID: {leaderboardTournament.gameId} • {leaderboardTournament.gameType}</p>
+                                          <h3 className="text-base font-bold text-[var(--ds-fg)]">{leaderboardTournament.name}</h3>
+                                          <p className="text-xs text-[var(--ds-fg-subtle)]">Game ID: {leaderboardTournament.gameId} • {leaderboardTournament.gameType}</p>
                                         </div>
                                       </div>
                                       <button 
                                         onClick={() => setLeaderboardTournament(null)} 
-                                        className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition-colors"
+                                        className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] hover:bg-white/[0.12] flex items-center justify-center transition-colors"
                                       >
-                                        <IconX className="w-4 h-4 text-white/60" />
+                                        <IconX className="w-4 h-4 text-[var(--ds-fg-muted)]" />
                                       </button>
                                     </div>
                                     <div className="mt-3 flex items-center gap-2">
                                       <IconTrophy className="w-4 h-4 text-yellow-400" />
                                       <span className="text-sm font-semibold text-yellow-400">{leaderboardTournament.prizePool} Prize Pool</span>
                                       <span className="text-white/20 mx-1">•</span>
-                                      <span className="text-xs text-white/40">{leaderboardTournament.rounds}</span>
+                                      <span className="text-xs text-[var(--ds-fg-subtle)]">{leaderboardTournament.rounds}</span>
                                     </div>
                                   </div>
 
                                   {/* Column Headers */}
-                                  <div className="flex items-center px-5 py-2 text-[10px] uppercase tracking-wider text-white/30 border-t border-white/[0.06]">
+                                  <div className="flex items-center px-5 py-2 text-[10px] uppercase tracking-wider text-white/30 border-t border-[var(--ds-control-border)]">
                                     <span className="w-10 text-center">#</span>
                                     <span className="flex-1">Player</span>
                                     <span className="w-20 text-right">Points</span>
@@ -10530,7 +10522,7 @@ function NavTestPageContent() {
                                         className={cn(
                                           "flex items-center px-5 py-3 border-b border-white/[0.04] transition-colors",
                                           entry.isMe 
-                                            ? "bg-white/[0.06]" 
+                                            ? "bg-[var(--ds-control-bg)]" 
                                             : "hover:bg-white/[0.02]"
                                         )}
                                         style={entry.isMe ? { borderLeft: '3px solid var(--ds-primary, #ee3536)' } : undefined}
@@ -10540,8 +10532,8 @@ function NavTestPageContent() {
                                           entry.rank === 1 && "text-yellow-400",
                                           entry.rank === 2 && "text-gray-300",
                                           entry.rank === 3 && "text-amber-600",
-                                          entry.rank > 3 && !entry.isMe && "text-white/40",
-                                          entry.isMe && "text-white"
+                                          entry.rank > 3 && !entry.isMe && "text-[var(--ds-fg-subtle)]",
+                                          entry.isMe && "text-[var(--ds-fg)]"
                                         )}>
                                           {entry.rank <= 3 ? (
                                             <IconTrophy className={cn(
@@ -10554,7 +10546,7 @@ function NavTestPageContent() {
                                         </span>
                                         <span className={cn(
                                           "flex-1 text-sm font-medium",
-                                          entry.isMe ? "text-white font-bold" : "text-white/70"
+                                          entry.isMe ? "text-[var(--ds-fg)] font-bold" : "text-[var(--ds-fg-muted)]"
                                         )}>
                                           {entry.user}
                                           {entry.isMe && (
@@ -10565,7 +10557,7 @@ function NavTestPageContent() {
                                         </span>
                                         <span className={cn(
                                           "w-20 text-right text-sm tabular-nums",
-                                          entry.isMe ? "text-white font-bold" : "text-white/50"
+                                          entry.isMe ? "text-[var(--ds-fg)] font-bold" : "text-[var(--ds-fg-subtle)]"
                                         )}>
                                           {entry.points.toLocaleString()}
                                         </span>
@@ -10590,12 +10582,12 @@ function NavTestPageContent() {
                                             </span>
                                           </div>
                                           <div>
-                                            <p className="text-xs font-semibold text-white">Your Position</p>
-                                            <p className="text-[10px] text-white/40">{leaderboardTournament.leaderboard.find(e => e.isMe)?.points.toLocaleString()} points</p>
+                                            <p className="text-xs font-semibold text-[var(--ds-fg)]">Your Position</p>
+                                            <p className="text-[10px] text-[var(--ds-fg-subtle)]">{leaderboardTournament.leaderboard.find(e => e.isMe)?.points.toLocaleString()} points</p>
                                           </div>
                                         </div>
                                         <div className="text-right">
-                                          <p className="text-xs text-white/40">Current Prize</p>
+                                          <p className="text-xs text-[var(--ds-fg-subtle)]">Current Prize</p>
                                           <p className="text-sm font-bold text-emerald-400">{leaderboardTournament.leaderboard.find(e => e.isMe)?.prize}</p>
                                         </div>
                                       </div>
@@ -10702,7 +10694,7 @@ function NavTestPageContent() {
                                   key={`skeleton-${categoryKey}-${index}`}
                                   className="w-full aspect-square"
                                 >
-                                  <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
+                                  <Skeleton className="w-full h-full rounded-small bg-[var(--ds-control-hover)] dark:bg-[var(--ds-control-hover)]" />
                                 </div>
                               )
                             )
@@ -10797,11 +10789,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ width: '100%', maxWidth: '100%', overflow: 'visible', boxSizing: 'border-box', display: 'flex', minWidth: 0 }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>Blackjack (52)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>Blackjack (52)</h2>
                             <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
-                              className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                              className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                               style={{ flex: '0 0 auto', flexShrink: 0, visibility: 'visible', opacity: 1, display: 'inline-flex', whiteSpace: 'nowrap' }}
                               onClick={() => {
                                 setSelectedCategory('Blackjack')
@@ -10817,7 +10809,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (blackjackCarouselApi) {
                                         const currentIndex = blackjackCarouselApi.selectedScrollSnap()
@@ -10832,7 +10824,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (blackjackCarouselApi) {
                                         const currentIndex = blackjackCarouselApi.selectedScrollSnap()
@@ -10894,11 +10886,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Roulette (34)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Roulette (34)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Roulette')
@@ -10913,7 +10905,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (rouletteCarouselApi) {
                                         const currentIndex = rouletteCarouselApi.selectedScrollSnap()
@@ -10928,7 +10920,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (rouletteCarouselApi) {
                                         const currentIndex = rouletteCarouselApi.selectedScrollSnap()
@@ -10988,11 +10980,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Baccarat (23)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Baccarat (23)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Baccarat')
@@ -11007,7 +10999,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                       onClick={() => {
                                       if (baccaratCarouselApi) {
                                         const currentIndex = baccaratCarouselApi.selectedScrollSnap()
@@ -11022,7 +11014,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (baccaratCarouselApi) {
                                         const currentIndex = baccaratCarouselApi.selectedScrollSnap()
@@ -11082,11 +11074,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>VIP Tables (18)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>VIP Tables (18)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('VIP')
@@ -11101,7 +11093,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (vipCarouselApi) {
                                         const currentIndex = vipCarouselApi.selectedScrollSnap()
@@ -11116,7 +11108,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (vipCarouselApi) {
                                         const currentIndex = vipCarouselApi.selectedScrollSnap()
@@ -11179,11 +11171,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Casino Poker (26)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Casino Poker (26)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Casino Poker')
@@ -11198,7 +11190,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (casinoPokerCarouselApi) {
                                         const currentIndex = casinoPokerCarouselApi.selectedScrollSnap()
@@ -11213,7 +11205,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (casinoPokerCarouselApi) {
                                         const currentIndex = casinoPokerCarouselApi.selectedScrollSnap()
@@ -11293,11 +11285,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>New Games (128)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>New Games (128)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                             <Button
                               variant="ghost"
-                              className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                              className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                               onClick={() => {
                                   setSelectedCategory('Slots')
@@ -11313,7 +11305,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouSlotsCarouselApi) {
                                         const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
@@ -11328,7 +11320,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouSlotsCarouselApi) {
                                         const currentIndex = forYouSlotsCarouselApi.selectedScrollSnap()
@@ -11360,7 +11352,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: slotNames[index % slotNames.length],
@@ -11396,11 +11388,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Originals (26)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Originals (26)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Originals')
@@ -11415,7 +11407,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (originalsCarouselApi) {
                                         const currentIndex = originalsCarouselApi.selectedScrollSnap()
@@ -11430,7 +11422,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (originalsCarouselApi) {
                                         const currentIndex = originalsCarouselApi.selectedScrollSnap()
@@ -11459,7 +11451,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[280px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                                           setSelectedGame({
@@ -11482,7 +11474,7 @@ function NavTestPageContent() {
                                         />
                                         <GameTagBadge tag="Original" vendor="Originals" />
                                         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                          <IconInfoCircle className="w-4 h-4 text-white drop-shadow-lg" strokeWidth={2} />
+                                          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
                                         </div>
                                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                                       </div>
@@ -11500,11 +11492,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ width: '100%', maxWidth: '100%', overflow: 'visible', boxSizing: 'border-box', display: 'flex', minWidth: 0 }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>BlackJack (52)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '1rem' }}>BlackJack (52)</h2>
                             <div className="flex items-center gap-2">
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                               style={{ flex: '0 0 auto', flexShrink: 0, visibility: 'visible', opacity: 1, display: 'inline-flex', whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                 setSelectedCategory('BlackJack')
@@ -11519,7 +11511,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouBlackjackCarouselApi) {
                                         const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
@@ -11534,7 +11526,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouBlackjackCarouselApi) {
                                         const currentIndex = forYouBlackjackCarouselApi.selectedScrollSnap()
@@ -11600,8 +11592,8 @@ function NavTestPageContent() {
                               <Carousel className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
                                 {!isMobile && (
                                   <>
-                                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+                                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
+                                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                                   </>
                                 )}
                                 <CarouselContent className="ml-0 -mr-2 md:-mr-4" style={{ overflow: 'visible' }}>
@@ -11642,7 +11634,7 @@ function NavTestPageContent() {
                                       index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
                                     )}>
                                       <button
-                                        className="group relative bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-white/70 hover:bg-gray-200/80 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
+                                        className="group relative bg-gray-100/80 dark:bg-[var(--ds-control-bg)] border border-gray-200 dark:border-[var(--ds-border)] rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-[var(--ds-fg-muted)] hover:bg-gray-200/80 dark:hover:bg-[var(--ds-control-hover)] hover:text-black dark:hover:text-[var(--ds-fg)] transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
                                         onClick={() => {
                                           setSelectedVendor(vendor)
                                           setSelectedCategory('')
@@ -11690,11 +11682,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Most Popular (64)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Most Popular (64)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Popular')
@@ -11706,8 +11698,8 @@ function NavTestPageContent() {
                               </Button>
                               {!isMobile && (
                                 <>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.max(0, popularCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!popularCarouselApi || !popularCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.min(popularCarouselApi.scrollSnapList().length - 1, popularCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!popularCarouselApi || !popularCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.max(0, popularCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!popularCarouselApi || !popularCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (popularCarouselApi) { popularCarouselApi.scrollTo(Math.min(popularCarouselApi.scrollSnapList().length - 1, popularCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!popularCarouselApi || !popularCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
                                 </>
                               )}
                             </div>
@@ -11727,7 +11719,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: popularNames[index % popularNames.length],
@@ -11763,11 +11755,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Baccarat (23)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Baccarat (23)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Baccarat')
@@ -11782,7 +11774,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouBaccaratCarouselApi) {
                                         const currentIndex = forYouBaccaratCarouselApi.selectedScrollSnap()
@@ -11797,7 +11789,7 @@ function NavTestPageContent() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     onClick={() => {
                                       if (forYouBaccaratCarouselApi) {
                                         const currentIndex = forYouBaccaratCarouselApi.selectedScrollSnap()
@@ -11857,11 +11849,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Exclusives (32)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Exclusives (32)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Exclusives')
@@ -11873,8 +11865,8 @@ function NavTestPageContent() {
                               </Button>
                               {!isMobile && (
                                 <>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.max(0, exclusivesCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.min(exclusivesCarouselApi.scrollSnapList().length - 1, exclusivesCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.max(0, exclusivesCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (exclusivesCarouselApi) { exclusivesCarouselApi.scrollTo(Math.min(exclusivesCarouselApi.scrollSnapList().length - 1, exclusivesCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!exclusivesCarouselApi || !exclusivesCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
                                 </>
                               )}
                             </div>
@@ -11893,7 +11885,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: exclusiveNames[index % exclusiveNames.length],
@@ -11936,13 +11928,13 @@ function NavTestPageContent() {
                             <div className="relative z-10 min-w-0 max-w-full p-6 md:p-8 md:pb-8 md:pr-8 md:pl-14">
                               {/* Tag */}
                               <div className="mb-2">
-                                <span className="inline-block bg-orange-600/80 text-white text-xs font-semibold px-3 py-1 rounded-small">
+                                <span className="inline-block bg-orange-600/80 text-[var(--ds-fg)] text-xs font-semibold px-3 py-1 rounded-small">
                                   Halloween
                                 </span>
                               </div>
                               
                               {/* Title */}
-                              <h2 className="text-2xl font-bold text-white mb-3 md:text-3xl lg:text-4xl">
+                              <h2 className="text-2xl font-bold text-[var(--ds-fg)] mb-3 md:text-3xl lg:text-4xl">
                                 HALLOWEEN GAMES
                               </h2>
                               
@@ -11955,7 +11947,7 @@ function NavTestPageContent() {
                               <div className="flex items-center justify-between mb-6 pointer-events-auto">
                                 <Button
                                   variant="ghost"
-                                  className="text-white/70 hover:text-white hover:bg-white/5 text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
+                                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
                                   onClick={() => {
                                     setSelectedCategory('Halloween')
                                     setShowAllGames(true)
@@ -12015,7 +12007,7 @@ function NavTestPageContent() {
                                         )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.backgroundColor = `${getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'}33`
                                         }}
@@ -12060,11 +12052,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Crash Games (18)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Crash Games (18)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Crash')
@@ -12076,8 +12068,8 @@ function NavTestPageContent() {
                               </Button>
                               {!isMobile && (
                                 <>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.max(0, crashCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!crashCarouselApi || !crashCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.min(crashCarouselApi.scrollSnapList().length - 1, crashCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!crashCarouselApi || !crashCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.max(0, crashCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!crashCarouselApi || !crashCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (crashCarouselApi) { crashCarouselApi.scrollTo(Math.min(crashCarouselApi.scrollSnapList().length - 1, crashCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!crashCarouselApi || !crashCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
                                 </>
                               )}
                             </div>
@@ -12097,7 +12089,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: crashNames[index % crashNames.length],
@@ -12133,11 +12125,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-4 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Cash Tournaments ({cashTournamentsData.length})</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Cash Tournaments ({cashTournamentsData.length})</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Tournaments')
@@ -12149,8 +12141,8 @@ function NavTestPageContent() {
                               </Button>
                               {!isMobile && (
                                 <>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.max(0, tournamentCarouselApi.selectedScrollSnap() - 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.min(tournamentCarouselApi.scrollSnapList().length - 1, tournamentCarouselApi.selectedScrollSnap() + 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.max(0, tournamentCarouselApi.selectedScrollSnap() - 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (tournamentCarouselApi) { tournamentCarouselApi.scrollTo(Math.min(tournamentCarouselApi.scrollSnapList().length - 1, tournamentCarouselApi.selectedScrollSnap() + 1)) } }} disabled={!tournamentCarouselApi || !tournamentCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
                                 </>
                               )}
                             </div>
@@ -12168,7 +12160,7 @@ function NavTestPageContent() {
                                       animate={{ opacity: 1, y: 0 }}
                                       transition={{ duration: 0.4, delay: tIdx * 0.06, type: "spring", bounce: 0.2 }}
                                       whileHover={{ y: -4 }}
-                                      className="group relative flex flex-col overflow-hidden rounded-xl bg-[#1a1a1a] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300"
+                                      className="group relative flex flex-col overflow-hidden rounded-xl bg-[var(--ds-page-bg)] border border-[var(--ds-control-border)] hover:border-white/[0.12] transition-all duration-300"
                                       style={{ width: isMobile ? '260px' : '280px' }}
                                     >
                                       {/* Image */}
@@ -12176,7 +12168,7 @@ function NavTestPageContent() {
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-black/40 to-transparent z-10" />
                                         <Image src={tournament.image} alt={tournament.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="280px" />
                                         <div className="absolute bottom-0 left-0 right-0 p-3 z-20">
-                                          <h3 className="text-[13px] font-bold text-white leading-tight truncate">{tournament.name}</h3>
+                                          <h3 className="text-[13px] font-bold text-[var(--ds-fg)] leading-tight truncate">{tournament.name}</h3>
                                           <div className="flex items-center gap-1.5 mt-0.5">
                                             <IconTrophy className="w-3 h-3 text-yellow-400" />
                                             <span className="text-xs font-bold text-yellow-400">{tournament.prizePool}</span>
@@ -12193,30 +12185,30 @@ function NavTestPageContent() {
                                       <div className="px-3 pt-2.5 pb-3 flex flex-col gap-2 flex-1">
                                         <div className="space-y-1">
                                           {[
-                                            { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-white/50" />, label: 'Type', value: tournament.gameType },
-                                            { icon: <IconRefresh className="w-3 h-3 shrink-0 text-white/50" />, label: 'Rounds', value: tournament.rounds },
-                                            { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-white/50" />, label: 'Bets', value: tournament.betRange },
+                                            { icon: <IconStopwatch className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Type', value: tournament.gameType },
+                                            { icon: <IconRefresh className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Rounds', value: tournament.rounds },
+                                            { icon: <IconArrowsSort className="w-3 h-3 shrink-0 text-[var(--ds-fg-subtle)]" />, label: 'Bets', value: tournament.betRange },
                                           ].map((row: { icon: React.ReactNode; label: string; value: string; bold?: boolean }) => (
                                             <div key={row.label} className="flex items-center gap-1.5 text-[11px] min-w-0">
                                               {row.icon}
-                                              <span className="text-white/40 shrink-0">{row.label}</span>
-                                              <span className={cn("ml-auto text-right truncate", row.bold ? "font-semibold text-white" : "font-medium text-white/70")}>{row.value}</span>
+                                              <span className="text-[var(--ds-fg-subtle)] shrink-0">{row.label}</span>
+                                              <span className={cn("ml-auto text-right truncate", row.bold ? "font-semibold text-[var(--ds-fg)]" : "font-medium text-[var(--ds-fg-muted)]")}>{row.value}</span>
                                             </div>
                                           ))}
                                         </div>
 
                                         <div className="flex-1" />
 
-                                        <div className="w-full border-t border-white/[0.06] my-0.5" />
+                                        <div className="w-full border-t border-[var(--ds-control-border)] my-0.5" />
 
                                         <div className="flex items-center gap-2">
                                           <button 
                                             onClick={(e) => { e.stopPropagation(); setLeaderboardTournament(tournament) }}
-                                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] transition-colors"
+                                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--ds-control-bg)] hover:bg-white/[0.1] transition-colors"
                                           >
-                                            <IconTrophy className="w-3.5 h-3.5 text-white" />
+                                            <IconTrophy className="w-3.5 h-3.5 text-[var(--ds-fg)]" />
                                             {tournament.leaderboard.find(e => e.isMe) && (
-                                              <span className="text-[10px] font-bold text-white/70">
+                                              <span className="text-[10px] font-bold text-[var(--ds-fg-muted)]">
                                                 #{tournament.leaderboard.find(e => e.isMe)?.rank}
                                               </span>
                                             )}
@@ -12224,7 +12216,7 @@ function NavTestPageContent() {
                                           <div className="flex-1" />
                                           <button 
                                             onClick={() => setSelectedGame({ title: tournament.name, image: tournament.image, provider: tournament.provider, features: [`${tournament.gameType}`, `${tournament.rounds}`, `Prize Pool: ${tournament.prizePool}`] })}
-                                            className="flex-1 py-1.5 rounded-md text-xs font-bold text-white text-center transition-all duration-200 hover:brightness-110 active:scale-95"
+                                            className="flex-1 py-1.5 rounded-md text-xs font-bold text-[var(--ds-fg)] text-center transition-all duration-200 hover:brightness-110 active:scale-95"
                                             style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                                           >
                                             Play
@@ -12245,11 +12237,11 @@ function NavTestPageContent() {
                             "flex items-center justify-between mb-6 relative z-10",
                             isMobile ? "px-3" : "px-6"
                           )} style={{ maxWidth: '100%', width: '100%', overflow: 'visible', boxSizing: 'border-box' }}>
-                            <h2 className="text-lg font-semibold text-black dark:text-white flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Instant Wins (24)</h2>
+                            <h2 className="text-lg font-semibold text-black dark:text-[var(--ds-fg)] flex-shrink-0 min-w-0 transition-colors duration-300" style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>Instant Wins (24)</h2>
                             <div className="flex items-center gap-2 relative z-10 flex-shrink-0 ml-2" style={{ visibility: 'visible', opacity: 1, display: 'flex', flexShrink: 0, marginLeft: 'auto' }}>
                               <Button
                                 variant="ghost"
-                                className="text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
+                                className="text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 dark:border-white/20 border-gray-300 dark:border-white/20 rounded-small relative z-10 whitespace-nowrap transition-colors duration-300"
                                 style={{ visibility: 'visible', opacity: 1, display: 'inline-flex', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 onClick={() => {
                                   setSelectedCategory('Instant Wins')
@@ -12261,8 +12253,8 @@ function NavTestPageContent() {
                               </Button>
                               {!isMobile && (
                                 <>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.max(0, instantCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!instantCarouselApi || !instantCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.min(instantCarouselApi.scrollSnapList().length - 1, instantCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!instantCarouselApi || !instantCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.max(0, instantCarouselApi.selectedScrollSnap() - 2)) } }} disabled={!instantCarouselApi || !instantCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (instantCarouselApi) { instantCarouselApi.scrollTo(Math.min(instantCarouselApi.scrollSnapList().length - 1, instantCarouselApi.selectedScrollSnap() + 2)) } }} disabled={!instantCarouselApi || !instantCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
                                 </>
                               )}
                             </div>
@@ -12282,7 +12274,7 @@ function NavTestPageContent() {
                                     )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: instantNames[index % instantNames.length],
@@ -12325,95 +12317,95 @@ function NavTestPageContent() {
               
               {/* Footer - responsive to sidebar state, hidden on VIP/Sports/Poker pages which have their own layouts */}
               {!showVipRewards && !showSports && !showPoker && (
-              <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+              <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-12 relative z-0">
               <div className="w-full px-6 py-6">
                   {/* Quick Links Section - More compact */}
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                       </ul>
                     </div>
                     
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                       </ul>
                     </div>
                     
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                       </ul>
                     </div>
                     
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                       </ul>
                     </div>
 
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                       </ul>
                     </div>
                     
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                       </ul>
                     </div>
 
                     <div>
                       <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                      <ul className="space-y-1.5 text-xs text-white/70">
-                        <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                        <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                      <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                        <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                       </ul>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 mb-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
                   {/* Trust & Security Section - More compact */}
                   <div className="mb-6">
@@ -12421,7 +12413,7 @@ function NavTestPageContent() {
                       <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
                       <IconShield className="w-4 h-4" />
                     </div>
-                    <p className="text-xs text-white/70 mb-4 max-w-2xl">
+                    <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                       At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
                     </p>
                     <div className="flex flex-wrap items-center gap-3">
@@ -12437,12 +12429,12 @@ function NavTestPageContent() {
                       <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                       <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                       <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                        <span className="text-[10px] font-bold text-white">18+</span>
+                        <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
                           </div>
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 mb-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
                   {/* Partners & Social Media - More compact */}
                   <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
@@ -12465,26 +12457,26 @@ function NavTestPageContent() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       {/* Social media icons using Button components */}
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                         <IconBrandFacebook className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                         <IconBrandInstagram className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                         <IconBrandX className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                         <IconBrandYoutube className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                         <IconBrandTiktok className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
                   {/* Timestamp and Copyright */}
-                  <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
                     <div>
                       Copyright ©2024 BetOnline.ag. All rights reserved.
                     </div>
@@ -12517,8 +12509,8 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col",
-              "border-l border-white/10",
+              "w-full sm:max-w-md bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col",
+              "border-l border-[var(--ds-border)]",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -12535,19 +12527,19 @@ function NavTestPageContent() {
                   <Button
                     variant="ghost"
                     onClick={() => setAccountDrawerView('account')}
-                    className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                    className="-ml-1 h-9 w-9 p-0 hover:bg-[var(--ds-control-hover)]"
                     aria-label="Back"
                   >
-                    <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                    <IconChevronLeft className="h-5 w-5 text-[var(--ds-fg-muted)]" stroke={2} />
                   </Button>
-                  <h2 className="text-base font-semibold text-white">Notifications</h2>
+                  <h2 className="text-base font-semibold text-[var(--ds-fg)]">Notifications</h2>
                 </div>
               ) : (
                 <div className="flex w-full items-center gap-2">
                   <DrawerClose asChild>
                     <button
                       type="button"
-                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
                       aria-label="Back"
                     >
                       <IconChevronLeft className="h-5 w-5" stroke={2} />
@@ -12557,7 +12549,7 @@ function NavTestPageContent() {
                     name="ch"
                     accountId="b1767721"
                   />
-                  <AccountDrawerSettingsButton
+                  <AccountDrawerHeaderActions
                     onBeforeNavigate={() => setAccountDrawerOpen(false)}
                   />
                 </div>
@@ -12569,36 +12561,36 @@ function NavTestPageContent() {
                 <>
                   {/* Balance Information */}
                   <div className="mb-4">
-                    <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
+                    <div className="rounded-lg bg-[var(--ds-control-bg)] px-3 py-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Available Balance</span>
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Available Balance</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">
                   {currentBrand.symbol}
                   <NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                         </span>
                 </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Free Bet</span>
-                        <span className="text-sm font-semibold text-white">$0.00</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Free Bet</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">$0.00</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
                         <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                     </div>
               </div>
               
-                  <Separator className="bg-white/10 mb-3" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-3" />
                   
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
                       {webInboxUnreadCount > 0 && (
                         <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
                           {webInboxUnreadCount}
@@ -12607,88 +12599,88 @@ function NavTestPageContent() {
                     </Button>
                   </div>
                   
-                  <Separator className="bg-white/10 mb-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-6" />
                   
                   {/* Navigation List */}
                   <div className="space-y-1 w-full mb-8">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       router.push('/account')
                     }}
                     >
-                      <IconUser className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Account</span>
+                      <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         router.push('/sports?mybets=pending')
                       }}
                     >
-                      <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Pending Bets</span>
-                      <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
-                        <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                      <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
+                      <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
+                        <span className="bg-amber-500 text-[var(--ds-fg)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
                         $40.00
                       </span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Bonus</span>
+                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Transactions History</span>
+                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconTicket className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Bet History</span>
+                      <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Refer a Friend</span>
+                      <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                       onClick={() => {
                         openVipDrawer()
                       }}
                     >
-                      <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">VIP Hub</span>
+                      <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                 </Button>
               </div>
                   
-                  <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
+                  <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
                   
                   {/* Logout Button */}
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
+                    className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
                   >
                     <span className="text-sm">Log out</span>
                   </Button>
@@ -12715,8 +12707,8 @@ function NavTestPageContent() {
             overlayClassName={hubFocusMode ? 'bg-black/80 backdrop-blur-md' : undefined}
             onOverlayClick={hubFocusMode ? () => {} : undefined}
             className={cn(
-              "bg-[#1a1a1a] text-white flex flex-col relative",
-              "w-full sm:max-w-md border-l border-white/10 overflow-hidden",
+              "dark bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative",
+              "w-full sm:max-w-md border-l border-[var(--ds-border)] overflow-hidden",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -12731,13 +12723,13 @@ function NavTestPageContent() {
               <DrawerClose asChild>
                 <button
                   type="button"
-                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
                   aria-label="Back"
                 >
                   <IconChevronLeft className="h-5 w-5" stroke={2} />
                 </button>
               </DrawerClose>
-              <h2 className="text-base font-semibold text-white">VIP Hub</h2>
+              <h2 className="text-base font-semibold text-[var(--ds-fg)]">VIP Hub</h2>
             </div>
             <VipDrawerContent 
               vipActiveTab={vipActiveTab}
@@ -12786,11 +12778,11 @@ function NavTestPageContent() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 20, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="min-h-screen bg-[#1a1a1a] text-white"
+                className="min-h-screen bg-[var(--ds-page-bg)] text-[var(--ds-fg)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Search Header */}
-                <div className="sticky top-0 bg-[#1a1a1a]/60 backdrop-blur-xl border-b border-white/10 z-10 px-6 py-4">
+                <div className="sticky top-0 bg-[var(--ds-page-bg)]/60 backdrop-blur-xl border-b border-[var(--ds-border)] z-10 px-6 py-4">
                   <div className="max-w-7xl mx-auto">
                     <div className="flex items-center justify-end mb-4">
                       <button
@@ -12812,9 +12804,9 @@ function NavTestPageContent() {
                             }
                           }, 100)
                         }}
-                        className="p-2 hover:bg-white/10 rounded-small transition-colors"
+                        className="p-2 hover:bg-[var(--ds-control-hover)] rounded-small transition-colors"
                       >
-                        <IconX className="w-6 h-6 text-white/70 hover:text-white" />
+                        <IconX className="w-6 h-6 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                       </button>
                     </div>
                     
@@ -12822,7 +12814,7 @@ function NavTestPageContent() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-4">
                         <div className="flex-1 relative">
-                          <IconSearchNew className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+                          <IconSearchNew className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--ds-fg-subtle)]" />
                           <input
                             type="text"
                             placeholder="Search"
@@ -12834,7 +12826,7 @@ function NavTestPageContent() {
                                 console.log('Searching for:', searchQuery)
                               }
                             }}
-                            className="w-full pl-11 pr-12 py-3 bg-white/5 border border-white/10 rounded-small text-white placeholder:text-white/50 focus:outline-none focus:border-white/20"
+                            className="w-full pl-11 pr-12 py-3 bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] focus:outline-none focus:border-white/20"
                             autoFocus
                           />
                           {searchQuery ? (
@@ -12843,14 +12835,14 @@ function NavTestPageContent() {
                                 // Handle search
                                 console.log('Searching for:', searchQuery)
                               }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-white/10 rounded transition-colors"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-[var(--ds-control-hover)] rounded transition-colors"
                               title="Search"
                             >
-                              <IconArrowRight className="w-5 h-5 text-white/70 hover:text-white" />
+                              <IconArrowRight className="w-5 h-5 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                             </button>
                           ) : (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <kbd className="px-2 py-1 text-xs font-semibold text-white/50 bg-white/5 border border-white/10 rounded">↵</kbd>
+                              <kbd className="px-2 py-1 text-xs font-semibold text-[var(--ds-fg-subtle)] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded">↵</kbd>
                             </div>
                           )}
                         </div>
@@ -12858,18 +12850,18 @@ function NavTestPageContent() {
                       <div className="flex items-center gap-4">
                         <button 
                           onClick={() => setAdvancedSearchOpen(true)}
-                          className="text-white/70 hover:text-white flex items-center gap-1 text-sm"
+                          className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] flex items-center gap-1 text-sm"
                         >
                           <IconChevronDown className="w-4 h-4" />
                           ADVANCED SEARCH
                         </button>
-                        <span className="text-sm text-white/50">No filters applied</span>
+                        <span className="text-sm text-[var(--ds-fg-subtle)]">No filters applied</span>
                       </div>
                     </div>
 
                     {/* View Switcher */}
                     <div className="flex items-center gap-2 mt-4">
-                      <div className="flex p-1 bg-white/5 rounded-full w-fit border border-white/10">
+                      <div className="flex p-1 bg-[var(--ds-control-bg)] rounded-full w-fit border border-[var(--ds-border)]">
                         <ViewTab
                           active={viewMode === 'list'}
                           onClick={() => setViewMode('list')}
@@ -12891,7 +12883,7 @@ function NavTestPageContent() {
 
                 {/* Search Results */}
                 <div className="max-w-7xl mx-auto px-6 py-6">
-                  <h3 className="text-lg font-semibold text-white mb-6">Recommended games</h3>
+                  <h3 className="text-lg font-semibold text-[var(--ds-fg)] mb-6">Recommended games</h3>
                   <LayoutGroup>
                     <motion.div
                       layout
@@ -12974,7 +12966,7 @@ function NavTestPageContent() {
                                 mass: 1
                               }}
                               className={cn(
-                                "relative overflow-hidden shrink-0 bg-white/5 border border-white/10",
+                                "relative overflow-hidden shrink-0 bg-[var(--ds-control-bg)] border border-[var(--ds-border)]",
                                 viewMode === 'list' && "w-16 h-16 rounded-small",
                                 viewMode === 'card' && "w-full aspect-square rounded-small",
                                 viewMode === 'pack' && "w-full h-full rounded-lg"
@@ -12999,7 +12991,7 @@ function NavTestPageContent() {
                               {viewMode !== 'list' && (
                                 <>
                                   {isGoldNugget && (
-                                    <div className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                                    <div className="absolute top-2 left-2 bg-orange-500 text-[var(--ds-fg)] text-[10px] font-semibold px-2 py-0.5 rounded">
                                       HOT
                                     </div>
                                   )}
@@ -13009,7 +13001,7 @@ function NavTestPageContent() {
                                     </div>
                                   )}
                                   {isPlinko && (
-                                    <div className="absolute top-2 left-12 bg-blue-500 text-white text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center">
+                                    <div className="absolute top-2 left-12 bg-blue-500 text-[var(--ds-fg)] text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center">
                                       B
                                     </div>
                                   )}
@@ -13021,9 +13013,9 @@ function NavTestPageContent() {
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-3">
                                   {isGoldNugget && (
                                     <>
-                                      <div className="text-white font-semibold text-sm mb-1">Gold Nugget Rush</div>
+                                      <div className="text-[var(--ds-fg)] font-semibold text-sm mb-1">Gold Nugget Rush</div>
                                       {/* Bottom Icons */}
-                                      <div className="flex items-center gap-2 text-white/70 text-xs">
+                                      <div className="flex items-center gap-2 text-[var(--ds-fg-muted)] text-xs">
                                         <IconUser className="w-3 h-3" />
                                         <IconPlay className="w-3 h-3" />
                                         <IconStar className="w-3 h-3" />
@@ -13033,14 +13025,14 @@ function NavTestPageContent() {
                                   )}
                                   {isPlinko && (
                                     <>
-                                      <div className="text-white font-semibold text-xs mb-1">ORIGINAL PLINKO</div>
-                                      <div className="text-white/60 text-[10px]">BETONLINE</div>
+                                      <div className="text-[var(--ds-fg)] font-semibold text-xs mb-1">ORIGINAL PLINKO</div>
+                                      <div className="text-[var(--ds-fg-muted)] text-[10px]">BETONLINE</div>
                                     </>
                                   )}
                                   {isSubtitle && (
                                     <>
-                                      <div className="text-white font-semibold text-xs mb-1">SUBTITLE TITLE</div>
-                                      <div className="flex items-center gap-1 text-white/70 text-[10px]">
+                                      <div className="text-[var(--ds-fg)] font-semibold text-xs mb-1">SUBTITLE TITLE</div>
+                                      <div className="flex items-center gap-1 text-[var(--ds-fg-muted)] text-[10px]">
                                         <IconUser className="w-3 h-3" />
                                         <span>8</span>
                                         <span>20</span>
@@ -13072,10 +13064,10 @@ function NavTestPageContent() {
                                   className="flex flex-1 justify-between items-center min-w-0"
                                 >
                                   <div className="flex flex-col gap-0.5 min-w-0">
-                                    <h3 className="font-medium text-[15px] text-white leading-tight truncate">
+                                    <h3 className="font-medium text-[15px] text-[var(--ds-fg)] leading-tight truncate">
                                       {isGoldNugget ? 'Gold Nugget Rush' : isPlinko ? 'Original Plinko' : 'Subtitle Title'}
                                     </h3>
-                                    <div className="text-white/70 font-medium text-xs flex items-center gap-1.5">
+                                    <div className="text-[var(--ds-fg-muted)] font-medium text-xs flex items-center gap-1.5">
                                       <span className="truncate">
                                         {isGoldNugget ? 'Slots' : isPlinko ? 'Originals' : 'Live Casino'}
                                       </span>
@@ -13095,14 +13087,14 @@ function NavTestPageContent() {
                                         return newSet
                                       })
                                     }}
-                                    className="flex items-center justify-center p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0 ml-2"
+                                    className="flex items-center justify-center p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors shrink-0 ml-2"
                                   >
                                     <IconHeart 
                                       className={cn(
                                         "w-4 h-4 transition-colors",
                                         favoritedGames.has(index) 
                                           ? "text-pink-500 fill-pink-500" 
-                                          : "text-white/70"
+                                          : "text-[var(--ds-fg-muted)]"
                                       )}
                                     />
                                   </button>
@@ -13116,7 +13108,7 @@ function NavTestPageContent() {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="absolute -bottom-2 left-20 right-0 h-px bg-white/10"
+                                className="absolute -bottom-2 left-20 right-0 h-px bg-[var(--ds-control-hover)]"
                               />
                             )}
                           </motion.div>
@@ -13138,7 +13130,7 @@ function NavTestPageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100010] flex flex-col bg-[#1a1a1a]"
+              className="fixed inset-0 z-[100010] flex flex-col bg-[var(--ds-page-bg)]"
             >
               {/* Top chrome: header stack + game body (flex — no fixed overlap) */}
               {!isFullscreen && isMobile && isLandscape ? (
@@ -13147,12 +13139,12 @@ function NavTestPageContent() {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -12, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="relative z-[100020] mx-3 mt-3 shrink-0 overflow-visible rounded-xl border border-white/10 bg-[#1a1a1a]/90 backdrop-blur-xl"
+                  className="relative z-[100020] mx-3 mt-3 shrink-0 overflow-visible rounded-xl border border-[var(--ds-border)] bg-[var(--ds-page-bg)]/90 backdrop-blur-xl"
                 >
                   <div
                     className={cn(
                       'grid h-9 min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1 px-2',
-                      gameLauncherJackpotsVisible && 'border-b border-white/10'
+                      gameLauncherJackpotsVisible && 'border-b border-[var(--ds-border)]'
                     )}
                   >
                     <button
@@ -13162,13 +13154,13 @@ function NavTestPageContent() {
                         setGameLauncherMenuOpen(false)
                         setIsFullscreen(false)
                       }}
-                      className="relative z-10 flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/15 bg-black/40 px-2 text-[10px] font-medium text-white"
+                      className="relative z-10 flex h-7 shrink-0 items-center gap-1 rounded-full border border-white/15 bg-black/40 px-2 text-[10px] font-medium text-[var(--ds-fg)]"
                     >
                       <IconChevronLeft className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
                       Lobby
                     </button>
                     <h2
-                      className="min-w-0 overflow-hidden truncate px-1 text-left text-[11px] font-semibold text-white"
+                      className="min-w-0 overflow-hidden truncate px-1 text-left text-[11px] font-semibold text-[var(--ds-fg)]"
                       title={selectedGame.title}
                     >
                       {selectedGame.title}
@@ -13188,10 +13180,10 @@ function NavTestPageContent() {
                         setGameLauncherMenuOpen(false)
                         setIsFullscreen(false)
                       }}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-white/10"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-[var(--ds-control-hover)]"
                       aria-label="Close game"
                     >
-                      <IconX className="h-4 w-4 text-white/70" />
+                      <IconX className="h-4 w-4 text-[var(--ds-fg-muted)]" />
                     </button>
                     </div>
                   </div>
@@ -13204,7 +13196,7 @@ function NavTestPageContent() {
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.2 }}
                   className={cn(
-                    'relative z-[100020] shrink-0 overflow-visible rounded-2xl border border-white/10 backdrop-blur-xl',
+                    'relative z-[100020] shrink-0 overflow-visible rounded-2xl border border-[var(--ds-border)] backdrop-blur-xl',
                     isMobile ? 'mx-3 mt-3' : 'mx-4 mt-4'
                   )}
                   style={{
@@ -13214,7 +13206,7 @@ function NavTestPageContent() {
                   <div
                     className={cn(
                       'relative h-10 w-full min-w-0 overflow-visible px-2',
-                      gameLauncherJackpotsVisible && 'border-b border-white/10',
+                      gameLauncherJackpotsVisible && 'border-b border-[var(--ds-border)]',
                       isMobile
                         ? 'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1'
                         : 'flex items-center gap-1.5 md:gap-2 md:px-2.5'
@@ -13223,11 +13215,11 @@ function NavTestPageContent() {
                     <div className="relative z-[100030] shrink-0" ref={gameLauncherMenuRef}>
                       <button
                         onClick={() => setGameLauncherMenuOpen(!gameLauncherMenuOpen)}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
                       >
                         {/* Custom Staggered Hamburger Icon */}
                         <svg
-                          className="w-4 h-4 text-white"
+                          className="w-4 h-4 text-[var(--ds-fg)]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -13249,7 +13241,7 @@ function NavTestPageContent() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 z-[100040] mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#2d2d2d]/95 shadow-2xl backdrop-blur-xl"
+                            className="absolute top-full left-0 z-[100040] mt-2 w-56 overflow-hidden rounded-xl border border-[var(--ds-border)] bg-[var(--ds-surface-raised)]/95 shadow-2xl backdrop-blur-xl"
                           >
                             <div className="py-2">
                               {isMobile && (
@@ -13265,14 +13257,14 @@ function NavTestPageContent() {
                                     setFavoritedGames(newFavorited)
                                     setGameLauncherMenuOpen(false)
                                   }}
-                                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm flex items-center gap-2.5"
+                                  className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm flex items-center gap-2.5"
                                 >
                                   <IconHeart
                                     className={cn(
                                       'w-4 h-4 shrink-0',
                                       favoritedGames.has(hashGameTitle(selectedGame.title))
                                         ? 'text-pink-500 fill-pink-500'
-                                        : 'text-white/70'
+                                        : 'text-[var(--ds-fg-muted)]'
                                     )}
                                   />
                                   {favoritedGames.has(hashGameTitle(selectedGame.title))
@@ -13285,7 +13277,7 @@ function NavTestPageContent() {
                                   openDepositDrawer()
                                   setGameLauncherMenuOpen(false)
                                 }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm"
                               >
                                 Quick Deposit
                   </button>
@@ -13294,15 +13286,15 @@ function NavTestPageContent() {
                                   setGameLauncherMenuOpen(false)
                                   setSimilarGamesDrawerOpen(true)
                                 }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm"
                               >
                                 More Games Like This
                   </button>
                             </div>
                             
                             {/* VIP Progress Bar */}
-                            <div className="px-4 py-3 border-t border-white/10 bg-white/5">
-                              <div className="text-xs text-white/70 mb-2">Gold To Platinum I</div>
+                            <div className="px-4 py-3 border-t border-[var(--ds-border)] bg-[var(--ds-control-bg)]">
+                              <div className="text-xs text-[var(--ds-fg-muted)] mb-2">Gold To Platinum I</div>
                               <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
                             </div>
                           </motion.div>
@@ -13312,14 +13304,14 @@ function NavTestPageContent() {
 
                     {isMobile ? (
                       <h2
-                        className="min-w-0 overflow-hidden truncate px-1 text-left text-xs font-semibold text-white"
+                        className="min-w-0 overflow-hidden truncate px-1 text-left text-xs font-semibold text-[var(--ds-fg)]"
                         title={selectedGame.title}
                       >
                         {selectedGame.title}
                       </h2>
                     ) : (
                       <h2
-                        className="pointer-events-none absolute left-1/2 top-1/2 z-0 max-w-[calc(100%-14rem)] -translate-x-1/2 -translate-y-1/2 truncate text-center text-sm font-semibold text-white"
+                        className="pointer-events-none absolute left-1/2 top-1/2 z-0 max-w-[calc(100%-14rem)] -translate-x-1/2 -translate-y-1/2 truncate text-center text-sm font-semibold text-[var(--ds-fg)]"
                         title={selectedGame.title}
                       >
                         {selectedGame.title}
@@ -13364,9 +13356,9 @@ function NavTestPageContent() {
                               setIsFullscreen(false)
                             }
                           }}
-                          className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                          className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
                         >
-                          <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
+                          <IconMaximize className="w-4 h-4 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                         </button>
                       )}
                       {!isMobile && (
@@ -13381,14 +13373,14 @@ function NavTestPageContent() {
                           }
                           setFavoritedGames(newFavorited)
                         }}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
                       >
                         <IconHeart 
                           className={cn(
                             "w-4 h-4 transition-colors",
                             favoritedGames.has(hashGameTitle(selectedGame.title))
                               ? "text-pink-500 fill-pink-500"
-                              : "text-white/70"
+                              : "text-[var(--ds-fg-muted)]"
                           )}
                         />
                       </button>
@@ -13399,9 +13391,9 @@ function NavTestPageContent() {
                           setGameLauncherMenuOpen(false)
                           setIsFullscreen(false)
                         }}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
                 >
-                  <IconX className="w-4 h-4 text-white/70 hover:text-white" />
+                  <IconX className="w-4 h-4 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                 </button>
                     </div>
                   </div>
@@ -13436,7 +13428,7 @@ function NavTestPageContent() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="text-white/70 text-sm"
+                    className="text-[var(--ds-fg-muted)] text-sm"
                   >
                     Loading game...
                   </motion.p>
@@ -13445,7 +13437,7 @@ function NavTestPageContent() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
-                      className="text-white/50 text-xs"
+                      className="text-[var(--ds-fg-subtle)] text-xs"
                     >
                       {selectedGame.provider}
                     </motion.p>
@@ -13568,8 +13560,8 @@ function NavTestPageContent() {
             }
             data-similar-games-drawer
             className={cn(
-            "bg-[#1a1a1a] text-white flex flex-col relative similar-games-drawer",
-            "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden",
+            "bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative similar-games-drawer",
+            "w-full sm:max-w-2xl border-l border-[var(--ds-border)] overflow-hidden",
             isMobile && "rounded-t-[10px]"
             )}
             style={{
@@ -13583,17 +13575,17 @@ function NavTestPageContent() {
             }}
           >
             {isMobile && <DrawerHandle variant="light" />}
-            <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/10" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
+            <DrawerHeader className="pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-[var(--ds-border)]" style={{ backgroundColor: 'rgba(26, 26, 26, 0.8)' }}>
               <div className="flex items-center justify-between">
                 <div className="pt-2">
-                  <DrawerTitle className="text-white text-xl font-bold">More Games Like This</DrawerTitle>
-                  <DrawerDescription className="text-white/70 text-sm mt-1">
+                  <DrawerTitle className="text-[var(--ds-fg)] text-xl font-bold">More Games Like This</DrawerTitle>
+                  <DrawerDescription className="text-[var(--ds-fg-muted)] text-sm mt-1">
                     Similar games you might enjoy
                   </DrawerDescription>
                 </div>
                 <DrawerClose asChild>
-                  <button className="rounded-full bg-white/10 hover:bg-white/20 p-2 transition-colors">
-                    <IconX className="h-4 w-4 text-white" />
+                  <button className="rounded-full bg-[var(--ds-control-hover)] hover:bg-white/20 p-2 transition-colors">
+                    <IconX className="h-4 w-4 text-[var(--ds-fg)]" />
                   </button>
                 </DrawerClose>
               </div>
@@ -13610,7 +13602,7 @@ function NavTestPageContent() {
                   return (
                     <div
                       key={index}
-                      className="w-full aspect-square rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group"
+                      className="w-full aspect-square rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
                       onClick={() => {
                         setSelectedGame({
                           title: gameName,
@@ -13641,18 +13633,18 @@ function NavTestPageContent() {
 
         {/* Advanced Search Side Drawer */}
         <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
-          <DrawerContent className="w-full sm:max-w-md bg-[#2d2d2d] border-l border-white/10 text-white z-[210] relative">
+          <DrawerContent className="w-full sm:max-w-md bg-[var(--ds-surface-raised)] border-l border-[var(--ds-border)] text-[var(--ds-fg)] z-[210] relative">
             <DrawerHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <DrawerTitle className="text-white text-2xl">Advanced Search</DrawerTitle>
-                  <DrawerDescription className="text-white/70">
+                  <DrawerTitle className="text-[var(--ds-fg)] text-2xl">Advanced Search</DrawerTitle>
+                  <DrawerDescription className="text-[var(--ds-fg-muted)]">
                     Filter games by category, provider, and more
                   </DrawerDescription>
                 </div>
                 <DrawerClose asChild>
                   <button className="rounded-sm opacity-70 hover:opacity-100 transition-opacity">
-                    <IconX className="h-4 w-4 text-white" />
+                    <IconX className="h-4 w-4 text-[var(--ds-fg)]" />
                   </button>
                 </DrawerClose>
               </div>
@@ -13661,25 +13653,25 @@ function NavTestPageContent() {
               {/* Filter sections will go here */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-semibold mb-3 text-white">Category</h3>
+                  <h3 className="text-sm font-semibold mb-3 text-[var(--ds-fg)]">Category</h3>
                   <div className="space-y-2">
                     {['Slots', 'Blackjack', 'Roulette', 'Baccarat', 'Live Casino', 'Video Poker'].map((category) => (
-                      <label key={category} className="flex items-center gap-2 text-sm text-white/70 hover:text-white cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5" />
+                      <label key={category} className="flex items-center gap-2 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer">
+                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-[var(--ds-control-bg)]" />
                         <span>{category}</span>
                       </label>
                     ))}
                   </div>
                 </div>
                 
-                <Separator className="bg-white/10" />
+                <Separator className="bg-[var(--ds-control-hover)]" />
                 
                 <div>
-                  <h3 className="text-sm font-semibold mb-3 text-white">Provider</h3>
+                  <h3 className="text-sm font-semibold mb-3 text-[var(--ds-fg)]">Provider</h3>
                   <div className="space-y-2">
                     {['BetOnline', 'Dragon Gaming', 'Evolution', 'Pragmatic Play'].map((provider) => (
-                      <label key={provider} className="flex items-center gap-2 text-sm text-white/70 hover:text-white cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-white/5" />
+                      <label key={provider} className="flex items-center gap-2 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer">
+                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-[var(--ds-control-bg)]" />
                         <span>{provider}</span>
                       </label>
                     ))}
@@ -13707,19 +13699,19 @@ function NavTestPageContent() {
             <TourStep
               target='[data-tour-target="casino-play-random"]'
               side="right"
-              className="z-[10042] pointer-events-auto w-[340px] border-white/15 bg-[#2d2d2d] text-white shadow-2xl"
+              className="z-[10042] pointer-events-auto w-[340px] border-white/15 bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] shadow-2xl"
             >
               <TourArrow className="fill-[#2d2d2d] stroke-white/15" />
-              <TourClose className="text-white/70 hover:text-white" />
+              <TourClose className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
               <TourHeader className="space-y-1">
-                <TourStepCounter className="text-[11px] uppercase tracking-wide text-white/50" />
-                <TourTitle className="text-base font-semibold text-white">Play Random</TourTitle>
-                <TourDescription className="text-sm text-white/70">
+                <TourStepCounter className="text-[11px] uppercase tracking-wide text-[var(--ds-fg-subtle)]" />
+                <TourTitle className="text-base font-semibold text-[var(--ds-fg)]">Play Random</TourTitle>
+                <TourDescription className="text-sm text-[var(--ds-fg-muted)]">
                   Jump into a surprise game instantly to discover new titles faster.
                 </TourDescription>
               </TourHeader>
               <TourFooter className="mt-2 !flex-row items-center justify-between gap-2">
-                <TourSkip variant="ghost" className="border-white/15 bg-transparent text-white/70 hover:bg-white/10 hover:text-white">
+                <TourSkip variant="ghost" className="border-white/15 bg-transparent text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]">
                   Skip Tour
                 </TourSkip>
                 <TourNext className="!bg-[var(--ds-primary,#ee3536)] !text-white hover:!bg-[var(--ds-primary-hover,#d92d2f)] hover:!text-white">
@@ -13731,19 +13723,19 @@ function NavTestPageContent() {
             <TourStep
               target='[data-tour-target="casino-last-played"]'
               side="right"
-              className="z-[10042] pointer-events-auto w-[340px] border-white/15 bg-[#2d2d2d] text-white shadow-2xl"
+              className="z-[10042] pointer-events-auto w-[340px] border-white/15 bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] shadow-2xl"
             >
               <TourArrow className="fill-[#2d2d2d] stroke-white/15" />
-              <TourClose className="text-white/70 hover:text-white" />
+              <TourClose className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
               <TourHeader className="space-y-1">
-                <TourStepCounter className="text-[11px] uppercase tracking-wide text-white/50" />
-                <TourTitle className="text-base font-semibold text-white">Last Game Played</TourTitle>
-                <TourDescription className="text-sm text-white/70">
+                <TourStepCounter className="text-[11px] uppercase tracking-wide text-[var(--ds-fg-subtle)]" />
+                <TourTitle className="text-base font-semibold text-[var(--ds-fg)]">Last Game Played</TourTitle>
+                <TourDescription className="text-sm text-[var(--ds-fg-muted)]">
                   Return to your most recent game in one tap and continue your session.
                 </TourDescription>
               </TourHeader>
               <TourFooter className="mt-2 !flex-row items-center justify-between gap-2">
-                <TourPrev variant="ghost" className="border-white/15 bg-transparent text-white/70 hover:bg-white/10 hover:text-white">
+                <TourPrev variant="ghost" className="border-white/15 bg-transparent text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]">
                   Back
                 </TourPrev>
                 <TourNext className="!bg-[var(--ds-primary,#ee3536)] !text-white hover:!bg-[var(--ds-primary-hover,#d92d2f)] hover:!text-white">
@@ -13804,8 +13796,8 @@ function ViewTab({
       className={cn(
         "relative flex items-center gap-2 px-4 py-2 text-xs font-normal uppercase transition-all rounded-full outline-none",
         active
-          ? "text-white"
-          : "text-white/50 hover:text-white hover:bg-white/5"
+          ? "text-[var(--ds-fg)]"
+          : "text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
       )}
     >
       {active && (

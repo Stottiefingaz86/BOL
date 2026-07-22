@@ -307,16 +307,15 @@ const Sidebar = React.forwardRef<
             onOverlayClick={mobileNoDrag ? () => setOpenMobile(false) : undefined}
             noDrag={mobileNoDrag}
             className={cn(
-              "w-[320px] sm:max-w-[320px] bg-[#2d2d2d] dark:bg-[#2d2d2d] border-r border-white/10 text-white p-0 [&>button]:hidden",
-              "[&_*]:text-white [&_*]:text-inherit",
+              "w-[320px] sm:max-w-[320px] bg-[var(--ds-sidebar-bg)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] p-0 [&>button]:hidden",
               "shadow-2xl",
               mobileNoDrag && "!rounded-l-none !rounded-tr-2xl !rounded-br-none overflow-hidden",
               className
             )}
             style={
               {
-                backgroundColor: mobileBg || 'var(--ds-sidebar-bg, #2d2d2d)',
-                color: 'white',
+                backgroundColor: mobileBg || 'var(--ds-sidebar-bg)',
+                color: 'var(--ds-fg)',
                 maxWidth: '320px',
                 width: '320px',
                 zIndex: 10001,
@@ -338,12 +337,12 @@ const Sidebar = React.forwardRef<
             {/* Render children directly - same structure as desktop, no extra wrapper */}
             <div 
               className={cn(
-                "flex h-full w-full flex-col overflow-y-auto overflow-x-hidden text-white [&_*]:text-white [&_*]:text-inherit scrollbar-hide",
+                "flex h-full w-full flex-col overflow-y-auto overflow-x-hidden text-[var(--ds-fg)] scrollbar-hide",
                 mobileNoDrag ? "pt-0 [&_[data-sidebar=content]]:overflow-visible [&_[data-sidebar=content]]:min-h-0" : "py-2"
               )}
               style={{
-                color: 'white',
-                backgroundColor: mobileBg || 'var(--ds-sidebar-bg, #2d2d2d)',
+                color: 'var(--ds-fg)',
+                backgroundColor: mobileBg || 'var(--ds-sidebar-bg)',
                 visibility: 'visible',
                 opacity: 1,
                 display: 'flex',
@@ -422,7 +421,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7 focus-visible:ring-offset-0 ring-offset-0", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

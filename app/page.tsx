@@ -146,7 +146,7 @@ import { fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio }
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { NotificationHub } from '@/components/account/notification-hub'
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
-import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
+import { AccountDrawerHeaderActions } from '@/components/account/account-drawer-header-actions'
 
 // Helper function to get vendor icon path
 const getVendorIconPath = (vendorName: string): string => {
@@ -267,10 +267,10 @@ function getTagConfig(tag: MetaTag): { bg: string; border: string; text: string;
   switch (tag) {
     case 'Early': return { bg: 'bg-emerald-900/80', border: 'border-emerald-500/60', text: 'text-white', iconColor: 'text-emerald-400' }
     case 'Hot': return { bg: 'bg-red-950/80', border: 'border-red-500/60', text: 'text-white', iconColor: 'text-red-400' }
-    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-white', iconColor: 'text-indigo-300' }
-    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-white', iconColor: 'text-yellow-400' }
-    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-white/80' }
-    default: return { bg: 'bg-white/10', border: 'border-white/20', text: 'text-white', iconColor: 'text-white' }
+    case 'Exclusive': return { bg: 'bg-indigo-950/80', border: 'border-indigo-400/60', text: 'text-[var(--ds-fg)]', iconColor: 'text-indigo-300' }
+    case 'New': return { bg: 'bg-yellow-900/80', border: 'border-yellow-500/60', text: 'text-[var(--ds-fg)]', iconColor: 'text-yellow-400' }
+    case 'Original': return { bg: 'bg-white/15', border: 'border-white/25', text: 'text-white/90', iconColor: 'text-[var(--ds-fg-muted)]' }
+    default: return { bg: 'bg-[var(--ds-control-hover)]', border: 'border-white/20', text: 'text-[var(--ds-fg)]', iconColor: 'text-[var(--ds-fg)]' }
   }
 }
 
@@ -292,7 +292,7 @@ function VendorBadge({ vendor }: { vendor: string }) {
           unoptimized
         />
       ) : (
-        <span className="text-[8px] font-bold text-white/80 leading-none">
+        <span className="text-[8px] font-bold text-[var(--ds-fg-muted)] leading-none">
           {vendor.charAt(0).toUpperCase()}
         </span>
       )}
@@ -348,7 +348,7 @@ function PaymentLogo({ method, className }: { method: string; className?: string
           }}
         />
       ) : (
-        <span className="text-xs font-semibold text-white/70">{method}</span>
+        <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">{method}</span>
       )}
     </div>
   )
@@ -382,7 +382,7 @@ function VendorIcon({ vendor }: { vendor: string }) {
   const iconPath = getVendorIconPath(vendor)
   
   if (imageError) {
-    return <div className="w-5 h-5 rounded-full bg-white/10 flex-shrink-0" />
+    return <div className="w-5 h-5 rounded-full bg-[var(--ds-control-hover)] flex-shrink-0" />
   }
   
   return (
@@ -552,7 +552,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipLeft && (
           <button
             onClick={scrollVipLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginLeft: '12px' }}
           >
             <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
@@ -588,7 +588,7 @@ function VipDrawerContent({
           onScroll={checkScroll}
         >
           <div 
-            className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
+            className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
             style={{
               minWidth: 'max-content',
               width: 'max-content',
@@ -609,7 +609,7 @@ function VipDrawerContent({
                   "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                   vipActiveTab === tab
                     ? "text-black bg-[#fef3c7]"
-                    : "text-white/70 hover:text-white hover:bg-white/5 dark:hover:bg-white/5 bg-transparent"
+                    : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] bg-transparent"
                 )}
                 style={{
                   scrollSnapAlign: 'start',
@@ -625,7 +625,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipRight && (
           <button
             onClick={scrollVipRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginRight: '8px' }}
           >
             <IconChevronRight className="h-4 w-4" strokeWidth={2} />
@@ -1367,7 +1367,7 @@ function HomePageContent() {
 
   return (
     <div 
-      className="w-full bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white font-figtree overflow-x-hidden min-h-screen transition-colors duration-300" 
+      className="w-full bg-[var(--ds-page-bg)] text-[var(--ds-fg)] font-figtree overflow-x-hidden min-h-screen transition-colors duration-300" 
       style={{ 
         width: '100%', 
         maxWidth: '100vw', 
@@ -1402,7 +1402,7 @@ function HomePageContent() {
             boxShadow: '0 -200px 0 0 var(--ds-nav-bg, #2D2E2C)',
           }}
         >
-          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-white/10">
+          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-[var(--ds-border)]">
             {[
               { label: 'Home', onClick: () => { setQuickLinksOpen(false); } },
               { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
@@ -1422,14 +1422,14 @@ function HomePageContent() {
                 className={cn(
                   "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors relative",
                   item.label === 'Home'
-                    ? "text-white"
-                    : "text-white/70 hover:text-white"
+                    ? "text-[var(--ds-fg)]"
+                    : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
                 )}
               >
                 <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
                 {loadingQuickLink === item.label && (
                   <span className="absolute inset-0 flex items-center justify-center">
-                    <IconLoader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                    <IconLoader2 className="w-3.5 h-3.5 text-[var(--ds-fg)] animate-spin" />
                   </span>
                 )}
               </button>
@@ -1442,7 +1442,7 @@ function HomePageContent() {
       <motion.header 
         data-nav-header
         className={cn(
-          "bg-[#2D2E2C] dark:bg-[#2D2E2C] border-b border-white/10 h-16 flex items-center justify-between z-[101] fixed left-0 right-0",
+          "bg-[#2D2E2C] dark:bg-[#2D2E2C] border-b border-[var(--ds-border)] h-16 flex items-center justify-between z-[101] fixed left-0 right-0",
           isMobile ? "px-3" : "px-6",
           isMobile && quickLinksOpen && "border-t-0"
         )}
@@ -1480,7 +1480,7 @@ function HomePageContent() {
               <SidebarMenu className="flex flex-row items-center gap-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
+                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
                     onClick={() => { trackNav('sports', 'Sports'); router.push('/sports/football') }}
                   >
                     Sports
@@ -1488,7 +1488,7 @@ function HomePageContent() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
+                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
                     onClick={() => { trackNav('casino', 'Casino'); router.push('/casino') }}
                   >
                     Casino
@@ -1496,7 +1496,7 @@ function HomePageContent() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
+                    className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
                     onClick={() => { trackNav('poker', 'Poker'); router.push('/casino?poker=true') }}
                   >
                     Poker
@@ -1504,7 +1504,7 @@ function HomePageContent() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 cursor-pointer"
+                    className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
                     onClick={() => { trackNav('promotions', 'Promotions'); router.push('/promotions') }}
                   >
                     Promotions
@@ -1514,7 +1514,7 @@ function HomePageContent() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <SidebarMenuButton
-                        className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-white/5 hover:text-white transition-colors text-white/70 data-[state=open]:text-white data-[state=open]:bg-white/10"
+                        className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] data-[state=open]:text-[var(--ds-fg)] data-[state=open]:bg-[var(--ds-control-hover)]"
                         style={{ pointerEvents: 'auto' }}
                       >
                         <span className="flex items-center gap-1">
@@ -1526,18 +1526,18 @@ function HomePageContent() {
                     <DropdownMenuContent 
                       align="end" 
                       sideOffset={5}
-                      className="z-[200] w-[200px] border-white/10 bg-[#2d2d2d]"
+                      className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                     >
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="/esports" className="w-full">Esports</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Racebook</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Contests</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Virtuals</a>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -1568,7 +1568,7 @@ function HomePageContent() {
       </motion.header>
 
       {/* Main Content - No Sidebar */}
-      <div className="bg-[#1a1a1a] text-white" style={{ width: '100%', minWidth: 0, maxWidth: 'none' }}>
+      <div className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: '100%', minWidth: 0, maxWidth: 'none' }}>
         {/* Spacer for fixed header */}
         <motion.div 
           initial={false}
@@ -1603,7 +1603,7 @@ function HomePageContent() {
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2 
-              className="text-lg font-semibold text-white cursor-pointer hover:text-white/80 transition-colors"
+              className="text-lg font-semibold text-[var(--ds-fg)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors"
               onClick={() => router.push('/sports/football')}
             >
               Top Sports
@@ -1611,7 +1611,7 @@ function HomePageContent() {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
                 onClick={() => router.push('/sports/football')}
               >
                 View All
@@ -1621,7 +1621,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (topEventsCarouselApi) {
                         const currentIndex = topEventsCarouselApi.selectedScrollSnap()
@@ -1635,7 +1635,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (topEventsCarouselApi) {
                         const currentIndex = topEventsCarouselApi.selectedScrollSnap()
@@ -1667,7 +1667,7 @@ function HomePageContent() {
 
   return (
                     <CarouselItem key={event.id} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
-                      <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
+                      <div className="w-[320px] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1.5">
@@ -1678,7 +1678,7 @@ function HomePageContent() {
                               height={16}
                               className="object-contain"
                             />
-                            <span className="text-[10px] text-white">{event.league} | {event.country}</span>
+                            <span className="text-[10px] text-[var(--ds-fg)]">{event.league} | {event.country}</span>
     </div>
                           <div className="flex items-center gap-1.5">
                             <div className="flex items-center gap-0.5 bg-[#ee3536]/20 border border-[#ee3536]/50 rounded px-1 py-0.5 whitespace-nowrap">
@@ -1702,23 +1702,23 @@ function HomePageContent() {
                               quality={100}
                               unoptimized
                             />
-                            <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
+                            <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">{event.team1}</span>
                           </div>
                           
                           {/* Score */}
                           <div className="flex items-center justify-center mx-3 flex-shrink-0 gap-1">
-                            <div className="border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10">
-                              <span className="text-[10px] font-bold text-white leading-none">{currentScore.team1}</span>
+                            <div className="border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-[var(--ds-control-bg)] border-[var(--ds-border)]">
+                              <span className="text-[10px] font-bold text-[var(--ds-fg)] leading-none">{currentScore.team1}</span>
                             </div>
-                            <span className="text-base font-bold text-white leading-none">-</span>
-                            <div className="border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-white/5 border-white/10">
-                              <span className="text-[10px] font-bold text-white leading-none">{currentScore.team2}</span>
+                            <span className="text-base font-bold text-[var(--ds-fg)] leading-none">-</span>
+                            <div className="border rounded-small px-1.5 py-1.5 w-[28px] h-[28px] flex items-center justify-center bg-[var(--ds-control-bg)] border-[var(--ds-border)]">
+                              <span className="text-[10px] font-bold text-[var(--ds-fg)] leading-none">{currentScore.team2}</span>
                             </div>
                           </div>
                           
                           {/* Team 2 */}
                           <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                            <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
+                            <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">{event.team2}</span>
                             <Image 
                               src={event.team2Logo}
                               alt={event.team2}
@@ -1747,10 +1747,10 @@ function HomePageContent() {
                                   "rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2",
                                   selected
                                     ? "bg-[#ee3536] text-white"
-                                    : "bg-white/10 text-white hover:bg-[#ee3536]"
+                                    : "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] hover:bg-[#ee3536] hover:text-white"
                                 )}
                               >
-                                <div className={cn("text-[10px] leading-none mb-0.5", selected ? "text-white/90" : "text-white/70")}>{btn.label}</div>
+                                <div className={cn("text-[10px] leading-none mb-0.5", selected ? "text-white/90" : "text-[var(--ds-fg-muted)]")}>{btn.label}</div>
                                 <div className="text-xs font-bold leading-none">{btn.odds}</div>
                               </button>
                             )
@@ -1759,12 +1759,12 @@ function HomePageContent() {
                         
                         {/* Popularity Bar */}
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-[var(--ds-control-hover)] rounded-full overflow-hidden">
                             <div className="h-full bg-[#ee3536] rounded-full" style={{ width: `${event.team1Percent}%` }} />
                           </div>
-                          <span className="text-[9px] text-white/70">{event.team1Percent}% {event.team1Code}</span>
-                          <span className="text-[9px] text-white/70">{event.team2Percent}% {event.team2Code}</span>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <span className="text-[9px] text-[var(--ds-fg-muted)]">{event.team1Percent}% {event.team1Code}</span>
+                          <span className="text-[9px] text-[var(--ds-fg-muted)]">{event.team2Percent}% {event.team2Code}</span>
+                          <div className="flex-1 h-1.5 bg-[var(--ds-control-hover)] rounded-full overflow-hidden">
                             <div className="h-full bg-white/30 rounded-full ml-auto" style={{ width: `${event.team2Percent}%` }} />
                           </div>
                         </div>
@@ -1781,11 +1781,11 @@ function HomePageContent() {
         {/* Slots Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-white">New Games (128)</h2>
+            <h2 className="text-lg font-semibold text-[var(--ds-fg)]">New Games (128)</h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
                 onClick={() => router.push('/casino')}
               >
                 All Games
@@ -1795,7 +1795,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (slotsCarouselApi) {
                         const currentIndex = slotsCarouselApi.selectedScrollSnap()
@@ -1809,7 +1809,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (slotsCarouselApi) {
                         const currentIndex = slotsCarouselApi.selectedScrollSnap()
@@ -1835,7 +1835,7 @@ function HomePageContent() {
                   return (
                     <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div 
-                        className="w-[160px] h-[160px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                         onClick={() => {
                           setSelectedGame({
                             title: slotNames[index % slotNames.length],
@@ -1868,11 +1868,11 @@ function HomePageContent() {
         {/* Originals Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-white">Originals (26)</h2>
+            <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Originals (26)</h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
                 onClick={() => router.push('/casino')}
               >
                 All Games
@@ -1882,7 +1882,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (originalsCarouselApi) {
                         const currentIndex = originalsCarouselApi.selectedScrollSnap()
@@ -1896,7 +1896,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (originalsCarouselApi) {
                         const currentIndex = originalsCarouselApi.selectedScrollSnap()
@@ -1920,7 +1920,7 @@ function HomePageContent() {
                   return (
                     <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div 
-                        className="w-[160px] h-[280px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                        className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
                         onClick={() => {
                           const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                           setSelectedGame({
@@ -1940,7 +1940,7 @@ function HomePageContent() {
                         />
                         <GameTagBadge tag="Original" vendor="Originals" />
                         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <IconInfoCircle className="w-4 h-4 text-white drop-shadow-lg" strokeWidth={2} />
+                          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
                         </div>
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                       </div>
@@ -1956,7 +1956,7 @@ function HomePageContent() {
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2
-              className="text-lg font-semibold text-white cursor-pointer hover:text-white/80 transition-colors"
+              className="text-lg font-semibold text-[var(--ds-fg)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors"
               onClick={() => router.push('/sports/football')}
             >
               Top Sports
@@ -1964,7 +1964,7 @@ function HomePageContent() {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
                 onClick={() => router.push('/sports/football')}
               >
                 See More
@@ -1974,7 +1974,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (topLeaguesCarouselApi) {
                         const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
@@ -1988,7 +1988,7 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
                       if (topLeaguesCarouselApi) {
                         const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
@@ -2040,7 +2040,7 @@ function HomePageContent() {
                     <button
                       type="button"
                       onClick={() => router.push(sport.href)}
-                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.06] transition-colors hover:border-white/20 hover:bg-white/10 md:h-[100px] md:w-[100px]"
+                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] transition-colors hover:border-white/20 hover:bg-[var(--ds-control-hover)] md:h-[100px] md:w-[100px]"
                       aria-label={sport.name}
                     >
                       <Image
@@ -2051,7 +2051,7 @@ function HomePageContent() {
                         className="h-10 w-10 object-contain md:h-11 md:w-11"
                         unoptimized
                       />
-                      <span className="max-w-[90%] truncate text-[10px] font-medium text-white/70">
+                      <span className="max-w-[90%] truncate text-[10px] font-medium text-[var(--ds-fg-muted)]">
                         {sport.name}
                       </span>
                     </button>
@@ -2071,14 +2071,14 @@ function HomePageContent() {
         {/* Vendors Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-white">Vendors</h2>
+            <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Vendors</h2>
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel setApi={setVendorsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
               {!isMobile && (
                 <>
-                  <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
-                  <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+                  <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] hover:border-[var(--ds-border-strong)] text-[var(--ds-fg)] z-20 data-carousel-nav" />
+                  <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] hover:border-[var(--ds-border-strong)] text-[var(--ds-fg)] z-20 data-carousel-nav" />
                 </>
               )}
               <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
@@ -2116,7 +2116,7 @@ function HomePageContent() {
                 ].map((vendor, index) => (
                   <CarouselItem key={vendor} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                     <button
-                      className="group relative bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-white/70 hover:bg-gray-200/80 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
+                      className="group relative bg-gray-100/80 dark:bg-[var(--ds-control-bg)] border border-gray-200 dark:border-[var(--ds-border)] rounded-lg px-3 py-2.5 text-xs font-medium text-gray-800 dark:text-[var(--ds-fg-muted)] hover:bg-gray-200/80 dark:hover:bg-[var(--ds-control-hover)] hover:text-black dark:hover:text-[var(--ds-fg)] transition-all duration-300 whitespace-nowrap overflow-hidden flex items-center gap-2"
                       onClick={() => router.push('/casino')}
                     >
                       <VendorIcon vendor={vendor} />
@@ -2133,20 +2133,20 @@ function HomePageContent() {
         {/* Why BetOnline — hidden while simplifying homepage; set SHOW_WHY_BETONLINE = true to restore */}
         {SHOW_WHY_BETONLINE && (
         <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
-          <h2 className="text-lg font-semibold text-white mb-4">Why BetOnline?</h2>
+          <h2 className="text-lg font-semibold text-[var(--ds-fg)] mb-4">Why BetOnline?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Compare Our Competitors Card */}
-            <Card className="group relative bg-gradient-to-br from-[#3a2a1f]/30 to-[#2d1f16]/30 backdrop-blur-sm border-white/10 rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
+            <Card className="group relative bg-gradient-to-br from-[#3a2a1f]/30 to-[#2d1f16]/30 backdrop-blur-sm border-[var(--ds-border)] rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
               <div className="absolute inset-0 bg-gradient-to-br from-[#3a2a1f]/20 to-transparent pointer-events-none" />
               <CardContent className="p-4 relative z-10">
                 <div className="mb-4">
-                  <div className="text-white font-semibold text-sm mb-0.5 leading-tight">COMPARE OUR</div>
-                  <div className="text-white font-semibold text-sm leading-tight">COMPETITORS</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm mb-0.5 leading-tight">COMPARE OUR</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm leading-tight">COMPETITORS</div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-transparent border-white/20 text-white/70 hover:text-white hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
+                  className="bg-transparent border-white/20 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
                   onClick={() => router.push('/casino')}
                 >
                   SEE THE DIFFERENCE
@@ -2168,17 +2168,17 @@ function HomePageContent() {
             </Card>
             
             {/* Trusted By Millions Card */}
-            <Card className="group relative bg-gradient-to-br from-[#1f2a1f]/30 to-[#162116]/30 backdrop-blur-sm border-white/10 rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
+            <Card className="group relative bg-gradient-to-br from-[#1f2a1f]/30 to-[#162116]/30 backdrop-blur-sm border-[var(--ds-border)] rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
               <div className="absolute inset-0 bg-gradient-to-br from-[#1f2a1f]/20 to-transparent pointer-events-none" />
               <CardContent className="p-4 relative z-10">
                 <div className="mb-4">
-                  <div className="text-white font-semibold text-sm mb-0.5 leading-tight">TRUSTED BY</div>
-                  <div className="text-white font-semibold text-sm leading-tight">MILLIONS</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm mb-0.5 leading-tight">TRUSTED BY</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm leading-tight">MILLIONS</div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-transparent border-white/20 text-white/70 hover:text-white hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
+                  className="bg-transparent border-white/20 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
                   onClick={() => router.push('/casino')}
                 >
                   FIND OUT MORE
@@ -2200,17 +2200,17 @@ function HomePageContent() {
             </Card>
             
             {/* VIP Rewards Program Card */}
-            <Card className="group relative bg-gradient-to-br from-[#2a241f]/30 to-[#1f1a16]/30 backdrop-blur-sm border-white/10 rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
+            <Card className="group relative bg-gradient-to-br from-[#2a241f]/30 to-[#1f1a16]/30 backdrop-blur-sm border-[var(--ds-border)] rounded-small overflow-hidden cursor-pointer transition-all duration-300 hover:border-white/20">
               <div className="absolute inset-0 bg-gradient-to-br from-[#2a241f]/20 to-transparent pointer-events-none" />
               <CardContent className="p-4 relative z-10">
                 <div className="mb-4">
-                  <div className="text-white font-semibold text-sm mb-0.5 leading-tight">VIP REWARDS</div>
-                  <div className="text-white font-semibold text-sm leading-tight">PROGRAM</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm mb-0.5 leading-tight">VIP REWARDS</div>
+                  <div className="text-[var(--ds-fg)] font-semibold text-sm leading-tight">PROGRAM</div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-transparent border-white/20 text-white/70 hover:text-white hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
+                  className="bg-transparent border-white/20 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-transparent hover:border-white/30 text-xs h-7 px-3"
                   onClick={() => router.push('/casino?vip=true')}
                 >
                   BECOME A VIP
@@ -2238,12 +2238,12 @@ function HomePageContent() {
         {/* Activity — hidden while simplifying homepage; set SHOW_ACTIVITY = true to restore */}
         {SHOW_ACTIVITY && (
         <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
-          <Separator className="mb-6 bg-white/10" />
-          <h2 className="text-lg font-semibold text-white mb-4">Activity</h2>
+          <Separator className="mb-6 bg-[var(--ds-control-hover)]" />
+          <h2 className="text-lg font-semibold text-[var(--ds-fg)] mb-4">Activity</h2>
           
           {/* Tabs - Sub Nav Style */}
           <div className="mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="bg-white/5 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
+            <div className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
               {['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race'].map((tab) => (
                 <button
                   key={tab}
@@ -2252,7 +2252,7 @@ function HomePageContent() {
                     "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                     activityTab === tab
                       ? "text-white"
-                      : "text-white/70 hover:text-white hover:bg-white/5 dark:hover:bg-white/5 bg-transparent"
+                      : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] bg-transparent"
                   )}
                 >
                   {activityTab === tab && (
@@ -2275,7 +2275,7 @@ function HomePageContent() {
           </div>
 
           {/* Activity Feed Table or Race Leaderboard */}
-          <Card className="bg-white/5 backdrop-blur-sm border-white/10 rounded-small overflow-hidden">
+          <Card className="bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] backdrop-blur-sm border-[var(--ds-promo-card-border)] rounded-small overflow-hidden">
             <CardContent className="p-0">
               <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
                 {activityTab === 'Daily Race' ? (
@@ -2369,7 +2369,7 @@ function HomePageContent() {
                                 <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
                               )}
                               <span
-                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
+                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/70 transition-colors"
                                 onClick={() => {
                                   if (winner.gameImage) {
                                     setSelectedGame({
@@ -2386,13 +2386,13 @@ function HomePageContent() {
                           <TableCell className="py-3 px-4">
                             <span className={cn(
                               "text-sm",
-                              winner.user === 'Hidden' ? "text-white/50" : "text-white"
+                              winner.user === 'Hidden' ? "text-[var(--ds-fg-subtle)]" : "text-white"
                             )}>
                               {winner.user}
                             </span>
                           </TableCell>
                           <TableCell className="py-3 px-4">
-                            <span className="text-white/60 text-sm">{winner.time}</span>
+                            <span className="text-white/70 text-sm">{winner.time}</span>
                           </TableCell>
                           <TableCell className="py-3 px-4">
                             <div className="flex items-center gap-1.5">
@@ -2450,7 +2450,7 @@ function HomePageContent() {
                                   <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
                                 )}
                                 <span 
-                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/80 transition-colors"
+                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/70 transition-colors"
                                   onClick={() => {
                                     if (activity.gameImage) {
                                       setSelectedGame({
@@ -2467,13 +2467,13 @@ function HomePageContent() {
                             <TableCell className="py-3 px-4">
                               <span className={cn(
                                 "text-sm",
-                                activity.user === 'Hidden' ? "text-white/50" : "text-white"
+                                activity.user === 'Hidden' ? "text-[var(--ds-fg-subtle)]" : "text-white"
                               )}>
                                 {activity.user}
                               </span>
                             </TableCell>
                             <TableCell className="py-3 px-4">
-                              <span className="text-white/60 text-sm">{activity.time}</span>
+                              <span className="text-white/70 text-sm">{activity.time}</span>
                             </TableCell>
                             <TableCell className="py-3 px-4">
                               <div className="flex items-center gap-1.5">
@@ -2509,7 +2509,7 @@ function HomePageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[200] bg-[#1a1a1a]"
+              className="fixed inset-0 z-[200] bg-[var(--ds-page-bg)]"
             >
               {/* Rounded Glass Top Bar - Hidden in mobile landscape */}
               {!(isMobile && isLandscape) && (
@@ -2691,7 +2691,7 @@ function HomePageContent() {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.4 }}
-                          className="text-white/50 text-xs"
+                          className="text-[var(--ds-fg-subtle)] text-xs"
                         >
                           {selectedGame.provider}
                         </motion.p>
@@ -2794,7 +2794,7 @@ function HomePageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "bg-[#1a1a1a] text-white flex flex-col relative",
+              "bg-[var(--ds-page-bg)] text-white flex flex-col relative",
               "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden",
               isMobile && "rounded-t-[10px]"
             )}
@@ -2863,95 +2863,95 @@ function HomePageContent() {
         </Drawer>
 
         {/* Footer - Same as casino page */}
-        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+        <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-12 relative z-0">
           <div className="w-full px-6 py-6">
             {/* Quick Links Section */}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                 </ul>
               </div>
               
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                 </ul>
               </div>
 
               <div>
                 <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                 </ul>
               </div>
             </div>
 
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
             {/* Trust & Security Section */}
             <div className="mb-6">
@@ -2959,7 +2959,7 @@ function HomePageContent() {
                 <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
                 <IconShield className="w-4 h-4" />
               </div>
-              <p className="text-xs text-white/70 mb-4 max-w-2xl">
+              <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                 At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
               </p>
               <div className="flex flex-wrap items-center gap-3">
@@ -2972,12 +2972,12 @@ function HomePageContent() {
                 <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                 <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                 <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                  <span className="text-[10px] font-bold text-white">18+</span>
+                  <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
                 </div>
               </div>
             </div>
 
-            <Separator className="bg-white/10 mb-6" />
+            <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
             {/* Partners & Social Media */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
@@ -2999,26 +2999,26 @@ function HomePageContent() {
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandFacebook className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandInstagram className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandX className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandYoutube className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                   <IconBrandTiktok className="w-4 h-4" />
                 </Button>
               </div>
             </div>
 
             {/* Timestamp and Copyright */}
-            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+            <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
               <div>
                 Copyright ©2024 BetOnline.ag. All rights reserved.
               </div>
@@ -3045,7 +3045,7 @@ function HomePageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "w-full sm:max-w-md flex flex-col bg-[#1a1a1a] text-white border-l border-white/10",
+              "w-full sm:max-w-md flex flex-col bg-[var(--ds-page-bg)] text-[var(--ds-fg)] border-l border-[var(--ds-border)]",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -3062,19 +3062,19 @@ function HomePageContent() {
                   <Button
                     variant="ghost"
                     onClick={() => setAccountDrawerView('account')}
-                    className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                    className="-ml-1 h-9 w-9 p-0 hover:bg-[var(--ds-control-hover)]"
                     aria-label="Back"
                   >
-                    <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                    <IconChevronLeft className="h-5 w-5 text-[var(--ds-fg-muted)]" stroke={2} />
                   </Button>
-                  <h2 className="text-base font-semibold text-white">Notifications</h2>
+                  <h2 className="text-base font-semibold text-[var(--ds-fg)]">Notifications</h2>
                 </div>
               ) : (
                 <div className="flex w-full items-center gap-2">
                   <DrawerClose asChild>
                     <button
                       type="button"
-                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
                       aria-label="Back"
                     >
                       <IconChevronLeft className="h-5 w-5" stroke={2} />
@@ -3085,7 +3085,7 @@ function HomePageContent() {
                     name="CH"
                     accountId="b1767721"
                   />
-                  <AccountDrawerSettingsButton
+                  <AccountDrawerHeaderActions
                     onBeforeNavigate={() => setAccountDrawerOpen(false)}
                   />
                 </div>
@@ -3102,36 +3102,36 @@ function HomePageContent() {
                     <>
                   {/* Balance Information */}
                   <div className="mb-4">
-                    <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
+                    <div className="rounded-lg bg-[var(--ds-control-bg)] px-3 py-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Available Balance</span>
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Available Balance</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">
                           {currentBrand.symbol}
                           <NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Free Bet</span>
-                        <span className="text-sm font-semibold text-white">$0.00</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Free Bet</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">$0.00</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
                         <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                     </div>
                   </div>
                   
-                  <Separator className="bg-white/10 mb-3" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-3" />
                   
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
                       {webInboxUnreadCount > 0 && (
                         <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
                           {webInboxUnreadCount}
@@ -3140,88 +3140,88 @@ function HomePageContent() {
                     </Button>
                   </div>
                   
-                  <Separator className="bg-white/10 mb-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-6" />
                   
                   {/* Navigation List */}
                   <div className="space-y-1 w-full mb-8">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         router.push('/account')
                       }}
                     >
-                      <IconUser className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Account</span>
+                      <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         router.push('/sports?mybets=pending')
                       }}
                     >
-                      <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Pending Bets</span>
-                      <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
-                        <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                      <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
+                      <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
+                        <span className="bg-amber-500 text-[var(--ds-fg)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
                         $40.00
                       </span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Bonus</span>
+                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Transactions History</span>
+                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconTicket className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Bet History</span>
+                      <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Refer a Friend</span>
+                      <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                       onClick={() => {
                         openVipDrawer()
                       }}
                     >
-                      <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">VIP Hub</span>
+                      <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                     </Button>
                   </div>
                   
-                  <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
+                  <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
                   
                   {/* Logout Button */}
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
+                    className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
                     onClick={() => {
                       logout()
                       setAccountDrawerView('account')
@@ -3232,9 +3232,9 @@ function HomePageContent() {
                     </>
                   ) : (
                     <>
-                      <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-4">
-                        <p className="text-sm font-semibold text-white">You are logged out</p>
-                        <p className="mt-1 text-xs text-white/60">Log back in or create an account to place bets and access your wallet.</p>
+                      <div className="mb-4 rounded-lg border border-[var(--ds-border)] bg-[var(--ds-control-bg)] px-4 py-4">
+                        <p className="text-sm font-semibold text-[var(--ds-fg)]">You are logged out</p>
+                        <p className="mt-1 text-xs text-[var(--ds-fg-muted)]">Log back in or create an account to place bets and access your wallet.</p>
                       </div>
 
                       <div className="mb-4 grid grid-cols-2 gap-2">
@@ -3244,7 +3244,7 @@ function HomePageContent() {
                             setAccountDrawerOpen(false)
                             requestLogin()
                           }}
-                          className="h-10 rounded-lg border border-white/20 bg-transparent !text-white hover:bg-white/10 hover:!text-white"
+                          className="h-10 rounded-lg border border-white/20 bg-transparent !text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] hover:!text-[var(--ds-fg)]"
                         >
                           Login
                         </Button>
@@ -3260,36 +3260,36 @@ function HomePageContent() {
                         </Button>
                       </div>
 
-                      <Separator className="bg-white/10 mb-3" />
+                      <Separator className="bg-[var(--ds-control-hover)] mb-3" />
 
                       <div className="space-y-1 w-full mb-2">
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                           onClick={() => {
                             setAccountDrawerOpen(false)
                             openDepositDrawer()
                           }}
                         >
-                          <IconWallet className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">Banking</span>
+                          <IconWallet className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">Banking</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                         >
-                          <IconLifebuoy className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">Help Center</span>
+                          <IconLifebuoy className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">Help Center</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                           onClick={() => {
                             openVipDrawer()
                           }}
                         >
-                          <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">VIP Hub</span>
+                          <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                         </Button>
                       </div>
                     </>
@@ -3314,8 +3314,8 @@ function HomePageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "bg-[#1a1a1a] text-white flex flex-col relative",
-              "w-full sm:max-w-md border-l border-white/10 overflow-hidden",
+              "dark bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative",
+              "w-full sm:max-w-md border-l border-[var(--ds-border)] overflow-hidden",
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
@@ -3325,18 +3325,18 @@ function HomePageContent() {
               bottom: 0,
             } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
           >
-            {isMobile && <DrawerHandle variant="light" />}
+            {isMobile && <DrawerHandle variant="dark" />}
             <div className="relative z-50 flex flex-shrink-0 items-center gap-2 px-4 pb-2 pt-4">
               <DrawerClose asChild>
                 <button
                   type="button"
-                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                  className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
                   aria-label="Back"
                 >
                   <IconChevronLeft className="h-5 w-5" stroke={2} />
                 </button>
               </DrawerClose>
-              <h2 className="text-base font-semibold text-white">VIP Hub</h2>
+              <h2 className="text-base font-semibold text-[var(--ds-fg)]">VIP Hub</h2>
             </div>
             <VipDrawerContent
               vipActiveTab={vipActiveTab}

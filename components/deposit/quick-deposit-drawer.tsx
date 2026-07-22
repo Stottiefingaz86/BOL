@@ -259,8 +259,8 @@ function MethodLogo({
   switch (kind) {
     case "cards":
       return (
-        <div className={cn(c, "bg-white/10")}>
-          <IconCreditCard className="h-6 w-6 text-white/90" stroke={1.5} />
+        <div className={cn(c, "bg-[var(--ds-control-hover)]")}>
+          <IconCreditCard className="h-6 w-6 text-[var(--ds-fg)]" stroke={1.5} />
         </div>
       );
     case "bitcoin":
@@ -283,8 +283,8 @@ function MethodLogo({
       );
     case "wire":
       return (
-        <div className={cn(c, "bg-white/10")}>
-          <IconBuildingBank className="h-6 w-6 text-white/80" stroke={1.5} />
+        <div className={cn(c, "bg-[var(--ds-control-hover)]")}>
+          <IconBuildingBank className="h-6 w-6 text-[var(--ds-fg-muted)]" stroke={1.5} />
         </div>
       );
     case "moneygram":
@@ -574,8 +574,8 @@ export function QuickDepositDrawer({
       <DrawerContent
         showOverlay={isMobile}
         className={cn(
-          "relative flex flex-col bg-[#1a1a1a] text-white",
-          "w-full overflow-hidden border-l border-white/10 sm:max-w-md",
+          "relative flex flex-col bg-[var(--ds-page-bg)] text-[var(--ds-fg)]",
+          "w-full overflow-hidden border-l border-[var(--ds-border)] sm:max-w-md",
           isMobile && "rounded-t-[10px]",
         )}
         style={
@@ -595,32 +595,32 @@ export function QuickDepositDrawer({
       >
         {isMobile && <DrawerHandle variant="dark" />}
         {isMobile && checkoutTitle ? (
-          <div className="flex flex-shrink-0 items-center gap-2 border-b border-white/10 px-3 py-3">
+          <div className="flex flex-shrink-0 items-center gap-2 border-b border-[var(--ds-border)] px-3 py-3">
             <button
               type="button"
               onClick={handleHubBack}
-              className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+              className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
               aria-label="Back"
             >
               <IconChevronLeft className="h-5 w-5" stroke={2} />
             </button>
-            <h2 className="min-w-0 flex-1 truncate text-sm font-semibold leading-tight text-white">
+            <h2 className="min-w-0 flex-1 truncate text-sm font-semibold leading-tight text-[var(--ds-fg)]">
               {checkoutTitle}
             </h2>
           </div>
         ) : null}
         {isMobile && !checkoutTitle && (
-          <div className="relative flex-shrink-0 space-y-3 border-b border-white/10 px-4 pb-3 pt-1">
+          <div className="relative flex-shrink-0 space-y-3 border-b border-[var(--ds-border)] px-4 pb-3 pt-1">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleHubBack}
-                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
                 aria-label="Back"
               >
                 <IconChevronLeft className="h-5 w-5" stroke={2} />
               </button>
-              <h2 className="text-base font-semibold text-white">{title}</h2>
+              <h2 className="text-base font-semibold text-[var(--ds-fg)]">{title}</h2>
             </div>
             {!isFlowCheckout && !showDepositConfirmation ? (
               <WalletHubActionTabs active={hubTab} onChange={setHubTab} />
@@ -629,32 +629,32 @@ export function QuickDepositDrawer({
         )}
 
         {!isMobile && checkoutTitle ? (
-          <div className="flex flex-shrink-0 items-center gap-2 border-b border-white/10 px-4 py-3">
+          <div className="flex flex-shrink-0 items-center gap-2 border-b border-[var(--ds-border)] px-4 py-3">
             <button
               type="button"
               onClick={handleHubBack}
-              className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+              className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
               aria-label="Back"
             >
               <IconChevronLeft className="h-5 w-5" stroke={2} />
             </button>
-            <h2 className="min-w-0 flex-1 truncate text-base font-semibold leading-tight text-white">
+            <h2 className="min-w-0 flex-1 truncate text-base font-semibold leading-tight text-[var(--ds-fg)]">
               {checkoutTitle}
             </h2>
           </div>
         ) : null}
         {!isMobile && !checkoutTitle && (
-          <DrawerHeader className="relative flex-shrink-0 space-y-3 border-b border-white/10 px-4 pb-3 pt-4">
+          <DrawerHeader className="relative flex-shrink-0 space-y-3 border-b border-[var(--ds-border)] px-4 pb-3 pt-4">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleHubBack}
-                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
                 aria-label="Back"
               >
                 <IconChevronLeft className="h-5 w-5" stroke={2} />
               </button>
-              <h2 className="text-base font-semibold text-white">{title}</h2>
+              <h2 className="text-base font-semibold text-[var(--ds-fg)]">{title}</h2>
             </div>
             {!isFlowCheckout && !showDepositConfirmation ? (
               <WalletHubActionTabs active={hubTab} onChange={setHubTab} />
@@ -680,20 +680,20 @@ export function QuickDepositDrawer({
         >
           {showCardCheckout ? (
             <div className="space-y-4 pb-2">
-              <Card className="border border-white/10 bg-[#2d2d2d] shadow-none">
+              <Card className="border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] shadow-none">
                 <CardContent className="space-y-4 p-4">
-                  <h3 className="font-semibold text-white">
+                  <h3 className="font-semibold text-[var(--ds-fg)]">
                     Enter your card details
                   </h3>
                   <div>
-                    <p className="mb-2 text-xs text-white/50">We accept</p>
+                    <p className="mb-2 text-xs text-[var(--ds-fg-subtle)]">We accept</p>
                     <div className="flex flex-wrap gap-2">
                       {(
                         ["Mastercard", "Visa", "Amex", "Discover"] as const
                       ).map((brand) => (
                         <span
                           key={brand}
-                          className="rounded border border-white/15 bg-white/5 px-2 py-1 text-[10px] font-medium text-white/70"
+                          className="rounded border border-[var(--ds-border-strong)] bg-[var(--ds-control-bg)] px-2 py-1 text-[10px] font-medium text-[var(--ds-fg-muted)]"
                         >
                           {brand}
                         </span>
@@ -701,7 +701,7 @@ export function QuickDepositDrawer({
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="qd-card-number" className="text-xs text-white/60">
+                    <label htmlFor="qd-card-number" className="text-xs text-[var(--ds-fg-muted)]">
                       Card Number
                     </label>
                     <div className="relative">
@@ -713,14 +713,14 @@ export function QuickDepositDrawer({
                           setCardNumber(formatCardNumberInput(e.target.value))
                         }
                         placeholder="0000 0000 0000 0000"
-                        className="border-white/15 bg-[#252525] pr-10 text-white placeholder:text-white/30"
+                        className="border-[var(--ds-border-strong)] bg-[var(--ds-surface-inset)] pr-10 text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]"
                       />
-                      <IconCreditCard className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                      <IconCreditCard className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ds-fg-subtle)]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label htmlFor="qd-expiry" className="text-xs text-white/60">
+                      <label htmlFor="qd-expiry" className="text-xs text-[var(--ds-fg-muted)]">
                         Expiry Date
                       </label>
                       <Input
@@ -731,16 +731,16 @@ export function QuickDepositDrawer({
                           setCardExpiry(formatExpiryInput(e.target.value))
                         }
                         placeholder="MM/YY"
-                        className="border-white/15 bg-[#252525] text-white placeholder:text-white/30"
+                        className="border-[var(--ds-border-strong)] bg-[var(--ds-surface-inset)] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <label
                         htmlFor="qd-cvc"
-                        className="flex items-center gap-1 text-xs text-white/60"
+                        className="flex items-center gap-1 text-xs text-[var(--ds-fg-muted)]"
                       >
                         CVC / CVV
-                        <IconInfoCircle className="h-3.5 w-3.5 text-white/35" />
+                        <IconInfoCircle className="h-3.5 w-3.5 text-[var(--ds-fg-subtle)]" />
                       </label>
                       <Input
                         id="qd-cvc"
@@ -750,7 +750,7 @@ export function QuickDepositDrawer({
                           setCardCvc(cardDigitsOnly(e.target.value).slice(0, 4))
                         }
                         placeholder="000"
-                        className="border-white/15 bg-[#252525] text-white placeholder:text-white/30"
+                        className="border-[var(--ds-border-strong)] bg-[var(--ds-surface-inset)] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]"
                       />
                     </div>
                   </div>
@@ -759,16 +759,16 @@ export function QuickDepositDrawer({
                       id="qd-save-card"
                       checked={saveCard}
                       onCheckedChange={(v) => setSaveCard(v === true)}
-                      className="mt-0.5 border-white/30 data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
+                      className="mt-0.5 border-[var(--ds-border-strong)] data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
                     />
                     <div>
                       <label
                         htmlFor="qd-save-card"
-                        className="text-sm font-medium text-white"
+                        className="text-sm font-medium text-[var(--ds-fg)]"
                       >
                         Save Card
                       </label>
-                      <p className="text-xs text-white/45">
+                      <p className="text-xs text-[var(--ds-fg-subtle)]">
                         Saving your card details now allows you to deposit funds
                         faster next time!
                       </p>
@@ -777,9 +777,9 @@ export function QuickDepositDrawer({
                 </CardContent>
               </Card>
 
-              <Card className="border border-white/10 bg-[#2d2d2d] shadow-none">
+              <Card className="border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] shadow-none">
                 <CardContent className="space-y-4 p-4">
-                  <h3 className="font-semibold text-white">Deposit amount</h3>
+                  <h3 className="font-semibold text-[var(--ds-fg)]">Deposit amount</h3>
                   <div className="flex flex-wrap gap-2">
                     {CARD_QUICK_AMOUNTS.map((amt) => (
                       <button
@@ -792,7 +792,7 @@ export function QuickDepositDrawer({
                           "min-w-[4.25rem] flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors",
                           Math.abs(depositAmount - amt) < 0.01
                             ? "border-emerald-500/70 bg-emerald-500/15 text-white"
-                            : "border-white/15 bg-[#252525] text-white hover:border-white/25",
+                            : "border-[var(--ds-border-strong)] bg-[var(--ds-surface-inset)] text-[var(--ds-fg)] hover:border-[var(--ds-border-strong)]",
                         )}
                       >
                         {currencySymbol}
@@ -801,7 +801,7 @@ export function QuickDepositDrawer({
                     ))}
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="qd-amount" className="text-xs text-white/60">
+                    <label htmlFor="qd-amount" className="text-xs text-[var(--ds-fg-muted)]">
                       Amount
                     </label>
                     <Input
@@ -827,19 +827,19 @@ export function QuickDepositDrawer({
                         );
                       }}
                       placeholder={`${currencySymbol}0.00`}
-                      className="border-white/15 bg-[#252525] text-white placeholder:text-white/30"
+                      className="border-[var(--ds-border-strong)] bg-[var(--ds-surface-inset)] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]"
                     />
-                    <p className="text-right text-[11px] text-white/40">
+                    <p className="text-right text-[11px] text-[var(--ds-fg-subtle)]">
                       Min. {currencySymbol}
                       {cardMethod.min} / Max. {currencySymbol}
                       {cardMethod.max.toLocaleString()}
                     </p>
                   </div>
-                  <p className="text-xs text-white/55">
+                  <p className="text-xs text-[var(--ds-fg-muted)]">
                     Fee: {cardMethod.feeLabel} / Total Amount:{" "}
                     {formatMoney(cardTotalAmount, currencySymbol)} USD
                   </p>
-                  <div className="flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.04] p-3">
+                  <div className="flex items-start gap-2 rounded-lg border border-[var(--ds-border)] bg-[var(--ds-overlay)] p-3">
                     <IconCurrencyBitcoin className="mt-0.5 h-5 w-5 shrink-0 text-[#f7931a]" />
                     <p className="text-xs text-white/65">
                       Avoid this fee!{" "}
@@ -864,7 +864,7 @@ export function QuickDepositDrawer({
                       depositAmount > cardMethod.max ||
                       isDepositLoading
                     }
-                    className="h-12 w-full font-semibold text-white shadow-none disabled:cursor-not-allowed disabled:opacity-100 enabled:bg-[#059669] enabled:hover:bg-[#10b981] disabled:bg-white/10 disabled:text-white/35 disabled:hover:bg-white/10"
+                    className="h-12 w-full font-semibold text-[var(--ds-fg)] shadow-none disabled:cursor-not-allowed disabled:opacity-100 enabled:bg-[#059669] enabled:hover:bg-[#10b981] disabled:bg-[var(--ds-control-hover)] disabled:text-[var(--ds-fg-subtle)] disabled:hover:bg-[var(--ds-control-hover)]"
                   >
                     {isDepositLoading ? (
                       <span className="flex items-center justify-center gap-2">
@@ -887,17 +887,17 @@ export function QuickDepositDrawer({
                 <span className="font-medium text-white/85">Deposit sent</span>.
               </p>
 
-              <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="overflow-hidden rounded-xl border border-[var(--ds-border)] bg-white/[0.02]">
                 {/* Estimate */}
                 <div className="px-4 py-3.5">
                   <div className="flex items-center gap-2">
                     <div className="relative min-w-0 flex-1">
                       <div
-                        className="pointer-events-none absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/[0.08] ring-1 ring-white/10"
+                        className="pointer-events-none absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--ds-control-hover)] ring-1 ring-white/10"
                         aria-hidden
                       >
                         <IconCurrencyDollar
-                          className="h-3.5 w-3.5 text-white/80"
+                          className="h-3.5 w-3.5 text-[var(--ds-fg-muted)]"
                           stroke={2}
                         />
                       </div>
@@ -917,11 +917,11 @@ export function QuickDepositDrawer({
                           );
                         }}
                         placeholder="0.00"
-                        className="h-10 w-full rounded-lg border border-white/10 bg-transparent pl-10 pr-2.5 text-sm font-medium text-white/95 [font-variant-numeric:tabular-nums] placeholder:text-white/35 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/15"
+                        className="h-10 w-full rounded-lg border border-[var(--ds-border)] bg-transparent pl-10 pr-2.5 text-sm font-medium text-[var(--ds-fg)] [font-variant-numeric:tabular-nums] placeholder:text-[var(--ds-fg-subtle)] focus:border-[var(--ds-border-strong)] focus:outline-none focus:ring-1 focus:ring-white/15"
                       />
                     </div>
                     <span
-                      className="shrink-0 px-0.5 text-sm font-medium text-white/35"
+                      className="shrink-0 px-0.5 text-sm font-medium text-[var(--ds-fg-subtle)]"
                       aria-hidden
                     >
                       =
@@ -952,17 +952,17 @@ export function QuickDepositDrawer({
                           );
                         }}
                         placeholder="0"
-                        className="h-10 w-full rounded-lg border border-white/10 bg-transparent pl-10 pr-2.5 text-sm font-medium text-white/95 [font-variant-numeric:tabular-nums] placeholder:text-white/35 focus:border-[#f7931a]/35 focus:outline-none focus:ring-1 focus:ring-[#f7931a]/25"
+                        className="h-10 w-full rounded-lg border border-[var(--ds-border)] bg-transparent pl-10 pr-2.5 text-sm font-medium text-[var(--ds-fg)] [font-variant-numeric:tabular-nums] placeholder:text-[var(--ds-fg-subtle)] focus:border-[#f7931a]/35 focus:outline-none focus:ring-1 focus:ring-[#f7931a]/25"
                       />
                     </div>
                   </div>
                   <p className="mt-2.5 text-[11px] leading-snug text-white/48">
-                    <span className="text-white/40">Reference rate</span>
+                    <span className="text-[var(--ds-fg-subtle)]">Reference rate</span>
                     <span className="mx-1.5 text-white/[0.22]" aria-hidden>
                       ·
                     </span>
                     <span className="text-sky-200/55">1 BTC</span>
-                    <span className="text-white/35"> = </span>
+                    <span className="text-[var(--ds-fg-subtle)]"> = </span>
                     <span className="font-medium [font-variant-numeric:tabular-nums] text-white/72">
                       {currencySymbol}
                       {BITCOIN_USD_RATE.toLocaleString(undefined, {
@@ -974,7 +974,7 @@ export function QuickDepositDrawer({
                   </p>
                 </div>
 
-                <div className="h-px bg-white/10" />
+                <div className="h-px bg-[var(--ds-control-hover)]" />
 
                 {/* Address + copy */}
                 <div className="px-4 py-3.5">
@@ -998,19 +998,19 @@ export function QuickDepositDrawer({
                         /* clipboard unavailable */
                       }
                     }}
-                    className="mt-3 h-9 w-full border-white/15 bg-transparent text-xs font-semibold text-white hover:bg-white/[0.06]"
+                    className="mt-3 h-9 w-full border-[var(--ds-border-strong)] bg-transparent text-xs font-semibold text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                   >
                     <IconCopy className="mr-2 h-3.5 w-3.5" stroke={1.5} />
                     {btcCopied ? "Copied" : "Copy"}
                   </Button>
                 </div>
 
-                <div className="h-px bg-white/10" />
+                <div className="h-px bg-[var(--ds-control-hover)]" />
 
                 {/* Limits — inline, no extra box */}
                 <div className="flex divide-x divide-white/10 px-2 py-3 text-center">
                   <div className="min-w-0 flex-1 px-2">
-                    <p className="text-[9px] font-medium uppercase tracking-wide text-white/40">
+                    <p className="text-[9px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">
                       Min
                     </p>
                     <p className="mt-0.5 text-xs font-medium [font-variant-numeric:tabular-nums] text-white/88">
@@ -1019,7 +1019,7 @@ export function QuickDepositDrawer({
                     </p>
                   </div>
                   <div className="min-w-0 flex-1 px-2">
-                    <p className="text-[9px] font-medium uppercase tracking-wide text-white/40">
+                    <p className="text-[9px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">
                       Max
                     </p>
                     <p className="mt-0.5 text-xs font-medium [font-variant-numeric:tabular-nums] text-white/88">
@@ -1028,7 +1028,7 @@ export function QuickDepositDrawer({
                     </p>
                   </div>
                   <div className="min-w-0 flex-1 px-2">
-                    <p className="text-[9px] font-medium uppercase tracking-wide text-white/40">
+                    <p className="text-[9px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">
                       Fee
                     </p>
                     <p className="mt-0.5 text-xs font-medium text-white/88">
@@ -1037,7 +1037,7 @@ export function QuickDepositDrawer({
                   </div>
                 </div>
 
-                <div className="h-px bg-white/10" />
+                <div className="h-px bg-[var(--ds-control-hover)]" />
 
                 <div className="px-4 py-3">
                   <div className="flex gap-2.5 rounded-lg border border-amber-400/18 bg-gradient-to-b from-amber-500/[0.09] to-amber-950/[0.12] px-3 py-2.5">
@@ -1049,7 +1049,7 @@ export function QuickDepositDrawer({
                       <span className="font-semibold text-amber-100/85">
                         Important
                       </span>
-                      <span className="text-white/35"> — </span>
+                      <span className="text-[var(--ds-fg-subtle)]"> — </span>
                       Send only{" "}
                       <span className="font-medium text-white/88">
                         Bitcoin (BTC)
@@ -1063,7 +1063,7 @@ export function QuickDepositDrawer({
                   </div>
                 </div>
 
-                <div className="h-px bg-white/10" />
+                <div className="h-px bg-[var(--ds-control-hover)]" />
 
                 <div>
                   <button
@@ -1071,18 +1071,18 @@ export function QuickDepositDrawer({
                     onClick={() => setBitcoinQrExpanded((e) => !e)}
                     className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-white/[0.03]"
                   >
-                    <span className="flex items-center gap-2 text-sm font-medium text-white">
+                    <span className="flex items-center gap-2 text-sm font-medium text-[var(--ds-fg)]">
                       <IconCurrencyBitcoin className="h-4 w-4 text-[#f7931a]" />
                       {bitcoinQrExpanded ? "Hide QR code" : "Show QR code"}
                     </span>
                     {bitcoinQrExpanded ? (
-                      <IconChevronUp className="h-4 w-4 text-white/45" />
+                      <IconChevronUp className="h-4 w-4 text-[var(--ds-fg-subtle)]" />
                     ) : (
-                      <IconChevronDown className="h-4 w-4 text-white/45" />
+                      <IconChevronDown className="h-4 w-4 text-[var(--ds-fg-subtle)]" />
                     )}
                   </button>
                   {bitcoinQrExpanded ? (
-                    <div className="flex flex-col items-center border-t border-white/10 px-4 pb-4 pt-3">
+                    <div className="flex flex-col items-center border-t border-[var(--ds-border)] px-4 pb-4 pt-3">
                       <div className="relative rounded-lg bg-white p-2.5 shadow-sm">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -1093,7 +1093,7 @@ export function QuickDepositDrawer({
                           className="h-[220px] w-[220px]"
                         />
                         <div className="pointer-events-none absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#f7931a]">
-                          <IconCurrencyBitcoin className="h-6 w-6 text-white" />
+                          <IconCurrencyBitcoin className="h-6 w-6 text-[var(--ds-fg)]" />
                         </div>
                       </div>
                       <a
@@ -1127,7 +1127,7 @@ export function QuickDepositDrawer({
                   handleConfirmDeposit({ amount: amt });
                 }}
                 disabled={isDepositLoading}
-                className="h-12 w-full bg-[#84cc16] font-bold uppercase tracking-wide text-white hover:bg-[#a3e635] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/35"
+                className="h-12 w-full bg-[#84cc16] font-bold uppercase tracking-wide text-[#1a1a1a] hover:bg-[#a3e635] disabled:cursor-not-allowed disabled:bg-[var(--ds-control-hover)] disabled:text-[var(--ds-fg-subtle)]"
               >
                 {isDepositLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -1145,20 +1145,20 @@ export function QuickDepositDrawer({
           !showDepositConfirmation &&
           !isFlowCheckout ? (
             <div className="px-4 py-16 text-center">
-              <p className="text-sm font-medium text-white/80">
+              <p className="text-sm font-medium text-[var(--ds-fg-muted)]">
                 {hubTab === "withdrawal"
                   ? "Withdrawal"
                   : hubTab === "history"
                     ? "History"
                     : "Settings"}
               </p>
-              <p className="mx-auto mt-2 max-w-[240px] text-xs text-white/45">
+              <p className="mx-auto mt-2 max-w-[240px] text-xs text-[var(--ds-fg-subtle)]">
                 This section is coming soon. Use Deposit to add funds.
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="mt-6 border-white/20 bg-transparent text-white hover:bg-white/10"
+                className="mt-6 border-[var(--ds-border-strong)] bg-transparent text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
                 onClick={() => setHubTab("deposit")}
               >
                 Back to Deposit
@@ -1215,32 +1215,32 @@ export function QuickDepositDrawer({
           {showDepositConfirmation ? (
             <div className="space-y-6">
               <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-[var(--ds-fg)]">
                   Your deposit is on the way...
                 </h2>
-                <p className="text-sm text-white/50">
+                <p className="text-sm text-[var(--ds-fg-subtle)]">
                   Transaction ID: {transactionId}
                 </p>
               </div>
 
-              <Card className="border border-white/10 bg-[#2d2d2d] shadow-none">
+              <Card className="border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] shadow-none">
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">
+                      <span className="text-sm text-[var(--ds-fg-muted)]">
                         Deposit Amount
                       </span>
-                      <span className="text-lg font-semibold text-white">
+                      <span className="text-lg font-semibold text-[var(--ds-fg)]">
                         {currencySymbol}
                         {depositAmount.toFixed(2)}
                       </span>
                     </div>
-                    <Separator className="bg-white/10" />
+                    <Separator className="bg-[var(--ds-control-hover)]" />
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">
+                      <span className="text-sm text-[var(--ds-fg-muted)]">
                         Payment Method
                       </span>
-                      <span className="text-sm font-medium text-white">
+                      <span className="text-sm font-medium text-[var(--ds-fg)]">
                         {formatPaymentMethodLabel(selectedPaymentMethod)}
                       </span>
                     </div>
@@ -1248,7 +1248,7 @@ export function QuickDepositDrawer({
                 </CardContent>
               </Card>
 
-              <Card className="border border-white/10 bg-[#2d2d2d] shadow-none">
+              <Card className="border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] shadow-none">
                 <CardContent className="p-4">
                   <div className="relative">
                     <div className="flex items-start justify-between px-1">
@@ -1260,19 +1260,19 @@ export function QuickDepositDrawer({
                             depositStep === "almost" ||
                             depositStep === "complete"
                               ? "bg-[#059669] shadow-sm"
-                              : "border-2 border-white/20 bg-white/10"
+                              : "border-2 border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)]"
                           }`}
                         >
                           {stepLoading.started ? (
-                            <IconLoader2 className="h-4 w-4 animate-spin text-white" />
+                            <IconLoader2 className="h-4 w-4 animate-spin text-[var(--ds-fg)]" />
                           ) : depositStep === "started" ||
                             depositStep === "processing" ||
                             depositStep === "almost" ||
                             depositStep === "complete" ? (
-                            <IconCheck className="h-5 w-5 text-white" />
+                            <IconCheck className="h-5 w-5 text-[var(--ds-fg)]" />
                           ) : null}
                         </div>
-                        <span className="whitespace-nowrap text-xs font-medium text-white">
+                        <span className="whitespace-nowrap text-xs font-medium text-[var(--ds-fg)]">
                           Started
                         </span>
                       </div>
@@ -1283,7 +1283,7 @@ export function QuickDepositDrawer({
                           depositStep === "almost" ||
                           depositStep === "complete"
                             ? "bg-[#059669]"
-                            : "bg-white/15"
+                            : "bg-[var(--ds-control-hover)]"
                         }`}
                       />
 
@@ -1291,22 +1291,22 @@ export function QuickDepositDrawer({
                         <div
                           className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full transition-all ${
                             depositStep === "processing"
-                              ? "border-2 border-white/25 bg-[#2d2d2d] shadow-sm"
+                              ? "border-2 border-[var(--ds-border-strong)] bg-[var(--ds-surface-raised)] shadow-sm"
                               : depositStep === "almost" ||
                                   depositStep === "complete"
                                 ? "bg-[#059669] shadow-sm"
-                                : "border-2 border-white/20 bg-white/10"
+                                : "border-2 border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)]"
                           }`}
                         >
                           {stepLoading.processing ? (
-                            <IconLoader2 className="h-4 w-4 animate-spin text-white" />
+                            <IconLoader2 className="h-4 w-4 animate-spin text-[var(--ds-fg)]" />
                           ) : depositStep === "processing" ? (
-                            <IconLoader2 className="h-4 w-4 animate-spin text-white" />
+                            <IconLoader2 className="h-4 w-4 animate-spin text-[var(--ds-fg)]" />
                           ) : depositStep === "almost" ||
                             depositStep === "complete" ? (
-                            <IconCheck className="h-5 w-5 text-white" />
+                            <IconCheck className="h-5 w-5 text-[var(--ds-fg)]" />
                           ) : (
-                            <span className="text-xs font-bold text-white/35">
+                            <span className="text-xs font-bold text-[var(--ds-fg-subtle)]">
                               B
                             </span>
                           )}
@@ -1316,8 +1316,8 @@ export function QuickDepositDrawer({
                             depositStep === "processing" ||
                             depositStep === "almost" ||
                             depositStep === "complete"
-                              ? "text-white"
-                              : "text-white/45"
+                              ? "text-[var(--ds-fg)]"
+                              : "text-[var(--ds-fg-subtle)]"
                           }`}
                         >
                           Processing
@@ -1329,7 +1329,7 @@ export function QuickDepositDrawer({
                           depositStep === "almost" ||
                           depositStep === "complete"
                             ? "bg-[#059669]"
-                            : "bg-white/15"
+                            : "bg-[var(--ds-control-hover)]"
                         }`}
                       />
 
@@ -1339,22 +1339,22 @@ export function QuickDepositDrawer({
                             depositStep === "almost" ||
                             depositStep === "complete"
                               ? "bg-[#059669] shadow-sm"
-                              : "border-2 border-white/20 bg-white/10"
+                              : "border-2 border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)]"
                           }`}
                         >
                           {stepLoading.almost ? (
-                            <IconLoader2 className="h-4 w-4 animate-spin text-white" />
+                            <IconLoader2 className="h-4 w-4 animate-spin text-[var(--ds-fg)]" />
                           ) : depositStep === "almost" ||
                             depositStep === "complete" ? (
-                            <IconCheck className="h-5 w-5 text-white" />
+                            <IconCheck className="h-5 w-5 text-[var(--ds-fg)]" />
                           ) : null}
                         </div>
                         <span
                           className={`whitespace-nowrap text-xs font-medium ${
                             depositStep === "almost" ||
                             depositStep === "complete"
-                              ? "text-white"
-                              : "text-white/45"
+                              ? "text-[var(--ds-fg)]"
+                              : "text-[var(--ds-fg-subtle)]"
                           }`}
                         >
                           Almost Done
@@ -1365,7 +1365,7 @@ export function QuickDepositDrawer({
                         className={`mx-2 mt-5 h-1 flex-1 rounded-full transition-all ${
                           depositStep === "complete"
                             ? "bg-[#059669]"
-                            : "bg-white/15"
+                            : "bg-[var(--ds-control-hover)]"
                         }`}
                       />
 
@@ -1374,20 +1374,20 @@ export function QuickDepositDrawer({
                           className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full transition-all ${
                             depositStep === "complete"
                               ? "bg-[#059669] shadow-sm"
-                              : "border-2 border-white/20 bg-white/10"
+                              : "border-2 border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)]"
                           }`}
                         >
                           {stepLoading.complete ? (
-                            <IconLoader2 className="h-4 w-4 animate-spin text-white" />
+                            <IconLoader2 className="h-4 w-4 animate-spin text-[var(--ds-fg)]" />
                           ) : depositStep === "complete" ? (
-                            <IconCheck className="h-5 w-5 text-white" />
+                            <IconCheck className="h-5 w-5 text-[var(--ds-fg)]" />
                           ) : null}
                         </div>
                         <span
                           className={`whitespace-nowrap text-xs font-medium ${
                             depositStep === "complete"
-                              ? "text-white"
-                              : "text-white/45"
+                              ? "text-[var(--ds-fg)]"
+                              : "text-[var(--ds-fg-subtle)]"
                           }`}
                         >
                           Complete
@@ -1402,7 +1402,7 @@ export function QuickDepositDrawer({
                 <Button
                   variant="ghost"
                   onClick={onPlayNow}
-                  className="mt-4 h-11 w-full rounded-md border-2 border-white/20 font-semibold text-white transition-colors hover:border-white/35 hover:bg-white/10"
+                  className="mt-4 h-11 w-full rounded-md border-2 border-[var(--ds-border-strong)] font-semibold text-[var(--ds-fg)] transition-colors hover:border-white/35 hover:bg-[var(--ds-control-hover)]"
                 >
                   Play Now
                 </Button>

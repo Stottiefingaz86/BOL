@@ -78,7 +78,7 @@ export function VipTierProgressBar({
         <div className={cn("flex min-w-0 items-center", compact ? "gap-2" : "gap-2.5")}>
           <div
             className={cn(
-              "relative min-w-0 flex-1 overflow-hidden rounded-full bg-white/10",
+              "relative min-w-0 flex-1 overflow-hidden rounded-full bg-black/10 dark:bg-[var(--ds-control-hover)]",
               barH
             )}
           >
@@ -91,7 +91,7 @@ export function VipTierProgressBar({
           </div>
           <span
             className={cn(
-              "shrink-0 font-medium tabular-nums text-white/80",
+              "shrink-0 font-medium tabular-nums text-[var(--ds-fg-muted)]",
               compact ? "text-[10px]" : "text-xs"
             )}
           >
@@ -109,7 +109,7 @@ export function VipTierProgressBar({
           >
             <span className="leading-none">
               Until {nextTierLabel}:{" "}
-              <span className="font-medium tabular-nums text-white/70">
+              <span className="font-medium tabular-nums text-[var(--ds-fg-muted)]">
                 {wagerRemaining}
               </span>
             </span>
@@ -121,23 +121,23 @@ export function VipTierProgressBar({
         <div
           className={cn(
             bannerTile && compact
-              ? "border-t border-white/10 pt-2"
+              ? "border-t border-[var(--ds-border)] pt-2"
               : cn(
-                  "mt-2 border-t border-white/10 pt-3",
+                  "mt-2 border-t border-[var(--ds-border)] pt-3",
                   compact ? "text-[10px]" : "text-[11px]"
                 )
           )}
         >
           <p
             className={cn(
-              "text-white/50",
+              "text-[var(--ds-fg-subtle)]",
               bannerTile && compact ? "text-[10px] leading-snug" : "leading-snug"
             )}
           >
             Playing{" "}
             <Link
               href={ORIGINALS_DEEP_LINK}
-              className="font-medium text-white underline-offset-2 hover:underline"
+              className="font-medium text-[var(--ds-fg)] underline-offset-2 hover:underline"
             >
               Originals
             </Link>{" "}

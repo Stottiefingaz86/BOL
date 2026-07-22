@@ -89,11 +89,11 @@ export function CasinoActivityPanel({
 
   return (
     <div className={cn('mb-8', isMobile ? 'px-3' : 'px-6')}>
-      <Separator className="mb-6 bg-white/10" />
-      <h2 className="mb-4 text-lg font-semibold text-white">{heading}</h2>
+      <Separator className="mb-6 bg-[var(--ds-border)]" />
+      <h2 className="mb-4 text-lg font-semibold text-[var(--ds-fg)]">{heading}</h2>
 
       <div className="scrollbar-hide mb-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-        <div className="inline-flex h-auto w-max gap-1 rounded-3xl border-0 bg-white/5 p-0.5 backdrop-blur-xl dark:bg-white/5">
+        <div className="inline-flex h-auto w-max gap-1 rounded-3xl border-0 bg-[var(--ds-control-bg)] p-0.5 backdrop-blur-xl">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -103,7 +103,7 @@ export function CasinoActivityPanel({
                 'relative flex h-9 shrink-0 items-center whitespace-nowrap rounded-2xl px-4 py-1 text-xs font-medium transition-all duration-300',
                 casinoActivityTab === tab
                   ? 'text-white'
-                  : 'border border-transparent bg-transparent text-white/70 hover:bg-white/5 hover:text-white'
+                  : 'border border-transparent bg-transparent text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]'
               )}
             >
               {casinoActivityTab === tab && (
@@ -125,7 +125,7 @@ export function CasinoActivityPanel({
         </div>
       </div>
 
-      <Card className="overflow-hidden rounded-small border-white/10 bg-white/5 backdrop-blur-sm">
+      <Card className="overflow-hidden rounded-small border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] backdrop-blur-sm">
         <CardContent className="p-0">
           <div className="scrollbar-hide max-h-[500px] overflow-y-auto">
             {casinoActivityTab === 'Daily Race' ? (

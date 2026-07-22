@@ -21,16 +21,16 @@ export function AccountDrawerIdentity({
   if (!loggedIn) {
     return (
       <div className={cn('flex min-w-0 flex-1 flex-col', className)}>
-        <div className="truncate text-left text-sm font-medium text-white">Guest</div>
-        <div className="truncate text-left text-xs text-white/50">Not signed in</div>
+        <div className="truncate text-left text-sm font-medium text-[var(--ds-fg)]">Guest</div>
+        <div className="truncate text-left text-xs text-[var(--ds-fg-subtle)]">Not signed in</div>
       </div>
     )
   }
 
   return (
     <div className={cn('flex min-w-0 flex-1 flex-col gap-0.5', className)}>
-      <div className="truncate text-left text-sm font-medium text-white">{name}</div>
-      <div className="truncate text-left text-xs text-white/50">{accountId}</div>
+      <div className="truncate text-left text-sm font-medium text-[var(--ds-fg)]">{name}</div>
+      <div className="truncate text-left text-xs text-[var(--ds-fg-subtle)]">{accountId}</div>
     </div>
   )
 }

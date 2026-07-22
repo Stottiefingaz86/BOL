@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 export function VipDailyRaces({ className }: { className?: string }) {
   return (
     <div className={cn('space-y-3', className)}>
-      <div className="rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent p-4">
+      <div className="rounded-xl border border-amber-400/35 bg-[var(--ds-promo-card-bg)] bg-gradient-to-br from-amber-400/[0.12] to-transparent p-4">
         <div className="mb-4 flex items-start justify-between gap-2">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-amber-500/15">
@@ -41,7 +41,7 @@ export function VipDailyRaces({ className }: { className?: string }) {
         </div>
       </div>
 
-      <p className="px-0.5 text-[11px] leading-relaxed text-white/40">
+      <p className="px-0.5 text-[11px] leading-relaxed text-[var(--ds-fg-subtle)]">
         Place bets across Sportsbook, Casino, Poker, Racebook or Esports to climb the leaderboard.
         Everyone qualifies — you&apos;re enrolled as soon as you start wagering.
       </p>

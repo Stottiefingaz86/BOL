@@ -69,9 +69,9 @@ export function VipTierProgressCard({
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border border-white/[0.06] bg-white/[0.04] text-left transition-colors',
+        'w-full rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] text-left transition-colors',
         compact ? 'p-2.5' : 'p-3.5',
-        onClick && 'hover:border-white/12 hover:bg-white/[0.06]',
+        onClick && 'hover:border-[var(--ds-border-strong)] hover:bg-[var(--ds-control-bg)]',
         className,
       )}
     >
@@ -87,7 +87,7 @@ export function VipTierProgressCard({
         <div className="min-w-0 flex-1">
           <p
             className={cn(
-              'font-semibold text-white',
+              'font-semibold text-[var(--ds-fg)]',
               compact ? 'text-xs leading-tight' : 'text-sm',
             )}
           >
@@ -96,7 +96,7 @@ export function VipTierProgressCard({
           <div className={cn('flex items-center gap-2', compact ? 'mt-1.5' : 'mt-2 gap-2.5')}>
             <div
               className={cn(
-                'relative min-w-0 flex-1 overflow-hidden rounded-full bg-white/10',
+                'relative min-w-0 flex-1 overflow-hidden rounded-full bg-[var(--ds-control-hover)]',
                 compact ? 'h-1' : 'h-1.5',
               )}
             >
@@ -110,7 +110,7 @@ export function VipTierProgressCard({
             </div>
             <span
               className={cn(
-                'shrink-0 font-medium tabular-nums text-white/80',
+                'shrink-0 font-medium tabular-nums text-[var(--ds-fg-muted)]',
                 compact ? 'text-[10px]' : 'text-xs',
               )}
             >
@@ -118,7 +118,7 @@ export function VipTierProgressCard({
             </span>
           </div>
           {!compact ? (
-            <p className="mt-2 text-[11px] text-white/40">{updatedLabel}</p>
+            <p className="mt-2 text-[11px] text-[var(--ds-fg-subtle)]">{updatedLabel}</p>
           ) : null}
         </div>
       </div>

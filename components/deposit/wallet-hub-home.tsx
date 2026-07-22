@@ -152,7 +152,7 @@ export function WalletHubActionTabs({
   /** Match header-user-controls: 36px height, radius 8, border white/6 */
   const controlH = 'h-9 min-h-9 max-h-9 box-border'
   const inactiveSurface =
-    'border border-white/[0.06] bg-white/[0.05] text-white/80 hover:brightness-110'
+    'border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-[var(--ds-fg-muted)] hover:brightness-110'
 
   const primaryBtn = (tab: 'deposit' | 'withdrawal') =>
     cn(
@@ -231,7 +231,7 @@ export function WalletHubCategoryPills({
 }) {
   return (
     <div className="flex w-full items-center justify-start">
-      <div className="inline-flex items-center gap-1 rounded-3xl bg-white/5 p-0.5">
+      <div className="inline-flex items-center gap-1 rounded-3xl bg-[var(--ds-control-bg)] p-0.5">
         {CATEGORIES.map((c) => {
           const isActive = active === c.id
           return (
@@ -243,8 +243,8 @@ export function WalletHubCategoryPills({
               className={cn(
                 'relative flex h-9 shrink-0 items-center justify-center rounded-2xl px-4 text-xs font-medium transition-colors duration-300',
                 isActive
-                  ? 'text-white'
-                  : 'text-white/70 hover:bg-white/5 hover:text-white',
+                  ? 'text-[var(--ds-fg)]'
+                  : 'text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]',
               )}
             >
               {isActive ? (
@@ -280,16 +280,16 @@ export function WalletHubCryptoGrid({
             type="button"
             onClick={() => onSelect(coin)}
             className={cn(
-              'flex h-[100px] flex-col items-center justify-center gap-1 rounded-lg bg-white/[0.04] p-2 text-center transition-colors',
-              'hover:bg-white/[0.07]',
+              'flex h-[100px] flex-col items-center justify-center gap-1 rounded-lg bg-[var(--ds-overlay)] p-2 text-center transition-colors',
+              'hover:bg-[var(--ds-control-hover)]',
               selected &&
-                'bg-white/[0.08] ring-1 ring-[var(--ds-primary,#ee3536)]',
+                'bg-[var(--ds-control-hover)] ring-1 ring-[var(--ds-primary,#ee3536)]',
             )}
           >
             <CryptoCoinIcon id={coin.id} size={28} />
             <span className="flex w-full flex-col items-center leading-[1.47]">
-              <span className="w-full text-xs font-semibold text-white">{coin.name}</span>
-              <span className="w-full text-xs font-normal text-white/65">({coin.ticker})</span>
+              <span className="w-full text-xs font-semibold text-[var(--ds-fg)]">{coin.name}</span>
+              <span className="w-full text-xs font-normal text-[var(--ds-fg-muted)]">({coin.ticker})</span>
             </span>
           </button>
         )
@@ -304,11 +304,11 @@ export function WalletHubCryptoTutorialLink() {
       href="https://www.betonline.ag/crypto-tutorial"
       target="_blank"
       rel="noopener noreferrer"
-      className="flex h-11 w-full items-center justify-center rounded-lg bg-white/[0.04] px-4 transition-colors hover:bg-white/[0.07]"
+      className="flex h-11 w-full items-center justify-center rounded-lg bg-[var(--ds-overlay)] px-4 transition-colors hover:bg-[var(--ds-control-hover)]"
     >
       <span className="flex items-center justify-center gap-2">
         <CryptoTutorialIcon size={18} />
-        <span className="text-xs text-white/80">
+        <span className="text-xs text-[var(--ds-fg-muted)]">
           New to Crypto? <span className="text-[#6ea8ff]">Get Started Here</span>
         </span>
       </span>
@@ -352,10 +352,10 @@ export function WalletHubDepositHome({
           <button
             type="button"
             onClick={onSelectCard}
-            className="flex h-[100px] w-full flex-col items-center justify-center gap-2 rounded-lg bg-white/[0.04] p-3 transition-colors hover:bg-white/[0.07]"
+            className="flex h-[100px] w-full flex-col items-center justify-center gap-2 rounded-lg bg-[var(--ds-overlay)] p-3 transition-colors hover:bg-[var(--ds-control-hover)]"
           >
-            <span className="text-xs font-semibold text-white">Credit / Debit Card</span>
-            <span className="text-[10px] text-white/50">Min $25 · Fee 9.75%</span>
+            <span className="text-xs font-semibold text-[var(--ds-fg)]">Credit / Debit Card</span>
+            <span className="text-[10px] text-[var(--ds-fg-subtle)]">Min $25 · Fee 9.75%</span>
           </button>
         ) : null}
 
@@ -367,13 +367,13 @@ export function WalletHubDepositHome({
                 type="button"
                 onClick={() => onSelectOther(m.id)}
                 className={cn(
-                  'flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-lg bg-white/[0.04] p-3 text-center transition-colors hover:bg-white/[0.07]',
+                  'flex min-h-[88px] flex-col items-center justify-center gap-1 rounded-lg bg-[var(--ds-overlay)] p-3 text-center transition-colors hover:bg-[var(--ds-control-hover)]',
                   selectedOtherId === m.id &&
-                    'bg-white/[0.08] ring-1 ring-[var(--ds-primary,#ee3536)]',
+                    'bg-[var(--ds-control-hover)] ring-1 ring-[var(--ds-primary,#ee3536)]',
                 )}
               >
-                <span className="text-xs font-semibold text-white">{m.label}</span>
-                <span className="text-[10px] text-white/50">Fee {m.feeLabel}</span>
+                <span className="text-xs font-semibold text-[var(--ds-fg)]">{m.label}</span>
+                <span className="text-[10px] text-[var(--ds-fg-subtle)]">Fee {m.feeLabel}</span>
               </button>
             ))}
           </div>

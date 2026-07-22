@@ -18,7 +18,7 @@ export function VipLoggedOutCta({ className, compact }: VipLoggedOutCtaProps) {
         requestLogin()
       }}
       className={cn(
-        'flex w-full items-center justify-center gap-1.5 rounded-md border border-white/15 bg-white/10 font-bold uppercase tracking-wider text-white/75 transition-colors hover:bg-white/15 hover:text-white',
+        'flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)] font-bold uppercase tracking-wider text-white/75 transition-colors hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]',
         compact ? 'h-9 text-[11px]' : 'h-10 text-xs',
         className
       )}

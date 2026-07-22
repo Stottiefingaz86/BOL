@@ -1,11 +1,13 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   IconBrandTelegram,
   IconCheck,
   IconInfoCircle,
+  IconLock,
   IconRefresh,
+  IconSparkles,
 } from '@tabler/icons-react'
 import { fireConfetti } from '@/lib/confetti'
 import { playSound } from '@/lib/sounds'
@@ -37,6 +39,12 @@ type IconKind =
   | 'boost-15'
   | 'boost-30'
   | 'boost-star'
+  | 'free-spins'
+
+type HubSectionId = 'rakeback' | 'scheduled' | 'locked' | 'on-demand'
+
+/** Tier bands from HUB-SORTING.pdf final views */
+export type VipHubTierBand = 'bronze' | 'silver-gold' | 'platinum'
 
 type HubRow =
   | {
@@ -45,8 +53,10 @@ type HubRow =
       info?: string
       icon: IconKind
       kind: 'claim'
-      amount: number
+      amount?: number
       subtitle?: string
+      /** On-demand rows disappear after claim (except multi-release Special Reload) */
+      removeOnClaim?: boolean
     }
   | {
       id: string
@@ -62,106 +72,188 @@ type HubRow =
       name: string
       info?: string
       icon: IconKind
+      kind: 'locked'
+      unlockTier: string
+    }
+  | {
+      id: string
+      name: string
+      info?: string
+      icon: IconKind
       kind: 'login'
+      subtitle?: string
     }
 
-/** Logged-in VIP tab — progress + claimable rows + Telegram */
-const LOGGED_IN_ROWS: HubRow[] = [
-  {
+type HubSection = {
+  id: HubSectionId
+  title: string | null
+  rows: HubRow[]
+}
+
+/**
+ * Build VIP hub sections per HUB-SORTING.pdf:
+ * 1. Rakeback (always top)
+ * 2. Scheduled — active (tier naming: Reload below Platinum, Boost at Platinum+)
+ * 3. Locked — future VIP levels
+ * 4. On-demand — Special Reload pinned, then others by expiry
+ */
+function buildHubSections(tier: VipHubTierBand): HubSection[] {
+  const rakeback: HubRow = {
     id: 'rakeback',
     name: 'Rakeback',
     info: 'Claim a share of every bet back, every 7 minutes. Terms & Conditions',
     icon: 'rakeback',
     kind: 'claim',
     amount: 0.2,
-  },
-  {
+  }
+
+  const weeklyBoostActive: HubRow = {
+    id: 'weekly-boost',
+    name: 'Weekly Boost',
+    info: 'Boost your balance every week as you climb the VIP ladder.',
+    icon: 'boost-7',
+    kind: 'cooldown',
+    cooldownLabel: '2 DAYS',
+  }
+
+  const monthlyReload: HubRow = {
     id: 'monthly-reload',
     name: 'Monthly Reload',
     info: 'Reload bonus available once per month based on your VIP tier.',
     icon: 'reload-30',
     kind: 'cooldown',
     subtitle: '2 of 3 claimed',
-    cooldownLabel: '10d',
-  },
-  {
-    id: 'pre-monthly-reload',
-    name: 'Pre-Monthly Reload',
-    info: 'An early reload window before your monthly bonus resets.',
+    cooldownLabel: '10 DAYS',
+  }
+
+  const postMonthlyReload: HubRow = {
+    id: 'post-monthly-reload',
+    name: 'Post-Monthly Reload',
+    info: 'An extra reload window after your monthly bonus resets.',
     icon: 'reload-15',
     kind: 'claim',
     amount: 1,
-    subtitle: '2 of 5 claimed',
-  },
-  {
-    id: 'weekly-boost',
-    name: 'Weekly Boost',
-    info: 'Boost your balance every week as you climb the VIP ladder.',
-    icon: 'boost-7',
-    kind: 'cooldown',
-    cooldownLabel: '2d',
-  },
-]
+    subtitle: '4 of 5 claimed',
+  }
 
-/** Logged-out VIP tab — full reward list with Log in CTAs (Figma) */
-const LOGGED_OUT_ROWS: HubRow[] = [
-  {
-    id: 'rakeback',
-    name: 'Rakeback',
-    info: 'Claim a share of every bet back, every 7 minutes. Terms & Conditions',
-    icon: 'rakeback',
-    kind: 'login',
-  },
-  {
-    id: 'monthly-reload',
-    name: 'Monthly Reload',
-    info: 'Reload bonus available once per month based on your VIP tier.',
-    icon: 'reload-30',
-    kind: 'login',
-  },
-  {
-    id: 'pre-monthly-reload',
-    name: 'Pre-Monthly Reload',
-    info: 'An early reload window before your monthly bonus resets.',
-    icon: 'reload-15',
-    kind: 'login',
-  },
-  {
-    id: 'special-reload',
-    name: 'Special Reload',
-    info: 'Limited-time reload offers for VIP members.',
-    icon: 'reload-star',
-    kind: 'login',
-  },
-  {
-    id: 'weekly-boost',
-    name: 'Weekly Boost',
-    info: 'Boost your balance every week as you climb the VIP ladder.',
-    icon: 'boost-7',
-    kind: 'login',
-  },
-  {
-    id: 'post-monthly-boost',
-    name: 'Post-Monthly Boost',
-    info: 'A boost available after your monthly cycle completes.',
-    icon: 'boost-15',
-    kind: 'login',
-  },
-  {
+  const monthlyBoostActive: HubRow = {
     id: 'monthly-boost',
     name: 'Monthly Boost',
     info: 'Monthly VIP boost based on your tier and play.',
     icon: 'boost-30',
-    kind: 'login',
-  },
-  {
-    id: 'special-boost',
-    name: 'Special Boost',
-    info: 'Exclusive boosts for special VIP campaigns.',
-    icon: 'boost-star',
-    kind: 'login',
-  },
-]
+    kind: 'claim',
+    amount: 10,
+  }
+
+  const postMonthlyBoostActive: HubRow = {
+    id: 'post-monthly-boost',
+    name: 'Post-Monthly Boost',
+    info: 'A boost available after your monthly cycle completes.',
+    icon: 'boost-15',
+    kind: 'cooldown',
+    cooldownLabel: '10 DAYS',
+  }
+
+  const weeklyBoostLocked: HubRow = {
+    id: 'weekly-boost-locked',
+    name: 'Weekly Boost',
+    info: 'Unlocks at Silver VIP and above.',
+    icon: 'boost-7',
+    kind: 'locked',
+    unlockTier: 'SILVER',
+  }
+
+  const monthlyBoostLocked: HubRow = {
+    id: 'monthly-boost-locked',
+    name: 'Monthly Boost',
+    info: 'Unlocks at Platinum VIP and above.',
+    icon: 'boost-30',
+    kind: 'locked',
+    unlockTier: 'PLATINUM',
+  }
+
+  const postMonthlyBoostLocked: HubRow = {
+    id: 'post-monthly-boost-locked',
+    name: 'Post-Monthly Boost',
+    info: 'Unlocks at Platinum VIP and above.',
+    icon: 'boost-15',
+    kind: 'locked',
+    unlockTier: 'PLATINUM',
+  }
+
+  const onDemand: HubRow[] = [
+    {
+      id: 'special-reload',
+      name: 'Special Reload',
+      info: 'Limited-time reload offers for VIP members. Multi-release — older campaigns stay pinned first.',
+      icon: 'reload-star',
+      kind: 'claim',
+      amount: 5,
+      subtitle: '0 of 7 claimed',
+    },
+    {
+      id: 'special-boost',
+      name: 'Special Boost',
+      info: 'Exclusive boosts for special VIP campaigns.',
+      icon: 'boost-star',
+      kind: 'claim',
+      amount: 3,
+      removeOnClaim: true,
+    },
+    {
+      id: 'free-spins',
+      name: 'Free Spins',
+      info: 'Claim free spins from on-demand VIP campaigns.',
+      icon: 'free-spins',
+      kind: 'claim',
+      removeOnClaim: true,
+    },
+  ]
+
+  let scheduled: HubRow[]
+  let locked: HubRow[]
+
+  if (tier === 'bronze') {
+    scheduled = [monthlyReload, postMonthlyReload]
+    locked = [weeklyBoostLocked, monthlyBoostLocked, postMonthlyBoostLocked]
+  } else if (tier === 'silver-gold') {
+    scheduled = [weeklyBoostActive, monthlyReload, postMonthlyReload]
+    locked = [monthlyBoostLocked, postMonthlyBoostLocked]
+  } else {
+    scheduled = [weeklyBoostActive, monthlyBoostActive, postMonthlyBoostActive]
+    locked = []
+  }
+
+  const sections: HubSection[] = [
+    { id: 'rakeback', title: null, rows: [rakeback] },
+    { id: 'scheduled', title: 'SCHEDULED', rows: scheduled },
+  ]
+
+  if (locked.length > 0) {
+    sections.push({ id: 'locked', title: 'LOCKED', rows: locked })
+  }
+
+  sections.push({ id: 'on-demand', title: 'ON DEMAND', rows: onDemand })
+
+  return sections
+}
+
+function asLoginRows(sections: HubSection[]): HubSection[] {
+  return sections.map((section) => ({
+    ...section,
+    rows: section.rows.map((row) => {
+      if (row.kind === 'locked') return row
+      return {
+        id: row.id,
+        name: row.name,
+        info: row.info,
+        icon: row.icon,
+        kind: 'login' as const,
+        subtitle: 'subtitle' in row ? row.subtitle : undefined,
+      }
+    }),
+  }))
+}
 
 function RowIcon({ type }: { type: IconKind }) {
   const cls = 'size-5 text-white'
@@ -180,6 +272,8 @@ function RowIcon({ type }: { type: IconKind }) {
     case 'reload-star':
     case 'boost-star':
       return <VipIconSpecial className={cls} />
+    case 'free-spins':
+      return <IconSparkles className={cls} strokeWidth={1.75} />
     default:
       return <IconRefresh className={cls} strokeWidth={1.75} />
   }
@@ -249,7 +343,13 @@ function ClaimStyleButton({
   )
 }
 
-function BenefitRow({ row }: { row: HubRow }) {
+function BenefitRow({
+  row,
+  onClaimed,
+}: {
+  row: HubRow
+  onClaimed?: (id: string, remove: boolean) => void
+}) {
   const { isLoggedIn } = useAuthSession()
   const rowRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -277,19 +377,23 @@ function BenefitRow({ row }: { row: HubRow }) {
       const amount = row.amount
       window.setTimeout(() => {
         playSound('button-click')
-        toast.success(`Claimed $${amount.toFixed(2)}`, {
-          description: `${row.name} has been added to your balance.`,
-          duration: 3500,
-        })
+        toast.success(
+          amount != null ? `Claimed $${amount.toFixed(2)}` : `Claimed ${row.name}`,
+          {
+            description: `${row.name} has been added to your balance.`,
+            duration: 3500,
+          }
+        )
       }, 2000)
-      if (typeof window !== 'undefined' && amount > 0) {
+      if (typeof window !== 'undefined' && amount != null && amount > 0) {
         window.dispatchEvent(
           new CustomEvent('notification:claim-reward', { detail: { amount } })
         )
       }
       setClaimed(true)
+      onClaimed?.(row.id, Boolean(row.removeOnClaim))
     },
-    [claimed, row]
+    [claimed, onClaimed, row]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -300,7 +404,9 @@ function BenefitRow({ row }: { row: HubRow }) {
   }, [])
 
   const showClaimHighlight =
-    !isLoggedIn || row.kind === 'login' || (row.kind === 'claim' && !claimed)
+    !isLoggedIn ||
+    row.kind === 'login' ||
+    (row.kind === 'claim' && !claimed)
 
   return (
     <div
@@ -308,10 +414,10 @@ function BenefitRow({ row }: { row: HubRow }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'group relative flex items-center gap-3 overflow-visible rounded-xl border bg-white/[0.04] px-3 py-3 transition-colors duration-200',
+        'group relative flex items-center gap-3 overflow-visible rounded-xl border bg-[var(--ds-overlay)] px-3 py-3 transition-colors duration-200',
         showClaimHighlight
-          ? 'border-white/[0.06] hover:border-[var(--ds-primary,#ee3536)]/50'
-          : 'border-white/[0.06] hover:border-white/15'
+          ? 'border-[var(--ds-control-border)] hover:border-[var(--ds-primary,#ee3536)]/50'
+          : 'border-[var(--ds-control-border)] hover:border-[var(--ds-border-strong)]'
       )}
       style={
         {
@@ -332,21 +438,21 @@ function BenefitRow({ row }: { row: HubRow }) {
       />
 
       <div
-        className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl text-white/95"
+        className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
         style={rewardAccentStyle(row.name)}
       >
         <RowIcon type={row.icon} />
       </div>
       <div className="relative z-20 min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="truncate text-sm font-semibold text-white">{row.name}</span>
+          <span className="truncate text-sm font-semibold text-[var(--ds-fg)]">{row.name}</span>
           {row.info ? (
             <TooltipProvider delayDuration={200}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="relative z-30 text-white/35 transition-colors hover:text-white/60"
+                    className="relative z-30 text-[var(--ds-fg-subtle)] transition-colors hover:text-[var(--ds-fg-muted)]"
                     aria-label={`${row.name} info`}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -355,7 +461,7 @@ function BenefitRow({ row }: { row: HubRow }) {
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="z-[200] max-w-[240px] border-white/10 bg-[#f5f5f5] text-xs text-[#1a1a1a]"
+                  className="z-[200] max-w-[240px] border-[var(--ds-border)] bg-[var(--ds-surface)] text-xs text-[var(--ds-fg)]"
                 >
                   {row.info}
                 </TooltipContent>
@@ -363,16 +469,21 @@ function BenefitRow({ row }: { row: HubRow }) {
             </TooltipProvider>
           ) : null}
         </div>
-        {'subtitle' in row && row.subtitle && isLoggedIn ? (
-          <p className="mt-0.5 text-[11px] text-white/45">{row.subtitle}</p>
+        {'subtitle' in row && row.subtitle && (isLoggedIn || row.kind === 'login') ? (
+          <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">{row.subtitle}</p>
         ) : null}
       </div>
 
       <div className="relative z-10 shrink-0">
-        {!isLoggedIn || row.kind === 'login' ? (
+        {row.kind === 'locked' ? (
+          <div className="flex h-9 min-w-[44px] items-center justify-center gap-1.5 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2.5 text-[11px] font-bold uppercase tracking-wider text-[var(--ds-fg-muted)]">
+            <IconLock className="size-3.5 shrink-0" strokeWidth={2} />
+            {row.unlockTier}
+          </div>
+        ) : !isLoggedIn || row.kind === 'login' ? (
           <ClaimStyleButton onClick={handleLogin}>Log in</ClaimStyleButton>
         ) : row.kind === 'cooldown' ? (
-          <div className="flex h-9 min-w-[44px] items-center justify-center rounded-lg bg-white/[0.06] px-2.5 text-xs font-semibold tabular-nums text-white/70">
+          <div className="flex h-9 min-w-[44px] items-center justify-center rounded-lg bg-[var(--ds-control-bg)] px-2.5 text-[11px] font-semibold uppercase tabular-nums tracking-wide text-[var(--ds-fg-muted)]">
             {row.cooldownLabel}
           </div>
         ) : claimed ? (
@@ -387,7 +498,7 @@ function BenefitRow({ row }: { row: HubRow }) {
               handleClaim(e)
             }}
           >
-            Claim ${row.amount.toFixed(2)}
+            {row.amount != null ? `Claim $${row.amount.toFixed(2)}` : 'Claim'}
           </ClaimStyleButton>
         )}
       </div>
@@ -395,7 +506,13 @@ function BenefitRow({ row }: { row: HubRow }) {
   )
 }
 
-function ProgressCard() {
+function ProgressCard({ tier }: { tier: VipHubTierBand }) {
+  if (tier === 'platinum') {
+    return <VipTierProgressCard fromTier="Platinum I" toTier="Platinum II" percent={40} />
+  }
+  if (tier === 'silver-gold') {
+    return <VipTierProgressCard fromTier="Silver" toTier="Gold" percent={55} />
+  }
   return <VipTierProgressCard fromTier="Bronze" toTier="Silver" percent={25} />
 }
 
@@ -411,8 +528,8 @@ function TelegramCta() {
         <IconBrandTelegram className="size-5 text-[#229ED9]" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-white">Get Telegram</p>
-        <p className="mt-0.5 text-[11px] leading-snug text-white/45">
+        <p className="text-sm font-semibold text-[var(--ds-fg)]">Get Telegram</p>
+        <p className="mt-0.5 text-[11px] leading-snug text-[var(--ds-fg-subtle)]">
           Get exclusive Cash Drop codes, promotions & rewards delivered straight to you.
         </p>
       </div>
@@ -423,17 +540,54 @@ function TelegramCta() {
   )
 }
 
-export function VipHubOverview({ className }: { className?: string }) {
+export function VipHubOverview({
+  className,
+  /** Demo / preview band — defaults to Bronze (matches progress card). */
+  tier = 'bronze',
+}: {
+  className?: string
+  tier?: VipHubTierBand
+}) {
   const { isLoggedIn } = useAuthSession()
-  const rows = isLoggedIn ? LOGGED_IN_ROWS : LOGGED_OUT_ROWS
+  const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set())
+
+  const sections = useMemo(() => {
+    const base = buildHubSections(tier)
+    const withAuth = isLoggedIn ? base : asLoginRows(base)
+    if (removedIds.size === 0) return withAuth
+    return withAuth
+      .map((section) => ({
+        ...section,
+        rows: section.rows.filter((row) => !removedIds.has(row.id)),
+      }))
+      .filter((section) => section.rows.length > 0)
+  }, [isLoggedIn, removedIds, tier])
+
+  const handleClaimed = useCallback((id: string, remove: boolean) => {
+    if (!remove) return
+    setRemovedIds((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+  }, [])
 
   return (
     <div className={cn('space-y-3', className)}>
-      {isLoggedIn ? <ProgressCard /> : null}
+      {isLoggedIn ? <ProgressCard tier={tier} /> : null}
 
-      <div className="space-y-2">
-        {rows.map((row) => (
-          <BenefitRow key={row.id} row={row} />
+      <div className="space-y-4">
+        {sections.map((section) => (
+          <div key={section.id} className="space-y-2">
+            {section.title ? (
+              <p className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ds-fg-subtle)]">
+                {section.title}
+              </p>
+            ) : null}
+            {section.rows.map((row) => (
+              <BenefitRow key={row.id} row={row} onClaimed={handleClaimed} />
+            ))}
+          </div>
         ))}
       </div>
 

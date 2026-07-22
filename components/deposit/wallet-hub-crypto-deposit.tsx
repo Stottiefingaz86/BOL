@@ -122,7 +122,7 @@ export function WalletHubCryptoDeposit({
 
       <div ref={rootRef} className="relative w-full">
         <fieldset className="rounded-lg border border-white/[0.08] px-3 pb-2.5 pt-1">
-          <legend className="px-1 text-[11px] font-medium text-white/55">
+          <legend className="px-1 text-[11px] font-medium text-[var(--ds-fg-muted)]">
             Select Crypto
           </legend>
           <button
@@ -133,12 +133,12 @@ export function WalletHubCryptoDeposit({
             aria-haspopup="listbox"
           >
             <CryptoCoinIcon id={coin.id} size={22} />
-            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--ds-fg)]">
               {label}
             </span>
             <IconChevronDown
               className={cn(
-                'size-4 shrink-0 text-white/50 transition-transform',
+                'size-4 shrink-0 text-[var(--ds-fg-subtle)] transition-transform',
                 menuOpen && 'rotate-180',
               )}
               stroke={2}
@@ -147,15 +147,15 @@ export function WalletHubCryptoDeposit({
         </fieldset>
 
         {menuOpen ? (
-          <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-white/15 bg-[#2a2a2a] shadow-xl">
-            <div className="border-b border-white/10 p-2">
+          <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-[var(--ds-border-strong)] bg-[var(--ds-surface-raised)] shadow-xl">
+            <div className="border-b border-[var(--ds-border)] p-2">
               <div className="relative">
-                <IconSearch className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-white/40" />
+                <IconSearch className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-[var(--ds-fg-subtle)]" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search..."
-                  className="h-9 w-full rounded-md border-0 bg-white/5 pl-9 pr-3 text-sm text-white placeholder:text-white/35 outline-none ring-1 ring-white/10 focus:ring-white/25"
+                  className="h-9 w-full rounded-md border-0 bg-[var(--ds-control-bg)] pl-9 pr-3 text-sm text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] outline-none ring-1 ring-white/10 focus:ring-white/25"
                   autoFocus
                 />
               </div>
@@ -179,15 +179,15 @@ export function WalletHubCryptoDeposit({
                       }}
                       className={cn(
                         'flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors',
-                        selected ? 'bg-white/10' : 'hover:bg-white/5',
+                        selected ? 'bg-[var(--ds-control-hover)]' : 'hover:bg-[var(--ds-control-bg)]',
                       )}
                     >
                       <CryptoCoinIcon id={c.id} size={28} />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium text-white">
+                        <span className="block text-sm font-medium text-[var(--ds-fg)]">
                           {c.name} ({c.ticker})
                         </span>
-                        <span className="block text-[11px] text-white/45">
+                        <span className="block text-[11px] text-[var(--ds-fg-subtle)]">
                           Min: $10 Fee: 0%
                         </span>
                       </span>
@@ -196,7 +196,7 @@ export function WalletHubCryptoDeposit({
                 )
               })}
               {filtered.length === 0 ? (
-                <li className="px-3 py-4 text-center text-xs text-white/45">
+                <li className="px-3 py-4 text-center text-xs text-[var(--ds-fg-subtle)]">
                   No coins found
                 </li>
               ) : null}
@@ -233,18 +233,18 @@ export function WalletHubCryptoDeposit({
               /* ignore */
             }
           }}
-          className="w-full rounded-lg bg-white/[0.06] px-3 py-3.5 text-left transition-colors hover:bg-white/[0.09] active:bg-white/[0.11]"
+          className="w-full rounded-lg bg-[var(--ds-control-bg)] px-3 py-3.5 text-left transition-colors hover:bg-white/[0.09] active:bg-white/[0.11]"
           aria-label={copied ? 'Address copied' : 'Copy deposit address'}
         >
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-white/45">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--ds-fg-subtle)]">
             Deposit Address
           </p>
           <div className="mt-2 flex items-start gap-2">
-            <p className="min-w-0 flex-1 break-all font-mono text-sm leading-relaxed text-white">
+            <p className="min-w-0 flex-1 break-all font-mono text-sm leading-relaxed text-[var(--ds-fg)]">
               {DEMO_DEPOSIT_ADDRESS}
             </p>
             <span
-              className="flex size-9 shrink-0 items-center justify-center text-white/60"
+              className="flex size-9 shrink-0 items-center justify-center text-[var(--ds-fg-muted)]"
               aria-hidden
             >
               {copied ? (
@@ -257,13 +257,13 @@ export function WalletHubCryptoDeposit({
         </button>
 
         <div className="flex flex-col gap-1.5">
-          <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/25 bg-white/[0.08] px-1.5 py-0.5 pr-2">
-            <IconAlertCircle className="size-3 text-white/80" stroke={2} />
+          <span className="inline-flex w-fit items-center gap-1 rounded-full border border-[var(--ds-border-strong)] bg-[var(--ds-control-hover)] px-1.5 py-0.5 pr-2">
+            <IconAlertCircle className="size-3 text-[var(--ds-fg-muted)]" stroke={2} />
             <span className="text-[10px] font-semibold uppercase tracking-wide text-white/85">
               Important
             </span>
           </span>
-          <p className="text-[11px] leading-snug text-white">
+          <p className="text-[11px] leading-snug text-[var(--ds-fg)]">
             Send only{' '}
             <span className="font-semibold">{label}</span>
             {' '}on{' '}
@@ -291,10 +291,10 @@ export function WalletHubCryptoDeposit({
               }}
               placeholder="0.00"
               aria-label={`Amount in ${currencySymbol}`}
-              className="h-10 w-full rounded-lg border-0 bg-white/[0.06] pl-10 pr-2.5 text-sm font-medium tabular-nums text-white placeholder:text-white/35 outline-none ring-1 ring-white/[0.06] focus:ring-white/20"
+              className="h-10 w-full rounded-lg border-0 bg-[var(--ds-control-bg)] pl-10 pr-2.5 text-sm font-medium tabular-nums text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] outline-none ring-1 ring-white/[0.06] focus:ring-white/20"
             />
           </div>
-          <span className="shrink-0 text-sm font-medium text-white/40" aria-hidden>
+          <span className="shrink-0 text-sm font-medium text-[var(--ds-fg-subtle)]" aria-hidden>
             =
           </span>
           <div className="relative min-w-0 flex-1">
@@ -314,7 +314,7 @@ export function WalletHubCryptoDeposit({
               }}
               placeholder="0.00"
               aria-label={`Amount in ${coin.ticker}`}
-              className="h-10 w-full rounded-lg border-0 bg-white/[0.06] pl-10 pr-2.5 text-sm font-medium tabular-nums text-white placeholder:text-white/35 outline-none ring-1 ring-white/[0.06] focus:ring-white/20"
+              className="h-10 w-full rounded-lg border-0 bg-[var(--ds-control-bg)] pl-10 pr-2.5 text-sm font-medium tabular-nums text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] outline-none ring-1 ring-white/[0.06] focus:ring-white/20"
             />
           </div>
         </div>
@@ -324,10 +324,10 @@ export function WalletHubCryptoDeposit({
         href="https://www.betonline.ag/crypto-tutorial"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-auto flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white/[0.04] px-4 transition-colors hover:bg-white/[0.07]"
+        className="mt-auto flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--ds-overlay)] px-4 transition-colors hover:bg-white/[0.07]"
       >
         <CryptoCoinIcon id={coin.id} size={18} />
-        <span className="text-xs text-white/80">
+        <span className="text-xs text-[var(--ds-fg-muted)]">
           New to {label}?{' '}
           <span className="text-[#6ea8ff]">Get Started Here</span>
         </span>

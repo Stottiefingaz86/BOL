@@ -260,7 +260,7 @@ import {
 } from '@/components/ui/family-drawer'
 import { BetslipNumberPad } from '@/components/betslip/number-pad'
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
-import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
+import { AccountDrawerHeaderActions } from '@/components/account/account-drawer-header-actions'
 
 // Available square tile images
 const squareTileImages = [
@@ -1264,7 +1264,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
                 <TabsTab
                   key={tab}
                   value={tab} 
-                  className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                  className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                 >
                   {activeRaceTab === tab && (
                     <motion.div
@@ -1506,7 +1506,7 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
                   <TabsTab 
                     key={tab}
                     value={tab} 
-                    className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                    className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                   >
                     {activeTab === tab && (
                       <motion.div
@@ -1746,7 +1746,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
                   <TabsTab 
                     key={tab}
                     value={tab} 
-                    className="relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
+                    className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5"
                   >
                     {activeTab === tab && (
                       <motion.div
@@ -5235,11 +5235,11 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         mobileNoDrag
         mobileBg="#2d2d2d"
         mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-        className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+        className="!bg-[#2d2d2d] !border-r-0 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
       >
         {/* Sidebar Header — sticky, clean (both mobile and desktop) */}
         <SidebarHeader 
-          className="px-4 h-14 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
+          className="px-4 h-16 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
           style={{
             backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
             WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
@@ -5321,7 +5321,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         {/* Quick Links — mobile only, below logo, sticky */}
         {isMobile && (
           <div 
-            className="sticky top-14 z-20 border-b border-white/5"
+            className="sticky top-16 z-20 border-b border-white/5"
             style={{
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)',
@@ -5430,7 +5430,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                 <SidebarPromos
                   collapsed={sidebarState === 'collapsed' && !isMobile}
                 />
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-white/10 mx-2 group-data-[collapsible=icon]:hidden" />
 
             <SidebarGroup>
               <SidebarGroupLabel className="px-2 py-1 text-xs text-white/50">FEATURES</SidebarGroupLabel>
@@ -9710,7 +9710,7 @@ function NavTestPageContent() {
                         <line x1="9" y1="3" x2="9" y2="21" />
                       </svg>
                     </Button>
-                    <div className="w-px h-5 bg-white/20" />
+                    <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
                   </div>
                   
                   
@@ -10201,13 +10201,21 @@ function NavTestPageContent() {
         <div className="flex relative" style={{ marginTop: '64px' }}>
           {/* Persistent sidebar backdrop — prevents black flash during page transitions */}
           {!isMobile && (
+            <>
             <div 
-              className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear border-r border-white/10"
+              className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear"
               style={{ 
                 width: sidebarOpen ? '16rem' : '3rem',
-                backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)'
+                backgroundColor: '#2d2d2d'
               }}
             />
+            <div
+              aria-hidden
+              data-sidebar-rail
+              className="transition-[left] duration-200 ease-linear"
+              style={{ left: sidebarOpen ? 'calc(16rem - 1px)' : 'calc(3rem - 1px)' }}
+            />
+            </>
           )}
           {/* Sidebar using shadcn component - positioned under header - Hide on Sports and VIP Rewards */}
           {!showSports && !showVipRewards && (
@@ -10221,7 +10229,7 @@ function NavTestPageContent() {
                 <SidebarPromos
                   collapsed={sidebarState === 'collapsed' && !isMobile}
                 />
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-white/10 mx-2 group-data-[collapsible=icon]:hidden" />
                 <SidebarGroup>
                   <SidebarGroupContent>
                     <SidebarMenu>
@@ -10609,7 +10617,7 @@ function NavTestPageContent() {
                 <SidebarPromos
                   collapsed={sidebarState === 'collapsed' && !isMobile}
                 />
-                <Separator className="bg-white/10 mx-2" />
+                <Separator className="bg-white/10 mx-2 group-data-[collapsible=icon]:hidden" />
                 <SidebarGroup>
                   <SidebarGroupContent>
                     <SidebarMenu>
@@ -10969,7 +10977,7 @@ function NavTestPageContent() {
                             value={tab}
                             data-tab-item
                             className={cn(
-                              "relative z-10 text-white/70 dark:text-white/70 text-gray-900 dark:text-white/70 hover:text-white dark:hover:text-white hover:text-black dark:hover:text-white hover:bg-white/5 dark:hover:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5 flex-shrink-0",
+                              "relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5 flex-shrink-0",
                               isMobile && index === 0 && "scroll-snap-start",
                               isMobile && index === ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].length - 1 && "scroll-snap-end mr-12"
                             )}
@@ -12604,7 +12612,7 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col",
+              "w-full sm:max-w-md bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col",
               "border-l border-white/10",
               isMobile && "rounded-t-[10px]"
             )}
@@ -12635,23 +12643,23 @@ function NavTestPageContent() {
                     <Button
                       variant="ghost"
                       onClick={() => setAccountDrawerView('account')}
-                      className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                      className="-ml-1 h-9 w-9 p-0 hover:bg-[var(--ds-control-hover)]"
                       aria-label="Back"
                     >
-                      <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                      <IconChevronLeft className="h-5 w-5 text-[var(--ds-fg-muted)]" stroke={2} />
                     </Button>
                   ) : (
                     <DrawerClose asChild>
                       <button
                         type="button"
-                        className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                        className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
                         aria-label="Back"
                       >
                         <IconChevronLeft className="h-5 w-5" stroke={2} />
                       </button>
                     </DrawerClose>
                   )}
-                  <h2 className="text-base font-semibold text-white">
+                  <h2 className="text-base font-semibold text-[var(--ds-fg)]">
                     {accountDrawerView === 'createAccount' ? 'Create Account' : accountDrawerView === 'login' ? 'Log In' : 'Confirm Your Email'}
                   </h2>
                 </div>
@@ -12660,7 +12668,7 @@ function NavTestPageContent() {
                   <DrawerClose asChild>
                     <button
                       type="button"
-                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
                       aria-label="Back"
                     >
                       <IconChevronLeft className="h-5 w-5" stroke={2} />
@@ -12671,7 +12679,7 @@ function NavTestPageContent() {
                     name="ch"
                     accountId="b1767721"
                   />
-                  <AccountDrawerSettingsButton
+                  <AccountDrawerHeaderActions
                     onBeforeNavigate={() => setAccountDrawerOpen(false)}
                   />
                 </div>
@@ -12688,58 +12696,58 @@ function NavTestPageContent() {
                     <>
                   {/* Balance Information */}
                   <div className="mb-4">
-                    <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
+                    <div className="rounded-lg bg-[var(--ds-control-bg)] px-3 py-3 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Available Balance</span>
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Available Balance</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">
                   {currentBrand.symbol}
                   <NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                         </span>
                 </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Free Bet</span>
-                        <span className="text-sm font-semibold text-white">$0.00</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Free Bet</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">$0.00</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
                         <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                     </div>
               </div>
               
-                  <Separator className="bg-white/10 mb-3" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-3" />
                   
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
                     </Button>
                   </div>
                   
-                  <Separator className="bg-white/10 mb-6" />
+                  <Separator className="bg-[var(--ds-control-hover)] mb-6" />
                   
                   {/* Navigation List */}
                   <div className="space-y-1 w-full mb-8">
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       router.push('/account')
                     }}
                     >
-                      <IconUser className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Account</span>
+                      <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                       onClick={() => {
                         setAccountDrawerOpen(false)
                         setMyBetsInitialFilter('pending')
@@ -12750,9 +12758,9 @@ function NavTestPageContent() {
                         }
                       }}
                     >
-                      <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Pending Bets</span>
-                      <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
+                      <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
+                      <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
                         {sampleBets.filter(b => !b.status && !b.isLive).length > 0 && (
                           <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{sampleBets.filter(b => !b.status && !b.isLive).length}</span>
                         )}
@@ -12762,54 +12770,54 @@ function NavTestPageContent() {
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">My Bonus</span>
+                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Transactions History</span>
+                      <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                 </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconTicket className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Bet History</span>
+                      <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">Refer a Friend</span>
+                      <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                     </Button>
                     
                     <Button 
                       variant="ghost" 
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                       onClick={() => {
                         openVipDrawer()
                       }}
                     >
-                      <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                      <span className="flex-1 text-left text-white">VIP Hub</span>
+                      <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                 </Button>
               </div>
                   
-                  <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
+                  <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
                   
                   {/* Logout Button */}
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
+                    className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
                     onClick={() => {
                       logout()
                       setAccountDrawerView('account')
@@ -12820,16 +12828,16 @@ function NavTestPageContent() {
                     </>
                   ) : (
                     <>
-                      <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-4">
-                        <p className="text-sm font-semibold text-white">You are logged out</p>
-                        <p className="mt-1 text-xs text-white/60">Log back in or create an account to place bets and access your wallet.</p>
+                      <div className="mb-4 rounded-lg border border-[var(--ds-border)] bg-[var(--ds-control-bg)] px-4 py-4">
+                        <p className="text-sm font-semibold text-[var(--ds-fg)]">You are logged out</p>
+                        <p className="mt-1 text-xs text-[var(--ds-fg-muted)]">Log back in or create an account to place bets and access your wallet.</p>
                       </div>
 
                       <div className="mb-4 grid grid-cols-2 gap-2">
                         <Button
                           variant="ghost"
                           onClick={() => setAccountDrawerView('login')}
-                          className="h-10 rounded-small border border-white/20 bg-transparent !text-white hover:bg-white/10 hover:!text-white"
+                          className="h-10 rounded-small border border-white/20 bg-transparent !text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] hover:!text-[var(--ds-fg)]"
                         >
                           Login
                         </Button>
@@ -12842,35 +12850,35 @@ function NavTestPageContent() {
                         </Button>
                       </div>
 
-                      <Separator className="bg-white/10 mb-3" />
+                      <Separator className="bg-[var(--ds-control-hover)] mb-3" />
 
                       <div className="space-y-1 w-full mb-2">
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                           onClick={() => {
                             openDepositDrawer()
                           }}
                         >
-                          <IconWallet className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">Banking</span>
+                          <IconWallet className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">Banking</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                         >
-                          <IconLifebuoy className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">Help Center</span>
+                          <IconLifebuoy className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">Help Center</span>
                         </Button>
                         <Button
                           variant="ghost"
-                          className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-11 px-3"
+                          className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-11 px-3"
                           onClick={() => {
                             openVipDrawer()
                           }}
                         >
-                          <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                          <span className="flex-1 text-left text-white">VIP Hub</span>
+                          <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                          <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                         </Button>
                       </div>
                     </>
@@ -12878,9 +12886,9 @@ function NavTestPageContent() {
                 </>
               ) : accountDrawerView === 'login' ? (
                 <div className="space-y-4">
-                  <div className="rounded-lg border border-white/10 bg-white p-3 space-y-3">
+                  <div className="rounded-lg border border-[var(--ds-border)] bg-white p-3 space-y-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-white/70">Email or Account Number</label>
+                      <label className="text-xs font-medium text-[var(--ds-fg-muted)]">Email or Account Number</label>
                       <input
                         value={loginForm.identifier}
                         onChange={(e) => setLoginForm((prev) => ({ ...prev, identifier: e.target.value }))}
@@ -12890,8 +12898,8 @@ function NavTestPageContent() {
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-white/70">Password</label>
-                        <button type="button" className="text-xs font-semibold text-white/60 hover:text-white">Forgot Password?</button>
+                        <label className="text-xs font-medium text-[var(--ds-fg-muted)]">Password</label>
+                        <button type="button" className="text-xs font-semibold text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Forgot Password?</button>
                       </div>
                       <div className="relative">
                         <input
@@ -12904,7 +12912,7 @@ function NavTestPageContent() {
                         <button
                           type="button"
                           onClick={() => setLoginPasswordVisible((prev) => !prev)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/70"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg-muted)]"
                           aria-label={loginPasswordVisible ? 'Hide password' : 'Show password'}
                         >
                           {loginPasswordVisible ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
@@ -12915,16 +12923,16 @@ function NavTestPageContent() {
                       <Checkbox
                         checked={loginForm.keepLoggedIn}
                         onCheckedChange={(checked) => setLoginForm((prev) => ({ ...prev, keepLoggedIn: checked === true }))}
-                        className="h-5 w-5 rounded-[4px] border-white/30 bg-white/5 data-[state=checked]:bg-[#ee3536] data-[state=checked]:border-[#ee3536]"
+                        className="h-5 w-5 rounded-[4px] border-white/30 bg-[var(--ds-control-bg)] data-[state=checked]:bg-[#ee3536] data-[state=checked]:border-[#ee3536]"
                       />
-                      <span className="text-sm text-white/70">Keep me logged in</span>
+                      <span className="text-sm text-[var(--ds-fg-muted)]">Keep me logged in</span>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <button type="button" className="text-white/50 hover:text-white/70">
+                          <button type="button" className="text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg-muted)]">
                             <IconInfoCircle className="h-4 w-4" />
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent align="center" side="top" className="w-[320px] bg-[#2a2a2a] border border-white/10 text-white/70 p-4 shadow-xl">
+                        <PopoverContent align="center" side="top" className="w-[320px] bg-[#2a2a2a] border border-[var(--ds-border)] text-[var(--ds-fg-muted)] p-4 shadow-xl">
                           <p className="text-sm leading-relaxed">
                             Choosing <span className="font-semibold">"Keep me logged in"</span> reduces the number of times you&apos;re asked to Log-In on this device.
                           </p>
@@ -12940,7 +12948,7 @@ function NavTestPageContent() {
                     <Button
                       type="button"
                       variant="ghost"
-                      className="w-full h-11 rounded-small border border-white/20 bg-transparent text-white hover:bg-white/10"
+                      className="w-full h-11 rounded-small border border-white/20 bg-transparent text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
                       onClick={() => {
                         setLoginForm((prev) => ({ ...prev, identifier: 'face-id@betonline.com', password: '******' }))
                         setIsUserLoggedIn(true)
@@ -13292,7 +13300,7 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "bg-[#1a1a1a] text-white flex flex-col relative",
+              "dark bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative",
               "w-full sm:max-w-md border-l border-white/10 overflow-hidden",
               isMobile && "rounded-t-[10px]"
             )}
@@ -13966,7 +13974,7 @@ function NavTestPageContent() {
           <DrawerContent 
             showOverlay={isMobile}
             className={cn(
-              "bg-[#1a1a1a] text-white flex flex-col relative",
+              "bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative",
               "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {

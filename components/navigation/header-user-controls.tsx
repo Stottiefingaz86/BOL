@@ -11,12 +11,8 @@ import { cn } from '@/lib/utils'
 /** Figma Loyalty Hub header — VIP gold (opacity-vip / level-1) */
 const VIP_GOLD = '227, 158, 61'
 
-/**
- * Figma secondary / wallet fills adapted for our #2D2E2C header.
- * Figma samples on #212121: secondary #2b2b2b (+10), wallet #383838 (+23).
- * Same elevation via white overlays keeps the join/pill contrast.
- */
-const BTN_BG = 'rgba(255,255,255,0.05)'
+/** Theme-aware control fill — uses --ds-control-bg from globals. */
+const BTN_BG = 'var(--ds-control-bg)'
 
 export type HeaderUserControlsProps = {
   isLoggedIn: boolean
@@ -64,7 +60,7 @@ export function HeaderUserControls({
   /** Figma control height — 36px; keep icon + balance pills identical */
   const controlH = 'h-9 min-h-9 max-h-9 box-border'
   const iconBtn = cn(
-    'relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/[0.06] p-2.5 transition-colors hover:brightness-110',
+    'relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--ds-control-border)] p-2.5 transition-colors hover:brightness-110',
     controlH
   )
 
@@ -103,7 +99,7 @@ export function HeaderUserControls({
               <Badge
                 variant="destructive"
                 aria-hidden
-                className="absolute -right-1 -top-1 size-2.5 min-w-0 rounded-full border-2 border-[#2D2E2C] bg-[#ee3536] p-0 hover:bg-[#ee3536]"
+                className="absolute -right-1 -top-1 size-2.5 min-w-0 rounded-full border-2 border-[var(--ds-nav-bg)] bg-[var(--ds-primary)] p-0 hover:bg-[var(--ds-primary)]"
               />
             )}
           </button>
@@ -141,7 +137,7 @@ export function HeaderUserControls({
           {/* Balance + Wallet — joined Domain Buttons (same 36px height as icon buttons) */}
           <div
             className={cn(
-              'relative flex shrink-0 items-stretch overflow-hidden rounded-lg border border-white/[0.06]',
+              'relative flex shrink-0 items-stretch overflow-hidden rounded-lg border border-[var(--ds-control-border)]',
               controlH
             )}
             data-name="container"
@@ -161,7 +157,7 @@ export function HeaderUserControls({
               )}
               style={{ pointerEvents: 'auto', cursor: 'pointer', backgroundColor: BTN_BG }}
             >
-              <span className="flex items-center gap-0.5 whitespace-nowrap text-xs font-medium leading-none text-white/80">
+              <span className="flex items-center gap-0.5 whitespace-nowrap text-xs font-medium leading-none text-[var(--ds-fg-muted)]">
                 <span>{currencySymbol}</span>
                 <NumberFlow
                   value={balance}
@@ -183,7 +179,7 @@ export function HeaderUserControls({
               }}
               aria-label="Wallet"
               className={cn(
-                'relative flex h-full min-h-0 shrink-0 items-center justify-center overflow-hidden border-0 border-l border-white/[0.06] bg-white/[0.08] px-2.5',
+                'relative flex h-full min-h-0 shrink-0 items-center justify-center overflow-hidden border-0 border-l border-[var(--ds-control-border)] bg-[var(--ds-control-hover)] px-2.5',
                 controlH
               )}
               style={{ pointerEvents: 'auto', cursor: 'pointer' }}

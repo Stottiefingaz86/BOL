@@ -26,8 +26,8 @@ export function AccountDrawerSettingsButton({
       }}
       className={cn(
         'ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-lg',
-        'border border-white/[0.06] bg-white/[0.05] text-white/80',
-        'transition-[filter] hover:brightness-110',
+        'border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-[var(--ds-fg-muted)]',
+        'transition-[filter,background-color] hover:brightness-110 hover:bg-[var(--ds-control-hover)]',
         className,
       )}
       aria-label="My Account"

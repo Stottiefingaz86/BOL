@@ -4,38 +4,65 @@
 
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --border: 220 13% 18%;
-  --input: 220 13% 18%;
-  --ring: 217.2 91.2% 59.8%;
-  --card: 0 0% 98%;
-  --card-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
+  /* Figma Homepage light (8:46344 / Header 8:50045) */
+  --background: #f5f5f5;
+  --foreground: rgba(0, 0, 0, 0.87);
+  --border: 0 0% 0% / 0.05;
+  --input: 0 0% 0% / 0.08;
+  --ring: 359 84% 57%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  --primary: 359 84% 57%; /* #ee3536 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 98%; /* #fafafa */
   --secondary-foreground: 0 0% 9%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
+  --muted: 0 0% 93.3%; /* #eeeeee */
+  --muted-foreground: 0 0% 40%; /* ~rgba(0,0,0,0.60) */
+  --accent: 0 0% 96%;
   --accent-foreground: 0 0% 9%;
-  --popover: 0 0% 98%;
-  --popover-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+
+  /* BOL chrome / hub surface aliases */
+  --ds-page-bg: #f5f5f5;
+  /* Main nav + side nav stay dark in light mode */
+  --ds-nav-bg: #2d2e2c;
+  --ds-sidebar-bg: #2d2d2d;
+  --ds-surface: #ffffff;
+  --ds-surface-raised: #ffffff;
+  --ds-surface-muted: #eeeeee;
+  --ds-surface-inset: #f0f0f0;
+  --ds-border: rgba(0, 0, 0, 0.05);
+  --ds-border-strong: rgba(0, 0, 0, 0.1);
+  --ds-fg: rgba(0, 0, 0, 0.87);
+  --ds-fg-muted: rgba(0, 0, 0, 0.6);
+  --ds-fg-subtle: rgba(0, 0, 0, 0.45);
+  --ds-control-bg: rgba(0, 0, 0, 0.04);
+  --ds-control-border: rgba(0, 0, 0, 0.08);
+  --ds-control-hover: rgba(0, 0, 0, 0.06);
+  --ds-overlay: rgba(0, 0, 0, 0.04);
+  --ds-primary: #ee3536;
+  --ds-on-primary: #ffffff;
+  --ds-vip-gold: #e39e3d;
+  --ds-promo-card-bg: #1a1a1a;
+  --ds-promo-card-fg: #ffffff;
+  --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
+  --ds-promo-card-border: rgba(255, 255, 255, 0.1);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #0a0a0a;
+  --background: #1a1a1a;
   --foreground: #ffffff;
-  --border: 220 13% 18%;
-  --input: 220 13% 18%;
-  --ring: 217.2 91.2% 59.8%;
-  --card: 0 0% 3.9%;
+  --border: 0 0% 100% / 0.1;
+  --input: 0 0% 100% / 0.15;
+  --ring: 359 84% 57%;
+  --card: 0 0% 17.6%;
   --card-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
+  --primary: 359 84% 57%; /* #ee3536 */
+  --primary-foreground: 0 0% 100%;
   --secondary: 0 0% 14.9%;
   --secondary-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
@@ -44,8 +71,32 @@
   --muted-foreground: 0 0% 63.9%;
   --accent: 0 0% 14.9%;
   --accent-foreground: 0 0% 98%;
-  --popover: 0 0% 3.9%;
+  --popover: 0 0% 10.2%;
   --popover-foreground: 0 0% 98%;
+
+  --ds-page-bg: #1a1a1a;
+  --ds-nav-bg: #2d2e2c;
+  --ds-sidebar-bg: #2d2d2d;
+  --ds-surface: #1a1a1a;
+  --ds-surface-raised: #2d2d2d;
+  --ds-surface-muted: rgba(255, 255, 255, 0.04);
+  --ds-surface-inset: #252525;
+  --ds-border: rgba(255, 255, 255, 0.1);
+  --ds-border-strong: rgba(255, 255, 255, 0.15);
+  --ds-fg: #ffffff;
+  --ds-fg-muted: rgba(255, 255, 255, 0.6);
+  --ds-fg-subtle: rgba(255, 255, 255, 0.45);
+  --ds-control-bg: rgba(255, 255, 255, 0.05);
+  --ds-control-border: rgba(255, 255, 255, 0.06);
+  --ds-control-hover: rgba(255, 255, 255, 0.1);
+  --ds-overlay: rgba(255, 255, 255, 0.04);
+  --ds-primary: #ee3536;
+  --ds-on-primary: #ffffff;
+  --ds-vip-gold: #e39e3d;
+  --ds-promo-card-bg: #1a1a1a;
+  --ds-promo-card-fg: #ffffff;
+  --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
+  --ds-promo-card-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -71,11 +122,11 @@ html, body {
 /* Match html + body background to nav bg so overscroll area blends with nav.
    Page content sets its own bg via [data-page-bg] / inline styles. */
 html, body {
-  background-color: var(--ds-nav-bg, #2D2E2C);
+  background-color: var(--ds-nav-bg);
 }
 
 body {
-  color: var(--foreground);
+  color: var(--ds-fg);
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -319,14 +370,15 @@ img[decoding="sync"] {
 
 @layer base {
   :root {
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar always dark — matches locked --ds-sidebar-bg */
+    --sidebar-background: 0 0% 17.6%; /* #2d2d2d */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 359 84% 57%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-ring: 359 84% 57%;
     --background-image-lp-controls-fade: linear-gradient(
           to bottom,
           hsla(0, 0%, 91%, 0) 0%,
@@ -475,6 +527,47 @@ header.bg-\[#2d2d2d\] {
   display: none;
 }
 
+/* Hide scrollbar in collapsed sidebar but keep scroll functional */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="content"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="content"]::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keep logo header height aligned with main nav (no bottom hairline) */
+[data-sidebar="header"] {
+  height: 4rem !important;
+  min-height: 4rem !important;
+  border-bottom: none !important;
+  box-sizing: border-box;
+}
+
+/* Collapsed icon rail: solid logo header (no glass edge) */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="header"] {
+  background-color: #2d2d2d !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* One vertical divide between side nav and header/content (matches prod) */
+.group.peer[data-side="left"] > div.fixed {
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+[data-sidebar-rail] {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 103;
+  width: 1px;
+  pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 /* Ensure sidebar content is dark — uses brand variable */
 [data-sidebar="sidebar"],
 [data-sidebar="sidebar"] > div,
@@ -482,9 +575,110 @@ header.bg-\[#2d2d2d\] {
   background-color: var(--ds-sidebar-bg, #2d2d2d) !important;
 }
 
-/* Make "Other" navigation menu primary when open */
+/*
+ * Light site theme: main header + side nav stay dark.
+ * Remap text/control tokens inside chrome so labels/icons stay light on dark surfaces.
+ */
+html:not(.dark) header,
+html:not(.dark) [data-nav-header],
+html:not(.dark) [data-app-header],
+html:not(.dark) [data-chrome="nav"],
+html:not(.dark) [data-sidebar="sidebar"],
+html:not(.dark) [data-mobile="true"][data-sidebar="sidebar"] {
+  /* Match authored Button ring-offset / borders / ghost hover to dark chrome */
+  --background: #2d2e2c;
+  --foreground: #ffffff;
+  --accent: 0 0% 100% / 0.1;
+  --accent-foreground: 0 0% 100%;
+  --muted: 0 0% 100% / 0.08;
+  --muted-foreground: 0 0% 100% / 0.6;
+  --input: 0 0% 100% / 0.15;
+  --ds-fg: #ffffff;
+  --ds-fg-muted: rgba(255, 255, 255, 0.6);
+  --ds-fg-subtle: rgba(255, 255, 255, 0.45);
+  --ds-border: rgba(255, 255, 255, 0.1);
+  --ds-border-strong: rgba(255, 255, 255, 0.15);
+  --ds-control-bg: rgba(255, 255, 255, 0.05);
+  --ds-control-border: rgba(255, 255, 255, 0.06);
+  --ds-control-hover: rgba(255, 255, 255, 0.1);
+  --ds-overlay: rgba(255, 255, 255, 0.04);
+  --ds-surface: #1a1a1a;
+  --ds-surface-raised: #2d2d2d;
+  --ds-surface-muted: rgba(255, 255, 255, 0.04);
+  --ds-surface-inset: #252525;
+  --tw-ring-offset-color: #2d2e2c;
+  color: #ffffff;
+}
+
+html:not(.dark) header,
+html:not(.dark) [data-nav-header],
+html:not(.dark) [data-app-header],
+html:not(.dark) [data-chrome="nav"] {
+  background-color: var(--ds-nav-bg, #2d2e2c) !important;
+  color: #ffffff;
+}
+
+/* Kill light ring-offset halo on header / sidebar icon buttons */
+html:not(.dark) header button,
+html:not(.dark) [data-nav-header] button,
+html:not(.dark) [data-app-header] button,
+html:not(.dark) [data-chrome="nav"] button,
+html:not(.dark) [data-sidebar="sidebar"] button,
+html:not(.dark) [data-sidebar="trigger"] {
+  --tw-ring-offset-color: #2d2e2c;
+  --background: #2d2e2c;
+  --tw-ring-offset-width: 0px;
+}
+
+html:not(.dark) header button:focus,
+html:not(.dark) header button:focus-visible,
+html:not(.dark) [data-nav-header] button:focus,
+html:not(.dark) [data-nav-header] button:focus-visible,
+html:not(.dark) [data-app-header] button:focus,
+html:not(.dark) [data-app-header] button:focus-visible,
+html:not(.dark) [data-chrome="nav"] button:focus,
+html:not(.dark) [data-chrome="nav"] button:focus-visible,
+html:not(.dark) [data-sidebar="sidebar"] button:focus,
+html:not(.dark) [data-sidebar="sidebar"] button:focus-visible,
+html:not(.dark) [data-sidebar="trigger"]:focus,
+html:not(.dark) [data-sidebar="trigger"]:focus-visible {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #2d2e2c;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Make "Other" navigation menu primary when open — always white on red */
 [data-state="open"] button[class*="NavigationMenuTrigger"] {
   background-color: var(--ds-primary, #ee3536) !important;
+  color: var(--ds-on-primary, #ffffff) !important;
+}
+
+/* Header icons are authored as white fills — keep as-is (nav stays dark) */
+.sports-theme img[src*="/icons/header/"] {
+  filter: none;
+}
+
+/* Carousel chevrons: readable on light page chrome */
+html:not(.dark) [data-carousel-nav] {
+  color: var(--ds-fg) !important;
+  border-color: var(--ds-border-strong) !important;
+  background-color: var(--ds-surface) !important;
+}
+
+/* Sports: active red pills always get white labels (nested dark + leftover light utilities) */
+.sports-theme button:has([style*="--ds-primary"]),
+.sports-theme [data-sidebar="menu-button"]:has([style*="--ds-primary"]),
+.sports-theme [data-state="active"]:has([style*="--ds-primary"]),
+.sports-theme button:has([style*="#ee3536"]),
+.sports-theme [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+}
+
+.sports-theme button:has([style*="--ds-primary"]) *,
+.sports-theme [data-sidebar="menu-button"]:has([style*="--ds-primary"]) *,
+.sports-theme [role="tab"][data-state="active"] * {
+  color: inherit;
 }
 
 /* Fix banner and tabs scrolling - allow natural page scroll */

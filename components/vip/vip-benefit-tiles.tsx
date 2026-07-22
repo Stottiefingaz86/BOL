@@ -64,8 +64,8 @@ const DEFAULT_TILES: VipBenefitTile[] = [
     requiredTier: 'Bronze',
   },
   {
-    id: 'pre-monthly',
-    name: 'Pre-Monthly',
+    id: 'post-monthly',
+    name: 'Post-Monthly',
     icon: <IconCalendarStats className="w-6 h-6" />,
     requiredTier: 'Bronze',
   },
@@ -244,11 +244,11 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
       onMouseLeave={handleMouseLeave}
       onClick={() => onClick?.(tile)}
       className={cn(
-        'group relative overflow-hidden rounded-xl bg-white/[0.04] p-3 transition-colors duration-200',
+        'group relative overflow-hidden rounded-xl bg-[var(--ds-overlay)] p-3 transition-colors duration-200',
         'border',
         isHostGated
-          ? 'border-dashed border-white/15'
-          : 'border-white/[0.06] hover:border-white/15',
+          ? 'border-dashed border-[var(--ds-border-strong)]'
+          : 'border-[var(--ds-control-border)] hover:border-[var(--ds-border-strong)]',
         isLocked && 'opacity-95'
       )}
       style={{
@@ -274,7 +274,7 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
         {/* Colored gradient chip — unique per reward for scannability */}
         <div
           className={cn(
-            'mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-white/95',
+            'mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-[var(--ds-fg)]',
             isHostGated && 'opacity-45 grayscale',
             isLocked && !isHostGated && 'opacity-70'
           )}
@@ -288,7 +288,7 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
           className={cn(
             'text-[13px] font-semibold leading-snug mb-3 px-1',
             'line-clamp-2 break-words',
-            isHostGated ? 'text-white/40' : 'text-white'
+            isHostGated ? 'text-[var(--ds-fg-subtle)]' : 'text-[var(--ds-fg)]'
           )}
         >
           {tile.name}
@@ -312,19 +312,19 @@ function Tile({ tile, onClaim, onClick }: TileProps) {
                 style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                 className={cn(
                   'w-full h-9 rounded-md text-[11px] font-bold uppercase tracking-wider',
-                  'text-white hover:brightness-110 transition-[filter] duration-150'
+                  'text-[var(--ds-fg)] hover:brightness-110 transition-[filter] duration-150'
                 )}
               >
                 Claim {formatClaim(tile.claimable ?? 0)}
               </button>
             )
           ) : isHostGated ? (
-            <div className="w-full h-9 rounded-md text-[11px] font-medium flex items-center justify-center gap-1.5 bg-white/[0.03] border border-dashed border-white/15 text-white/35">
+            <div className="w-full h-9 rounded-md text-[11px] font-medium flex items-center justify-center gap-1.5 bg-white/[0.03] border border-dashed border-[var(--ds-border-strong)] text-[var(--ds-fg-subtle)]">
               <IconLock className="w-3 h-3" />
               Host to add
             </div>
           ) : (
-            <div className="w-full h-9 rounded-md text-[11px] font-medium flex items-center justify-center gap-1.5 bg-white/[0.03] border border-white/[0.06] text-white/45">
+            <div className="w-full h-9 rounded-md text-[11px] font-medium flex items-center justify-center gap-1.5 bg-white/[0.03] border border-[var(--ds-control-border)] text-[var(--ds-fg-subtle)]">
               <IconLock className="w-3 h-3" />
               Reach {tile.requiredTier}
             </div>

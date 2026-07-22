@@ -597,7 +597,7 @@ function MainNavPreview() {
                 <line x1="9" y1="3" x2="9" y2="21" />
               </svg>
             </button>
-            <div className="w-px h-5 bg-white/20" />
+            <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
           </div>
           {navItems.map((item) => (
             <button
@@ -2653,7 +2653,7 @@ import { IconCrown, IconWallet, IconChevronDown } from '@tabler/icons-react'
               className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10">
               <SidebarIcon />
             </Button>
-            <div className="w-px h-5 bg-white/20" />
+            <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
           </div>
 
           {/* Nav pills — animated with shared layoutId */}
@@ -2774,7 +2774,7 @@ import { AnimatePresence, motion } from 'framer-motion'
   className="!bg-[#2d2d2d] border-r border-white/10 text-white !h-screen !top-0 !z-[102]">
 
   {/* Header — logo with AnimatePresence for collapsed/expanded/mobile transitions */}
-  <SidebarHeader className="px-4 h-14 flex items-center sticky top-0 z-20"
+  <SidebarHeader className="px-4 h-16 flex items-center sticky top-0 z-20"
     style={{ backgroundColor: 'rgba(45, 45, 45, 0.75)', backdropFilter: 'blur(16px)' }}>
     <AnimatePresence mode="wait">
       {sidebarState === 'collapsed' && !isMobile ? (
@@ -2789,7 +2789,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 
   {/* Mobile — horizontal scrolling quick links strip */}
   {isMobile && (
-    <div className="sticky top-14 z-20 border-b border-white/5"
+    <div className="sticky top-16 z-20 border-b border-white/5"
       style={{ backgroundColor: 'rgba(45, 45, 45, 0.92)', backdropFilter: 'blur(16px)' }}>
       <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide px-1">
         {quickLinks.map(item => (
@@ -2915,7 +2915,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 
   {/* Mobile — horizontal scrolling quick links strip (same as casino) */}
   {isMobile && (
-    <div className="sticky top-14 z-20 border-b border-white/5"
+    <div className="sticky top-16 z-20 border-b border-white/5"
       style={{ backgroundColor: 'rgba(45, 45, 45, 0.92)', backdropFilter: 'blur(16px)' }}>
       <div className="flex items-center gap-0 overflow-x-auto scrollbar-hide px-1">
         {quickLinks.map(item => (
@@ -3876,7 +3876,7 @@ openWidget({
 >
   <DrawerContent
     showOverlay={isMobile}
-    className="w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col border-l border-white/10"
+    className="w-full sm:max-w-md bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col border-l border-white/10"
   >
     {isMobile && <DrawerHandle variant="dark" />}
     <DrawerHeader>

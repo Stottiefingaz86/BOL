@@ -145,7 +145,7 @@ import DynamicIsland from '@/components/dynamic-island'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import { NotificationHub } from '@/components/account/notification-hub'
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
-import { AccountDrawerSettingsButton } from '@/components/account/account-drawer-settings-button'
+import { AccountDrawerHeaderActions } from '@/components/account/account-drawer-header-actions'
 import { useChatStore } from '@/lib/store/chatStore'
 import { useBetslipStore } from '@/lib/store/betslipStore'
 import { useRainBalance } from '@/hooks/use-rain-balance'
@@ -318,10 +318,10 @@ function TotalRewardsCard() {
 
   return (
     <div ref={containerRef} className="flex-shrink-0 w-full md:w-[280px]">
-      <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 transition-colors duration-300 h-full">
+      <Card className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100 dark:bg-[var(--ds-control-bg)] border-[var(--ds-border)] dark:border-[var(--ds-border)] border-gray-200 dark:border-[var(--ds-border)] transition-colors duration-300 h-full">
         <CardContent className="p-4 flex flex-col justify-center items-center h-full text-center">
-          <CardTitle className="text-xs text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
-          <div className="text-2xl font-bold text-white dark:text-white text-gray-900 dark:text-white transition-colors duration-300">
+          <CardTitle className="text-xs text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-800 dark:text-[var(--ds-fg-muted)] mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
+          <div className="text-2xl font-bold text-[var(--ds-fg)] dark:text-[var(--ds-fg)] text-gray-900 dark:text-[var(--ds-fg)] transition-colors duration-300">
             $<NumberFlow 
               value={shouldAnimate ? targetValue : 0}
               format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }}
@@ -386,11 +386,11 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold text-white">Recent Bets</h2>
+        <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Recent Bets</h2>
         <Button
           variant="ghost"
           onClick={() => onNavigate('bet-history')}
-          className="text-white/50 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto rounded-small"
+          className="text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto rounded-small"
         >
           View All
         </Button>
@@ -405,15 +405,15 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
               className={cn(
               "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0",
               activeFilter === tab.key
-                ? "bg-white/10 text-white border border-white/20"
-                : "text-white/50 hover:text-white/70 hover:bg-white/5 border border-transparent"
+                ? "bg-[var(--ds-control-hover)] text-[var(--ds-fg)] border border-white/20"
+                : "text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] border border-transparent"
               )}
             >
             {tab.label}
             {tab.count !== null && (
               <span className={cn(
                 "text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
-                activeFilter === tab.key ? "bg-white/15 text-white" : "bg-white/5 text-white/40"
+                activeFilter === tab.key ? "bg-white/15 text-[var(--ds-fg)]" : "bg-[var(--ds-control-bg)] text-[var(--ds-fg-subtle)]"
               )}>
                 {tab.count}
               </span>
@@ -423,10 +423,10 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
       </div>
 
       {/* Bet list */}
-      <Card className="bg-white/5 border-white/10 overflow-hidden">
+      <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] overflow-hidden">
         <div className="divide-y divide-white/[0.06]">
           {filteredBets.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-white/40">No bets found</div>
+            <div className="px-4 py-8 text-center text-sm text-[var(--ds-fg-subtle)]">No bets found</div>
           ) : (
             filteredBets.map((bet) => (
               <div key={bet.id}>
@@ -435,14 +435,14 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                   onClick={() => setExpandedBetId(expandedBetId === bet.id ? null : bet.id)}
                 >
                   {/* Sport icon */}
-                  <div className="w-7 h-7 rounded-small flex-shrink-0 bg-white/[0.04] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-small flex-shrink-0 bg-[var(--ds-overlay)] flex items-center justify-center">
                     <img src={sportIconMap[bet.sport] || '/sports_icons/soccer.svg'} alt={bet.sport} className="w-4 h-4 opacity-50" />
                   </div>
 
                   {/* Bet info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-semibold text-white truncate">{bet.selection}</span>
+                      <span className="text-xs font-semibold text-[var(--ds-fg)] truncate">{bet.selection}</span>
                       {bet.isLive && !bet.status && (
                         <span className="flex items-center gap-0.5 px-1 py-0.5 text-[8px] font-bold rounded border border-red-500/30 bg-red-500/10">
                           <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
@@ -450,7 +450,7 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-white/40">{bet.market} · {bet.odds}</span>
+                    <span className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.market} · {bet.odds}</span>
                   </div>
 
                   {/* Status / amount */}
@@ -460,7 +460,7 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                         <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full border border-amber-500/30 text-amber-400 bg-amber-500/10">PENDING</span>
                       ) : null
                     )}
-                    <span className="text-xs font-semibold text-white tabular-nums">${bet.amount.toFixed(2)}</span>
+                    <span className="text-xs font-semibold text-[var(--ds-fg)] tabular-nums">${bet.amount.toFixed(2)}</span>
                     <IconChevronDown className={cn(
                       "w-3.5 h-3.5 text-white/30 transition-transform duration-200",
                       expandedBetId === bet.id && "rotate-180"
@@ -481,15 +481,15 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                       <div className="border-t border-white/5 bg-white/[0.02] px-4 py-3">
                         {bet.type === 'parlay' && bet.legs ? (
                           <div className="mb-2">
-                            <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wide mb-2">{bet.legs.length}-Leg Parlay</div>
+                            <div className="text-[10px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide mb-2">{bet.legs.length}-Leg Parlay</div>
                             <div className="relative ml-[2px]">
                               <div className="absolute left-[3px] top-[6px] bottom-[6px] w-[1px] bg-white/15" />
                               <div className="space-y-2">
                                 {bet.legs.map((leg, i) => (
                                   <div key={i} className="relative pl-4">
                                     <div className="absolute left-0 top-[5px] w-[7px] h-[7px] rounded-full bg-emerald-500 ring-1 ring-emerald-500/20" />
-                                    <div className="text-xs font-medium text-white leading-tight">{leg.selection}</div>
-                                    <div className="text-[10px] text-white/40">{leg.team1} v {leg.team2} · {leg.league}</div>
+                                    <div className="text-xs font-medium text-[var(--ds-fg)] leading-tight">{leg.selection}</div>
+                                    <div className="text-[10px] text-[var(--ds-fg-subtle)]">{leg.team1} v {leg.team2} · {leg.league}</div>
                                   </div>
                                 ))}
                               </div>
@@ -497,37 +497,37 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                           </div>
                         ) : (
                           <div className="mb-2">
-                            <div className="text-[10px] text-white/40">{bet.team1} v {bet.team2}</div>
-                            <div className="text-[10px] text-white/40">{bet.league}{bet.country ? `, ${bet.country}` : ''}</div>
+                            <div className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.team1} v {bet.team2}</div>
+                            <div className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.league}{bet.country ? `, ${bet.country}` : ''}</div>
                           </div>
         )}
 
                         {bet.isLive && bet.liveInfo && bet.type !== 'parlay' && (
-                          <div className="mb-2 rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                          <div className="mb-2 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] overflow-hidden">
                             <div className="flex items-center justify-between px-3 py-1.5">
-                              <span className="text-[11px] text-white/80">{bet.team1}</span>
-                              <span className="text-[11px] font-bold text-white">{bet.liveInfo.score.team1}</span>
+                              <span className="text-[11px] text-[var(--ds-fg-muted)]">{bet.team1}</span>
+                              <span className="text-[11px] font-bold text-[var(--ds-fg)]">{bet.liveInfo.score.team1}</span>
                             </div>
                             <div className="flex items-center justify-between px-3 py-1.5 border-t border-white/5">
-                              <span className="text-[11px] text-white/80">{bet.team2}</span>
-                              <span className="text-[11px] font-bold text-white">{bet.liveInfo.score.team2}</span>
+                              <span className="text-[11px] text-[var(--ds-fg-muted)]">{bet.team2}</span>
+                              <span className="text-[11px] font-bold text-[var(--ds-fg)]">{bet.liveInfo.score.team2}</span>
                             </div>
                           </div>
                         )}
 
                         {!bet.isLive && bet.finalScore && bet.type !== 'parlay' && (
-                          <div className="mb-2 rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+                          <div className="mb-2 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] overflow-hidden">
                             <div className="flex items-center justify-between px-3 py-1 bg-white/[0.02]">
-                              <span className="text-[9px] font-semibold text-white/50 uppercase tracking-wide">Final Result</span>
-                              <span className="text-[9px] font-semibold text-white/50 uppercase tracking-wide">FT</span>
+                              <span className="text-[9px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide">Final Result</span>
+                              <span className="text-[9px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide">FT</span>
                             </div>
                             <div className="flex items-center justify-between px-3 py-1.5 border-t border-white/5">
-                              <span className={cn("text-[11px]", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team1.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-white/80")}>{bet.team1}</span>
-                              <span className={cn("text-[11px] font-bold", bet.finalScore.team1 > bet.finalScore.team2 ? "text-white" : "text-white/60")}>{bet.finalScore.team1}</span>
+                              <span className={cn("text-[11px]", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team1.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-[var(--ds-fg-muted)]")}>{bet.team1}</span>
+                              <span className={cn("text-[11px] font-bold", bet.finalScore.team1 > bet.finalScore.team2 ? "text-[var(--ds-fg)]" : "text-[var(--ds-fg-muted)]")}>{bet.finalScore.team1}</span>
                             </div>
                             <div className="flex items-center justify-between px-3 py-1.5 border-t border-white/5">
-                              <span className={cn("text-[11px]", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team2.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-white/80")}>{bet.team2}</span>
-                              <span className={cn("text-[11px] font-bold", bet.finalScore.team2 > bet.finalScore.team1 ? "text-white" : "text-white/60")}>{bet.finalScore.team2}</span>
+                              <span className={cn("text-[11px]", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team2.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-[var(--ds-fg-muted)]")}>{bet.team2}</span>
+                              <span className={cn("text-[11px] font-bold", bet.finalScore.team2 > bet.finalScore.team1 ? "text-[var(--ds-fg)]" : "text-[var(--ds-fg-muted)]")}>{bet.finalScore.team2}</span>
                             </div>
                           </div>
                         )}
@@ -541,7 +541,7 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                         )}
 
                         <div className="flex items-center justify-between text-[10px] text-white/30 pt-1 border-t border-white/5">
-                          <span>Risk: <span className="text-white/60 font-semibold">${bet.amount.toFixed(2)}</span></span>
+                          <span>Risk: <span className="text-[var(--ds-fg-muted)] font-semibold">${bet.amount.toFixed(2)}</span></span>
                           <span>
                             {bet.status === 'won' && bet.wonAmount ? (
                               <span className="text-emerald-400 font-semibold">Won ${bet.wonAmount.toFixed(2)}</span>
@@ -550,7 +550,7 @@ function DashboardBetHistory({ onNavigate }: { onNavigate: (section: AccountSect
                             ) : bet.status === 'cashed_out' && bet.cashedOutAmount ? (
                               <span className="text-emerald-400 font-semibold">Cashed ${bet.cashedOutAmount.toFixed(2)}</span>
                             ) : (
-                              <span className="text-white/60 font-semibold">Returns ${getPotentialReturns(bet.amount, bet.odds).toFixed(2)}</span>
+                              <span className="text-[var(--ds-fg-muted)] font-semibold">Returns ${getPotentialReturns(bet.amount, bet.odds).toFixed(2)}</span>
                             )}
                           </span>
                         </div>
@@ -594,7 +594,7 @@ function PaymentLogo({ method, className }: { method: string; className?: string
           }}
         />
       ) : (
-        <span className="text-xs font-semibold text-white/70">{method}</span>
+        <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">{method}</span>
       )}
       </div>
   )
@@ -616,7 +616,7 @@ function SecurityBadge({ name, iconPath, className }: { name: string; iconPath: 
           onError={() => setImageError(true)}
         />
       ) : (
-        <span className="text-xs font-semibold text-white/70">{name}</span>
+        <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">{name}</span>
       )}
           </div>
   )
@@ -665,32 +665,32 @@ function DashboardSection({
     <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 w-full max-w-[1200px] mx-auto">
 
       {/* ═══ Account Overview ═══ */}
-      <Card className="bg-white/5 border-white/10 mb-4 overflow-hidden">
+      <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] mb-4 overflow-hidden">
         <CardContent className="p-0">
           {/* Top section — profile + actions */}
           <div className="flex items-center justify-between gap-3 p-4 md:px-5">
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative flex-shrink-0">
-                <Avatar className="w-11 h-11 border-2 border-white/10">
-                  <AvatarFallback className="bg-[#2d2d2d] text-white text-sm font-semibold">C</AvatarFallback>
+                <Avatar className="w-11 h-11 border-2 border-[var(--ds-border)]">
+                  <AvatarFallback className="bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] text-sm font-semibold">C</AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#1a1a1a]" />
             </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-white">Christopher</span>
+                  <span className="text-sm font-semibold text-[var(--ds-fg)]">Christopher</span>
                   <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-400">
                     <IconCrown className="w-2.5 h-2.5" /> VIP Gold
                   </span>
             </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-xs text-white/40">ID: B3375823</span>
+                  <span className="text-xs text-[var(--ds-fg-subtle)]">ID: B3375823</span>
                   <button
                     onClick={() => navigator.clipboard.writeText('B3375823')}
-                    className="inline-flex items-center justify-center h-4 w-4 rounded hover:bg-white/10 transition-colors"
+                    className="inline-flex items-center justify-center h-4 w-4 rounded hover:bg-[var(--ds-control-hover)] transition-colors"
                     title="Copy account number"
                   >
-                    <IconCopy className="h-3 w-3 text-white/30 hover:text-white/60" />
+                    <IconCopy className="h-3 w-3 text-white/30 hover:text-[var(--ds-fg-muted)]" />
                   </button>
           </div>
         </div>
@@ -699,10 +699,10 @@ function DashboardSection({
               <button
                 type="button"
                 onClick={() => onOpenNotifications?.()}
-                className="relative w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="relative w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] flex items-center justify-center hover:bg-[var(--ds-control-hover)] transition-colors"
                 aria-label="Open notifications"
               >
-                <IconBell className="w-4 h-4 text-white/40" />
+                <IconBell className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
                 {unreadNotifications > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center border border-[#1a1a1a]">
                     {unreadNotifications}
@@ -711,25 +711,25 @@ function DashboardSection({
               </button>
               <button
                 onClick={() => onNavigate('profile')}
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] flex items-center justify-center hover:bg-[var(--ds-control-hover)] transition-colors"
                 aria-label="Open profile settings"
               >
-                <IconSettings className="w-4 h-4 text-white/40" />
+                <IconSettings className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
               </button>
             </div>
       </div>
 
           {/* Balance section — darker inset */}
-          <div className="bg-white/[0.03] border-t border-white/[0.06] px-4 md:px-5 py-4">
+          <div className="bg-white/[0.03] border-t border-[var(--ds-control-border)] px-4 md:px-5 py-4">
             <div className="grid grid-cols-2 gap-3 mb-4 max-w-[760px]">
-              <div className="bg-[#2d2d2d] rounded-lg p-3 border border-white/[0.06]">
-                <div className="text-[11px] text-white/40 mb-1">Available Balance</div>
-                <div className="text-xl font-bold text-white tabular-nums leading-tight">$100,000.00</div>
+              <div className="bg-[var(--ds-surface-raised)] rounded-lg p-3 border border-[var(--ds-control-border)]">
+                <div className="text-[11px] text-[var(--ds-fg-subtle)] mb-1">Available Balance</div>
+                <div className="text-xl font-bold text-[var(--ds-fg)] tabular-nums leading-tight">$100,000.00</div>
                 <div className="mt-3 grid grid-cols-2 gap-2 items-center">
                   <button
                     type="button"
                     onClick={() => onNavigate('payments')}
-                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md text-[11px] font-semibold text-white transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md text-[11px] font-semibold text-[var(--ds-fg)] transition-colors"
                     style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                   >
                     <IconWallet className="h-3.5 w-3.5" />
@@ -738,20 +738,20 @@ function DashboardSection({
                   <button
                     type="button"
                     onClick={() => onNavigate('payments')}
-                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md border border-white/15 bg-white/[0.04] text-[11px] font-semibold text-white/75 hover:bg-white/[0.08] hover:text-white transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md border border-white/15 bg-[var(--ds-overlay)] text-[11px] font-semibold text-white/75 hover:bg-white/[0.08] hover:text-[var(--ds-fg)] transition-colors"
                   >
                     <IconCreditCard className="h-3.5 w-3.5" />
                     Withdraw
                   </button>
                 </div>
             </div>
-              <div className="bg-[#2d2d2d] rounded-lg p-3 border border-white/[0.06]">
-                <div className="text-[11px] text-white/40 mb-1">Free Bet</div>
+              <div className="bg-[var(--ds-surface-raised)] rounded-lg p-3 border border-[var(--ds-control-border)]">
+                <div className="text-[11px] text-[var(--ds-fg-subtle)] mb-1">Free Bet</div>
                 <div className="text-xl font-bold text-emerald-400 tabular-nums leading-tight">$25.00</div>
                 <button
                   type="button"
                   onClick={() => window.location.assign('/sports')}
-                  className="mt-3 inline-flex h-8 items-center justify-center rounded-md border border-white/15 bg-white/[0.04] px-3 text-[11px] font-semibold text-white/80 hover:bg-white/[0.08] hover:text-white transition-colors"
+                  className="mt-3 inline-flex h-8 items-center justify-center rounded-md border border-white/15 bg-[var(--ds-overlay)] px-3 text-[11px] font-semibold text-[var(--ds-fg-muted)] hover:bg-white/[0.08] hover:text-[var(--ds-fg)] transition-colors"
                 >
                   Use Now
                 </button>
@@ -765,12 +765,12 @@ function DashboardSection({
       <div className="flex flex-col md:flex-row gap-3 mb-3">
         {/* VIP Rewards Card — matches casino banner */}
         <Card 
-          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-white/5 transition-colors duration-300 dark:border-white/10 dark:bg-white/5 w-full md:w-[300px]" 
+          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-[var(--ds-control-bg)] transition-colors duration-300 dark:border-[var(--ds-border)] dark:bg-[var(--ds-control-bg)] w-full md:w-[300px]" 
           style={{ height: '164px' }}
           onClick={() => onOpenVipHub?.()}
         >
           <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
-            <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-white leading-tight">
+            <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-[var(--ds-fg)] leading-tight">
               Gold To Platinum I
             </CardTitle>
             <div className="mt-3 flex min-h-0 flex-1 flex-col">
@@ -790,7 +790,7 @@ function DashboardSection({
 
         {/* Daily Races Card — matches casino banner */}
         <Card 
-          className="group relative cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-white/5 transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-white/5 w-full md:w-[300px] md:flex-none" 
+          className="group relative cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-[var(--ds-control-bg)] transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-[var(--ds-control-bg)] w-full md:w-[300px] md:flex-none" 
           style={{ height: '164px' }}
         >
           <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
@@ -843,13 +843,13 @@ function DashboardSection({
 
 
 
-      <Separator className="bg-white/10 mb-4" />
+      <Separator className="bg-[var(--ds-control-hover)] mb-4" />
 
       {/* ═══ Daily Figures (Weekly) ═══ */}
-      <Card className="bg-white/5 border-white/10 mb-4 overflow-hidden">
+      <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] mb-4 overflow-hidden">
         <CardContent className="p-0">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-white/10">
-            <h3 className="text-base font-semibold text-white">Daily Figures</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-[var(--ds-border)]">
+            <h3 className="text-base font-semibold text-[var(--ds-fg)]">Daily Figures</h3>
             <AnimateTabs
               value={pnlRange}
               onValueChange={(value) => setPnlRange(value as 'thisWeek' | 'lastWeek')}
@@ -863,7 +863,7 @@ function DashboardSection({
                   <TabsTab
                     key={tab.value}
                     value={tab.value}
-                    className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                   >
                     {pnlRange === tab.value && (
                       <motion.div
@@ -882,7 +882,7 @@ function DashboardSection({
           </div>
 
           <div className="px-4 py-3">
-            <div className="md:hidden rounded-small border border-white/10 bg-[#2d2d2d] p-4">
+            <div className="md:hidden rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] p-4">
                 <div className="space-y-0.5">
                   {selectedPnlData.map((day) => {
                     const dayLabel =
@@ -894,12 +894,12 @@ function DashboardSection({
                       day.day === 'Sat' ? 'Saturday' :
                       'Sunday'
                     return (
-                      <div key={`${day.day}-${day.date}`} className="flex items-center justify-between py-2 border-b border-white/10 last:border-b-0">
+                      <div key={`${day.day}-${day.date}`} className="flex items-center justify-between py-2 border-b border-[var(--ds-border)] last:border-b-0">
                         <span className="text-base text-white/90">{dayLabel}</span>
                         <span
                           className={cn(
                             'text-base font-semibold tabular-nums',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-white/60'
+                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]'
                           )}
                         >
                           {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
@@ -920,19 +920,19 @@ function DashboardSection({
                   </span>
                 </div>
               </div>
-            <div className="hidden md:block rounded-small border border-white/10 bg-[#2d2d2d] overflow-hidden">
+            <div className="hidden md:block rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] overflow-hidden">
                 <table className="w-full table-fixed border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">Wk</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">M</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">T</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">W</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">T</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">F</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">S</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">S</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">Total</th>
+                    <tr className="border-b border-[var(--ds-border)]">
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Wk</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">M</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">W</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">F</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
+                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -945,7 +945,7 @@ function DashboardSection({
                           key={`${day.day}-${day.date}`}
                           className={cn(
                             'px-3 py-3 text-center text-sm font-semibold tabular-nums',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-white/60'
+                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]'
                           )}
                         >
                           {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
@@ -963,7 +963,7 @@ function DashboardSection({
                   </tbody>
                 </table>
               </div>
-            <div className="mt-2 text-[11px] text-white/45 leading-relaxed">
+            <div className="mt-2 text-[11px] text-[var(--ds-fg-subtle)] leading-relaxed">
               * Daily figures are sample values shown in EST.
             </div>
             <div className="text-[11px] text-white/35">
@@ -976,12 +976,12 @@ function DashboardSection({
       {/* ═══ Favourites Carousel ═══ */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">My Favourites</h2>
+          <h2 className="text-lg font-semibold text-[var(--ds-fg)]">My Favourites</h2>
           <div className="flex items-center gap-2 flex-shrink-0">
             {!isMobile && (
               <>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.max(0, favCarouselApi.selectedScrollSnap() - 2)) }} disabled={!favCarouselApi || !favCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.min(favCarouselApi.scrollSnapList().length - 1, favCarouselApi.selectedScrollSnap() + 2)) }} disabled={!favCarouselApi || !favCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.max(0, favCarouselApi.selectedScrollSnap() - 2)) }} disabled={!favCarouselApi || !favCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.min(favCarouselApi.scrollSnapList().length - 1, favCarouselApi.selectedScrollSnap() + 2)) }} disabled={!favCarouselApi || !favCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
               </>
             )}
           </div>
@@ -991,11 +991,11 @@ function DashboardSection({
             <CarouselContent className="ml-0 -mr-2 md:-mr-3">
               {favouriteCasinoGames.map((game, i) => (
                 <CarouselItem key={i} className={cn("pr-0 basis-auto flex-shrink-0", i === 0 ? "pl-0" : "pl-2 md:pl-3")}>
-                  <div className="w-[140px] h-[140px] rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0">
+                  <div className="w-[140px] h-[140px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0">
                     <Image src={game.image} alt={game.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="140px" />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-2">
-                      <div className="text-white text-[11px] font-bold truncate leading-tight mb-0.5">{game.title}</div>
-                      <div className="text-white/60 text-[9px] truncate">{game.provider}</div>
+                      <div className="text-[var(--ds-fg)] text-[11px] font-bold truncate leading-tight mb-0.5">{game.title}</div>
+                      <div className="text-[var(--ds-fg-muted)] text-[9px] truncate">{game.provider}</div>
                     </div>
                   </div>
                 </CarouselItem>
@@ -1076,7 +1076,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
       </span>
     )
     if (bet.status === 'void') return (
-      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full border border-white/20 text-white/60 bg-white/5 whitespace-nowrap">
+      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full border border-white/20 text-[var(--ds-fg-muted)] bg-[var(--ds-control-bg)] whitespace-nowrap">
         VOID
       </span>
     )
@@ -1154,7 +1154,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
         <div className="border-t border-white/5 bg-white/[0.02]">
           {bet.type === 'parlay' && bet.legs ? (
             <div className="px-4 pt-3 pb-2">
-              <div className="text-[10px] font-semibold text-white/50 uppercase tracking-wide mb-2">
+              <div className="text-[10px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide mb-2">
                 {bet.legs.length}-Leg Parlay
               </div>
               <div className="relative ml-[2px] mb-1">
@@ -1163,14 +1163,14 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                   {bet.legs.map((leg, i) => (
                     <div key={i} className="relative pl-4">
                       <div className="absolute left-0 top-[5px] w-[7px] h-[7px] rounded-full bg-emerald-500 ring-1 ring-emerald-500/20" />
-                      <div className="text-xs font-medium text-white leading-tight">{leg.selection}</div>
-                      <div className="text-[10px] text-white/50 leading-tight">{leg.market}</div>
-                      <div className="text-[10px] text-white/40 leading-tight">{leg.team1} v {leg.team2}</div>
-                      <div className="text-[10px] text-white/40">{leg.league}</div>
+                      <div className="text-xs font-medium text-[var(--ds-fg)] leading-tight">{leg.selection}</div>
+                      <div className="text-[10px] text-[var(--ds-fg-subtle)] leading-tight">{leg.market}</div>
+                      <div className="text-[10px] text-[var(--ds-fg-subtle)] leading-tight">{leg.team1} v {leg.team2}</div>
+                      <div className="text-[10px] text-[var(--ds-fg-subtle)]">{leg.league}</div>
                       {leg.isLive && leg.liveInfo && (
                         <div className="flex items-center gap-1.5 mt-1">
                           {getLiveTag()}
-                          <span className="text-[10px] text-white/60">{leg.liveInfo.period}, {leg.liveInfo.time}</span>
+                          <span className="text-[10px] text-[var(--ds-fg-muted)]">{leg.liveInfo.period}, {leg.liveInfo.time}</span>
                         </div>
                       )}
                     </div>
@@ -1180,45 +1180,45 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             </div>
           ) : (
             <div className="px-4 pt-3 pb-2">
-              <div className="text-xs font-medium text-white">{bet.selection}</div>
-              <div className="text-[10px] text-white/50">{bet.market}</div>
-              <div className="text-[10px] text-white/40">{bet.team1} v {bet.team2}</div>
-              <div className="text-[10px] text-white/40">{bet.league}{bet.country ? `, ${bet.country}` : ''}</div>
+              <div className="text-xs font-medium text-[var(--ds-fg)]">{bet.selection}</div>
+              <div className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.market}</div>
+              <div className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.team1} v {bet.team2}</div>
+              <div className="text-[10px] text-[var(--ds-fg-subtle)]">{bet.league}{bet.country ? `, ${bet.country}` : ''}</div>
               {bet.isLive && bet.liveInfo && (
                 <div className="flex items-center gap-1.5 mt-1.5">
                   {getLiveTag()}
-                  <span className="text-[10px] text-white/60">{bet.liveInfo.period}, {bet.liveInfo.time}</span>
+                  <span className="text-[10px] text-[var(--ds-fg-muted)]">{bet.liveInfo.period}, {bet.liveInfo.time}</span>
                 </div>
               )}
             </div>
           )}
 
           {bet.isLive && bet.liveInfo && bet.type !== 'parlay' && (
-            <div className="mx-4 mb-2 rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+            <div className="mx-4 mb-2 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-xs text-white/80">{bet.team1}</span>
-                <span className="text-xs font-bold text-white">{bet.liveInfo.score.team1}</span>
+                <span className="text-xs text-[var(--ds-fg-muted)]">{bet.team1}</span>
+                <span className="text-xs font-bold text-[var(--ds-fg)]">{bet.liveInfo.score.team1}</span>
               </div>
               <div className="flex items-center justify-between px-3 py-2 border-t border-white/5">
-                <span className="text-xs text-white/80">{bet.team2}</span>
-                <span className="text-xs font-bold text-white">{bet.liveInfo.score.team2}</span>
+                <span className="text-xs text-[var(--ds-fg-muted)]">{bet.team2}</span>
+                <span className="text-xs font-bold text-[var(--ds-fg)]">{bet.liveInfo.score.team2}</span>
               </div>
             </div>
           )}
 
           {!bet.isLive && bet.finalScore && bet.type !== 'parlay' && (
-            <div className="mx-4 mb-2 rounded-lg border border-white/10 bg-white/[0.03] overflow-hidden">
+            <div className="mx-4 mb-2 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] overflow-hidden">
               <div className="flex items-center justify-between px-3 py-1.5 bg-white/[0.02]">
-                <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wide">Final Result</span>
-                <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wide">FT</span>
+                <span className="text-[10px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide">Final Result</span>
+                <span className="text-[10px] font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wide">FT</span>
               </div>
               <div className="flex items-center justify-between px-3 py-2 border-t border-white/5">
-                <span className={cn("text-xs", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team1.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-white/80")}>{bet.team1}</span>
-                <span className={cn("text-xs font-bold", bet.finalScore.team1 > bet.finalScore.team2 ? "text-white" : "text-white/60")}>{bet.finalScore.team1}</span>
+                <span className={cn("text-xs", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team1.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-[var(--ds-fg-muted)]")}>{bet.team1}</span>
+                <span className={cn("text-xs font-bold", bet.finalScore.team1 > bet.finalScore.team2 ? "text-[var(--ds-fg)]" : "text-[var(--ds-fg-muted)]")}>{bet.finalScore.team1}</span>
               </div>
               <div className="flex items-center justify-between px-3 py-2 border-t border-white/5">
-                <span className={cn("text-xs", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team2.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-white/80")}>{bet.team2}</span>
-                <span className={cn("text-xs font-bold", bet.finalScore.team2 > bet.finalScore.team1 ? "text-white" : "text-white/60")}>{bet.finalScore.team2}</span>
+                <span className={cn("text-xs", bet.status === 'won' && bet.selection.toLowerCase().includes(bet.team2.toLowerCase()) ? "text-emerald-400 font-semibold" : "text-[var(--ds-fg-muted)]")}>{bet.team2}</span>
+                <span className={cn("text-xs font-bold", bet.finalScore.team2 > bet.finalScore.team1 ? "text-[var(--ds-fg)]" : "text-[var(--ds-fg-muted)]")}>{bet.finalScore.team2}</span>
               </div>
             </div>
           )}
@@ -1233,11 +1233,11 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
 
           <div className="px-4 py-2.5 border-t border-white/5">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-white/40">Risk</span>
-              <span className="text-[11px] text-white/40">{isGraded ? 'Result' : 'Potential Returns'}</span>
+              <span className="text-[11px] text-[var(--ds-fg-subtle)]">Risk</span>
+              <span className="text-[11px] text-[var(--ds-fg-subtle)]">{isGraded ? 'Result' : 'Potential Returns'}</span>
             </div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-bold text-white">{'$'}{bet.amount.toFixed(2)}</span>
+              <span className="text-sm font-bold text-[var(--ds-fg)]">{'$'}{bet.amount.toFixed(2)}</span>
               {bet.status === 'won' && bet.wonAmount ? (
                 <span className="text-sm font-bold text-emerald-400">+{'$'}{bet.wonAmount.toFixed(2)}</span>
               ) : bet.status === 'lost' ? (
@@ -1245,7 +1245,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
               ) : bet.status === 'cashed_out' && bet.cashedOutAmount ? (
                 <span className="text-sm font-bold text-emerald-400">{'$'}{bet.cashedOutAmount.toFixed(2)}</span>
               ) : (
-                <span className="text-sm font-bold text-white">{'$'}{potentialReturns.toFixed(2)}</span>
+                <span className="text-sm font-bold text-[var(--ds-fg)]">{'$'}{potentialReturns.toFixed(2)}</span>
               )}
             </div>
             <div className="flex items-center justify-between text-[10px] text-white/30">
@@ -1257,7 +1257,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
           <div className="px-4 pb-3 pt-1">
             <button
               onClick={(e) => { e.stopPropagation(); handleShareToChat(bet) }}
-              className="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-[11px] font-medium text-white/60 border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:text-white transition-all duration-200"
+              className="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-[11px] font-medium text-[var(--ds-fg-muted)] border border-[var(--ds-border)] bg-white/[0.03] hover:bg-white/[0.08] hover:text-[var(--ds-fg)] transition-all duration-200"
             >
               <IconMessageCircle2 className="w-3.5 h-3.5" />
               SHARE TO CHAT
@@ -1273,19 +1273,19 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
       <div className="px-4 md:px-6 pb-4 w-full max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 pt-4 mb-2">
-        <h1 className="text-lg font-bold text-white">Bet History</h1>
-        <IconInfoCircle className="w-4 h-4 text-white/40 cursor-pointer hover:text-white/60 transition-colors" />
+        <h1 className="text-lg font-bold text-[var(--ds-fg)]">Bet History</h1>
+        <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg-subtle)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors" />
       </div>
 
       {/* Daily Figures in place of old bet-state subnav */}
-      <div className="mb-4 rounded-lg border border-white/10 bg-white/5 overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-white/10">
+      <div className="mb-4 rounded-lg border border-[var(--ds-border)] bg-[var(--ds-control-bg)] overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-[var(--ds-border)]">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-white">Daily Figures</h3>
+            <h3 className="text-base font-semibold text-[var(--ds-fg)]">Daily Figures</h3>
             <button
               type="button"
               onClick={() => setIsDailyFiguresMinimized((prev) => !prev)}
-              className="inline-flex h-6 w-6 items-center justify-center rounded border border-white/20 text-white/70 hover:text-white hover:border-white/30 transition-colors"
+              className="inline-flex h-6 w-6 items-center justify-center rounded border border-white/20 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:border-white/30 transition-colors"
               aria-label={isDailyFiguresMinimized ? 'Expand daily figures' : 'Minimize daily figures'}
             >
               {isDailyFiguresMinimized ? <IconChevronDown className="h-3.5 w-3.5" /> : <IconChevronUp className="h-3.5 w-3.5" />}
@@ -1308,7 +1308,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                 <TabsTab
                   key={tab.value}
                   value={tab.value}
-                  className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 >
                   {pnlRange === tab.value && (
                     <motion.div
@@ -1328,19 +1328,19 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
 
         {!isDailyFiguresMinimized && (
           <div className="px-4 py-3">
-            <div className="rounded-small border border-white/10 bg-[#2d2d2d] overflow-hidden">
+            <div className="rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] overflow-hidden">
               <table className="w-full table-fixed border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">Wk</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">M</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">T</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">W</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">T</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">F</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">S</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">S</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-white/70">Total</th>
+                  <tr className="border-b border-[var(--ds-border)]">
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Wk</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">M</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">W</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">F</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1359,8 +1359,8 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                           }}
                           className={cn(
                             'w-full rounded-[6px] px-1 py-1 text-sm font-semibold tabular-nums transition-colors',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-white/60',
-                            selectedPnlDay === day.day && 'bg-white/10 ring-1 ring-white/20'
+                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]',
+                            selectedPnlDay === day.day && 'bg-[var(--ds-control-hover)] ring-1 ring-white/20'
                           )}
                           title={`Filter bets placed on ${day.day}`}
                         >
@@ -1389,21 +1389,21 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
         <button
           type="button"
           onClick={() => setFiltersPanelOpen(true)}
-          className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] transition-colors"
         >
           <IconFilter className="w-4 h-4" />
           <span className="font-medium">APPLY FILTERS</span>
         </button>
         <span className="text-white/30">|</span>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center h-7 rounded-full border border-white/15 bg-white/[0.04] px-3 text-xs font-medium text-white/85">
+          <span className="inline-flex items-center h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-3 text-xs font-medium text-white/85">
             Last 7 Days
           </span>
           {selectedStatus !== 'Status' && (
             <button
               type="button"
               onClick={() => setSelectedStatus('Status')}
-              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-white/[0.04] px-2.5 text-xs font-medium text-white/80 hover:bg-white/[0.08] transition-colors"
+              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08] transition-colors"
             >
               {selectedStatus}
               <IconX className="h-3 w-3" />
@@ -1413,7 +1413,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             <button
               type="button"
               onClick={() => setSelectedPnlDay(null)}
-              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-white/[0.04] px-2.5 text-xs font-medium text-white/80 hover:bg-white/[0.08] transition-colors"
+              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08] transition-colors"
             >
               {selectedPnlDay}
               <IconX className="h-3 w-3" />
@@ -1423,7 +1423,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             <button
               type="button"
               onClick={() => setFromDate('')}
-              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-white/[0.04] px-2.5 text-xs font-medium text-white/80 hover:bg-white/[0.08] transition-colors"
+              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08] transition-colors"
             >
               From {formatDateChip(fromDate)}
               <IconX className="h-3 w-3" />
@@ -1433,7 +1433,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             <button
               type="button"
               onClick={() => setToDate('')}
-              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-white/[0.04] px-2.5 text-xs font-medium text-white/80 hover:bg-white/[0.08] transition-colors"
+              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08] transition-colors"
             >
               To {formatDateChip(toDate)}
               <IconX className="h-3 w-3" />
@@ -1444,7 +1444,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
               key={type}
               type="button"
               onClick={() => setWagerTypeFilters((prev) => prev.filter((item) => item !== type))}
-              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-white/[0.04] px-2.5 text-xs font-medium text-white/80 hover:bg-white/[0.08] transition-colors"
+              className="inline-flex items-center gap-1 h-7 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08] transition-colors"
             >
               {type}
               <IconX className="h-3 w-3" />
@@ -1456,9 +1456,9 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
       {/* Content: Bet List with inline accordion */}
       <div>
         <div className="flex-1 min-w-0">
-          <div className="border border-white/10 rounded-lg overflow-hidden">
+          <div className="border border-[var(--ds-border)] rounded-lg overflow-hidden">
             {paginatedBets.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-white/45">
+              <div className="px-4 py-8 text-center text-sm text-[var(--ds-fg-subtle)]">
                 {selectedPnlDay
                   ? `No bets found for ${selectedPnlDay}.`
                   : 'No bets found.'}
@@ -1474,11 +1474,11 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                     onClick={() => setExpandedBetId(isExpanded ? null : bet.id)}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors",
-                      isExpanded ? "bg-white/5" : "hover:bg-white/[0.03]"
+                      isExpanded ? "bg-[var(--ds-control-bg)]" : "hover:bg-white/[0.03]"
                     )}
                   >
                     {/* Sport Icon */}
-                    <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[var(--ds-control-bg)] flex items-center justify-center flex-shrink-0">
                       <img
                         src={sportIconMap[bet.sport] || '/sports_icons/soccer.svg'}
                         alt={bet.sport}
@@ -1489,36 +1489,36 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                     {/* Bet Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-white">{'$'}{bet.amount.toFixed(2)}</span>
-                        <span className="text-sm text-white truncate">{bet.selection}</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg)]">{'$'}{bet.amount.toFixed(2)}</span>
+                        <span className="text-sm text-[var(--ds-fg)] truncate">{bet.selection}</span>
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-xs text-white/50 truncate">{bet.market}</span>
+                        <span className="text-xs text-[var(--ds-fg-subtle)] truncate">{bet.market}</span>
                         {bet.legCount && (
-                          <span className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[9px] text-white/60 font-medium">+{bet.legCount}</span>
+                          <span className="w-4 h-4 rounded-full bg-[var(--ds-control-hover)] flex items-center justify-center flex-shrink-0">
+                            <span className="text-[9px] text-[var(--ds-fg-muted)] font-medium">+{bet.legCount}</span>
                       </span>
                     )}
                   </div>
                       {bet.type !== 'parlay' && bet.team1 && bet.team2 && (
-                        <div className="text-[11px] text-white/40 mt-0.5 truncate">
+                        <div className="text-[11px] text-[var(--ds-fg-subtle)] mt-0.5 truncate">
                           {bet.team1} v {bet.team2} · {bet.league}
                   </div>
                       )}
                       {bet.isLive && bet.liveInfo && bet.type !== 'parlay' && (
                         <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
-                          <span className="text-[11px] text-white/60 truncate">{bet.team1}</span>
-                          <span className="text-[11px] font-bold text-white flex-shrink-0 whitespace-nowrap">{bet.liveInfo.score.team1} - {bet.liveInfo.score.team2}</span>
-                          <span className="text-[11px] text-white/60 truncate">{bet.team2}</span>
-                          <span className="text-[10px] text-white/40 ml-auto flex-shrink-0 whitespace-nowrap">{bet.liveInfo.period} {bet.liveInfo.time}</span>
+                          <span className="text-[11px] text-[var(--ds-fg-muted)] truncate">{bet.team1}</span>
+                          <span className="text-[11px] font-bold text-[var(--ds-fg)] flex-shrink-0 whitespace-nowrap">{bet.liveInfo.score.team1} - {bet.liveInfo.score.team2}</span>
+                          <span className="text-[11px] text-[var(--ds-fg-muted)] truncate">{bet.team2}</span>
+                          <span className="text-[10px] text-[var(--ds-fg-subtle)] ml-auto flex-shrink-0 whitespace-nowrap">{bet.liveInfo.period} {bet.liveInfo.time}</span>
                 </div>
                       )}
                       {!bet.isLive && bet.finalScore && bet.type !== 'parlay' && (
                         <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
-                          <span className="text-[11px] text-white/50 flex-shrink-0">FT:</span>
-                          <span className="text-[11px] text-white/60 truncate">{bet.team1}</span>
-                          <span className="text-[11px] font-bold text-white flex-shrink-0 whitespace-nowrap">{bet.finalScore.team1} - {bet.finalScore.team2}</span>
-                          <span className="text-[11px] text-white/60 truncate">{bet.team2}</span>
+                          <span className="text-[11px] text-[var(--ds-fg-subtle)] flex-shrink-0">FT:</span>
+                          <span className="text-[11px] text-[var(--ds-fg-muted)] truncate">{bet.team1}</span>
+                          <span className="text-[11px] font-bold text-[var(--ds-fg)] flex-shrink-0 whitespace-nowrap">{bet.finalScore.team1} - {bet.finalScore.team2}</span>
+                          <span className="text-[11px] text-[var(--ds-fg-muted)] truncate">{bet.team2}</span>
               </div>
                       )}
               </div>
@@ -1528,7 +1528,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                       {bet.status ? getStatusBadge(bet) : (
                         bet.isLive ? getLiveTag() : getPendingTag()
                       )}
-                      <span className="text-sm font-medium text-white/80 min-w-[45px] text-right">{bet.odds}</span>
+                      <span className="text-sm font-medium text-[var(--ds-fg-muted)] min-w-[45px] text-right">{bet.odds}</span>
                 <motion.div
                         animate={{ rotate: isExpanded ? 90 : 0 }}
                   transition={{ duration: 0.2 }}
@@ -1549,32 +1549,32 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-3 px-1">
-        <div className="flex items-center gap-2 text-xs text-white/50">
+        <div className="flex items-center gap-2 text-xs text-[var(--ds-fg-subtle)]">
           <span>Rows per page:</span>
           <select
             value={rowsPerPage}
             onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1) }}
-            className="bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-white text-xs focus:outline-none cursor-pointer"
+            className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded px-1.5 py-0.5 text-[var(--ds-fg)] text-xs focus:outline-none cursor-pointer"
           >
             <option value={10}>10</option>
             <option value={25}>25</option>
             <option value={50}>50</option>
           </select>
         </div>
-        <div className="flex items-center gap-3 text-xs text-white/50">
+        <div className="flex items-center gap-3 text-xs text-[var(--ds-fg-subtle)]">
           <span>{currentPage} of {totalPages}</span>
           <div className="flex items-center gap-1">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-1 rounded hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded hover:bg-[var(--ds-control-bg)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
               <IconChevronLeft className="w-4 h-4" />
             </button>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-1 rounded hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="p-1 rounded hover:bg-[var(--ds-control-bg)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
               <IconChevronRight className="w-4 h-4" />
             </button>
@@ -1701,7 +1701,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                   <button
                     type="button"
                     onClick={() => setFiltersPanelOpen(false)}
-                    className="h-11 rounded-md bg-[#7fbf2f] text-sm font-semibold text-white hover:bg-[#73af2b] transition-colors"
+                    className="h-11 rounded-md bg-[#7fbf2f] text-sm font-semibold text-[var(--ds-fg)] hover:bg-[#73af2b] transition-colors"
                   >
                     APPLY
                   </button>
@@ -1725,17 +1725,17 @@ function BonusContent() {
 
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
-      <h2 className="text-lg font-semibold text-white">My Bonus</h2>
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">My Bonus</h2>
 
       {/* AnimateTabs pill style */}
       <div>
         <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
+          <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
         {['Sports', 'Casino'].map((tab) => (
               <TabsTab
             key={tab}
                 value={tab}
-                className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
+                className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
               >
             {activeTab === tab && (
               <motion.div
@@ -1754,37 +1754,37 @@ function BonusContent() {
       </div>
 
       {/* Bonus Table */}
-      <div className={cn("rounded-lg border border-white/10 overflow-hidden", isMobile && "overflow-x-auto")}>
+      <div className={cn("rounded-lg border border-[var(--ds-border)] overflow-hidden", isMobile && "overflow-x-auto")}>
         <Table>
           <TableHeader>
-            <TableRow className="border-white/10 bg-white/[0.03]">
-              <TableHead className="text-white/50 text-xs font-medium">Code</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Amount</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Rollover</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Date</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Status</TableHead>
+            <TableRow className="border-[var(--ds-border)] bg-white/[0.03]">
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Code</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Amount</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Rollover</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Date</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Status</TableHead>
               {!isMobile && <TableHead className="w-[40px]" />}
             </TableRow>
           </TableHeader>
           <TableBody>
             {bonusData.map((bonus) => (
               <React.Fragment key={bonus.id}>
-                <TableRow className="border-white/10 hover:bg-white/5 cursor-pointer" onClick={() => setExpandedRow(expandedRow === bonus.id ? null : bonus.id)}>
-                  <TableCell className="text-sm text-white">{bonus.code}</TableCell>
-                  <TableCell className="text-sm text-white">{bonus.amount}</TableCell>
-                  <TableCell className="text-sm text-white">{bonus.rollover}</TableCell>
-                  <TableCell className="text-sm text-white/60">{bonus.date}</TableCell>
+                <TableRow className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)] cursor-pointer" onClick={() => setExpandedRow(expandedRow === bonus.id ? null : bonus.id)}>
+                  <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.code}</TableCell>
+                  <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.amount}</TableCell>
+                  <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.rollover}</TableCell>
+                  <TableCell className="text-sm text-[var(--ds-fg-muted)]">{bonus.date}</TableCell>
                   <TableCell>
-                    <span className={cn("px-2 py-0.5 text-[11px] font-semibold rounded-full text-white", bonus.statusColor)}>{bonus.status}</span>
+                    <span className={cn("px-2 py-0.5 text-[11px] font-semibold rounded-full text-[var(--ds-fg)]", bonus.statusColor)}>{bonus.status}</span>
                   </TableCell>
                   {!isMobile && (
                     <TableCell><IconChevronDown className={cn("w-4 h-4 text-white/30 transition-transform", expandedRow === bonus.id && "rotate-180")} /></TableCell>
                   )}
                 </TableRow>
                 {expandedRow === bonus.id && (
-                  <TableRow className="border-white/10">
+                  <TableRow className="border-[var(--ds-border)]">
                     <TableCell colSpan={6} className="py-3">
-                      <div className="text-xs text-white/50 space-y-1">
+                      <div className="text-xs text-[var(--ds-fg-subtle)] space-y-1">
                         <p>Bonus Code: {bonus.code}</p>
                         <p>Wagering Requirement: {bonus.rollover} remaining</p>
                         <p>Expiry: {bonus.date}</p>
@@ -1809,25 +1809,25 @@ function TransactionsContent() {
 
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
-      <h2 className="text-lg font-semibold text-white">Transactions</h2>
-      <div className={cn("rounded-lg border border-white/10 overflow-hidden", isMobile && "overflow-x-auto")}>
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Transactions</h2>
+      <div className={cn("rounded-lg border border-[var(--ds-border)] overflow-hidden", isMobile && "overflow-x-auto")}>
         <Table>
           <TableHeader>
-            <TableRow className="border-white/10 bg-white/[0.03]">
-              <TableHead className="text-white/50 text-xs font-medium">Date</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Type</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Method</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Amount</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Status</TableHead>
-              <TableHead className="text-white/50 text-xs font-medium">Reference</TableHead>
+            <TableRow className="border-[var(--ds-border)] bg-white/[0.03]">
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Date</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Type</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Method</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Amount</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Status</TableHead>
+              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Reference</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {transactionsData.map((tx) => (
-              <TableRow key={tx.id} className="border-white/10 hover:bg-white/5">
-                <TableCell className="text-sm text-white/60">{tx.date}</TableCell>
-                <TableCell className="text-sm text-white">{tx.type}</TableCell>
-                <TableCell className="text-sm text-white/70">{tx.method}</TableCell>
+              <TableRow key={tx.id} className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)]">
+                <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.date}</TableCell>
+                <TableCell className="text-sm text-[var(--ds-fg)]">{tx.type}</TableCell>
+                <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.method}</TableCell>
                 <TableCell className={cn("text-sm font-medium", tx.amount.startsWith('+') ? "text-emerald-400" : "text-red-400")}>{tx.amount}</TableCell>
                 <TableCell>
                   <span className={cn(
@@ -1837,7 +1837,7 @@ function TransactionsContent() {
                     tx.status === 'CREDITED' && "text-blue-400 bg-blue-500/10 border border-blue-500/30",
                   )}>{tx.status}</span>
                 </TableCell>
-                <TableCell className="text-xs text-white/40 font-mono">{tx.reference}</TableCell>
+                <TableCell className="text-xs text-[var(--ds-fg-subtle)] font-mono">{tx.reference}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -1857,28 +1857,28 @@ function ReferFriendContent() {
 
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-6">
-      <h2 className="text-lg font-semibold text-white">Refer a Friend</h2>
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Refer a Friend</h2>
 
-      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 space-y-5">
+      <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-5">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center">
-            <IconUserPlus className="w-6 h-6 text-white/60" strokeWidth={1.5} />
+          <div className="w-12 h-12 mx-auto rounded-full bg-[var(--ds-control-bg)] flex items-center justify-center">
+            <IconUserPlus className="w-6 h-6 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
           </div>
-          <h3 className="text-base font-semibold text-white">Earn up to $200 per referral!</h3>
-          <p className="text-xs text-white/50 max-w-md">
+          <h3 className="text-base font-semibold text-[var(--ds-fg)]">Earn up to $200 per referral!</h3>
+          <p className="text-xs text-[var(--ds-fg-subtle)] max-w-md">
             Share your unique referral link with friends. When they sign up and make their first deposit, you both earn a bonus!
           </p>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] text-white/40 uppercase tracking-wider">Your Referral Code</label>
+          <label className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wider">Your Referral Code</label>
           <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2.5 rounded-lg bg-white/[0.05] border border-white/10 text-xs font-mono text-white truncate">{referralLink}</div>
+            <div className="flex-1 px-3 py-2.5 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] text-xs font-mono text-[var(--ds-fg)] truncate">{referralLink}</div>
             <button
               onClick={() => { navigator.clipboard.writeText(referralLink); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
               className={cn(
                 "px-3 py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5",
-                copied ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-white/10 text-white hover:bg-white/15 border border-white/10"
+                copied ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-[var(--ds-control-hover)] text-white hover:bg-white/15 border border-[var(--ds-border)]"
               )}
             >
               {copied ? <IconCheck className="w-3.5 h-3.5" /> : <IconCopy className="w-3.5 h-3.5" />}
@@ -1887,20 +1887,20 @@ function ReferFriendContent() {
           </div>
         </div>
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-[var(--ds-control-hover)]" />
 
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-xl font-bold text-white">3</p>
-            <p className="text-[10px] text-white/40 mt-0.5">Friends Referred</p>
+            <p className="text-xl font-bold text-[var(--ds-fg)]">3</p>
+            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Friends Referred</p>
           </div>
           <div>
             <p className="text-xl font-bold text-emerald-400">$150</p>
-            <p className="text-[10px] text-white/40 mt-0.5">Total Earned</p>
+            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Total Earned</p>
           </div>
           <div>
             <p className="text-xl font-bold text-amber-400">1</p>
-            <p className="text-[10px] text-white/40 mt-0.5">Pending</p>
+            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Pending</p>
           </div>
         </div>
       </div>
@@ -1916,17 +1916,17 @@ function PaymentsContent() {
 
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
-      <h2 className="text-lg font-semibold text-white">Payments</h2>
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Payments</h2>
 
       {/* AnimateTabs pill style */}
       <div>
         <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
+          <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
             {['Deposit', 'Withdraw'].map((tab) => (
               <TabsTab
                 key={tab}
                 value={tab}
-                className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
+                className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
               >
                 {activeTab === tab && (
                   <motion.div
@@ -1947,8 +1947,8 @@ function PaymentsContent() {
       <AnimatePresence mode="wait">
         {activeTab === 'Deposit' && (
           <motion.div key="deposit" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 space-y-4">
-              <p className="text-xs text-white/50">Select your preferred payment method to make a deposit.</p>
+            <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
+              <p className="text-xs text-[var(--ds-fg-subtle)]">Select your preferred payment method to make a deposit.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {[
             { label: 'Bitcoin', icon: '₿' },
@@ -1958,9 +1958,9 @@ function PaymentsContent() {
             { label: 'Cashier Check', icon: '📄' },
             { label: 'Person to Person', icon: '🤝' },
           ].map((method) => (
-                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 transition-colors">
+                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.02] hover:bg-[var(--ds-control-bg)] hover:border-white/20 transition-colors">
                     <span className="text-xl">{method.icon}</span>
-                    <span className="text-[10px] text-white/70">{method.label}</span>
+                    <span className="text-[10px] text-[var(--ds-fg-muted)]">{method.label}</span>
             </button>
           ))}
         </div>
@@ -1969,11 +1969,11 @@ function PaymentsContent() {
         )}
         {activeTab === 'Withdraw' && (
           <motion.div key="withdraw" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/10">
+            <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-[var(--ds-border)]">
           <div>
-                  <span className="text-[10px] text-white/40">Available for Withdrawal</span>
-                  <p className="text-lg font-bold text-white mt-0.5">$100,000.00</p>
+                  <span className="text-[10px] text-[var(--ds-fg-subtle)]">Available for Withdrawal</span>
+                  <p className="text-lg font-bold text-[var(--ds-fg)] mt-0.5">$100,000.00</p>
           </div>
                 <IconWallet className="w-6 h-6 text-white/20" strokeWidth={1.5} />
         </div>
@@ -1984,9 +1984,9 @@ function PaymentsContent() {
             { label: 'Cashier Check', icon: '📄' },
             { label: 'Person to Person', icon: '🤝' },
           ].map((method) => (
-                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 transition-colors">
+                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.02] hover:bg-[var(--ds-control-bg)] hover:border-white/20 transition-colors">
                     <span className="text-xl">{method.icon}</span>
-                    <span className="text-[10px] text-white/70">{method.label}</span>
+                    <span className="text-[10px] text-[var(--ds-fg-muted)]">{method.label}</span>
             </button>
           ))}
         </div>
@@ -2004,7 +2004,7 @@ function PaymentsContent() {
 function SecurityContent() {
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
-      <h2 className="text-lg font-semibold text-white">Security Central</h2>
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Security Central</h2>
       <div className="space-y-2">
         {[
           { icon: IconLock, label: 'Change Password', desc: 'Update your account password' },
@@ -2012,13 +2012,13 @@ function SecurityContent() {
           { icon: IconHistory, label: 'Login History', desc: 'View recent login activity' },
           { icon: IconSettings, label: 'Session Management', desc: 'Manage active sessions' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-              <item.icon className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] hover:bg-[var(--ds-control-bg)] transition-colors cursor-pointer">
+            <div className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] flex items-center justify-center flex-shrink-0">
+              <item.icon className="w-4 h-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white">{item.label}</p>
-              <p className="text-[10px] text-white/40 mt-0.5">{item.desc}</p>
+              <p className="text-xs font-medium text-[var(--ds-fg)]">{item.label}</p>
+              <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">{item.desc}</p>
             </div>
             <IconChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
           </div>
@@ -2034,8 +2034,8 @@ function SecurityContent() {
 function ProfileContent() {
   return (
     <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
-      <h2 className="text-lg font-semibold text-white">Profile Settings</h2>
-      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 space-y-4">
+      <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Profile Settings</h2>
+      <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { label: 'Username', value: 'christopher' },
@@ -2046,8 +2046,8 @@ function ProfileContent() {
             { label: 'VIP Level', value: 'Gold', color: 'text-amber-400' },
           ].map((item) => (
             <div key={item.label}>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider">{item.label}</span>
-              <p className={cn("text-xs font-medium mt-0.5", item.color || "text-white")}>{item.value}</p>
+              <span className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wider">{item.label}</span>
+              <p className={cn("text-xs font-medium mt-0.5", item.color || "text-[var(--ds-fg)]")}>{item.value}</p>
             </div>
           ))}
         </div>
@@ -2059,13 +2059,13 @@ function ProfileContent() {
           { icon: IconDownload, label: 'Download My Data', desc: 'Export your account data' },
           { icon: IconShare, label: 'Connected Accounts', desc: 'Manage linked accounts' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-              <item.icon className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] hover:bg-[var(--ds-control-bg)] transition-colors cursor-pointer">
+            <div className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] flex items-center justify-center flex-shrink-0">
+              <item.icon className="w-4 h-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white">{item.label}</p>
-              <p className="text-[10px] text-white/40 mt-0.5">{item.desc}</p>
+              <p className="text-xs font-medium text-[var(--ds-fg)]">{item.label}</p>
+              <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">{item.desc}</p>
             </div>
             <IconChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
           </div>
@@ -2211,7 +2211,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipLeft && (
           <button
             onClick={scrollVipLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginLeft: '12px' }}
           >
             <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
@@ -2246,7 +2246,7 @@ function VipDrawerContent({
           onScroll={checkScroll}
         >
           <div
-            className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
+            className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300 backdrop-blur-xl flex items-center"
             style={{
               minWidth: 'max-content',
               width: 'max-content',
@@ -2264,7 +2264,7 @@ function VipDrawerContent({
                   "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                   vipActiveTab === tab
                     ? "text-black bg-[#fef3c7]"
-                    : "text-white/70 hover:text-white hover:bg-white/5 bg-transparent"
+                    : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] bg-transparent"
                 )}
                 style={{ scrollSnapAlign: 'start', touchAction: 'manipulation' }}
               >
@@ -2276,7 +2276,7 @@ function VipDrawerContent({
         {!isMobile && canScrollVipRight && (
           <button
             onClick={scrollVipRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
             style={{ pointerEvents: 'auto', marginRight: '8px' }}
           >
             <IconChevronRight className="h-4 w-4" strokeWidth={2} />
@@ -2607,8 +2607,8 @@ function AccountPageContent() {
 
   if (!mounted) {
     return (
-      <div className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen flex items-center justify-center">
-        <div className="text-white/70">Loading...</div>
+      <div className="w-full bg-[var(--ds-page-bg)] text-[var(--ds-fg)] font-figtree overflow-x-hidden min-h-screen flex items-center justify-center">
+        <div className="text-[var(--ds-fg-muted)]">Loading...</div>
       </div>
     )
   }
@@ -2616,7 +2616,7 @@ function AccountPageContent() {
   return (
     <div
       data-page-bg
-      className="w-full bg-[#1a1a1a] text-white font-figtree overflow-x-hidden min-h-screen"
+      className="w-full bg-[var(--ds-page-bg)] text-[var(--ds-fg)] font-figtree overflow-x-hidden min-h-screen"
       style={{
         width: '100%',
         maxWidth: '100vw',
@@ -2646,11 +2646,11 @@ function AccountPageContent() {
               <button
                 key={item.label}
                 onClick={(e) => { e.stopPropagation(); setLoadingQuickLink(item.label); item.onClick(); setTimeout(() => setLoadingQuickLink(null), 1200) }}
-                className="flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors text-white/70 hover:text-white relative"
+                className="flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] relative"
               >
                 <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
                 {loadingQuickLink === item.label && (
-                  <span className="absolute inset-0 flex items-center justify-center"><IconLoader2 className="w-3.5 h-3.5 text-white animate-spin" /></span>
+                  <span className="absolute inset-0 flex items-center justify-center"><IconLoader2 className="w-3.5 h-3.5 text-[var(--ds-fg)] animate-spin" /></span>
                 )}
               </button>
             ))}
@@ -2662,7 +2662,7 @@ function AccountPageContent() {
       <motion.header
         data-nav-header
         className={cn(
-          "border-b border-white/10 h-16 flex items-center justify-between z-[101] fixed right-0 transition-[left,background-color] duration-200 ease-linear",
+          "border-b border-[var(--ds-border)] h-16 flex items-center justify-between z-[101] fixed right-0 transition-[left,background-color] duration-200 ease-linear",
           isMobile ? "left-0 px-3" : (sidebarOpen ? "left-[16rem] px-6" : "left-[3rem] px-6"),
           isMobile && quickLinksOpen && "border-t-0"
         )}
@@ -2690,7 +2690,7 @@ function AccountPageContent() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-white hover:bg-white/5"
+                className="h-7 w-7 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -2703,7 +2703,7 @@ function AccountPageContent() {
                 {openMobile ? (
                   <IconX className="h-4 w-4" strokeWidth={1.5} />
                 ) : (
-                  <svg className="h-4 w-4 text-white" viewBox="0 0 16 16" fill="none">
+                  <svg className="h-4 w-4 text-[var(--ds-fg)]" viewBox="0 0 16 16" fill="none">
                     <rect x="1" y="2.75" width="14" height="2" rx="1" fill="currentColor" />
                     <rect x="1" y="7" width="10" height="2" rx="1" fill="currentColor" />
                     <rect x="1" y="11.25" width="6" height="2" rx="1" fill="currentColor" />
@@ -2730,14 +2730,14 @@ function AccountPageContent() {
                   variant="ghost"
                   size="icon"
                     onClick={() => toggleSidebar()}
-                  className="h-8 w-8 text-white/40 hover:text-white hover:bg-white/10"
+                  className="h-8 w-8 text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <line x1="9" y1="3" x2="9" y2="21" />
                   </svg>
                 </Button>
-                <div className="w-px h-5 bg-white/20" />
+                <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
               </div>
 
                 {visibleProducts.sports && (
@@ -2745,8 +2745,8 @@ function AccountPageContent() {
                   <SidebarMenuButton
                     className={cn(
                       "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-white/5 hover:text-white transition-colors",
-                      "text-white/70 cursor-pointer"
+                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                      "text-[var(--ds-fg-muted)] cursor-pointer"
                     )}
                     style={{ pointerEvents: 'auto' } as React.CSSProperties}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('sports', 'Sports'); router.push('/sports/football') }}
@@ -2762,8 +2762,8 @@ function AccountPageContent() {
                   <SidebarMenuButton
                     className={cn(
                       "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-white/5 hover:text-white transition-colors",
-                      "text-white/70 cursor-pointer"
+                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                      "text-[var(--ds-fg-muted)] cursor-pointer"
                     )}
                     style={{ pointerEvents: 'auto' } as React.CSSProperties}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('casino', 'Casino'); router.push('/casino') }}
@@ -2779,8 +2779,8 @@ function AccountPageContent() {
                   <SidebarMenuButton
                     className={cn(
                       "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-white/5 hover:text-white transition-colors",
-                      "text-white/70 cursor-pointer"
+                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                      "text-[var(--ds-fg-muted)] cursor-pointer"
                     )}
                     style={{ pointerEvents: 'auto' } as React.CSSProperties}
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('poker', 'Poker'); router.push('/casino?poker=true') }}
@@ -2796,8 +2796,8 @@ function AccountPageContent() {
                   <SidebarMenuButton
                     className={cn(
                       "h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-white/5 hover:text-white transition-colors",
-                      "text-white/70 cursor-pointer"
+                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                      "text-[var(--ds-fg-muted)] cursor-pointer"
                     )}
                     style={{ pointerEvents: 'auto' } as React.CSSProperties}
                     onClick={(e) => {
@@ -2819,8 +2819,8 @@ function AccountPageContent() {
                       <SidebarMenuButton
                         className={cn(
                           "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center",
-                          "hover:bg-white/5 hover:text-white transition-colors",
-                          "text-white/70 data-[state=open]:text-white data-[state=open]:bg-white/10"
+                          "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                          "text-[var(--ds-fg-muted)] data-[state=open]:text-[var(--ds-fg)] data-[state=open]:bg-[var(--ds-control-hover)]"
                         )}
                         style={{ pointerEvents: 'auto' }}
                       >
@@ -2833,19 +2833,19 @@ function AccountPageContent() {
                     <DropdownMenuContent
                       align="end"
                       sideOffset={5}
-                      className="w-[200px] bg-[#2d2d2d] border-white/10 z-[120]"
+                      className="w-[200px] bg-[var(--ds-surface-raised)] border-[var(--ds-border)] z-[120]"
                       style={{ zIndex: 120 }}
                     >
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="/esports" className="w-full">Esports</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Racebook</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Contests</a>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
+                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                         <a href="#" className="w-full">Virtuals</a>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -2869,14 +2869,14 @@ function AccountPageContent() {
       </motion.header>
 
       {/* ═══ Layout: Sidebar + Content ═══ */}
-      <div className="flex w-full min-h-screen bg-[#1a1a1a] relative" style={{ marginTop: '64px' }} data-sidebar-full-height>
+      <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)] relative" style={{ marginTop: '64px' }} data-sidebar-full-height>
         {/* Persistent sidebar backdrop — prevents black flash during page transitions */}
         {!isMobile && (
           <div 
             className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear border-r border-white/10"
             style={{ 
               width: sidebarOpen ? '16rem' : '3rem',
-              backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)'
+              backgroundColor: '#2d2d2d'
             }}
           />
         )}
@@ -2888,11 +2888,11 @@ function AccountPageContent() {
           mobileNoDrag
           mobileBg="#2d2d2d"
           mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-          className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+          className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
         >
           {/* Sidebar Header — logo with collapse animation */}
           <SidebarHeader
-            className="px-4 h-14 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
+            className="px-4 h-16 flex items-center flex-shrink-0 overflow-hidden sticky top-0 z-20"
             style={{
               backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
@@ -2904,7 +2904,7 @@ function AccountPageContent() {
               {isMobile && (
                 <button
                   onClick={() => setOpenMobile(false)}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/40 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] rounded-lg hover:bg-[var(--ds-control-hover)] transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -2962,7 +2962,7 @@ function AccountPageContent() {
           {/* Quick Links — mobile only, below logo, sticky + glass */}
           {isMobile && (
             <div 
-              className="sticky top-14 z-20 border-b border-white/5"
+              className="sticky top-16 z-20 border-b border-white/5"
               style={{
                 backdropFilter: 'blur(16px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(16px) saturate(180%)',
@@ -3000,7 +3000,7 @@ function AccountPageContent() {
                     }}
                     className={cn(
                       "flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative",
-                      "text-white/35 font-medium hover:text-white/60"
+                      "text-white/35 font-medium hover:text-[var(--ds-fg-muted)]"
                     )}
                   >
                     {item.label}
@@ -3009,7 +3009,7 @@ function AccountPageContent() {
                 {/* Other — inline dropdown toggle */}
                 <button 
                   onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                  className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-white/60 flex items-center gap-0.5"
+                  className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
                 >
                   Other
                   <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
@@ -3042,7 +3042,7 @@ function AccountPageContent() {
                         key={item.label}
                         href={item.href}
                         onClick={() => setOpenMobile(false)}
-                        className="flex-shrink-0 px-3 py-2 text-[13px] text-white/50 font-medium hover:text-white whitespace-nowrap transition-colors"
+                        className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
                       >
                         {item.label}
                       </a>
@@ -3074,18 +3074,18 @@ function AccountPageContent() {
                             className={cn(
                               "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                               "data-[active=true]:text-white data-[active=true]:font-medium",
-                              "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                              "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                             )}
                             style={activeSection === 'dashboard' ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                           >
-                            <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", activeSection === 'dashboard' ? "bg-white/20" : "bg-white/10")}>
+                            <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", activeSection === 'dashboard' ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
                               <IconUser strokeWidth={1.5} className="w-4 h-4" />
                             </div>
                             <span>My Account</span>
                           </SidebarMenuButton>
                         </TooltipTrigger>
                         {sidebarState === 'collapsed' && (
-                          <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                          <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                             <p>My Account</p>
                           </TooltipContent>
                         )}
@@ -3095,7 +3095,7 @@ function AccountPageContent() {
                 </SidebarGroupContent>
               </SidebarGroup>
 
-              <Separator className="bg-white/10 mx-2" />
+              <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
               {/* Account nav items */}
               <SidebarGroup>
@@ -3121,7 +3121,7 @@ function AccountPageContent() {
                                 className={cn(
                                   "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                   "data-[active=true]:text-white data-[active=true]:font-medium",
-                                  "data-[active=false]:text-white/70 hover:text-white hover:bg-white/5"
+                                  "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                 )}
                                 style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                               >
@@ -3130,7 +3130,7 @@ function AccountPageContent() {
                               </SidebarMenuButton>
                             </TooltipTrigger>
                             {sidebarState === 'collapsed' && (
-                              <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                 <p>{item.label}</p>
                               </TooltipContent>
                             )}
@@ -3145,7 +3145,7 @@ function AccountPageContent() {
               {/* Spacer to push bottom items down */}
               <div className="flex-1" />
 
-              <Separator className="bg-white/10 mx-2" />
+              <Separator className="bg-[var(--ds-control-hover)] mx-2" />
 
               {/* Bottom section — VIP Hub, Promotions, Wallet, Need Help */}
               <SidebarGroup>
@@ -3174,7 +3174,7 @@ function AccountPageContent() {
                                 }}
                                 className={cn(
                                   "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                  "text-white/70 hover:text-white hover:bg-white/5"
+                                  "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                 )}
                               >
                                 <Icon strokeWidth={1.5} className="w-5 h-5" />
@@ -3182,7 +3182,7 @@ function AccountPageContent() {
                               </SidebarMenuButton>
                             </TooltipTrigger>
                             {sidebarState === 'collapsed' && (
-                              <TooltipContent side="right" className="bg-[#2d2d2d] border-white/10 text-white">
+                              <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
                                 <p>{item.label}</p>
                               </TooltipContent>
                             )}
@@ -3201,25 +3201,25 @@ function AccountPageContent() {
 
         {/* ═══ Main Content ═══ */}
         <SidebarInset
-          className="bg-[#1a1a1a] text-white overflow-x-hidden"
+          className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)] overflow-x-hidden"
           style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}
         >
           {/* Sub-nav — AnimateTabs pill style, mobile only (desktop uses sidebar) */}
           {isMobile && (
           <motion.div
-            className="fixed left-0 right-0 z-[90] bg-[#1a1a1a]/60 backdrop-blur-xl border-b border-white/10 py-3 px-4 overflow-x-auto overflow-y-visible scrollbar-hide"
+            className="fixed left-0 right-0 z-[90] bg-[var(--ds-page-bg)]/60 backdrop-blur-xl border-b border-[var(--ds-border)] py-3 px-4 overflow-x-auto overflow-y-visible scrollbar-hide"
             initial={false}
             animate={{ top: quickLinksOpen ? 104 : 64 }}
             transition={{ type: "tween", ease: "linear", duration: 0.3 }}
           >
             <div>
               <AnimateTabs value={activeSection} onValueChange={(v) => { trackClick('account-tab', v, { section: 'sub-nav', from: activeSection, to: v }); setActiveSection(v as AccountSection) }} className="w-max">
-                <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
+                <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
                   {sidebarItems.map((item) => (
                     <TabsTab
                       key={item.id}
                       value={item.id}
-                      className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
+                      className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
                     >
                       {activeSection === item.id && (
                         <motion.div
@@ -3269,89 +3269,89 @@ function AccountPageContent() {
           </AnimatePresence>
 
           {/* ═══ Global Footer ═══ */}
-          <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+          <footer className="bg-[var(--ds-surface-raised)] border-t border-[var(--ds-border)] text-[var(--ds-fg)] mt-12 relative z-0">
             <div className="w-full px-6 py-6">
               {/* Quick Links Section */}
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">About Us</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Refer A Friend</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Rules</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Banking</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Affiliates</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Terms & Conditions</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Responsible Gaming</a></li>
                   </ul>
                           </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Casino</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Blackjack</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Baccarat</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Craps</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Roulette</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Keno</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Slots</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Video Poker</a></li>
                   </ul>
                           </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Sportsbook</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NFL Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NBA Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">MLB Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NHL Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">NCAAB Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Super Bowl Betting Odds</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Boxing Betting Odds</a></li>
                   </ul>
                         </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Play Poker</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Download</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Texas Holdem</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Omaha Poker</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Horse Betting</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Kentucky Derby</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Preakness Stakes</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Belmont Stakes</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Breeders Cup</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Promos</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">News Room</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Why BetOnline</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">BetOnline Vs Competition</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">VIP Rewards</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Bet TV</a></li>
                   </ul>
                 </div>
                 <div>
                   <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                  <ul className="space-y-1.5 text-xs text-white/70">
-                    <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                    <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                  <ul className="space-y-1.5 text-xs text-[var(--ds-fg-muted)]">
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Live Chat</a></li>
+                    <li><a href="#" className="hover:text-[var(--ds-fg)] transition-colors">Help Centre</a></li>
                   </ul>
                 </div>
               </div>
 
-              <Separator className="bg-white/10 mb-6" />
+              <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
               {/* Trust & Security Section */}
               <div className="mb-6">
@@ -3359,7 +3359,7 @@ function AccountPageContent() {
                   <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
                   <IconShield className="w-4 h-4" />
                 </div>
-                <p className="text-xs text-white/70 mb-4 max-w-2xl">
+                <p className="text-xs text-[var(--ds-fg-muted)] mb-4 max-w-2xl">
                   At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
@@ -3372,12 +3372,12 @@ function AccountPageContent() {
                   <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
                   <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
                   <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                    <span className="text-[10px] font-bold text-white">18+</span>
+                    <span className="text-[10px] font-bold text-[var(--ds-fg)]">18+</span>
                     </div>
                   </div>
           </div>
 
-              <Separator className="bg-white/10 mb-6" />
+              <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
               {/* Partners & Social Media */}
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
@@ -3399,26 +3399,26 @@ function AccountPageContent() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                     <IconBrandFacebook className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                     <IconBrandInstagram className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                     <IconBrandX className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                     <IconBrandYoutube className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-small">
                     <IconBrandTiktok className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
 
               {/* Timestamp and Copyright */}
-              <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+              <div className="flex items-center justify-between text-xs text-[var(--ds-fg-subtle)] pt-2 border-t border-white/5">
                 <div>Copyright ©2024 BetOnline.ag. All rights reserved.</div>
                 <div>{currentTime}</div>
               </div>
@@ -3508,8 +3508,8 @@ function AccountPageContent() {
         <DrawerContent
           showOverlay={isMobile}
           className={cn(
-            "w-full sm:max-w-md bg-[#1a1a1a] text-white flex flex-col",
-            "border-l border-white/10",
+            "w-full sm:max-w-md bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col",
+            "border-l border-[var(--ds-border)]",
             isMobile && "rounded-t-[10px]"
           )}
           style={isMobile ? {
@@ -3526,19 +3526,19 @@ function AccountPageContent() {
                   <Button
                     variant="ghost"
                     onClick={() => setAccountDrawerView('account')}
-                    className="-ml-1 h-9 w-9 p-0 hover:bg-white/10"
+                    className="-ml-1 h-9 w-9 p-0 hover:bg-[var(--ds-control-hover)]"
                     aria-label="Back"
                   >
-                    <IconChevronLeft className="h-5 w-5 text-white/70" stroke={2} />
+                    <IconChevronLeft className="h-5 w-5 text-[var(--ds-fg-muted)]" stroke={2} />
                   </Button>
-                  <h2 className="text-base font-semibold text-white">Notifications</h2>
+                  <h2 className="text-base font-semibold text-[var(--ds-fg)]">Notifications</h2>
                 </div>
               ) : (
                 <div className="flex w-full items-center gap-2">
                   <DrawerClose asChild>
                     <button
                       type="button"
-                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10"
+                      className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
                       aria-label="Back"
                     >
                       <IconChevronLeft className="h-5 w-5" stroke={2} />
@@ -3548,7 +3548,7 @@ function AccountPageContent() {
                     name="ch"
                     accountId="b1767721"
                   />
-                  <AccountDrawerSettingsButton
+                  <AccountDrawerHeaderActions
                     onBeforeNavigate={() => setAccountDrawerOpen(false)}
                   />
                 </div>
@@ -3560,35 +3560,35 @@ function AccountPageContent() {
               <>
                 {/* Balance Information */}
                 <div className="mb-4">
-                  <div className="rounded-lg bg-white/[0.06] px-3 py-3 space-y-3">
+                  <div className="rounded-lg bg-[var(--ds-control-bg)] px-3 py-3 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">Available Balance</span>
-                      <span className="text-sm font-semibold text-white">
+                      <span className="text-sm text-[var(--ds-fg-muted)]">Available Balance</span>
+                      <span className="text-sm font-semibold text-[var(--ds-fg)]">
                         $<NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/60">Free Bet</span>
-                      <span className="text-sm font-semibold text-white">$0.00</span>
+                      <span className="text-sm text-[var(--ds-fg-muted)]">Free Bet</span>
+                      <span className="text-sm font-semibold text-[var(--ds-fg)]">$0.00</span>
                     </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-white/60">Level</span>
+                        <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
                         <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
                       </div>
                   </div>
                 </div>
 
-                <Separator className="bg-white/10 mb-3" />
+                <Separator className="bg-[var(--ds-control-hover)] mb-3" />
 
                   {/* Notifications */}
                   <div className="space-y-0.5 w-full mb-3">
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-10 px-3"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-10 px-3"
                       onClick={() => setAccountDrawerView('notifications')}
                     >
-                      <IconBell className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                      <span className="flex-1 text-left text-white">Notifications</span>
+                      <IconBell className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
                       {webInboxUnreadCount > 0 && (
                         <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
                           {webInboxUnreadCount}
@@ -3597,99 +3597,99 @@ function AccountPageContent() {
                     </Button>
                   </div>
 
-                <Separator className="bg-white/10 mb-6" />
+                <Separator className="bg-[var(--ds-control-hover)] mb-6" />
 
                 {/* Navigation List */}
                 <div className="space-y-1 w-full mb-8">
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('dashboard')
                     }}
                   >
-                    <IconUser className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">My Account</span>
+                    <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3 min-w-0"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('bet-history')
                     }}
                   >
-                    <IconFileText className="w-5 h-5 mr-3 text-white/70 flex-shrink-0" />
-                    <span className="flex-1 text-left text-white">Pending Bets</span>
-                    <span className="text-sm text-white/60 ml-auto flex items-center gap-1.5">
-                      <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                    <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
+                    <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
+                      <span className="bg-amber-500 text-[var(--ds-fg)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
                       $40.00
                     </span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('my-bonus')
                     }}
                   >
-                    <IconGift className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">My Bonus</span>
+                    <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('transactions')
                     }}
                   >
-                    <IconCurrencyDollar className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">Transactions History</span>
+                    <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('bet-history')
                     }}
                   >
-                    <IconTicket className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">Bet History</span>
+                    <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('refer')
                     }}
                   >
-                    <IconUserPlus className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">Refer a Friend</span>
+                    <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-white hover:bg-white/5 hover:text-white h-12 px-3"
+                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       openVipDrawer()
                     }}
                   >
-                    <IconCrown className="w-5 h-5 mr-3 text-white/70" />
-                    <span className="flex-1 text-left text-white">VIP Hub</span>
+                    <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                   </Button>
                 </div>
 
-                <Separator className={cn("bg-white/10", isMobile ? "my-4" : "my-5")} />
+                <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
 
                 {/* Logout Button */}
                 <Button
                   variant="ghost"
-                  className="w-full justify-center text-white/60 hover:bg-white/5 hover:text-white/80 h-10 px-2 min-w-0"
+                  className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
                 >
                   <span className="text-sm">Log out</span>
                 </Button>
@@ -3711,8 +3711,8 @@ function AccountPageContent() {
         <DrawerContent
           showOverlay={isMobile}
           className={cn(
-            "bg-[#1a1a1a] text-white flex flex-col relative",
-            "w-full sm:max-w-md border-l border-white/10 overflow-hidden",
+            "dark bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative",
+            "w-full sm:max-w-md border-l border-[var(--ds-border)] overflow-hidden",
             isMobile && "rounded-t-[10px]"
           )}
           style={isMobile ? {
@@ -3727,13 +3727,13 @@ function AccountPageContent() {
             <DrawerClose asChild>
               <button
                 type="button"
-                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
+                className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
                 aria-label="Back"
               >
                 <IconChevronLeft className="h-5 w-5" stroke={2} />
               </button>
             </DrawerClose>
-            <h2 className="text-base font-semibold text-white">VIP Hub</h2>
+            <h2 className="text-base font-semibold text-[var(--ds-fg)]">VIP Hub</h2>
           </div>
             <VipDrawerContent
               vipActiveTab={vipActiveTab}
@@ -3763,18 +3763,18 @@ function AccountPageContent() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-6 left-1/2 z-[300] flex max-w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-3 text-white shadow-2xl"
+            className="fixed bottom-6 left-1/2 z-[300] flex max-w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 items-center gap-3 rounded-xl border border-[var(--ds-border)] bg-[var(--ds-page-bg)] px-4 py-3 text-[var(--ds-fg)] shadow-2xl"
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#059669]">
-                <IconCheck className="h-4 w-4 text-white" />
+                <IconCheck className="h-4 w-4 text-[var(--ds-fg)]" />
               </div>
               <span className="min-w-0 text-sm font-medium">{toastMessage}</span>
             </div>
             <button
               type="button"
               onClick={() => setShowToast(false)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/15 bg-white/[0.06] text-white/55 transition-colors hover:bg-white/[0.12] hover:text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/15 bg-[var(--ds-control-bg)] text-white/55 transition-colors hover:bg-white/[0.12] hover:text-[var(--ds-fg)]"
               aria-label="Dismiss notification"
             >
               <IconX className="h-4 w-4" strokeWidth={2} />
@@ -3791,7 +3791,7 @@ function AccountPageContent() {
 // ═══════════════════════════════════════════════════════════
 export default function AccountPage() {
   return (
-    <Suspense fallback={<div className="w-full bg-[#1a1a1a] min-h-screen" />}>
+    <Suspense fallback={<div className="w-full bg-[var(--ds-page-bg)] min-h-screen" />}>
       <SidebarProvider>
         <AccountPageContent />
       </SidebarProvider>
