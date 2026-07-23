@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import NumberFlow from '@number-flow/react'
 import { useChatStore } from '@/lib/store/chatStore'
+import { CHAT_ENABLED } from '@/lib/chat/feature'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
@@ -201,8 +202,8 @@ export function HeaderUserControls({
             </button>
           </div>
 
-          {/* Chat — desktop only (Figma mobile omits it) */}
-          {!isMobile && (
+          {/* Chat — desktop only (Figma mobile omits it). Toggle via CHAT_ENABLED. */}
+          {CHAT_ENABLED && !isMobile && (
             <button
               type="button"
               onClick={(e) => {
@@ -278,7 +279,7 @@ export function HeaderUserControls({
               Create Account
             </Button>
           </div>
-          {!isMobile && (
+          {CHAT_ENABLED && !isMobile && (
             <button
               type="button"
               onClick={(e) => {

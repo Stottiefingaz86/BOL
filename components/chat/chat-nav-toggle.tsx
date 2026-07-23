@@ -2,11 +2,14 @@
 
 import Image from "next/image"
 import { useChatStore } from "@/lib/store/chatStore"
+import { CHAT_ENABLED } from "@/lib/chat/feature"
 import { cn } from "@/lib/utils"
 
 /** Matches Figma Header IconButton — 36px, radius 8 */
 export default function ChatNavToggle() {
   const { isOpen, toggleChat } = useChatStore()
+
+  if (!CHAT_ENABLED) return null
 
   return (
     <button

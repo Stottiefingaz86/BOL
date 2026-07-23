@@ -8,6 +8,7 @@ import { WidgetDockManager } from "@/components/sports-tracker-widget"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { startChatSimulator, stopChatSimulator } from "@/lib/chat-simulator"
+import { CHAT_ENABLED } from "@/lib/chat/feature"
 
 /**
  * Global chat wrapper — renders the ChatPanel on every page via a portal.
@@ -41,9 +42,17 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
     }
   }, [])
 
+  // Keep chat closed while the feature is disabled
+  useEffect(() => {
+    if (!CHAT_ENABLED && isOpen) {
+      setIsOpen(false)
+    }
+  }, [isOpen, setIsOpen])
+
   // Close chat on mobile — runs whenever isMobile changes so it catches the
   // delayed media-query result (useIsMobile starts as false then becomes true)
   useEffect(() => {
+    if (!CHAT_ENABLED) return
     if (mounted && isMobile && !hasInitialized.current) {
       hasInitialized.current = true
       if (isOpen) {
@@ -54,6 +63,7 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
 
   // Start the chat activity simulator once on mount
   useEffect(() => {
+    if (!CHAT_ENABLED) return
     if (mounted) {
       startChatSimulator()
       return () => stopChatSimulator()
@@ -62,6 +72,7 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
 
   // Force-close chat on maintenance page
   useEffect(() => {
+    if (!CHAT_ENABLED) return
     if (mounted && isMaintenancePage && isOpen) {
       setIsOpen(false)
     }
@@ -69,7 +80,7 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
 
   // Toggle .chat-open on <html> so CSS can shift all fixed + flow elements
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted || !CHAT_ENABLED) return
     const html = document.documentElement
     if (!isMobile && isOpen && !isMaintenancePage) {
       html.classList.add('chat-open')
@@ -86,7 +97,7 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
       {children}
       {portalEl && !isMaintenancePage && !isLibraryPage && createPortal(
         <>
-          <ChatPanel />
+          {CHAT_ENABLED && <ChatPanel />}
           <WidgetDockManager />
         </>,
         portalEl

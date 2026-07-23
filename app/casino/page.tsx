@@ -6690,7 +6690,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   {[
                     { label: 'Esports', href: '/esports' },
                     { label: 'Racebook', href: '/racebook' },
-                    { label: 'Contests', href: '/contests' },
+                    { label: 'Contests', href: '/promotions?section=Contests' },
                     { label: 'Virtuals', href: '/virtuals' },
                   ].map((item) => (
                     <a
@@ -8654,7 +8654,7 @@ function NavTestPageContent() {
                           <a href="#" className="w-full">Racebook</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="#" className="w-full">Contests</a>
+                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="#" className="w-full">Virtuals</a>
@@ -8959,7 +8959,7 @@ function NavTestPageContent() {
                       {[
                         { label: 'Esports', href: '/esports' },
                         { label: 'Racebook', href: '/racebook' },
-                        { label: 'Contests', href: '/contests' },
+                        { label: 'Contests', href: '/promotions?section=Contests' },
                         { label: 'Virtuals', href: '/virtuals' },
                       ].map((item) => (
                         <a
