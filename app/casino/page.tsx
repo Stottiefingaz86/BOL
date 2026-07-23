@@ -17,6 +17,7 @@ import { CashDropCode } from '@/components/vip/cash-drop-code'
 import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
+import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { ReferAFriendPage } from '@/components/promotions/refer-a-friend-page'
 import { ContestsPage } from '@/components/promotions/contests-page'
@@ -9705,7 +9706,7 @@ function NavTestPageContent() {
                       </>
                     )}
                     <CarouselContent className="ml-0 -mr-2 md:-mr-4">
-                      {/* VIP Rewards Card — Figma light banner tile */}
+                      {/* VIP Hub card — same progress block as hub drawer; fixed carousel size */}
                       <CarouselItem className={cn(
                         "pr-0 basis-auto flex-shrink-0",
                         isMobile ? "pl-3" : "pl-6"
@@ -9717,21 +9718,25 @@ function NavTestPageContent() {
                             openVipDrawer()
                           }}
                         >
-                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col justify-between p-4">
-                            <div className="min-w-0">
-                              <CardTitle className="mb-1 text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
-                                VIP Rewards
+                          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-4">
+                            <div className="flex shrink-0 items-start justify-between gap-2">
+                              <CardTitle className="text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
+                                VIP Hub
                               </CardTitle>
-                              <p className="text-sm font-medium text-black/45 dark:text-white/55">
-                                Gold To Platinum I
-                              </p>
+                              <IconLogin2
+                                className="mt-0.5 h-4 w-4 shrink-0 text-black/40 dark:text-white/45"
+                                strokeWidth={1.75}
+                                aria-hidden
+                              />
                             </div>
-                            <VipTierProgressBar
-                              value={45}
-                              variant="compact"
-                              showOriginalsNote={false}
-                              className="mt-0"
-                            />
+                            <div className="flex min-h-0 flex-1 flex-col justify-center">
+                              <VipTierProgressCard
+                                fromTier="Bronze"
+                                toTier="Silver"
+                                percent={25}
+                                className="border-0 bg-transparent p-0 shadow-none"
+                              />
+                            </div>
                           </CardContent>
                           <span className="pointer-events-none absolute inset-0 z-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full dark:via-white/15" />
                         </Card>

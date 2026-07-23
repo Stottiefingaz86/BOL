@@ -56,7 +56,11 @@ export function VipTierProgressBar({
   }, [value])
 
   const compact = variant === "compact"
+  /** Match VIP hub card: solid crown gold (not amber→orange gradient) */
   const barH = compact ? "h-1.5" : "h-2"
+  const barFill = compact
+    ? { backgroundColor: "#EAAF6D" }
+    : undefined
   const showWagerRight = Boolean(wagerRemaining)
   const roundedPercent = Math.round(animatedPercent)
 
@@ -83,7 +87,11 @@ export function VipTierProgressBar({
             )}
           >
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-orange-500"
+              className={cn(
+                "h-full rounded-full",
+                !compact && "bg-gradient-to-r from-amber-300 via-amber-400 to-orange-500"
+              )}
+              style={barFill}
               initial={false}
               animate={{ width: `${animatedPercent}%` }}
               transition={{ type: "spring", stiffness: 220, damping: 26 }}
