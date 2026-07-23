@@ -70,6 +70,8 @@ import {
   IconBrandX,
   IconBrandYoutube,
   IconBrandTiktok,
+  IconArrowDownLeft,
+  IconArrowUpRight,
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -163,9 +165,8 @@ import { ReloadClaim } from '@/components/vip/reload-claim'
 import { CashDropCode } from '@/components/vip/cash-drop-code'
 import { BetAndGet } from '@/components/vip/bet-and-get'
 import { RewardCrates } from '@/components/vip/reward-crates'
-import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
+import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import { DailySpinCard } from '@/components/promotions/daily-spin-card'
-import { DailyRacesTimer } from '@/components/daily-races-timer'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import {
   Accordion,
@@ -217,6 +218,33 @@ const sportIconMap: Record<string, string> = {
   rugby: '/sports_icons/rugby.svg',
 }
 
+const paymentMethodIconMap: Record<string, string> = {
+  Bitcoin: '/icons/crypto/btc.svg',
+  Ethereum: '/icons/crypto/eth.svg',
+  'Credit Card': '',
+  'Wire Transfer': '',
+  System: '',
+}
+
+function PreviewRowIcon({
+  src,
+  fallback,
+}: {
+  src?: string | null
+  fallback: React.ReactNode
+}) {
+  return (
+    <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ring-1 ring-white/[0.06]">
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" className="size-3.5 object-contain opacity-80" />
+      ) : (
+        fallback
+      )}
+    </div>
+  )
+}
+
 // ─── Bonus data ───
 type BonusItem = {
   id: string; code: string; amount: string; rollover: string; date: string; status: string; statusColor: string;
@@ -231,6 +259,15 @@ const bonusData: BonusItem[] = [
   { id: '7', code: 'No Promo Code', amount: '$5.00', rollover: '$0.00', date: '11/04/2014', status: 'EXPIRED', statusColor: 'bg-orange-500' },
   { id: '8', code: 'Sports2025', amount: '$10.00', rollover: '$8.00', date: '11/04/2014', status: 'CANCELLED', statusColor: 'bg-gray-400' },
 ]
+
+/** Dashboard refer widget — cash from GGR share on referred friends’ play/deposits */
+const referralDashboardStats = {
+  ggrSharePercent: 25,
+  friendsReferred: 3,
+  totalEarned: 184.5,
+  friendsDeposited: 2460,
+  pending: 12.4,
+}
 
 // ─── Transactions data ───
 type Transaction = {
@@ -626,11 +663,13 @@ function SecurityBadge({ name, iconPath, className }: { name: string; iconPath: 
 function DashboardSection({
   onNavigate,
   onOpenVipHub,
+  onOpenWallet,
   onOpenNotifications,
   unreadNotifications = 0,
 }: {
   onNavigate: (section: AccountSection) => void
   onOpenVipHub?: () => void
+  onOpenWallet?: () => void
   onOpenNotifications?: () => void
   unreadNotifications?: number
 }) {
@@ -663,344 +702,590 @@ function DashboardSection({
   }, [selectedPnlData])
 
   return (
-    <div className="px-4 md:px-6 pt-4 md:pt-6 pb-8 w-full max-w-[1200px] mx-auto">
+    <div className="mx-auto w-full max-w-[1200px] px-4 pb-8 pt-4 md:px-6 md:pt-6">
 
-      {/* ═══ Account Overview ═══ */}
-      <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] mb-4 overflow-hidden">
-        <CardContent className="p-0">
-          {/* Top section — profile + actions */}
-          <div className="flex items-center justify-between gap-3 p-4 md:px-5">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative flex-shrink-0">
-                <Avatar className="w-11 h-11 border-2 border-[var(--ds-border)]">
-                  <AvatarFallback className="bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] text-sm font-semibold">C</AvatarFallback>
-                </Avatar>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#1a1a1a]" />
-            </div>
+      {/* Profile + Wallet */}
+      <div className="mb-6 grid gap-3 md:grid-cols-2">
+        {/* Card 1 — name & VIP */}
+        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar className="size-12 shrink-0 border border-white/[0.04]">
+                <AvatarFallback className="bg-white/[0.06] text-sm font-semibold text-[var(--ds-fg)]">
+                  C
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[var(--ds-fg)]">Christopher</span>
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-400">
-                    <IconCrown className="w-2.5 h-2.5" /> VIP Gold
-                  </span>
-            </div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-xs text-[var(--ds-fg-subtle)]">ID: B3375823</span>
+                <div className="truncate text-base font-semibold text-[var(--ds-fg)]">Christopher</div>
+                <div className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--ds-fg-muted)]">
+                  <span>B3375823</span>
                   <button
+                    type="button"
                     onClick={() => navigator.clipboard.writeText('B3375823')}
-                    className="inline-flex items-center justify-center h-4 w-4 rounded hover:bg-[var(--ds-control-hover)] transition-colors"
+                    className="inline-flex size-4 items-center justify-center rounded hover:bg-white/[0.03]"
                     title="Copy account number"
                   >
-                    <IconCopy className="h-3 w-3 text-white/30 hover:text-[var(--ds-fg-muted)]" />
+                    <IconCopy className="size-3 text-[var(--ds-fg-subtle)]" />
                   </button>
-          </div>
-        </div>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex shrink-0 items-center gap-0.5">
               <button
                 type="button"
                 onClick={() => onOpenNotifications?.()}
-                className="relative w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] flex items-center justify-center hover:bg-[var(--ds-control-hover)] transition-colors"
+                className="relative flex size-8 items-center justify-center rounded-md text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)]"
                 aria-label="Open notifications"
               >
-                <IconBell className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
+                <IconBell className="size-4" />
                 {unreadNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center border border-[#1a1a1a]">
-                    {unreadNotifications}
-                  </span>
+                  <span className="absolute right-1 top-1 size-1.5 rounded-full bg-[var(--ds-primary,#ee3536)]" />
                 )}
               </button>
               <button
+                type="button"
                 onClick={() => onNavigate('profile')}
-                className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] flex items-center justify-center hover:bg-[var(--ds-control-hover)] transition-colors"
+                className="flex size-8 items-center justify-center rounded-md text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)]"
                 aria-label="Open profile settings"
               >
-                <IconSettings className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
+                <IconSettings className="size-4" />
               </button>
             </div>
-      </div>
-
-          {/* Balance section — darker inset */}
-          <div className="bg-white/[0.03] border-t border-[var(--ds-control-border)] px-4 md:px-5 py-4">
-            <div className="grid grid-cols-2 gap-3 mb-4 max-w-[760px]">
-              <div className="bg-[var(--ds-surface-raised)] rounded-lg p-3 border border-[var(--ds-control-border)]">
-                <div className="text-[11px] text-[var(--ds-fg-subtle)] mb-1">Available Balance</div>
-                <div className="text-xl font-bold text-[var(--ds-fg)] tabular-nums leading-tight">$100,000.00</div>
-                <div className="mt-3 grid grid-cols-2 gap-2 items-center">
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('payments')}
-                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md text-[11px] font-semibold text-[var(--ds-fg)] transition-colors"
-                    style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                  >
-                    <IconWallet className="h-3.5 w-3.5" />
-                    Deposit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('payments')}
-                    className="inline-flex items-center justify-center gap-1.5 h-8 rounded-md border border-white/15 bg-[var(--ds-overlay)] text-[11px] font-semibold text-white/75 hover:bg-white/[0.08] hover:text-[var(--ds-fg)] transition-colors"
-                  >
-                    <IconCreditCard className="h-3.5 w-3.5" />
-                    Withdraw
-                  </button>
-                </div>
-            </div>
-              <div className="bg-[var(--ds-surface-raised)] rounded-lg p-3 border border-[var(--ds-control-border)]">
-                <div className="text-[11px] text-[var(--ds-fg-subtle)] mb-1">Free Bet</div>
-                <div className="text-xl font-bold text-emerald-400 tabular-nums leading-tight">$25.00</div>
-                <button
-                  type="button"
-                  onClick={() => window.location.assign('/sports')}
-                  className="mt-3 inline-flex h-8 items-center justify-center rounded-md border border-white/15 bg-[var(--ds-overlay)] px-3 text-[11px] font-semibold text-[var(--ds-fg-muted)] hover:bg-white/[0.08] hover:text-[var(--ds-fg)] transition-colors"
-                >
-                  Use Now
-                </button>
-        </div>
-      </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* ═══ Engagement Row — exact casino banner cards ═══ */}
-      <div className="flex flex-col md:flex-row gap-3 mb-3">
-        {/* VIP Rewards Card — matches casino banner */}
-        <Card 
-          className="group relative flex-shrink-0 cursor-pointer overflow-hidden border border-gray-200 bg-gray-100 bg-[var(--ds-control-bg)] transition-colors duration-300 dark:border-[var(--ds-border)] dark:bg-[var(--ds-control-bg)] w-full md:w-[300px]" 
-          style={{ height: '164px' }}
-          onClick={() => onOpenVipHub?.()}
-        >
-          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
-            <CardTitle className="shrink-0 mb-0 text-xs font-semibold text-[var(--ds-fg)] leading-tight">
-              Gold To Platinum I
-            </CardTitle>
-            <div className="mt-3 flex min-h-0 flex-1 flex-col">
-              <VipTierProgressBar
-                value={45}
-                variant="compact"
-                bannerTile
-                showOriginalsNote
-                nextTierLabel="Platinum I"
-                wagerRemaining="$2,750"
-                className="mt-0"
-              />
-            </div>
-          </CardContent>
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-        </Card>
-
-        {/* Daily Races Card — matches casino banner */}
-        <Card 
-          className="group relative cursor-pointer overflow-hidden border border-amber-400/30 bg-gradient-to-br from-amber-500/[0.12] to-transparent bg-[var(--ds-control-bg)] transition-colors duration-300 dark:border-amber-400/35 dark:from-amber-400/[0.08] dark:bg-[var(--ds-control-bg)] w-full md:w-[300px] md:flex-none" 
-          style={{ height: '164px' }}
-        >
-          <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-3">
-            <div className="mb-2 flex shrink-0 items-start justify-between gap-2">
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
-                  style={{ background: 'rgba(245, 158, 11, 0.12)' }}
-                >
-                  <IconTrophy
-                    strokeWidth={1.8}
-                    className="h-4 w-4 text-amber-400"
-                  />
-                </div>
-                <CardTitle className="mb-0 text-sm font-semibold text-amber-100 dark:text-amber-100 leading-tight">
-                  $25K Daily Race
-                </CardTitle>
-              </div>
-              <div className="shrink-0 text-right">
-                <DailyRacesTimer
-                  className="text-xl font-bold text-amber-600 tabular-nums dark:text-amber-200"
-                  colonClassName="text-amber-500/70 dark:text-amber-300/80"
-                />
-              </div>
-            </div>
-            <div className="flex min-h-0 flex-1 items-center">
-              <div className="grid w-full grid-cols-3 gap-2 text-xs">
-                <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30">
-                  <div className="text-amber-100 font-semibold mb-0.5">3rd</div>
-                  <div className="text-[10px] text-amber-200/70">Position</div>
-                </div>
-                <div className="rounded-small border border-amber-400/25 bg-amber-500/[0.08] p-2.5 dark:border-amber-400/30">
-                  <div className="text-amber-100 font-semibold mb-0.5">$80.000</div>
-                  <div className="text-[10px] text-amber-200/70">Wagered</div>
-                </div>
-                <div className="rounded-small border border-amber-400/35 bg-amber-500/[0.12] p-2.5 dark:border-amber-400/40">
-                  <div className="text-amber-50 font-semibold mb-0.5">$160.000</div>
-                  <div className="text-[10px] text-amber-200/80">Current Prize</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-        </Card>
-
-        {/* Days Streak */}
-        <div className="w-full md:flex-1">
+          <VipTierProgressCard
+            className="mt-5"
+            fromTier="Gold"
+            toTier="Platinum I"
+            percent={45}
+            updatedLabel="Until Platinum I: $2,750 · Level 62"
+            onClick={() => onOpenVipHub?.()}
+          />
         </div>
-      </div>
 
+        {/* Card 2 — balances & wallet */}
+        <div className="flex flex-col rounded-xl border border-white/[0.04] bg-white/[0.02] p-5">
+          <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Available Balance</div>
+          <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-[var(--ds-fg)]">
+            $100,000.00
+          </div>
 
-
-      <Separator className="bg-[var(--ds-control-hover)] mb-4" />
-
-      {/* ═══ Daily Figures (Weekly) ═══ */}
-      <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] mb-4 overflow-hidden">
-        <CardContent className="p-0">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-[var(--ds-border)]">
-            <h3 className="text-base font-semibold text-[var(--ds-fg)]">Daily Figures</h3>
-            <AnimateTabs
-              value={pnlRange}
-              onValueChange={(value) => setPnlRange(value as 'thisWeek' | 'lastWeek')}
-              className="w-auto self-start sm:ml-auto"
+          <div className="mt-4 flex items-center justify-between border-t border-white/[0.04] pt-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Free Bet</div>
+              <div className="mt-0.5 text-lg font-medium tabular-nums text-[var(--ds-fg)]">$25.00</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => window.location.assign('/sports')}
+              className="inline-flex h-8 items-center justify-center rounded-md border border-white/[0.06] px-3 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.04] hover:text-[var(--ds-fg)]"
             >
-              <AnimateTabsList className="bg-[#1f1f1f] border border-white/15 p-0.5 h-auto gap-1 rounded-small relative">
-                {[
-                  { value: 'lastWeek', label: 'Last Week' },
-                  { value: 'thisWeek', label: 'This Week' },
-                ].map((tab) => (
-                  <TabsTab
-                    key={tab.value}
-                    value={tab.value}
-                    className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                  >
-                    {pnlRange === tab.value && (
-                      <motion.div
-                        layoutId="dailyFiguresWeekTab"
-                        className="absolute inset-0 rounded-[8px] -z-10"
-                        style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                        initial={false}
-                        transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-                      />
-                    )}
-                    <span className="relative z-10">{tab.label}</span>
-                  </TabsTab>
-                ))}
-              </AnimateTabsList>
-            </AnimateTabs>
+              Use
+            </button>
           </div>
 
-          <div className="px-4 py-3">
-            <div className="md:hidden rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] p-4">
-                <div className="space-y-0.5">
-                  {selectedPnlData.map((day) => {
-                    const dayLabel =
-                      day.day === 'Mon' ? 'Monday' :
-                      day.day === 'Tue' ? 'Tuesday' :
-                      day.day === 'Wed' ? 'Wednesday' :
-                      day.day === 'Thu' ? 'Thursday' :
-                      day.day === 'Fri' ? 'Friday' :
-                      day.day === 'Sat' ? 'Saturday' :
-                      'Sunday'
-                    return (
-                      <div key={`${day.day}-${day.date}`} className="flex items-center justify-between py-2 border-b border-[var(--ds-border)] last:border-b-0">
-                        <span className="text-base text-white/90">{dayLabel}</span>
-                        <span
-                          className={cn(
-                            'text-base font-semibold tabular-nums',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]'
-                          )}
-                        >
-                          {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="mt-3 pt-3 border-t border-white/15 flex items-center justify-between">
-                  <span className="text-[26px] text-white/95 font-semibold">Total</span>
-                  <span
-                    className={cn(
-                      'text-[26px] font-bold tabular-nums',
-                      pnlSummary.net >= 0 ? 'text-emerald-400' : 'text-red-400'
-                    )}
-                  >
-                    {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
+          <div className="mt-auto pt-5">
+            <button
+              type="button"
+              onClick={() => onOpenWallet?.()}
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-white/[0.06] bg-transparent text-sm font-medium text-[var(--ds-fg)] hover:bg-white/[0.04]"
+            >
+              <Image
+                src="/icons/header/wallet.svg"
+                alt=""
+                width={16}
+                height={16}
+                className="size-4"
+                unoptimized
+              />
+              Wallet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Daily Figures — own section */}
+      <div className="mb-6">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-sm font-medium text-[var(--ds-fg)]">Daily Figures</h3>
+          <AnimateTabs
+            value={pnlRange}
+            onValueChange={(value) => setPnlRange(value as 'thisWeek' | 'lastWeek')}
+            className="w-auto self-start"
+          >
+            <AnimateTabsList className="relative h-auto gap-0.5 rounded-md border border-white/[0.04] bg-transparent p-0.5">
+              {[
+                { value: 'lastWeek', label: 'Last Week' },
+                { value: 'thisWeek', label: 'This Week' },
+              ].map((tab) => (
+                <TabsTab
+                  key={tab.value}
+                  value={tab.value}
+                  className="relative z-10 h-7 rounded px-3 text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0"
+                >
+                  {pnlRange === tab.value && (
+                    <motion.div
+                      layoutId="dailyFiguresWeekTab"
+                      className="absolute inset-0 -z-10 rounded"
+                      style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                      initial={false}
+                      transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                    />
+                  )}
+                  <span className={cn('relative z-10', pnlRange === tab.value && 'text-white')}>
+                    {tab.label}
+                  </span>
+                </TabsTab>
+              ))}
+            </AnimateTabsList>
+          </AnimateTabs>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-white/[0.04] bg-white/[0.02]">
+          <div className="px-4 py-2 md:hidden">
+            {selectedPnlData.map((day) => {
+              const dayLabel =
+                day.day === 'Mon' ? 'Monday' :
+                day.day === 'Tue' ? 'Tuesday' :
+                day.day === 'Wed' ? 'Wednesday' :
+                day.day === 'Thu' ? 'Thursday' :
+                day.day === 'Fri' ? 'Friday' :
+                day.day === 'Sat' ? 'Saturday' :
+                'Sunday'
+              return (
+                <div
+                  key={`${day.day}-${day.date}`}
+                  className="flex items-center justify-between border-b border-white/[0.04] py-2 last:border-b-0"
+                >
+                  <span className="text-sm text-[var(--ds-fg-muted)]">{dayLabel}</span>
+                  <span className="text-sm font-medium tabular-nums text-[var(--ds-fg)]">
+                    {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
                   </span>
                 </div>
-              </div>
-            <div className="hidden md:block rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] overflow-hidden">
-                <table className="w-full table-fixed border-collapse">
-                  <thead>
-                    <tr className="border-b border-[var(--ds-border)]">
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Wk</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">M</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">W</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">F</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
-                      <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="px-3 py-3 text-center text-sm text-white/85 font-semibold tabular-nums">
-                        {pnlRange === 'thisWeek' ? '35' : '34'}
-                      </td>
-                      {selectedPnlData.map((day) => (
-                        <td
-                          key={`${day.day}-${day.date}`}
-                          className={cn(
-                            'px-3 py-3 text-center text-sm font-semibold tabular-nums',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]'
-                          )}
-                        >
-                          {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
-                        </td>
-                      ))}
-                      <td
-                        className={cn(
-                          'px-3 py-3 text-center text-sm font-bold tabular-nums',
-                          pnlSummary.net >= 0 ? 'text-emerald-400' : 'text-red-400'
-                        )}
-                      >
-                        {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            <div className="mt-2 text-[11px] text-[var(--ds-fg-subtle)] leading-relaxed">
-              * Daily figures are sample values shown in EST.
-            </div>
-            <div className="text-[11px] text-white/35">
-              * Includes Sports, Live Betting, Racebook, Esports and Casino transactions.
+              )
+            })}
+            <div className="flex items-center justify-between border-t border-white/[0.06] py-2.5">
+              <span className="text-sm font-medium text-[var(--ds-fg)]">Total</span>
+              <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full table-fixed border-collapse">
+              <thead>
+                <tr className="border-b border-white/[0.04]">
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Wk</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">M</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">T</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">W</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">T</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">F</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">S</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">S</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="px-2 py-3 text-center text-sm font-medium tabular-nums text-[var(--ds-fg-muted)]">
+                    {pnlRange === 'thisWeek' ? '35' : '34'}
+                  </td>
+                  {selectedPnlData.map((day) => (
+                    <td
+                      key={`${day.day}-${day.date}`}
+                      className="px-2 py-3 text-center text-sm font-medium tabular-nums text-[var(--ds-fg)]"
+                    >
+                      {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
+                    </td>
+                  ))}
+                  <td className="px-2 py-3 text-center text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                    {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p className="mt-2 text-[10px] text-[var(--ds-fg-subtle)]">
+          Sample EST figures · Sports, Live, Racebook, Esports, Casino
+        </p>
+      </div>
 
-      {/* ═══ Favourites Carousel ═══ */}
+      {/* Activity previews — scrollable lists, dig into full sections */}
+      <div className="mb-6 grid gap-3 md:grid-cols-3">
+        {/* Bet History preview */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconTicket className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Bet History</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('bet-history')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              View all
+            </button>
+          </div>
+          <div className="flex flex-col">
+            {sampleBets.slice(0, 5).map((bet) => {
+              const statusLabel =
+                bet.status === 'won' ? 'Won' :
+                bet.status === 'lost' ? 'Lost' :
+                bet.status === 'cashed_out' ? 'Cashed' :
+                bet.status === 'void' ? 'Void' :
+                bet.isLive ? 'Live' : 'Pending'
+              const amountLabel =
+                bet.status === 'won' && bet.wonAmount != null ? `+$${bet.wonAmount.toFixed(2)}` :
+                bet.status === 'cashed_out' && bet.cashedOutAmount != null ? `$${bet.cashedOutAmount.toFixed(2)}` :
+                `$${bet.amount.toFixed(2)}`
+              return (
+                <button
+                  key={bet.id}
+                  type="button"
+                  onClick={() => onNavigate('bet-history')}
+                  className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
+                >
+                  <PreviewRowIcon
+                    src={sportIconMap[bet.sport]}
+                    fallback={<IconBallFootball className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{bet.selection}</div>
+                    <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
+                      {bet.market} · {bet.odds}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-xs font-medium tabular-nums text-[var(--ds-fg)]">{amountLabel}</div>
+                    <div className="mt-0.5 text-[10px] text-[var(--ds-fg-muted)]">{statusLabel}</div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Transactions preview */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconHistory className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Transactions</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('transactions')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              View all
+            </button>
+          </div>
+          <div className="flex flex-col">
+            {transactionsData.slice(0, 5).map((tx) => {
+              const methodSrc = paymentMethodIconMap[tx.method]
+              const typeFallback =
+                tx.type === 'Deposit' ? (
+                  <IconArrowDownLeft className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                ) : tx.type === 'Withdrawal' ? (
+                  <IconArrowUpRight className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                ) : (
+                  <IconGift className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                )
+              return (
+                <button
+                  key={tx.id}
+                  type="button"
+                  onClick={() => onNavigate('transactions')}
+                  className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
+                >
+                  <PreviewRowIcon
+                    src={methodSrc || null}
+                    fallback={
+                      tx.method === 'Credit Card' ? (
+                        <IconCreditCard className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                      ) : tx.method === 'Wire Transfer' ? (
+                        <IconBuilding className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                      ) : (
+                        typeFallback
+                      )
+                    }
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{tx.type}</div>
+                    <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
+                      {tx.method} · {tx.date}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-xs font-medium tabular-nums text-[var(--ds-fg)]">{tx.amount}</div>
+                    <div className="mt-0.5 text-[10px] text-[var(--ds-fg-muted)]">{tx.status}</div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Payments preview */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconCreditCard className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Payments</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('payments')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              View all
+            </button>
+          </div>
+          <div className="flex flex-col">
+            {transactionsData
+              .filter((tx) => tx.type === 'Deposit' || tx.type === 'Withdrawal')
+              .slice(0, 5)
+              .map((tx) => {
+                const methodSrc = paymentMethodIconMap[tx.method]
+                return (
+                  <button
+                    key={tx.id}
+                    type="button"
+                    onClick={() => onNavigate('payments')}
+                    className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
+                  >
+                    <PreviewRowIcon
+                      src={methodSrc || null}
+                      fallback={
+                        tx.method === 'Credit Card' ? (
+                          <IconCreditCard className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                        ) : tx.method === 'Wire Transfer' ? (
+                          <IconBuilding className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                        ) : (
+                          <IconWallet className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+                        )
+                      }
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{tx.method}</div>
+                      <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
+                        {tx.type} · {tx.date}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-xs font-medium tabular-nums text-[var(--ds-fg)]">{tx.amount}</div>
+                      <div className="mt-0.5 text-[10px] text-[var(--ds-fg-muted)]">{tx.status}</div>
+                    </div>
+                  </button>
+                )
+              })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bonus · Security · Refer */}
+      <div className="mb-6 grid gap-3 md:grid-cols-3">
+        {/* My Bonus */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconGift className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">My Bonus</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('my-bonus')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              View all
+            </button>
+          </div>
+          <div className="border-b border-white/[0.04] px-4 py-3">
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Active</div>
+                <div className="mt-0.5 text-2xl font-semibold tabular-nums text-[var(--ds-fg)]">
+                  {bonusData.filter((b) => b.status === 'ACTIVE').length}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Available</div>
+                <div className="mt-0.5 text-sm font-medium tabular-nums text-[var(--ds-fg)]">$8.00</div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            {bonusData.filter((b) => b.status === 'ACTIVE').map((bonus) => (
+              <button
+                key={bonus.id}
+                type="button"
+                onClick={() => onNavigate('my-bonus')}
+                className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
+              >
+                <PreviewRowIcon
+                  fallback={<IconGift className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{bonus.code}</div>
+                  <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
+                    Rollover {bonus.rollover}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="text-xs font-medium tabular-nums text-[var(--ds-fg)]">{bonus.amount}</div>
+                  <div className="mt-0.5 text-[10px] text-[var(--ds-fg-muted)]">Active</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Security Central */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconShield className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Security Central</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('security')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              Manage
+            </button>
+          </div>
+          <div className="flex flex-1 flex-col">
+            {[
+              { icon: IconLock, label: 'Password', status: 'Protected', ok: true },
+              { icon: IconShield, label: 'Two-Factor Auth', status: 'Off', ok: false },
+              { icon: IconHistory, label: 'Login History', status: '3 devices', ok: true },
+              { icon: IconSettings, label: 'Sessions', status: '2 active', ok: true },
+            ].map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => onNavigate('security')}
+                className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
+              >
+                <PreviewRowIcon
+                  fallback={<item.icon className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{item.label}</div>
+                  <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">{item.status}</div>
+                </div>
+                <IconChevronRight className="size-3.5 shrink-0 text-white/25" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Refer a Friend — VIP Hub style */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)]">
+          <div className="flex items-center justify-between border-b border-white/[0.04] px-4 py-3">
+            <div className="flex items-center gap-2">
+              <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Refer a Friend</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('refer')}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              Details
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3 p-4">
+            {/* Earn + Claim — one row like VIP hub */}
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Cash earned</div>
+                <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-tight text-[var(--ds-fg)]">
+                  ${referralDashboardStats.totalEarned.toFixed(2)}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenVipHub?.()}
+                className="relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] hover:brightness-110"
+                style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
+                />
+                <span className="relative">Claim</span>
+              </button>
+            </div>
+
+            <p className="text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+              {referralDashboardStats.ggrSharePercent}% GGR on friends you refer
+            </p>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                  {referralDashboardStats.friendsReferred}
+                </div>
+                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Friends</div>
+              </div>
+              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                  ${referralDashboardStats.friendsDeposited.toLocaleString()}
+                </div>
+                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Deposited</div>
+              </div>
+              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                  ${referralDashboardStats.pending.toFixed(2)}
+                </div>
+                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Pending</div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onOpenVipHub?.()}
+              className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-sm font-medium text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
+            >
+              <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+              Refer Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Favourites */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[var(--ds-fg)]">My Favourites</h2>
-          <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-medium text-[var(--ds-fg)]">Favourites</h2>
+          <div className="flex shrink-0 items-center gap-1">
             {!isMobile && (
               <>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.max(0, favCarouselApi.selectedScrollSnap() - 2)) }} disabled={!favCarouselApi || !favCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.min(favCarouselApi.scrollSnapList().length - 1, favCarouselApi.selectedScrollSnap() + 2)) }} disabled={!favCarouselApi || !favCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                <Button variant="ghost" size="icon" className="size-7 text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)] disabled:opacity-40" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.max(0, favCarouselApi.selectedScrollSnap() - 2)) }} disabled={!favCarouselApi || !favCanScrollPrev}><IconChevronLeft className="size-4" strokeWidth={2} /></Button>
+                <Button variant="ghost" size="icon" className="size-7 text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)] disabled:opacity-40" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.min(favCarouselApi.scrollSnapList().length - 1, favCarouselApi.selectedScrollSnap() + 2)) }} disabled={!favCarouselApi || !favCanScrollNext}><IconChevronRight className="size-4" strokeWidth={2} /></Button>
               </>
             )}
           </div>
         </div>
         <div className="relative" style={{ overflow: 'visible' }}>
-          <Carousel setApi={setFavCarouselApi} className="w-full relative" style={{ overflow: 'visible' }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-            <CarouselContent className="ml-0 -mr-2 md:-mr-3">
+          <Carousel setApi={setFavCarouselApi} className="relative w-full" style={{ overflow: 'visible' }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+            <CarouselContent className="-mr-2 ml-0 md:-mr-3">
               {favouriteCasinoGames.map((game, i) => (
-                <CarouselItem key={i} className={cn("pr-0 basis-auto flex-shrink-0", i === 0 ? "pl-0" : "pl-2 md:pl-3")}>
-                  <div className="w-[140px] h-[140px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0">
-                    <Image src={game.image} alt={game.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="140px" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent p-2">
-                      <div className="text-[var(--ds-fg)] text-[11px] font-bold truncate leading-tight mb-0.5">{game.title}</div>
-                      <div className="text-[var(--ds-fg-muted)] text-[9px] truncate">{game.provider}</div>
+                <CarouselItem key={i} className={cn('basis-auto flex-shrink-0 pr-0', i === 0 ? 'pl-0' : 'pl-2 md:pl-3')}>
+                  <div className="group relative h-[112px] w-[112px] flex-shrink-0 cursor-pointer overflow-hidden rounded-md bg-[var(--ds-control-bg)]">
+                    <Image src={game.image} alt={game.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="112px" />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-1.5">
+                      <div className="truncate text-[10px] font-medium leading-tight text-[var(--ds-fg)]">{game.title}</div>
                     </div>
                   </div>
                 </CarouselItem>
-          ))}
+              ))}
             </CarouselContent>
           </Carousel>
         </div>
@@ -1273,20 +1558,20 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
     <>
       <div className="px-4 md:px-6 pb-4 w-full max-w-[1200px] mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 pt-4 mb-2">
-        <h1 className="text-lg font-bold text-[var(--ds-fg)]">Bet History</h1>
-        <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg-subtle)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors" />
+      <div className="mb-2 flex items-center gap-2 pt-4">
+        <h1 className="text-lg font-semibold text-[var(--ds-fg)]">Bet History</h1>
+        <IconInfoCircle className="size-4 text-[var(--ds-fg-subtle)]" />
       </div>
 
       {/* Daily Figures in place of old bet-state subnav */}
-      <div className="mb-4 rounded-lg border border-[var(--ds-border)] bg-[var(--ds-control-bg)] overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 border-b border-[var(--ds-border)]">
+      <div className="mb-4 overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+        <div className="flex flex-col gap-3 border-b border-white/[0.05] bg-black/15 px-4 py-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-[var(--ds-fg)]">Daily Figures</h3>
+            <h3 className="text-sm font-medium text-[var(--ds-fg)]">Daily Figures</h3>
             <button
               type="button"
               onClick={() => setIsDailyFiguresMinimized((prev) => !prev)}
-              className="inline-flex h-6 w-6 items-center justify-center rounded border border-white/20 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:border-white/30 transition-colors"
+              className="inline-flex h-6 w-6 items-center justify-center rounded-md text-[var(--ds-fg-muted)] hover:bg-white/[0.04] hover:text-[var(--ds-fg)]"
               aria-label={isDailyFiguresMinimized ? 'Expand daily figures' : 'Minimize daily figures'}
             >
               {isDailyFiguresMinimized ? <IconChevronDown className="h-3.5 w-3.5" /> : <IconChevronUp className="h-3.5 w-3.5" />}
@@ -1301,7 +1586,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             }}
             className="w-auto self-start sm:ml-auto"
           >
-            <AnimateTabsList className="bg-[#1f1f1f] border border-white/15 p-0.5 h-auto gap-1 rounded-small relative">
+            <AnimateTabsList className="relative h-auto gap-0.5 rounded-md border border-white/[0.06] bg-transparent p-0.5">
               {[
                 { value: 'lastWeek', label: 'Last Week' },
                 { value: 'thisWeek', label: 'This Week' },
@@ -1309,18 +1594,18 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
                 <TabsTab
                   key={tab.value}
                   value={tab.value}
-                  className="relative z-10 h-8 px-4 rounded-[8px] text-xs font-semibold text-white/75 hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="relative z-10 h-7 rounded px-3 text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 >
                   {pnlRange === tab.value && (
                     <motion.div
                       layoutId="betHistoryDailyFiguresRangeTab"
-                      className="absolute inset-0 rounded-[8px] -z-10"
+                      className="absolute inset-0 -z-10 rounded"
                       style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                       initial={false}
                       transition={{ type: 'spring', stiffness: 450, damping: 40 }}
                     />
                   )}
-                  <span className="relative z-10">{tab.label}</span>
+                  <span className={cn('relative z-10', pnlRange === tab.value && 'text-white')}>{tab.label}</span>
                 </TabsTab>
               ))}
             </AnimateTabsList>
@@ -1328,59 +1613,51 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
         </div>
 
         {!isDailyFiguresMinimized && (
-          <div className="px-4 py-3">
-            <div className="rounded-small border border-[var(--ds-border)] bg-[var(--ds-surface-raised)] overflow-hidden">
-              <table className="w-full table-fixed border-collapse">
-                <thead>
-                  <tr className="border-b border-[var(--ds-border)]">
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Wk</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">M</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">W</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">T</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">F</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">S</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-semibold text-[var(--ds-fg-muted)]">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="px-3 py-3 text-center text-sm text-white/85 font-semibold tabular-nums">
-                      {pnlRange === 'thisWeek' ? '35' : '34'}
+          <div className="overflow-x-auto px-2 py-2 md:px-3">
+            <table className="w-full table-fixed border-collapse">
+              <thead>
+                <tr className="border-b border-white/[0.04]">
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Wk</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">M</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">T</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">W</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">T</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">F</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">S</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">S</th>
+                  <th className="px-2 py-2.5 text-center text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="px-2 py-3 text-center text-sm font-medium tabular-nums text-[var(--ds-fg-muted)]">
+                    {pnlRange === 'thisWeek' ? '35' : '34'}
+                  </td>
+                  {selectedPnlData.map((day) => (
+                    <td key={`${day.day}-${day.date}`} className="px-1 py-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPnlDay((prev) => (prev === day.day ? null : day.day))
+                          setCurrentPage(1)
+                          setExpandedBetId(null)
+                        }}
+                        className={cn(
+                          'w-full rounded-md px-1 py-1 text-sm font-medium tabular-nums text-[var(--ds-fg)] transition-colors',
+                          selectedPnlDay === day.day && 'bg-white/[0.06] ring-1 ring-white/15'
+                        )}
+                        title={`Filter bets placed on ${day.day}`}
+                      >
+                        {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
+                      </button>
                     </td>
-                    {selectedPnlData.map((day) => (
-                      <td key={`${day.day}-${day.date}`} className="px-2 py-2 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedPnlDay((prev) => (prev === day.day ? null : day.day))
-                            setCurrentPage(1)
-                            setExpandedBetId(null)
-                          }}
-                          className={cn(
-                            'w-full rounded-[6px] px-1 py-1 text-sm font-semibold tabular-nums transition-colors',
-                            day.amount > 0 ? 'text-emerald-400' : day.amount < 0 ? 'text-red-400' : 'text-[var(--ds-fg-muted)]',
-                            selectedPnlDay === day.day && 'bg-[var(--ds-control-hover)] ring-1 ring-white/20'
-                          )}
-                          title={`Filter bets placed on ${day.day}`}
-                        >
-                          {day.amount > 0 ? '+' : ''}{day.amount.toFixed(2)}
-                        </button>
-                      </td>
-                    ))}
-                    <td
-                      className={cn(
-                        'px-3 py-3 text-center text-sm font-bold tabular-nums',
-                        pnlSummary.net >= 0 ? 'text-emerald-400' : 'text-red-400'
-                      )}
-                    >
-                      {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  ))}
+                  <td className="px-2 py-3 text-center text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                    {pnlSummary.net >= 0 ? '+' : ''}{pnlSummary.net.toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -1457,7 +1734,7 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
       {/* Content: Bet List with inline accordion */}
       <div>
         <div className="flex-1 min-w-0">
-          <div className="border border-[var(--ds-border)] rounded-lg overflow-hidden">
+          <div className="border border-white/[0.05] rounded-xl overflow-hidden bg-white/[0.02]">
             {paginatedBets.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-[var(--ds-fg-subtle)]">
                 {selectedPnlDay
@@ -1592,121 +1869,120 @@ function BetHistoryContent({ initialFilter }: { initialFilter?: 'all' | 'cash_ou
             <motion.button
               type="button"
               aria-label="Close filters panel"
-              className="fixed inset-0 z-[70] bg-black/55"
+              className="fixed inset-0 z-[70] bg-black/85"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setFiltersPanelOpen(false)}
             />
             <motion.aside
-              className="fixed right-0 top-0 z-[80] h-full w-full max-w-[360px] bg-white text-black shadow-2xl"
+              className="fixed right-0 top-0 z-[80] flex h-full w-full max-w-[360px] flex-col border-l border-white/10 bg-[var(--ds-page-bg)] text-[var(--ds-fg)] shadow-2xl"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.24, ease: 'easeOut' }}
             >
-              <div className="flex h-full flex-col">
-                <div className="flex items-center justify-between border-b border-black/10 px-5 py-4">
-                  <h2 className="text-[26px] font-semibold leading-none">Sort &amp; Filters</h2>
-                  <button
-                    type="button"
-                    onClick={() => setFiltersPanelOpen(false)}
-                    className="rounded-md p-1 text-black/60 hover:bg-black/5 hover:text-black transition-colors"
-                    aria-label="Close filters"
+              <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
+                <h2 className="text-lg font-semibold">Filters</h2>
+                <button
+                  type="button"
+                  onClick={() => setFiltersPanelOpen(false)}
+                  className="rounded-md p-1 text-[var(--ds-fg-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--ds-fg)]"
+                  aria-label="Close filters"
+                >
+                  <IconX className="size-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+                <div>
+                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Status</p>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
                   >
-                    <IconX className="h-5 w-5" />
-                  </button>
+                    <option>Status</option>
+                    <option>Open</option>
+                    <option>Settled</option>
+                    <option>Won</option>
+                    <option>Lost</option>
+                  </select>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-5 py-6">
-                  <div className="space-y-6">
-                    <div>
-                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-black/60">Select a Status</p>
-                      <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="h-11 w-full rounded-md border border-black/20 bg-white px-3 text-sm text-black focus:border-black/40 focus:outline-none"
-                      >
-                        <option>Status</option>
-                        <option>Open</option>
-                        <option>Settled</option>
-                        <option>Won</option>
-                        <option>Lost</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-black/60">Select a Custom Date Range</p>
-                      <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-black/45">Date Range</label>
-                      <select
-                        value={dateRangePreset}
-                        onChange={(e) => setDateRangePreset(e.target.value)}
-                        className="h-11 w-full rounded-md border border-black/20 bg-white px-3 text-sm text-black focus:border-black/40 focus:outline-none"
-                      >
-                        <option>Last 7 Days</option>
-                        <option>Last 15 Day</option>
-                        <option>Last 30 Day</option>
-                        <option>This Month</option>
-                        <option>Last Month</option>
-                        <option>Custom</option>
-                      </select>
-                      <div className="mt-3 grid grid-cols-2 gap-2">
-                        <input
-                          type="date"
-                          value={fromDate}
-                          onChange={(e) => setFromDate(e.target.value)}
-                          className="h-10 rounded-md border border-black/20 bg-white px-2 text-sm text-black focus:border-black/40 focus:outline-none"
-                        />
-                        <input
-                          type="date"
-                          value={toDate}
-                          onChange={(e) => setToDate(e.target.value)}
-                          className="h-10 rounded-md border border-black/20 bg-white px-2 text-sm text-black focus:border-black/40 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-black/60">Wager Type</p>
-                      <div className="space-y-3">
-                        {['SportsBook', 'Spread', 'Spread FB', 'Money Line', 'Total'].map((type) => (
-                          <label key={type} className="flex items-center gap-2.5 text-sm text-black/85">
-                            <input
-                              type="checkbox"
-                              checked={wagerTypeFilters.includes(type)}
-                              onChange={() => toggleWagerTypeFilter(type)}
-                              className="h-4 w-4 rounded-full border border-black/40 text-black focus:ring-0"
-                            />
-                            <span>{type}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
+                <div>
+                  <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Date range</p>
+                  <select
+                    value={dateRangePreset}
+                    onChange={(e) => setDateRangePreset(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
+                  >
+                    <option>Last 7 Days</option>
+                    <option>Last 15 Day</option>
+                    <option>Last 30 Day</option>
+                    <option>This Month</option>
+                    <option>Last Month</option>
+                    <option>Custom</option>
+                  </select>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={fromDate}
+                      onChange={(e) => setFromDate(e.target.value)}
+                      className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    />
+                    <input
+                      type="date"
+                      value={toDate}
+                      onChange={(e) => setToDate(e.target.value)}
+                      className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 border-t border-black/10 p-5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedStatus('Status')
-                      setDateRangePreset('Last 7 Days')
-                      setFromDate('')
-                      setToDate('')
-                      setWagerTypeFilters([])
-                    }}
-                    className="h-11 rounded-md border border-black/30 text-sm font-semibold text-black hover:bg-black/5 transition-colors"
-                  >
-                    CLEAR ALL
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFiltersPanelOpen(false)}
-                    className="h-11 rounded-md bg-[#7fbf2f] text-sm font-semibold text-[var(--ds-fg)] hover:bg-[#73af2b] transition-colors"
-                  >
-                    APPLY
-                  </button>
+                <div>
+                  <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Wager type</p>
+                  <div className="overflow-hidden rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)]">
+                    {['SportsBook', 'Spread', 'Spread FB', 'Money Line', 'Total'].map((type) => (
+                      <label
+                        key={type}
+                        className="flex cursor-pointer items-center gap-3 border-b border-white/[0.04] px-3 py-2.5 text-sm text-[var(--ds-fg)] last:border-b-0 hover:bg-white/[0.03]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={wagerTypeFilters.includes(type)}
+                          onChange={() => toggleWagerTypeFilter(type)}
+                          className="size-4 rounded border-white/20 bg-transparent accent-[var(--ds-primary,#ee3536)]"
+                        />
+                        <span>{type}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 border-t border-white/[0.08] p-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedStatus('Status')
+                    setDateRangePreset('Last 7 Days')
+                    setFromDate('')
+                    setToDate('')
+                    setWagerTypeFilters([])
+                  }}
+                  className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-sm font-medium text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
+                >
+                  Clear all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFiltersPanelOpen(false)}
+                  className="h-10 rounded-lg text-sm font-semibold text-white transition-[filter] hover:brightness-110"
+                  style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                >
+                  Apply
+                </button>
               </div>
             </motion.aside>
           </>
@@ -1725,67 +2001,72 @@ function BonusContent() {
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">My Bonus</h2>
 
-      {/* AnimateTabs pill style */}
       <div>
         <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
-        {['Sports', 'Casino'].map((tab) => (
+          <AnimateTabsList className="relative h-auto gap-0.5 rounded-md border border-white/[0.06] bg-transparent p-0.5">
+            {['Sports', 'Casino'].map((tab) => (
               <TabsTab
-            key={tab}
+                key={tab}
                 value={tab}
-                className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
+                className="relative z-10 h-8 rounded px-4 text-xs font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0"
               >
-            {activeTab === tab && (
-              <motion.div
+                {activeTab === tab && (
+                  <motion.div
                     layoutId="accountBonusTab"
-                    className="absolute inset-0 rounded-2xl -z-10"
-                style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                    className="absolute inset-0 -z-10 rounded"
+                    style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                     initial={false}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
-              />
-            )}
-                <span className="relative z-10">{tab}</span>
+                    transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                  />
+                )}
+                <span className={cn('relative z-10', activeTab === tab && 'text-white')}>{tab}</span>
               </TabsTab>
-        ))}
+            ))}
           </AnimateTabsList>
         </AnimateTabs>
       </div>
 
-      {/* Bonus Table */}
-      <div className={cn("rounded-lg border border-[var(--ds-border)] overflow-hidden", isMobile && "overflow-x-auto")}>
+      <div className={cn('overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.02]', isMobile && 'overflow-x-auto')}>
         <Table>
           <TableHeader>
-            <TableRow className="border-[var(--ds-border)] bg-white/[0.03]">
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Code</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Amount</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Rollover</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Date</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Status</TableHead>
+            <TableRow className="border-white/[0.04] bg-black/15 hover:bg-black/15">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Code</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Amount</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Rollover</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Date</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Status</TableHead>
               {!isMobile && <TableHead className="w-[40px]" />}
             </TableRow>
           </TableHeader>
           <TableBody>
             {bonusData.map((bonus) => (
               <React.Fragment key={bonus.id}>
-                <TableRow className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)] cursor-pointer" onClick={() => setExpandedRow(expandedRow === bonus.id ? null : bonus.id)}>
+                <TableRow
+                  className="cursor-pointer border-white/[0.04] hover:bg-white/[0.03]"
+                  onClick={() => setExpandedRow(expandedRow === bonus.id ? null : bonus.id)}
+                >
                   <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.code}</TableCell>
-                  <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.amount}</TableCell>
-                  <TableCell className="text-sm text-[var(--ds-fg)]">{bonus.rollover}</TableCell>
+                  <TableCell className="text-sm tabular-nums text-[var(--ds-fg)]">{bonus.amount}</TableCell>
+                  <TableCell className="text-sm tabular-nums text-[var(--ds-fg)]">{bonus.rollover}</TableCell>
                   <TableCell className="text-sm text-[var(--ds-fg-muted)]">{bonus.date}</TableCell>
                   <TableCell>
-                    <span className={cn("px-2 py-0.5 text-[11px] font-semibold rounded-full text-[var(--ds-fg)]", bonus.statusColor)}>{bonus.status}</span>
+                    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-[var(--ds-fg-muted)]">
+                      {bonus.status}
+                    </span>
                   </TableCell>
                   {!isMobile && (
-                    <TableCell><IconChevronDown className={cn("w-4 h-4 text-white/30 transition-transform", expandedRow === bonus.id && "rotate-180")} /></TableCell>
+                    <TableCell>
+                      <IconChevronDown className={cn('h-4 w-4 text-white/30 transition-transform', expandedRow === bonus.id && 'rotate-180')} />
+                    </TableCell>
                   )}
                 </TableRow>
                 {expandedRow === bonus.id && (
-                  <TableRow className="border-[var(--ds-border)]">
-                    <TableCell colSpan={6} className="py-3">
-                      <div className="text-xs text-[var(--ds-fg-subtle)] space-y-1">
+                  <TableRow className="border-white/[0.04]">
+                    <TableCell colSpan={6} className="bg-black/10 py-3">
+                      <div className="space-y-1 text-xs text-[var(--ds-fg-subtle)]">
                         <p>Bonus Code: {bonus.code}</p>
                         <p>Wagering Requirement: {bonus.rollover} remaining</p>
                         <p>Expiry: {bonus.date}</p>
@@ -1807,43 +2088,328 @@ function BonusContent() {
 // ═══════════════════════════════════════════════════════════
 function TransactionsContent() {
   const isMobile = useIsMobile()
+  const [filtersPanelOpen, setFiltersPanelOpen] = useState(false)
+  const [typeFilter, setTypeFilter] = useState<'All' | 'Deposit' | 'Withdrawal' | 'Bonus'>('All')
+  const [statusFilter, setStatusFilter] = useState<'All' | 'COMPLETED' | 'PENDING' | 'CREDITED'>('All')
+  const [methodFilter, setMethodFilter] = useState<'All' | string>('All')
+  const [dateRangePreset, setDateRangePreset] = useState('Last 30 Days')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+
+  const methods = useMemo(
+    () => ['All', ...Array.from(new Set(transactionsData.map((tx) => tx.method)))],
+    []
+  )
+
+  const parseTxDate = (dateStr: string) => {
+    // MM/DD/YYYY
+    const [mm, dd, yyyy] = dateStr.split('/').map(Number)
+    return new Date(yyyy, (mm || 1) - 1, dd || 1)
+  }
+
+  const filteredTransactions = useMemo(() => {
+    return transactionsData.filter((tx) => {
+      if (typeFilter !== 'All' && tx.type !== typeFilter) return false
+      if (statusFilter !== 'All' && tx.status !== statusFilter) return false
+      if (methodFilter !== 'All' && tx.method !== methodFilter) return false
+
+      const txDate = parseTxDate(tx.date)
+      if (fromDate) {
+        const from = new Date(fromDate)
+        if (txDate < from) return false
+      }
+      if (toDate) {
+        const to = new Date(toDate)
+        to.setHours(23, 59, 59, 999)
+        if (txDate > to) return false
+      }
+      return true
+    })
+  }, [typeFilter, statusFilter, methodFilter, fromDate, toDate])
+
+  const clearFilters = () => {
+    setTypeFilter('All')
+    setStatusFilter('All')
+    setMethodFilter('All')
+    setDateRangePreset('Last 30 Days')
+    setFromDate('')
+    setToDate('')
+  }
+
+  const hasActiveFilters =
+    typeFilter !== 'All' ||
+    statusFilter !== 'All' ||
+    methodFilter !== 'All' ||
+    !!fromDate ||
+    !!toDate
 
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Transactions</h2>
-      <div className={cn("rounded-lg border border-[var(--ds-border)] overflow-hidden", isMobile && "overflow-x-auto")}>
+
+      {/* Filter trigger + chips */}
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <button
+          type="button"
+          onClick={() => setFiltersPanelOpen(true)}
+          className="flex items-center gap-1.5 text-[var(--ds-fg-muted)] transition-colors hover:text-[var(--ds-fg)]"
+        >
+          <IconFilter className="size-4" />
+          <span className="font-medium">APPLY FILTERS</span>
+        </button>
+        <span className="text-white/30">|</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex h-7 items-center rounded-full border border-white/15 bg-[var(--ds-overlay)] px-3 text-xs font-medium text-white/85">
+            {dateRangePreset}
+          </span>
+          {typeFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => setTypeFilter('All')}
+              className="inline-flex h-7 items-center gap-1 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08]"
+            >
+              {typeFilter}
+              <IconX className="size-3" />
+            </button>
+          )}
+          {statusFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => setStatusFilter('All')}
+              className="inline-flex h-7 items-center gap-1 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08]"
+            >
+              {statusFilter}
+              <IconX className="size-3" />
+            </button>
+          )}
+          {methodFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => setMethodFilter('All')}
+              className="inline-flex h-7 items-center gap-1 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08]"
+            >
+              {methodFilter}
+              <IconX className="size-3" />
+            </button>
+          )}
+          {(fromDate || toDate) && (
+            <button
+              type="button"
+              onClick={() => { setFromDate(''); setToDate('') }}
+              className="inline-flex h-7 items-center gap-1 rounded-full border border-white/15 bg-[var(--ds-overlay)] px-2.5 text-xs font-medium text-[var(--ds-fg-muted)] hover:bg-white/[0.08]"
+            >
+              Custom dates
+              <IconX className="size-3" />
+            </button>
+          )}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Quick type tabs */}
+      <div className="flex flex-wrap gap-1.5">
+        {(['All', 'Deposit', 'Withdrawal', 'Bonus'] as const).map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() => setTypeFilter(type)}
+            className={cn(
+              'h-8 rounded-md border px-3 text-xs font-medium transition-colors',
+              typeFilter === type
+                ? 'border-white/20 bg-white/[0.08] text-[var(--ds-fg)]'
+                : 'border-white/[0.06] bg-transparent text-[var(--ds-fg-muted)] hover:bg-white/[0.04] hover:text-[var(--ds-fg)]'
+            )}
+          >
+            {type}
+          </button>
+        ))}
+      </div>
+
+      <div className={cn('overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.02]', isMobile && 'overflow-x-auto')}>
         <Table>
           <TableHeader>
-            <TableRow className="border-[var(--ds-border)] bg-white/[0.03]">
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Date</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Type</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Method</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Amount</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Status</TableHead>
-              <TableHead className="text-[var(--ds-fg-subtle)] text-xs font-medium">Reference</TableHead>
+            <TableRow className="border-white/[0.04] bg-black/15 hover:bg-black/15">
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Date</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Type</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Method</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Amount</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Status</TableHead>
+              <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Reference</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactionsData.map((tx) => (
-              <TableRow key={tx.id} className="border-[var(--ds-border)] hover:bg-[var(--ds-control-bg)]">
-                <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.date}</TableCell>
-                <TableCell className="text-sm text-[var(--ds-fg)]">{tx.type}</TableCell>
-                <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.method}</TableCell>
-                <TableCell className={cn("text-sm font-medium", tx.amount.startsWith('+') ? "text-emerald-400" : "text-red-400")}>{tx.amount}</TableCell>
-                <TableCell>
-                  <span className={cn(
-                    "px-2 py-0.5 text-[11px] font-semibold rounded-full",
-                    tx.status === 'COMPLETED' && "text-emerald-400 bg-emerald-500/10 border border-emerald-500/30",
-                    tx.status === 'PENDING' && "text-amber-400 bg-amber-500/10 border border-amber-500/30",
-                    tx.status === 'CREDITED' && "text-blue-400 bg-blue-500/10 border border-blue-500/30",
-                  )}>{tx.status}</span>
+            {filteredTransactions.length === 0 ? (
+              <TableRow className="border-white/[0.04] hover:bg-transparent">
+                <TableCell colSpan={6} className="py-8 text-center text-sm text-[var(--ds-fg-subtle)]">
+                  No transactions match these filters.
                 </TableCell>
-                <TableCell className="text-xs text-[var(--ds-fg-subtle)] font-mono">{tx.reference}</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filteredTransactions.map((tx) => (
+                <TableRow key={tx.id} className="border-white/[0.04] hover:bg-white/[0.03]">
+                  <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.date}</TableCell>
+                  <TableCell className="text-sm text-[var(--ds-fg)]">{tx.type}</TableCell>
+                  <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.method}</TableCell>
+                  <TableCell className="text-sm font-medium tabular-nums text-[var(--ds-fg)]">{tx.amount}</TableCell>
+                  <TableCell>
+                    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-[var(--ds-fg-muted)]">
+                      {tx.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-[var(--ds-fg-subtle)]">{tx.reference}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
+
+      <AnimatePresence>
+        {filtersPanelOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close filters panel"
+              className="fixed inset-0 z-[70] bg-black/85"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setFiltersPanelOpen(false)}
+            />
+            <motion.aside
+              className="fixed right-0 top-0 z-[80] flex h-full w-full max-w-[360px] flex-col border-l border-white/10 bg-[var(--ds-page-bg)] text-[var(--ds-fg)] shadow-2xl"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+            >
+              <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  <button
+                    type="button"
+                    onClick={() => setFiltersPanelOpen(false)}
+                    className="rounded-md p-1 text-[var(--ds-fg-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--ds-fg)]"
+                    aria-label="Close filters"
+                  >
+                    <IconX className="size-5" />
+                  </button>
+                </div>
+
+                <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Type</p>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+                      className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    >
+                      <option value="All">All</option>
+                      <option value="Deposit">Deposit</option>
+                      <option value="Withdrawal">Withdrawal</option>
+                      <option value="Bonus">Bonus</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Status</p>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                      className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    >
+                      <option value="All">All</option>
+                      <option value="COMPLETED">Completed</option>
+                      <option value="PENDING">Pending</option>
+                      <option value="CREDITED">Credited</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Method</p>
+                    <select
+                      value={methodFilter}
+                      onChange={(e) => setMethodFilter(e.target.value)}
+                      className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    >
+                      {methods.map((method) => (
+                        <option key={method} value={method}>{method}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Date range</p>
+                    <select
+                      value={dateRangePreset}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setDateRangePreset(value)
+                        if (value !== 'Custom') {
+                          setFromDate('')
+                          setToDate('')
+                        }
+                      }}
+                      className="h-10 w-full rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 text-sm text-[var(--ds-fg)] focus:outline-none"
+                    >
+                      <option>Last 7 Days</option>
+                      <option>Last 15 Days</option>
+                      <option>Last 30 Days</option>
+                      <option>This Month</option>
+                      <option>Last Month</option>
+                      <option>Custom</option>
+                    </select>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => {
+                          setFromDate(e.target.value)
+                          setDateRangePreset('Custom')
+                        }}
+                        className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 text-sm text-[var(--ds-fg)] focus:outline-none"
+                      />
+                      <input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => {
+                          setToDate(e.target.value)
+                          setDateRangePreset('Custom')
+                        }}
+                        className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 text-sm text-[var(--ds-fg)] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 border-t border-white/[0.08] p-5">
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="h-10 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-sm font-medium text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
+                  >
+                    Clear all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFiltersPanelOpen(false)}
+                    className="h-10 rounded-lg text-sm font-semibold text-white hover:brightness-110"
+                    style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                  >
+                    Apply
+                  </button>
+                </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -1851,59 +2417,88 @@ function TransactionsContent() {
 // ═══════════════════════════════════════════════════════════
 // Refer a Friend Section
 // ═══════════════════════════════════════════════════════════
-function ReferFriendContent() {
+function ReferFriendContent({ onOpenVipHub }: { onOpenVipHub?: () => void }) {
   const [copied, setCopied] = useState(false)
   const referralCode = 'BOL-CHRIS-2026'
   const referralLink = `https://www.betonline.ag/ref/${referralCode}`
+  const openVip = () => {
+    if (onOpenVipHub) onOpenVipHub()
+    else if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vip:open-drawer'))
+  }
 
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-6">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Refer a Friend</h2>
 
-      <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-5">
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 mx-auto rounded-full bg-[var(--ds-control-bg)] flex items-center justify-center">
-            <IconUserPlus className="w-6 h-6 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
+      <div className="space-y-3 rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Cash earned</div>
+            <div className="mt-0.5 text-3xl font-semibold tabular-nums tracking-tight text-[var(--ds-fg)]">
+              ${referralDashboardStats.totalEarned.toFixed(2)}
+            </div>
+            <p className="mt-1.5 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+              {referralDashboardStats.ggrSharePercent}% GGR on friends you refer — earn cash as they deposit and play.
+            </p>
           </div>
-          <h3 className="text-base font-semibold text-[var(--ds-fg)]">Earn up to $200 per referral!</h3>
-          <p className="text-xs text-[var(--ds-fg-subtle)] max-w-md">
-            Share your unique referral link with friends. When they sign up and make their first deposit, you both earn a bonus!
-          </p>
+          <button
+            type="button"
+            onClick={openVip}
+            className="relative mt-0.5 h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] hover:brightness-110"
+            style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+          >
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
+            />
+            <span className="relative">Claim</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-3 py-2.5 text-center">
+            <p className="text-lg font-semibold tabular-nums text-[var(--ds-fg)]">{referralDashboardStats.friendsReferred}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Friends</p>
+          </div>
+          <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-3 py-2.5 text-center">
+            <p className="text-lg font-semibold tabular-nums text-[var(--ds-fg)]">{referralDashboardStats.ggrSharePercent}%</p>
+            <p className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">GGR share</p>
+          </div>
+          <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-3 py-2.5 text-center">
+            <p className="text-lg font-semibold tabular-nums text-[var(--ds-fg)]">${referralDashboardStats.pending.toFixed(2)}</p>
+            <p className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Pending</p>
+          </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wider">Your Referral Code</label>
+          <label className="text-[10px] uppercase tracking-wider text-[var(--ds-fg-subtle)]">Your Referral Link</label>
           <div className="flex items-center gap-2">
-            <div className="flex-1 px-3 py-2.5 rounded-lg bg-[var(--ds-control-bg)] border border-[var(--ds-border)] text-xs font-mono text-[var(--ds-fg)] truncate">{referralLink}</div>
+            <div className="min-w-0 flex-1 truncate rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-3 py-2.5 font-mono text-xs text-[var(--ds-fg)]">
+              {referralLink}
+            </div>
             <button
-              onClick={() => { navigator.clipboard.writeText(referralLink); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-              className={cn(
-                "px-3 py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5",
-                copied ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-[var(--ds-control-hover)] text-white hover:bg-white/15 border border-[var(--ds-border)]"
-              )}
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(referralLink)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-3 py-2.5 text-xs font-medium text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
             >
-              {copied ? <IconCheck className="w-3.5 h-3.5" /> : <IconCopy className="w-3.5 h-3.5" />}
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? <IconCheck className="size-3.5" /> : <IconCopy className="size-3.5" />}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
 
-        <Separator className="bg-[var(--ds-control-hover)]" />
-
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-xl font-bold text-[var(--ds-fg)]">3</p>
-            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Friends Referred</p>
-          </div>
-          <div>
-            <p className="text-xl font-bold text-emerald-400">$150</p>
-            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Total Earned</p>
-          </div>
-          <div>
-            <p className="text-xl font-bold text-amber-400">1</p>
-            <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">Pending</p>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={openVip}
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-sm font-semibold text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
+        >
+          <IconUserPlus className="size-4 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+          Refer Now
+        </button>
       </div>
     </div>
   )
@@ -1913,32 +2508,42 @@ function ReferFriendContent() {
 // Payments Section
 // ═══════════════════════════════════════════════════════════
 function PaymentsContent() {
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState('Deposit')
+  const [statusFilter, setStatusFilter] = useState<'All' | 'COMPLETED' | 'PENDING'>('All')
+
+  const paymentRows = useMemo(() => {
+    const type = activeTab === 'Deposit' ? 'Deposit' : 'Withdrawal'
+    return transactionsData.filter((tx) => {
+      if (tx.type !== type) return false
+      if (statusFilter !== 'All' && tx.status !== statusFilter) return false
+      return true
+    })
+  }, [activeTab, statusFilter])
 
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Payments</h2>
 
-      {/* AnimateTabs pill style */}
       <div>
         <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
+          <AnimateTabsList className="relative h-auto gap-0.5 rounded-md border border-white/[0.06] bg-transparent p-0.5">
             {['Deposit', 'Withdraw'].map((tab) => (
               <TabsTab
                 key={tab}
                 value={tab}
-                className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none"
+                className="relative z-10 h-8 rounded px-4 text-xs font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0"
               >
                 {activeTab === tab && (
                   <motion.div
                     layoutId="accountPaymentTab"
-                    className="absolute inset-0 rounded-2xl -z-10"
+                    className="absolute inset-0 -z-10 rounded"
                     style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
                     initial={false}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 40 }}
                   />
                 )}
-                <span className="relative z-10">{tab}</span>
+                <span className={cn('relative z-10', activeTab === tab && 'text-white')}>{tab}</span>
               </TabsTab>
             ))}
           </AnimateTabsList>
@@ -1947,54 +2552,135 @@ function PaymentsContent() {
 
       <AnimatePresence mode="wait">
         {activeTab === 'Deposit' && (
-          <motion.div key="deposit" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-            <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
-              <p className="text-xs text-[var(--ds-fg-subtle)]">Select your preferred payment method to make a deposit.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {[
-            { label: 'Bitcoin', icon: '₿' },
-            { label: 'Ethereum', icon: 'Ξ' },
-            { label: 'Credit Card', icon: '💳' },
-            { label: 'Wire Transfer', icon: '🏦' },
-            { label: 'Cashier Check', icon: '📄' },
-            { label: 'Person to Person', icon: '🤝' },
-          ].map((method) => (
-                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.02] hover:bg-[var(--ds-control-bg)] hover:border-white/20 transition-colors">
-                    <span className="text-xl">{method.icon}</span>
-                    <span className="text-[10px] text-[var(--ds-fg-muted)]">{method.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+          <motion.div key="deposit-methods" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+            <div className="space-y-3 rounded-xl border border-white/[0.05] bg-white/[0.02] p-4">
+              <p className="text-xs text-[var(--ds-fg-subtle)]">Select a method to deposit</p>
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                {[
+                  { label: 'Bitcoin', src: '/icons/crypto/btc.svg' },
+                  { label: 'Ethereum', src: '/icons/crypto/eth.svg' },
+                  { label: 'Credit Card', icon: IconCreditCard },
+                  { label: 'Wire Transfer', icon: IconBuilding },
+                  { label: 'Cashier Check', icon: IconFileText },
+                  { label: 'P2P', icon: IconUserPlus },
+                ].map((method) => (
+                  <button
+                    key={method.label}
+                    type="button"
+                    className="flex flex-col items-center gap-1.5 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 py-2.5 transition-colors hover:bg-[var(--ds-control-bg)]"
+                  >
+                    {'src' in method && method.src ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={method.src} alt="" className="size-5 object-contain" />
+                    ) : method.icon ? (
+                      <method.icon className="size-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
+                    ) : null}
+                    <span className="text-center text-[10px] leading-tight text-[var(--ds-fg-muted)]">{method.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
         {activeTab === 'Withdraw' && (
-          <motion.div key="withdraw" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-            <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-[var(--ds-border)]">
-          <div>
-                  <span className="text-[10px] text-[var(--ds-fg-subtle)]">Available for Withdrawal</span>
-                  <p className="text-lg font-bold text-[var(--ds-fg)] mt-0.5">$100,000.00</p>
-          </div>
-                <IconWallet className="w-6 h-6 text-white/20" strokeWidth={1.5} />
-        </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {[
-            { label: 'Bitcoin', icon: '₿' },
-            { label: 'Wire Transfer', icon: '🏦' },
-            { label: 'Cashier Check', icon: '📄' },
-            { label: 'Person to Person', icon: '🤝' },
-          ].map((method) => (
-                  <button key={method.label} className="flex flex-col items-center gap-2 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.02] hover:bg-[var(--ds-control-bg)] hover:border-white/20 transition-colors">
-                    <span className="text-xl">{method.icon}</span>
-                    <span className="text-[10px] text-[var(--ds-fg-muted)]">{method.label}</span>
-            </button>
-          ))}
-        </div>
+          <motion.div key="withdraw-methods" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+            <div className="space-y-3 rounded-xl border border-white/[0.05] bg-white/[0.02] p-4">
+              <div className="flex items-center justify-between rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 py-2.5">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Available</span>
+                  <p className="text-base font-semibold tabular-nums text-[var(--ds-fg)]">$100,000.00</p>
+                </div>
+                <Image src="/icons/header/wallet.svg" alt="" width={18} height={18} className="size-4.5 opacity-70" unoptimized />
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {[
+                  { label: 'Bitcoin', src: '/icons/crypto/btc.svg' },
+                  { label: 'Wire Transfer', icon: IconBuilding },
+                  { label: 'Cashier Check', icon: IconFileText },
+                  { label: 'P2P', icon: IconUserPlus },
+                ].map((method) => (
+                  <button
+                    key={method.label}
+                    type="button"
+                    className="flex flex-col items-center gap-1.5 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-2 py-2.5 transition-colors hover:bg-[var(--ds-control-bg)]"
+                  >
+                    {'src' in method && method.src ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={method.src} alt="" className="size-5 object-contain" />
+                    ) : method.icon ? (
+                      <method.icon className="size-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
+                    ) : null}
+                    <span className="text-center text-[10px] leading-tight text-[var(--ds-fg-muted)]">{method.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Payments history table */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-medium text-[var(--ds-fg)]">
+            {activeTab === 'Deposit' ? 'Deposit history' : 'Withdrawal history'}
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {(['All', 'COMPLETED', 'PENDING'] as const).map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => setStatusFilter(status)}
+                className={cn(
+                  'h-7 rounded-md border px-2.5 text-[11px] font-medium transition-colors',
+                  statusFilter === status
+                    ? 'border-white/20 bg-white/[0.08] text-[var(--ds-fg)]'
+                    : 'border-white/[0.06] text-[var(--ds-fg-muted)] hover:bg-white/[0.04] hover:text-[var(--ds-fg)]'
+                )}
+              >
+                {status === 'All' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={cn('overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.02]', isMobile && 'overflow-x-auto')}>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/[0.04] bg-black/15 hover:bg-black/15">
+                <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Date</TableHead>
+                <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Method</TableHead>
+                <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Amount</TableHead>
+                <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Status</TableHead>
+                <TableHead className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">Reference</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paymentRows.length === 0 ? (
+                <TableRow className="border-white/[0.04] hover:bg-transparent">
+                  <TableCell colSpan={5} className="py-8 text-center text-sm text-[var(--ds-fg-subtle)]">
+                    No {activeTab === 'Deposit' ? 'deposits' : 'withdrawals'} found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paymentRows.map((tx) => (
+                  <TableRow key={tx.id} className="border-white/[0.04] hover:bg-white/[0.03]">
+                    <TableCell className="text-sm text-[var(--ds-fg-muted)]">{tx.date}</TableCell>
+                    <TableCell className="text-sm text-[var(--ds-fg)]">{tx.method}</TableCell>
+                    <TableCell className="text-sm font-medium tabular-nums text-[var(--ds-fg)]">{tx.amount}</TableCell>
+                    <TableCell>
+                      <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium text-[var(--ds-fg-muted)]">
+                        {tx.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-[var(--ds-fg-subtle)]">{tx.reference}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   )
 }
@@ -2004,25 +2690,29 @@ function PaymentsContent() {
 // ═══════════════════════════════════════════════════════════
 function SecurityContent() {
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Security Central</h2>
-      <div className="space-y-2">
+      <div className="overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.02]">
         {[
           { icon: IconLock, label: 'Change Password', desc: 'Update your account password' },
           { icon: IconShield, label: 'Two-Factor Authentication', desc: 'Add an extra layer of security' },
           { icon: IconHistory, label: 'Login History', desc: 'View recent login activity' },
           { icon: IconSettings, label: 'Session Management', desc: 'Manage active sessions' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] hover:bg-[var(--ds-control-bg)] transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] flex items-center justify-center flex-shrink-0">
-              <item.icon className="w-4 h-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
+          <button
+            key={item.label}
+            type="button"
+            className="flex w-full items-center gap-3 border-b border-white/[0.04] px-4 py-3 text-left last:border-b-0 hover:bg-white/[0.03]"
+          >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ring-1 ring-white/[0.06]">
+              <item.icon className="size-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[var(--ds-fg)]">{item.label}</p>
-              <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">{item.desc}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-[var(--ds-fg)]">{item.label}</p>
+              <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">{item.desc}</p>
             </div>
-            <IconChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
-          </div>
+            <IconChevronRight className="size-4 shrink-0 text-white/25" />
+          </button>
         ))}
       </div>
     </div>
@@ -2034,42 +2724,46 @@ function SecurityContent() {
 // ═══════════════════════════════════════════════════════════
 function ProfileContent() {
   return (
-    <div className="px-4 md:px-6 pt-6 pb-8 w-full space-y-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-4 px-4 pb-8 pt-4 md:px-6 md:pt-6">
       <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Profile Settings</h2>
-      <div className="rounded-lg border border-[var(--ds-border)] bg-white/[0.03] p-5 space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="rounded-xl border border-white/[0.05] bg-white/[0.02] p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[
             { label: 'Username', value: 'christopher' },
             { label: 'Email', value: 'chris@example.com' },
             { label: 'Phone', value: '+1 (555) 123-4567' },
             { label: 'Member Since', value: 'January 2023' },
-            { label: 'Account Status', value: 'Verified', color: 'text-emerald-400' },
-            { label: 'VIP Level', value: 'Gold', color: 'text-amber-400' },
+            { label: 'Account Status', value: 'Verified' },
+            { label: 'VIP Level', value: 'Gold' },
           ].map((item) => (
             <div key={item.label}>
-              <span className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wider">{item.label}</span>
-              <p className={cn("text-xs font-medium mt-0.5", item.color || "text-[var(--ds-fg)]")}>{item.value}</p>
+              <span className="text-[10px] uppercase tracking-wider text-[var(--ds-fg-subtle)]">{item.label}</span>
+              <p className="mt-0.5 text-sm font-medium text-[var(--ds-fg)]">{item.value}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.02]">
         {[
           { icon: IconBell, label: 'Notification Preferences', desc: 'Manage email & push notifications' },
           { icon: IconDownload, label: 'Download My Data', desc: 'Export your account data' },
           { icon: IconShare, label: 'Connected Accounts', desc: 'Manage linked accounts' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-3 p-3 rounded-lg border border-[var(--ds-border)] bg-white/[0.03] hover:bg-[var(--ds-control-bg)] transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-[var(--ds-control-bg)] flex items-center justify-center flex-shrink-0">
-              <item.icon className="w-4 h-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
+          <button
+            key={item.label}
+            type="button"
+            className="flex w-full items-center gap-3 border-b border-white/[0.04] px-4 py-3 text-left last:border-b-0 hover:bg-white/[0.03]"
+          >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/[0.04] ring-1 ring-white/[0.06]">
+              <item.icon className="size-4 text-[var(--ds-fg-muted)]" strokeWidth={1.5} />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-[var(--ds-fg)]">{item.label}</p>
-              <p className="text-[10px] text-[var(--ds-fg-subtle)] mt-0.5">{item.desc}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-[var(--ds-fg)]">{item.label}</p>
+              <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">{item.desc}</p>
             </div>
-            <IconChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
-          </div>
+            <IconChevronRight className="size-4 shrink-0 text-white/25" />
+          </button>
         ))}
       </div>
     </div>
@@ -2873,13 +3567,24 @@ function AccountPageContent() {
       <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)] relative" style={{ marginTop: '64px' }} data-sidebar-full-height>
         {/* Persistent sidebar backdrop — prevents black flash during page transitions */}
         {!isMobile && (
-          <div 
-            className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear border-r border-white/10"
-            style={{ 
-              width: sidebarOpen ? '16rem' : '3rem',
-              backgroundColor: '#2d2d2d'
-            }}
-          />
+          <>
+            <div
+              className="fixed top-0 left-0 z-[101] h-screen transition-[width] duration-200 ease-linear"
+              style={{
+                width: sidebarOpen ? '16rem' : '3rem',
+                backgroundColor: '#2d2d2d',
+              }}
+            />
+            <div
+              aria-hidden
+              data-sidebar-rail
+              className="transition-[left] duration-200 ease-linear"
+              style={{
+                left: sidebarOpen ? 'calc(16rem - 1px)' : 'calc(3rem - 1px)',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+              }}
+            />
+          </>
         )}
         {/* Sidebar — full height, above main nav — same as casino/poker */}
         <Sidebar
@@ -2889,7 +3594,7 @@ function AccountPageContent() {
           mobileNoDrag
           mobileBg="#2d2d2d"
           mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-          className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
+          className="!bg-[#2d2d2d] !border-r-0 text-[var(--ds-fg)] [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
         >
           {/* Sidebar Header — logo with collapse animation */}
           <SidebarHeader
@@ -3096,7 +3801,7 @@ function AccountPageContent() {
                 </SidebarGroupContent>
               </SidebarGroup>
 
-              <Separator className="bg-[var(--ds-control-hover)] mx-2" />
+              <Separator className="mx-2 bg-[var(--ds-border-strong)]" />
 
               {/* Account nav items */}
               <SidebarGroup>
@@ -3146,7 +3851,7 @@ function AccountPageContent() {
               {/* Spacer to push bottom items down */}
               <div className="flex-1" />
 
-              <Separator className="bg-[var(--ds-control-hover)] mx-2" />
+              <Separator className="mx-2 bg-[var(--ds-border-strong)]" />
 
               {/* Bottom section — VIP Hub, Promotions, Wallet, Need Help */}
               <SidebarGroup>
@@ -3255,6 +3960,7 @@ function AccountPageContent() {
                 <DashboardSection
                   onNavigate={setActiveSection}
                   onOpenVipHub={openVipDrawer}
+                  onOpenWallet={openDepositDrawer}
                   onOpenNotifications={openNotificationsDrawer}
                   unreadNotifications={webInboxUnreadCount}
                 />
@@ -3263,7 +3969,7 @@ function AccountPageContent() {
               {activeSection === 'transactions' && <TransactionsContent />}
               {activeSection === 'my-bonus' && <BonusContent />}
               {activeSection === 'payments' && <PaymentsContent />}
-                {activeSection === 'refer' && <ReferFriendContent />}
+                {activeSection === 'refer' && <ReferFriendContent onOpenVipHub={openVipDrawer} />}
               {activeSection === 'security' && <SecurityContent />}
               {activeSection === 'profile' && <ProfileContent />}
             </motion.div>
