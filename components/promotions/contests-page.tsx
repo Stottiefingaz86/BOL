@@ -821,13 +821,27 @@ function ContestCard({
         bounce: 0.2,
       }}
       whileHover={{ y: -3 }}
-      className="group relative flex min-h-[180px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] transition-colors duration-300 hover:border-white/[0.14] active:border-white/[0.14]"
+      className="group relative flex min-h-[200px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] transition-colors duration-300 hover:border-white/[0.14] active:border-white/[0.14] sm:min-h-[180px]"
     >
       <div
         className="pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100 tile-shimmer"
         aria-hidden
       />
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-2.5 p-3.5 pr-2">
+
+      {/* Full-bleed right art — wider on mobile so athletes aren't sliced */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[48%] max-w-none overflow-hidden sm:w-[38%] sm:max-w-[140px]">
+        <Image
+          src={contest.image}
+          alt=""
+          fill
+          className="scale-105 object-cover object-[70%_center] transition-transform duration-500 group-hover:scale-110 sm:object-[center_20%]"
+          sizes="(max-width: 640px) 48vw, 140px"
+          unoptimized
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] from-[8%] via-[#1a1a1a]/75 via-[42%] to-transparent to-[75%]" />
+      </div>
+
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-2.5 p-3.5 pr-[46%] sm:pr-[36%]">
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/[0.08]">
             <Image
@@ -867,7 +881,7 @@ function ContestCard({
           ))}
         </div>
 
-        <div className="mt-auto flex items-center gap-1.5 pt-1">
+        <div className="mt-auto flex items-center gap-1.5 pt-1 pr-14 sm:pr-0">
           <button
             type="button"
             className="flex h-8 shrink-0 items-center rounded-md bg-white/[0.06] px-2.5 text-[10px] font-semibold text-white/55 transition-colors hover:bg-white/[0.1] hover:text-white/80"
@@ -878,29 +892,17 @@ function ContestCard({
         </div>
       </div>
 
-      <div className="pointer-events-none relative w-[34%] max-w-[118px] shrink-0 self-stretch overflow-hidden">
-        <Image
-          src={contest.image}
-          alt=""
-          fill
-          className="object-cover object-[center_18%] transition-transform duration-500 group-hover:scale-105"
-          sizes="118px"
-          unoptimized
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] via-[#1a1a1a]/70 to-transparent" />
-      </div>
-
       {canEnter ? (
         <button
           type="button"
           onClick={() => onPurchase(contest)}
-          className="absolute bottom-3 right-3 z-30 flex h-8 shrink-0 items-center justify-center rounded-md px-3 text-xs font-bold whitespace-nowrap text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+          className="absolute bottom-3 right-3 z-30 flex h-8 max-w-[calc(100%-1.5rem)] shrink-0 items-center justify-center rounded-md px-2.5 text-[11px] font-bold whitespace-nowrap text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98] sm:px-3 sm:text-xs"
           style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
         >
           {ctaLabel}
         </button>
       ) : (
-        <span className="absolute bottom-3 right-3 z-30 flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#2a2a2a]/90 px-3 text-xs font-semibold text-white/45 shadow-lg backdrop-blur-sm">
+        <span className="absolute bottom-3 right-3 z-30 flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#2a2a2a]/90 px-2.5 text-[11px] font-semibold text-white/45 shadow-lg backdrop-blur-sm sm:px-3 sm:text-xs">
           {ctaLabel}
         </span>
       )}

@@ -1984,14 +1984,49 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
           )}
           <CarouselContent className="ml-3 md:ml-6 -mr-2 md:-mr-4">
             {[
-              { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
-              { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
-              { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
+              {
+                src: '/banners/casino/casino_banner1.svg',
+                alt: 'Contests',
+                target: 'Contests' as const,
+                label: 'Contests',
+              },
+              {
+                src: '/banners/casino/casino_banner2.svg',
+                alt: 'My Bonus',
+                target: 'My Bonus' as const,
+                label: 'My Bonus',
+              },
+              {
+                src: '/banners/casino/casino_banner 3.svg',
+                alt: 'Refer A Friend',
+                target: 'Refer A Friend' as const,
+                label: 'Refer A Friend',
+              },
               { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
               { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
             ].map((banner, index) => (
               <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
+                <Card
+                  role={banner.target ? 'button' : undefined}
+                  tabIndex={banner.target ? 0 : undefined}
+                  onClick={() => {
+                    if (banner.target) setVipActiveSidebarItem?.(banner.target)
+                  }}
+                  onKeyDown={(e) => {
+                    if (!banner.target) return
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setVipActiveSidebarItem?.(banner.target)
+                    }
+                  }}
+                  className={cn(
+                    'border-0 relative overflow-hidden flex-shrink-0 rounded-small',
+                    banner.target
+                      ? 'cursor-pointer transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-primary,#ee3536)]'
+                      : 'cursor-default'
+                  )}
+                  style={{ width: '340px', height: '164px' }}
+                >
                   <Image
                     src={banner.src}
                     alt={banner.alt}
@@ -2000,6 +2035,11 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
                     className="object-cover w-full h-full"
                     unoptimized
                   />
+                  {banner.label && (
+                    <span className="pointer-events-none absolute bottom-2 right-2 rounded-md bg-black/65 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
+                      {banner.label}
+                    </span>
+                  )}
                 </Card>
               </CarouselItem>
             ))}
@@ -2900,56 +2940,10 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
     }
   }, [setVipDrawerOpen, setVipActiveTab])
   
-  const isMobileVip = useIsMobile()
-  
   return (
     <div className="min-h-screen bg-[var(--ds-page-bg)]">
       
-      {/* Mobile VIP Navigation — fixed below header like casino sub nav */}
-      {isMobileVip && (
-        <motion.div 
-          className="md:hidden fixed left-0 right-0 z-[90] bg-[var(--ds-page-bg)]/60 backdrop-blur-xl border-b border-[var(--ds-border)]"
-          initial={false}
-          animate={{ top: quickLinksOpen ? 104 : 64 }}
-          transition={{ type: "tween", ease: "linear", duration: 0.3 }}
-        >
-          <div className="overflow-x-auto scrollbar-hide px-3 py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <AnimateTabs value={vipActiveSidebarItem} onValueChange={(value) => setVipActiveSidebarItem?.(value)} className="w-max">
-              <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
-                {[
-                  { id: 'Promos', label: 'All Promotions' },
-                  { id: 'My Bonus', label: 'My Bonus' },
-                  { id: 'Contests', label: 'Contests' },
-                  { id: 'Refer A Friend', label: 'Refer' },
-                ].map((item) => (
-                  <TabsTab
-                    key={item.id}
-                    value={item.id}
-                    className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
-                  >
-                    {vipActiveSidebarItem === item.id && (
-                      <motion.div
-                        layoutId="activeVipMobileTab"
-                        className="absolute inset-0 rounded-2xl -z-10"
-                        style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                        initial={false}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 40
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10">{item.label}</span>
-                  </TabsTab>
-                ))}
-              </AnimateTabsList>
-            </AnimateTabs>
-          </div>
-        </motion.div>
-      )}
-      {/* Spacer for fixed mobile VIP sub nav */}
-      {isMobileVip && <div className="md:hidden h-[44px]" />}
+      {/* Mobile VIP section tabs removed — navigate via sidebar / promo banners */}
       
       {vipActiveSidebarItem === 'My Bonus' ? (
         <MyBonusPage brandPrimary={brandPrimary} setShowVipRewards={setShowVipRewards} />
