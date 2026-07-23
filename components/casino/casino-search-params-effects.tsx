@@ -57,6 +57,20 @@ export function CasinoSearchParamsEffects({
       setShowSports(false)
       setShowVipRewards(true)
       const promoSectionParam = searchParams.get('section')
+      // Cash Races removed from Promotions — open VIP Hub Daily Races instead
+      if (promoSectionParam === 'Cash Races') {
+        setShowPoker(false)
+        setShowSports(false)
+        setShowVipRewards(false)
+        window.scrollTo(0, 0)
+        router.replace('/casino', { scroll: false })
+        requestAnimationFrame(() => {
+          window.dispatchEvent(
+            new CustomEvent('vip:open-drawer', { detail: { tab: 'Daily Races' } })
+          )
+        })
+        return
+      }
       if (promoSectionParam) {
         setInitialVipSidebarItem(promoSectionParam)
       }

@@ -19,6 +19,7 @@ import { RewardCrates } from '@/components/vip/reward-crates'
 import { VipTierProgressBar } from '@/components/vip/vip-tier-progress-bar'
 import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { ReferAFriendPage } from '@/components/promotions/refer-a-friend-page'
+import { ContestsPage } from '@/components/promotions/contests-page'
 import { requestLogin } from '@/lib/auth-session'
 import { DailyRacesTimer, NumberFlowCountdown } from '@/components/daily-races-timer'
 import { SidebarPromos } from '@/components/sidebar-promos'
@@ -93,6 +94,7 @@ import {
   IconLock,
   IconSettings,
   IconCrown,
+  IconLogin2,
   IconDice,
   IconHeart,
   IconStar,
@@ -101,7 +103,6 @@ import {
   IconCards,
   IconDots,
   IconTrophy,
-  IconBuilding,
   IconHelpCircle,
   IconPlayerPlay,
   IconChevronLeft,
@@ -122,7 +123,6 @@ import {
   IconWallet,
   IconUser,
   IconUserCircle,
-  IconLifebuoy,
   IconVideo,
   IconBroadcast,
   IconSparkles,
@@ -1732,7 +1732,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
   
   return (
     <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
-      <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto w-full">
+      <div className="w-full px-3 md:px-6 pt-6 md:pt-8 pb-8">
         {/* Cash Races Title with Back Button */}
         <div className="flex items-center gap-4 mb-6">
           {previousPageState && (
@@ -1982,7 +1982,7 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
               <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
             </>
           )}
-          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+          <CarouselContent className="ml-3 md:ml-6 -mr-2 md:-mr-4">
             {[
               { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
               { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
@@ -2006,7 +2006,8 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
             </CarouselContent>
           </Carousel>
         </div>
-      <div className="px-4 md:px-6 pb-8 max-w-7xl mx-auto w-full">
+      {/* Match casino/poker content gutters — full width, no max-w-7xl pinch */}
+      <div className="w-full px-3 md:px-6 pb-8">
 
         {/* Promos Section */}
         <div className="w-full">
@@ -2247,7 +2248,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 
   return (
     <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
-      <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto w-full">
+      <div className="w-full px-3 md:px-6 pt-6 md:pt-8 pb-8">
 
         {/* My Bonus Section */}
         <div className="w-full">
@@ -2918,10 +2919,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 {[
                   { id: 'Promos', label: 'All Promotions' },
                   { id: 'My Bonus', label: 'My Bonus' },
-                  { id: 'Cash Races', label: 'Cash Races' },
                   { id: 'Contests', label: 'Contests' },
-                  { id: 'Challenges', label: 'Challenges' },
-                  { id: 'Raffles', label: 'Raffles' },
                   { id: 'Refer A Friend', label: 'Refer' },
                 ].map((item) => (
                   <TabsTab
@@ -2963,23 +2961,10 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           setVipActiveTab={setVipActiveTab}
           setVipActiveSidebarItem={setVipActiveSidebarItem}
         />
-      ) : vipActiveSidebarItem === 'Cash Races' ? (
-        <CashRacesPage 
-          brandPrimary={brandPrimary}
-          setVipDrawerOpen={setVipDrawerOpen}
-          setShowVipRewards={setShowVipRewards}
-          setVipActiveTab={setVipActiveTab}
-          setVipActiveSidebarItem={setVipActiveSidebarItem}
-          previousPageState={previousPageState}
-          setPreviousPageState={setPreviousPageState}
-          setActiveSubNav={setActiveSubNav}
-        />
       ) : vipActiveSidebarItem === 'Refer A Friend' ? (
         <ReferAFriendPage />
-      ) : vipActiveSidebarItem === 'Contests' ||
-        vipActiveSidebarItem === 'Challenges' ||
-        vipActiveSidebarItem === 'Raffles' ? (
-        <VipSectionWireframe title={vipActiveSidebarItem} />
+      ) : vipActiveSidebarItem === 'Contests' ? (
+        <ContestsPage />
       ) : (
         <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
         {/* Hero Image */}
@@ -4302,74 +4287,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Spacer to push bottom items down */}
-            <div className="flex-1" />
-
-            <Separator className="bg-[var(--ds-control-hover)] mx-2" />
-
-            {/* Bottom section — Loyalty Hub, Banking, Need Help */}
+            {/* Settings */}
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {[
-                    { icon: IconCrown, label: 'Loyalty Hub' },
-                    { icon: IconBuilding, label: 'Banking' },
-                    { icon: IconLifebuoy, label: 'Need Help' },
-                  ].map((item, index) => {
-                    const Icon = item.icon
-                    return (
-                      <SidebarMenuItem key={index}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SidebarMenuButton
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                if (isMobile) setOpenMobile(false)
-                                console.log(item.label + ' clicked')
-                              }}
-                              className={cn(
-                                "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                              )}
-                            >
-                              <Icon strokeWidth={1.5} className="w-5 h-5" />
-                              <span>{item.label}</span>
-                            </SidebarMenuButton>
-                          </TooltipTrigger>
-                          {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
-                              <p>{item.label}</p>
-                            </TooltipContent>
+                  <SidebarMenuItem>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton
+                          className={cn(
+                            "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
+                            "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
+                            sportsbookSettingsOpen && "bg-[var(--ds-control-bg)] text-[var(--ds-fg)]"
                           )}
-                        </Tooltip>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-          {/* Settings */}
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton
-                        className={cn(
-                          "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                          "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
-                          sportsbookSettingsOpen && "bg-[var(--ds-control-bg)] text-[var(--ds-fg)]"
-                        )}
-                        onClick={() => {
-                          if (isMobile) {
-                            setOpenMobile(false)
-                            setTimeout(() => setSportsbookSettingsOpen(true), 300)
-                          } else {
-                            setSportsbookSettingsOpen(true)
-                          }
+                          onClick={() => {
+                            if (isMobile) {
+                              setOpenMobile(false)
+                              setTimeout(() => setSportsbookSettingsOpen(true), 300)
+                            } else {
+                              setSportsbookSettingsOpen(true)
+                            }
                         }}
                       >
                         <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", sportsbookSettingsOpen ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
@@ -6577,12 +6514,6 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
     { icon: IconHelpCircle, label: 'Help' },
   ]
 
-  // Bottom section (like casino sidebar)
-  const pokerBottomItems = [
-    { icon: IconBuilding, label: 'Banking' },
-    { icon: IconLifebuoy, label: 'Need Help' },
-  ]
-
   const topFeatures = [
     { title: 'All-In Cash Out', description: 'Purchase the equity of your hand at any point before the river and protect your winning hands.', image: '/banners/poker/all in cash out.png' },
     { title: 'Throwables', description: 'Fun interactive way to express yourself at the tables. What happened in the hand and how did it make you feel.', image: '/banners/poker/throwables.webp' },
@@ -6876,52 +6807,6 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Spacer to push bottom items down */}
-            <div className="flex-1" />
-
-            <Separator className="bg-[var(--ds-control-hover)] mx-2" />
-
-            {/* Bottom section — Loyalty Hub, Banking, Need Help (like casino) */}
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {pokerBottomItems.map((item, index) => {
-                    const Icon = item.icon
-                    const isActive = activeSidebarItem === item.label
-                    return (
-                      <SidebarMenuItem key={index}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SidebarMenuButton
-                              isActive={isActive}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setActiveSidebarItem(item.label)
-                              }}
-                              className={cn(
-                                "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                              )}
-                              style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
-                            >
-                              <Icon strokeWidth={1.5} className="w-5 h-5" />
-                              <span>{item.label}</span>
-                            </SidebarMenuButton>
-                          </TooltipTrigger>
-                          {sidebarState === 'collapsed' && (
-                            <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
-                              <p>{item.label}</p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
           </TooltipProvider>
           {/* Spacer for Safari bottom bar on mobile */}
           {isMobile && <div className="flex-shrink-0 h-24" />}
@@ -7440,13 +7325,15 @@ function NavTestPageContent() {
   // can launch the drawer without needing to thread `openVipDrawer` down
   // through props.
   useEffect(() => {
-    const handler = () => {
+    const handler = (evt: Event) => {
+      const tab = (evt as CustomEvent<{ tab?: string }>).detail?.tab
       setVipDrawerOpen((open) => {
-        if (open) return false
+        if (open && !tab) return false
         queueMicrotask(() => {
           setAccountDrawerOpen(false)
           setDepositDrawerOpen(false)
           useChatStore.getState().setIsOpen(false)
+          if (tab) setVipActiveTab(tab)
         })
         return true
       })
@@ -7523,10 +7410,24 @@ function NavTestPageContent() {
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
     if (initialVipSidebarItem) {
-      setVipActiveSidebarItem?.(initialVipSidebarItem)
+      // Cash Races removed from Promotions nav
+      const next =
+        initialVipSidebarItem === 'Cash Races' ? 'Promos' : initialVipSidebarItem
+      setVipActiveSidebarItem?.(next)
       setTimeout(() => setInitialVipSidebarItem(null), 100)
     }
   }, [initialVipSidebarItem])
+
+  // Migrate any stale Cash Races / Challenges / Raffles selection off Promotions
+  useEffect(() => {
+    if (
+      vipActiveSidebarItem === 'Cash Races' ||
+      vipActiveSidebarItem === 'Challenges' ||
+      vipActiveSidebarItem === 'Raffles'
+    ) {
+      setVipActiveSidebarItem('Promos')
+    }
+  }, [vipActiveSidebarItem])
   const [previousPageState, setPreviousPageState] = useState<{ showSports: boolean; showVipRewards: boolean; showPoker?: boolean; activeSubNav?: string } | null>(null)
   const [sportsActiveTab, setSportsActiveTab] = useState('Events')
   
@@ -8407,13 +8308,6 @@ function NavTestPageContent() {
     { icon: IconTrophy, label: 'Tournaments' },
   ]
 
-  // Bottom pinned items — same across all sidebars
-  const sidebarBottomItems = [
-    { icon: IconCrown, label: 'Loyalty Hub' },
-    { icon: IconBuilding, label: 'Banking' },
-    { icon: IconLifebuoy, label: 'Need Help' },
-  ]
-
   const gameFilters = ['For You', 'Bonus Buys', 'Megaways', 'Slots', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'New', 'Exclusive']
 
   return (
@@ -9102,11 +8996,9 @@ function NavTestPageContent() {
                           {[
                             { id: 'Promos', icon: IconSparkles, label: 'All Promotions' },
                             { id: 'My Bonus', icon: IconGift, label: 'My Bonus' },
-                            { id: 'Cash Races', icon: IconClock, label: 'Cash Races' },
                             { id: 'Contests', icon: IconTrophy, label: 'Contests' },
-                            { id: 'Challenges', icon: IconFlame, label: 'Challenges' },
-                            { id: 'Raffles', icon: IconTicket, label: 'Raffles' },
                             { id: 'Refer A Friend', icon: IconUserPlus, label: 'Refer A Friend' },
+                            { id: 'VIP Hub', icon: IconCrown, label: 'VIP Hub' },
                             { type: 'separator' as const },
                             { id: 'Get Telegram', icon: IconDownload, label: 'Get Telegram' },
                           ].map((item: any, index: number) => {
@@ -9121,6 +9013,43 @@ function NavTestPageContent() {
                             const Icon = item.icon
                             const itemId = item.id
                             const isActive = vipActiveSidebarItem === itemId
+                            if (itemId === 'VIP Hub') {
+                              return (
+                                <SidebarMenuItem key={itemId}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <SidebarMenuButton
+                                        onClick={(e: React.MouseEvent) => {
+                                          e.preventDefault()
+                                          e.stopPropagation()
+                                          if (isMobile) setOpenMobile(false)
+                                          openVipDrawer()
+                                        }}
+                                        className={cn(
+                                          'w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer',
+                                          'text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]'
+                                        )}
+                                      >
+                                        <Icon strokeWidth={1.5} className="w-5 h-5" />
+                                        <span className="flex-1 text-left">{item.label}</span>
+                                        <IconLogin2
+                                          strokeWidth={1.5}
+                                          className="ml-auto h-4 w-4 shrink-0 opacity-50"
+                                        />
+                                      </SidebarMenuButton>
+                                    </TooltipTrigger>
+                                    {sidebarState === 'collapsed' && (
+                                      <TooltipContent
+                                        side="right"
+                                        className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]"
+                                      >
+                                        <p>{item.label}</p>
+                                      </TooltipContent>
+                                    )}
+                                  </Tooltip>
+                                </SidebarMenuItem>
+                              )
+                            }
                             if (itemId === 'Get Telegram') {
                               const isCollapsed = sidebarState === 'collapsed' && !isMobile
                               return (
@@ -9187,53 +9116,6 @@ function NavTestPageContent() {
                                     >
                                       <Icon strokeWidth={1.5} className="w-5 h-5" />
                                       <span className="flex-1">{item.label}</span>
-                                    </SidebarMenuButton>
-                                  </TooltipTrigger>
-                                  {sidebarState === 'collapsed' && (
-                                    <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
-                                      <p>{item.label}</p>
-                                    </TooltipContent>
-                                  )}
-                                </Tooltip>
-                              </SidebarMenuItem>
-                            )
-                          })}
-                        </SidebarMenu>
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                    <div className="flex-1" />
-                    <Separator className="bg-[var(--ds-control-hover)] mx-2" />
-                    <SidebarGroup>
-                      <SidebarGroupContent>
-                        <SidebarMenu>
-                          {[
-                            { icon: IconCrown, label: 'Loyalty Hub' },
-                            { icon: IconRocket, label: 'Promotion' },
-                            { icon: IconBuilding, label: 'Banking' },
-                            { icon: IconLifebuoy, label: 'Need Help' },
-                          ].map((item, index) => {
-                            const Icon = item.icon
-                            return (
-                              <SidebarMenuItem key={`vip-bottom-${index}`}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <SidebarMenuButton
-                                      onClick={(e) => {
-                                        e.preventDefault()
-                                        e.stopPropagation()
-                                        if (isMobile) setOpenMobile(false)
-                                        if (item.label === 'Loyalty Hub') {
-                                          openVipDrawer()
-                                        } else if (item.label === 'Promotion') {
-                                          router.push('/promotions')
-                                        } else if (item.label === 'Banking') {
-                                          openDepositDrawer()
-                                        }
-                                      }}
-                                      className="w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                                    >
-                                      <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                      <span>{item.label}</span>
                                     </SidebarMenuButton>
                                   </TooltipTrigger>
                                   {sidebarState === 'collapsed' && (
@@ -9470,57 +9352,6 @@ function NavTestPageContent() {
                               </Tooltip>
                             </SidebarMenuItem>
                           </React.Fragment>
-                        )
-                      })}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-                {/* Spacer to push bottom items down */}
-                <div className="flex-1" />
-
-                <Separator className="bg-[var(--ds-control-hover)] mx-2" />
-
-                {/* Bottom section — Banking + Need Help. Loyalty Hub now
-                    lives inside the Promotions card at the top of this
-                    sidebar, so it's filtered out here. */}
-                <SidebarGroup>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {sidebarBottomItems
-                        .filter((item) => item.label !== 'Loyalty Hub')
-                        .map((item, index) => {
-                        const Icon = item.icon
-                        return (
-                          <SidebarMenuItem key={index}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <SidebarMenuButton
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                    if (isMobile) setOpenMobile(false)
-                                    if (item.label === 'Banking') {
-                                      openDepositDrawer()
-                                    } else if (item.label === 'Need Help') {
-                                      console.log('Need Help clicked')
-                                    }
-                                  }}
-                                  className={cn(
-                                    "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                    "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                                  )}
-                                >
-                                  <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                  <span>{item.label}</span>
-                                </SidebarMenuButton>
-                              </TooltipTrigger>
-                              {sidebarState === 'collapsed' && (
-                                <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
-                                  <p>{item.label}</p>
-                                </TooltipContent>
-                              )}
-                            </Tooltip>
-                          </SidebarMenuItem>
                         )
                       })}
                     </SidebarMenu>
@@ -9918,16 +9749,11 @@ function NavTestPageContent() {
                           className="group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border-0 bg-[#eeeeee] shadow-none transition-colors dark:bg-white/[0.06]" 
                           style={{ width: '300px', height: '164px' }}
                           onClick={() => {
-                            // Save current page state before navigating
-                            setPreviousPageState({
-                              showSports: false,
-                              showVipRewards: false,
-                              activeSubNav: activeSubNav,
-                            })
-                            setVipActiveSidebarItem('Cash Races')
-                            setShowVipRewards(true)
-                            setVipDrawerOpen(false)
-                            window.scrollTo(0, 0)
+                            setVipActiveTab('Daily Races')
+                            setAccountDrawerOpen(false)
+                            setDepositDrawerOpen(false)
+                            setVipDrawerOpen(true)
+                            useChatStore.getState().setIsOpen(false)
                           }}
                         >
                           <CardContent className="relative z-10 flex h-full min-h-0 flex-col justify-between p-4">

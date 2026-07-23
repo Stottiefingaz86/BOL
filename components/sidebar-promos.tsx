@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   IconTrophy,
-  IconTicket,
-  IconTargetArrow,
   IconChevronRight,
   IconChevronDown,
   IconRocket,
@@ -94,11 +92,6 @@ function buildPromoData(): PromoItem[] {
     )
   )
 
-  // Full-page Promotions on casino (`vipRewardsPage=true`); `section` must match
-  // `vipActiveSidebarItem` ids (see casino sidebar). Does not open the VIP hub drawer.
-  const promoPage = (section: string) =>
-    `/casino?vipRewardsPage=true&section=${encodeURIComponent(section)}`
-
   return [
     {
       id: 'daily-race',
@@ -107,25 +100,14 @@ function buildPromoData(): PromoItem[] {
       icon: IconTrophy,
       tone: 'amber',
       endsAt: nextMidnightUtc,
-      href: promoPage('Cash Races'),
-    },
-    {
-      id: 'weekly-raffle',
-      prize: '$20K',
-      label: 'Weekly Raffle',
-      icon: IconTicket,
-      tone: 'emerald',
-      badge: '5d',
-      href: promoPage('Raffles'),
-    },
-    {
-      id: 'challenges',
-      prize: '$31K',
-      label: 'Challenges',
-      icon: IconTargetArrow,
-      tone: 'sky',
-      badge: '18 active',
-      href: promoPage('Challenges'),
+      // Lives in VIP Hub (Daily Races tab), not Promotions sidebar
+      onClick: () => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('vip:open-drawer', { detail: { tab: 'Daily Races' } })
+          )
+        }
+      },
     },
   ]
 }
