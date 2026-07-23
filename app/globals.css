@@ -273,6 +273,20 @@ img[decoding="sync"] {
   animation: tile-shimmer 1.5s ease-in-out infinite;
 }
 
+/* Featured contest — warmer fire sweep */
+.tile-shimmer-fire {
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 107, 53, 0.08) 28%,
+    rgba(255, 176, 0, 0.22) 48%,
+    rgba(255, 69, 0, 0.16) 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: tile-shimmer 1.8s ease-in-out infinite;
+}
+
 /* Jackpot wheel — winning segment flash once the wheel has stopped */
 @keyframes jackpot-win-flash {
   0%   { opacity: 0.08; }

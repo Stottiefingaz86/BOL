@@ -10,6 +10,7 @@ import {
   IconCircleCheck,
   IconCircleDashed,
   IconClockFilled,
+  IconFlame,
   IconShoppingCart,
   IconSparkles,
   IconTrophy,
@@ -24,6 +25,12 @@ import {
 } from '@/components/animate-ui/components/base/tabs'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 const CONTEST_LOBBIES = [
@@ -60,6 +67,7 @@ type ContestCardData = {
   entries: string
   myEntries?: ContestEntry[]
   free?: boolean
+  featured?: boolean
   league: { label: string; icon: string }
   image: string
   /** When entry opens. If in the future → “Opens in …” */
@@ -86,6 +94,7 @@ const CONTESTS: ContestCardData[] = [
     entryFee: 'Free',
     entries: '1,234',
     free: true,
+    featured: true,
     league: { label: 'NFL', icon: '/banners/sports_league/NFL.svg' },
     image: '/banners/contests/card-01.png',
     startDate: hoursFromNow(-24),
@@ -372,9 +381,11 @@ const STATUS_STYLES: Record<ContestStatusKind, string> = {
 function ContestStatusBadge({
   startDate,
   endDate,
+  featured,
 }: {
   startDate: Date
   endDate: Date
+  featured?: boolean
 }) {
   const [now, setNow] = useState(() => Date.now())
 
@@ -384,25 +395,36 @@ function ContestStatusBadge({
   }, [])
 
   const status = getContestStatus(startDate, endDate, now)
+  const fireFinish = featured && status.kind === 'finishing'
 
   return (
     <div
       className={cn(
-        'inline-flex w-fit max-w-full self-start items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium leading-none',
-        STATUS_STYLES[status.kind]
+        'relative inline-flex w-fit max-w-full self-start items-center gap-1 overflow-hidden rounded-full border px-2 py-0.5 text-[11px] font-medium leading-none',
+        fireFinish
+          ? 'border-[#E07A2F] bg-[#FFF0E0] text-[#C45A12]'
+          : STATUS_STYLES[status.kind]
       )}
     >
+      {fireFinish && (
+        <span
+          className="pointer-events-none absolute inset-0 tile-shimmer-fire opacity-80"
+          aria-hidden
+        />
+      )}
       {status.kind === 'upcoming' && (
-        <IconCalendarEvent className="h-3 w-3 shrink-0" strokeWidth={2} />
+        <IconCalendarEvent className="relative h-3 w-3 shrink-0" strokeWidth={2} />
       )}
       {status.kind === 'open' && (
-        <IconSparkles className="h-3 w-3 shrink-0" strokeWidth={2} />
+        <IconSparkles className="relative h-3 w-3 shrink-0" strokeWidth={2} />
       )}
-      {status.kind === 'finishing' && <IconClockFilled className="h-3 w-3 shrink-0" />}
+      {status.kind === 'finishing' && (
+        <IconClockFilled className="relative h-3 w-3 shrink-0" />
+      )}
       {status.kind === 'closed' && (
-        <IconTrophy className="h-3 w-3 shrink-0" strokeWidth={2} />
+        <IconTrophy className="relative h-3 w-3 shrink-0" strokeWidth={2} />
       )}
-      <span className="truncate">{status.label}</span>
+      <span className="relative truncate">{status.label}</span>
     </div>
   )
 }
@@ -821,12 +843,26 @@ function ContestCard({
         bounce: 0.2,
       }}
       whileHover={{ y: -3 }}
-      className="group relative flex min-h-[200px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] transition-colors duration-300 hover:border-white/[0.14] active:border-white/[0.14] sm:min-h-[180px]"
+      className={cn(
+        "group relative flex min-h-[200px] overflow-hidden rounded-xl border bg-[#1a1a1a] transition-colors duration-300 sm:min-h-[180px]",
+        contest.featured
+          ? "border-[#ff6b35]/35 hover:border-[#ff6b35]/55 active:border-[#ff6b35]/55"
+          : "border-white/[0.08] hover:border-white/[0.14] active:border-white/[0.14]"
+      )}
     >
       <div
-        className="pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100 tile-shimmer"
+        className={cn(
+          "pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100",
+          contest.featured ? "tile-shimmer-fire opacity-60 group-hover:opacity-100" : "tile-shimmer"
+        )}
         aria-hidden
       />
+      {contest.featured && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_top_left,rgba(255,107,53,0.12),transparent_55%)]"
+          aria-hidden
+        />
+      )}
 
       {/* Full-bleed right art — wider on mobile so athletes aren't sliced */}
       <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[48%] max-w-none overflow-hidden sm:w-[38%] sm:max-w-[140px]">
@@ -843,15 +879,36 @@ function ContestCard({
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-2.5 p-3.5 pr-[46%] sm:pr-[36%]">
         <div className="flex min-w-0 flex-col gap-1.5">
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/[0.08]">
-            <Image
-              src={contest.league.icon}
-              alt={contest.league.label}
-              width={16}
-              height={16}
-              className="object-contain"
-              unoptimized
-            />
+          <div className="flex items-center gap-1.5">
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/[0.08]">
+              <Image
+                src={contest.league.icon}
+                alt={contest.league.label}
+                width={16}
+                height={16}
+                className="object-contain"
+                unoptimized
+              />
+            </div>
+            {contest.featured && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] text-[#ff6b35]"
+                    aria-label="Featured contest"
+                  >
+                    <IconFlame className="h-3.5 w-3.5" fill="currentColor" stroke={1.5} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent
+                  portal
+                  side="top"
+                  className="z-[200] border-white/10 bg-[#2d2d2d] px-2.5 py-1 text-xs text-white"
+                >
+                  Featured contest
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
           <div className="min-w-0">
             <h3 className="truncate text-[13px] font-semibold leading-snug text-white">
@@ -863,7 +920,11 @@ function ContestCard({
           </div>
         </div>
 
-        <ContestStatusBadge startDate={contest.startDate} endDate={contest.endDate} />
+        <ContestStatusBadge
+          startDate={contest.startDate}
+          endDate={contest.endDate}
+          featured={contest.featured}
+        />
 
         <div className="space-y-1">
           {[
@@ -943,6 +1004,7 @@ export function ContestsPage() {
   }
 
   return (
+    <TooltipProvider delayDuration={200}>
     <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
       <div className="w-full px-3 pb-10 pt-6 md:px-6 md:pt-8">
         <div className="mb-6 flex flex-col gap-4">
@@ -1048,5 +1110,6 @@ export function ContestsPage() {
         onPurchased={handlePurchased}
       />
     </SidebarInset>
+    </TooltipProvider>
   )
 }

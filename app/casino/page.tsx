@@ -96,6 +96,7 @@ import {
   IconSettings,
   IconCrown,
   IconLogin2,
+  IconLogout,
   IconDice,
   IconHeart,
   IconStar,
@@ -12381,7 +12382,7 @@ function NavTestPageContent() {
               )}
             </DrawerHeader>
             
-            <div className={cn("flex-1 overflow-y-auto", isMobile ? "px-4 pt-4 pb-4" : "px-4 pt-6 pb-4")}>
+            <div className={cn("flex-1 overflow-y-auto", isMobile ? "px-4 pt-4 pb-3" : "px-4 pt-6 pb-3")}>
               {accountDrawerView === 'account' ? (
                 <>
                   {/* Balance Information */}
@@ -12400,7 +12401,7 @@ function NavTestPageContent() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
-                        <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg-muted)]">Gold · 62</span>
                       </div>
                     </div>
               </div>
@@ -12427,7 +12428,7 @@ function NavTestPageContent() {
                   <Separator className="bg-[var(--ds-control-hover)] mb-6" />
                   
                   {/* Navigation List */}
-                  <div className="space-y-1 w-full mb-8">
+                  <div className="space-y-1 w-full">
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
@@ -12450,8 +12451,10 @@ function NavTestPageContent() {
                     >
                       <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
-                      <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
-                        <span className="bg-amber-500 text-[var(--ds-fg)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                      <span className="ml-auto flex items-center gap-1.5 text-sm text-[var(--ds-fg-muted)]">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--ds-control-hover)] text-[10px] font-bold text-[var(--ds-fg-muted)]">
+                          4
+                        </span>
                         $40.00
                       </span>
                 </Button>
@@ -12460,17 +12463,9 @@ function NavTestPageContent() {
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                     >
-                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
-                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
-                </Button>
-                    
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
                       <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
-                </Button>
+                    </Button>
                     
                     <Button 
                       variant="ghost" 
@@ -12478,6 +12473,16 @@ function NavTestPageContent() {
                     >
                       <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
+                    </Button>
+
+                    <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-3" : "my-4")} />
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    >
+                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                     </Button>
                     
                     <Button 
@@ -12497,18 +12502,18 @@ function NavTestPageContent() {
                     >
                       <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
-                </Button>
+                    </Button>
+
+                    <Separator className="my-2 bg-[var(--ds-control-hover)]" />
+
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    >
+                      <IconLogout className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Log Out</span>
+                    </Button>
               </div>
-                  
-                  <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
-                  
-                  {/* Logout Button */}
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
-                  >
-                    <span className="text-sm">Log out</span>
-                  </Button>
                 </>
               ) : (
                 <>
