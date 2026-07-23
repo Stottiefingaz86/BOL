@@ -1247,6 +1247,23 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
   pointer-events: auto !important;
 }
 
+/* Contest purchase cart — same layer as auth so overlay covers main nav */
+[data-contest-purchase-overlay] {
+  z-index: 100010 !important;
+  inset: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: auto !important;
+  pointer-events: auto !important;
+}
+
+[data-contest-purchase-content] {
+  z-index: 100011 !important;
+  pointer-events: auto !important;
+}
+
 /* Vaul portal container must not inherit transforms that break position:fixed on iOS */
 [vaul-drawer-wrapper],
 [data-vaul-drawer-wrapper] {
