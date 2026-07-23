@@ -922,14 +922,40 @@ header[class*="z-\[100\]"] [role="button"] {
   z-index: 100050 !important;
 }
 
+/* Wallet hub from game launcher Quick Deposit */
+[data-vaul-drawer].wallet-hub-game-launcher-drawer,
+[data-vaul-drawer][data-wallet-hub-drawer] {
+  z-index: 100050 !important;
+}
+
+@media (min-width: 768px) {
+  [data-vaul-drawer].wallet-hub-game-launcher-drawer[data-vaul-drawer-direction='right'],
+  [data-vaul-drawer][data-wallet-hub-drawer][data-vaul-drawer-direction='right'],
+  [data-vaul-drawer].similar-games-drawer[data-vaul-drawer-direction='right'],
+  [data-vaul-drawer][data-similar-games-drawer][data-vaul-drawer-direction='right'] {
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
 /* Game launcher: blur overlay must cover the launcher header, not start below main nav */
-[data-vaul-overlay].game-launcher-similar-games-overlay {
+[data-vaul-overlay].game-launcher-similar-games-overlay,
+[data-vaul-overlay].game-launcher-wallet-hub-overlay {
   top: 0 !important;
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
   height: auto !important;
   inset: 0 !important;
+}
+
+/* Wallet hub over game art — darker scrim so bright blues don't punch through */
+[data-vaul-overlay].game-launcher-wallet-hub-overlay {
+  background-color: rgba(0, 0, 0, 0.85) !important;
 }
 
 /* Ensure carousel arrows are ALWAYS visible and NEVER clipped */
@@ -1333,6 +1359,19 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
     z-index: 100002 !important;
     isolation: isolate;
   }
+
+  /* Game-launcher panels must be true full-viewport height (override nav offset above) */
+  [data-vaul-drawer].similar-games-drawer[data-vaul-drawer-direction='right'],
+  [data-vaul-drawer][data-similar-games-drawer][data-vaul-drawer-direction='right'],
+  [data-vaul-drawer].wallet-hub-game-launcher-drawer[data-vaul-drawer-direction='right'],
+  [data-vaul-drawer][data-wallet-hub-drawer][data-vaul-drawer-direction='right'] {
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
 }
 
 /* Auth login/register modal must cover the main nav (header is 100002 on desktop) */
@@ -1344,6 +1383,13 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
   left: 0 !important;
   right: 0 !important;
   height: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Casino search takeover — must sit above desktop nav (100002 !important) */
+[data-casino-search-overlay] {
+  z-index: 100100 !important;
+  inset: 0 !important;
   pointer-events: auto !important;
 }
 

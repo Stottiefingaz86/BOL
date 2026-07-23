@@ -7550,12 +7550,13 @@ function NavTestPageContent() {
     }
   }, [])
   
-  // Close menu when clicking outside
+  // Close menu when clicking outside (menu is portaled to body)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (gameLauncherMenuRef.current && !gameLauncherMenuRef.current.contains(event.target as Node)) {
-        setGameLauncherMenuOpen(false)
-      }
+      const target = event.target as Node
+      if (gameLauncherMenuRef.current?.contains(target)) return
+      if ((target as Element).closest?.('[data-game-launcher-menu]')) return
+      setGameLauncherMenuOpen(false)
     }
     
     if (gameLauncherMenuOpen) {
@@ -7934,13 +7935,14 @@ function NavTestPageContent() {
         </motion.div>
       )}
 
-      {/* Header - Sticky at top, always visible - Always grey in both themes */}
+      {/* Header - Sticky at top (hidden while full-screen search is open) */}
       <motion.header 
         data-nav-header
         className={cn(
           "border-b border-[var(--ds-border)] h-16 flex items-center justify-between z-[101] fixed right-0 transition-[left,background-color] duration-200 ease-linear",
           isMobile ? "left-0 px-3" : (sidebarOpen ? "left-[16rem] px-6" : "left-[3rem] px-6"),
-          isMobile && quickLinksOpen && "border-t-0"
+          isMobile && quickLinksOpen && "border-t-0",
+          searchOverlayOpen && "invisible pointer-events-none"
         )}
         initial={false}
         animate={{
@@ -7953,11 +7955,12 @@ function NavTestPageContent() {
         } : {}}
         style={{ 
           backgroundColor: 'var(--ds-nav-bg, #2D2E2C)',
-          pointerEvents: 'auto',
-          zIndex: 101,
+          pointerEvents: searchOverlayOpen ? 'none' : 'auto',
+          zIndex: searchOverlayOpen ? 0 : 101,
           position: 'fixed',
           boxShadow: '0 -200px 0 0 var(--ds-nav-bg, #2D2E2C)',
         }}
+        aria-hidden={searchOverlayOpen}
       >
           <div className="flex items-center gap-6">
             {/* Hamburger + Logo — mobile only (desktop has sidebar logo) */}
@@ -8216,6 +8219,7 @@ function NavTestPageContent() {
           open={depositDrawerOpen}
           onOpenChange={handleDepositDrawerOpenChange}
           isMobile={isMobile}
+          elevateAboveGameLauncher={!!selectedGame}
           currencySymbol={currentBrand.symbol}
           walletAvailableBalance={displayBalance}
           walletFreeBet={500}
@@ -11947,7 +11951,8 @@ function NavTestPageContent() {
           </DrawerContent>
         </Drawer>
 
-        {/* Search Overlay */}
+        {/* Search Overlay — portaled so it stacks above the fixed nav header (z-101) */}
+        {typeof document !== 'undefined' && createPortal(
         <AnimatePresence mode="wait">
           {searchOverlayOpen && (
             <motion.div
@@ -11955,7 +11960,8 @@ function NavTestPageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] overflow-y-auto"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100100] overflow-y-auto"
+              data-casino-search-overlay
               style={{ pointerEvents: 'auto' }}
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
@@ -12315,7 +12321,9 @@ function NavTestPageContent() {
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+        )}
 
         {/* Game Detail Full Screen Overlay */}
         <AnimatePresence>
@@ -12428,16 +12436,27 @@ function NavTestPageContent() {
                         </svg>
                   </button>
                       
-                      {/* Dropdown Menu */}
-                      <AnimatePresence>
-                        {gameLauncherMenuOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 z-[100040] mt-2 w-56 overflow-hidden rounded-xl border border-[var(--ds-border)] bg-[var(--ds-surface-raised)]/95 shadow-2xl backdrop-blur-xl"
-                          >
+                      {/* Dropdown Menu — portaled so parent backdrop-blur can't glass it */}
+                      {typeof document !== 'undefined' &&
+                        createPortal(
+                          <AnimatePresence>
+                            {gameLauncherMenuOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed z-[100060] w-56 overflow-hidden rounded-xl border border-white/10 shadow-2xl"
+                                data-game-launcher-menu
+                                style={{
+                                  backgroundColor: '#2d2d2d',
+                                  top:
+                                    (gameLauncherMenuRef.current?.getBoundingClientRect().bottom ?? 64) +
+                                    8,
+                                  left:
+                                    gameLauncherMenuRef.current?.getBoundingClientRect().left ?? 16,
+                                }}
+                              >
                             <div className="py-2">
                               {isMobile && (
                                 <button
@@ -12452,14 +12471,14 @@ function NavTestPageContent() {
                                     setFavoritedGames(newFavorited)
                                     setGameLauncherMenuOpen(false)
                                   }}
-                                  className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm flex items-center gap-2.5"
+                                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm flex items-center gap-2.5"
                                 >
                                   <IconHeart
                                     className={cn(
                                       'w-4 h-4 shrink-0',
                                       favoritedGames.has(hashGameTitle(selectedGame.title))
                                         ? 'text-pink-500 fill-pink-500'
-                                        : 'text-[var(--ds-fg-muted)]'
+                                        : 'text-white/60'
                                     )}
                                   />
                                   {favoritedGames.has(hashGameTitle(selectedGame.title))
@@ -12469,10 +12488,15 @@ function NavTestPageContent() {
                               )}
                               <button
                                 onClick={() => {
-                                  openDepositDrawer()
                                   setGameLauncherMenuOpen(false)
+                                  setAccountDrawerOpen(false)
+                                  setVipDrawerOpen(false)
+                                  useChatStore.getState().setIsOpen(false)
+                                  trackClick('deposit', 'Deposit')
+                                  trackPageView('deposit-drawer', 'Deposit Drawer')
+                                  setDepositDrawerOpen(true)
                                 }}
-                                className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
                               >
                                 Quick Deposit
                   </button>
@@ -12481,20 +12505,22 @@ function NavTestPageContent() {
                                   setGameLauncherMenuOpen(false)
                                   setSimilarGamesDrawerOpen(true)
                                 }}
-                                className="w-full px-4 py-3 text-left text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
                               >
                                 More Games Like This
                   </button>
                             </div>
                             
                             {/* VIP Progress Bar */}
-                            <div className="px-4 py-3 border-t border-[var(--ds-border)] bg-[var(--ds-control-bg)]">
-                              <div className="text-xs text-[var(--ds-fg-muted)] mb-2">Gold To Platinum I</div>
+                            <div className="px-4 py-3 border-t border-white/10 bg-white/[0.04]">
+                              <div className="text-xs text-white/60 mb-2">Gold To Platinum I</div>
                               <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
                             </div>
                           </motion.div>
                         )}
-                      </AnimatePresence>
+                      </AnimatePresence>,
+                          document.body
+                        )}
                     </div>
 
                     {isMobile ? (
@@ -12757,16 +12783,28 @@ function NavTestPageContent() {
             className={cn(
             "bg-[var(--ds-page-bg)] text-[var(--ds-fg)] flex flex-col relative similar-games-drawer",
             "w-full sm:max-w-2xl border-l border-[var(--ds-border)] overflow-hidden",
-            isMobile && "rounded-t-[10px]"
+            selectedGame && "!top-0 !bottom-0 !mt-0 !mb-0 !h-full !max-h-[100dvh] !rounded-none",
+            isMobile && !selectedGame && "rounded-t-[10px]"
             )}
             style={{
               zIndex: selectedGame ? 100050 : undefined,
-              ...(isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
-              top: 'auto',
-              bottom: 0,
-            } : {}),
+              ...(selectedGame
+                ? {
+                    top: 0,
+                    bottom: 0,
+                    height: '100dvh',
+                    maxHeight: '100dvh',
+                    margin: 0,
+                    borderRadius: 0,
+                  }
+                : isMobile
+                  ? {
+                      height: '80vh',
+                      maxHeight: '80vh',
+                      top: 'auto',
+                      bottom: 0,
+                    }
+                  : {}),
             }}
           >
             {isMobile && <DrawerHandle variant="light" />}

@@ -238,6 +238,8 @@ export type QuickDepositDrawerProps = {
   /** Summary card — defaults match demo hub. Pass to mirror wallet balance. */
   walletAvailableBalance?: number;
   walletFreeBet?: number;
+  /** Open above the game launcher fullscreen overlay (z ~100010). */
+  elevateAboveGameLauncher?: boolean;
 };
 
 function formatPaymentMethodLabel(method: string) {
@@ -334,6 +336,7 @@ export function QuickDepositDrawer({
   title = "Wallet",
   walletAvailableBalance: _walletAvailableBalance = 7000,
   walletFreeBet: _walletFreeBet = 500,
+  elevateAboveGameLauncher = false,
 }: QuickDepositDrawerProps) {
   const [hubTab, setHubTab] = useState<WalletHubTab>("deposit");
   const [depositCategory, setDepositCategory] =
@@ -572,11 +575,18 @@ export function QuickDepositDrawer({
       shouldScaleBackground={false}
     >
       <DrawerContent
-        showOverlay={isMobile}
+        showOverlay={isMobile || elevateAboveGameLauncher}
+        overlayClassName={
+          elevateAboveGameLauncher
+            ? "game-launcher-wallet-hub-overlay !z-[100040] !inset-0 !top-0 !bottom-0 !h-auto !bg-black/85"
+            : undefined
+        }
+        data-wallet-hub-drawer={elevateAboveGameLauncher ? "" : undefined}
         className={cn(
           "relative flex flex-col bg-[var(--ds-page-bg)] text-[var(--ds-fg)]",
           "w-full overflow-hidden border-l border-[var(--ds-border)] sm:max-w-md",
           isMobile && "rounded-t-[10px]",
+          elevateAboveGameLauncher && "wallet-hub-game-launcher-drawer",
         )}
         style={
           isMobile
@@ -585,11 +595,21 @@ export function QuickDepositDrawer({
                 maxHeight: "90vh",
                 top: "auto",
                 bottom: 0,
+                ...(elevateAboveGameLauncher ? { zIndex: 100050 } : {}),
               }
             : {
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
+                ...(elevateAboveGameLauncher
+                  ? {
+                      zIndex: 100050,
+                      top: 0,
+                      bottom: 0,
+                      height: "100%",
+                      maxHeight: "100%",
+                    }
+                  : {}),
               }
         }
       >
