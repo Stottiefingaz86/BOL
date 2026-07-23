@@ -97,30 +97,47 @@ function HeroUspBar() {
   )
 }
 
-const SPORTS_TILES = [
-  { src: '/banners/sports_league/MLB.svg', label: 'MLB' },
-  { src: '/banners/sports_league/NHL.svg', label: 'NHL' },
-  { src: '/banners/sports_league/champions.svg', label: 'UCL' },
-  { src: '/banners/sports_league/NFL.svg', label: 'NFL', featured: true },
-  { src: '/banners/sports_league/nba.svg', label: 'NBA', featured: true },
-  { src: '/banners/sports_league/prem.svg', label: 'EPL' },
-  { src: '/sports_icons/mma.svg', label: 'MMA' },
-  { src: '/banners/sports_league/mls.svg', label: 'MLS' },
-  { src: '/banners/sports_league/laliga.svg', label: 'La Liga' },
+const SPORTS_BENTO = [
+  { src: '/banners/sports_league/NFL.svg', label: 'NFL', span: 'lg' as const },
+  { src: '/banners/sports_league/nba.svg', label: 'NBA', span: 'lg' as const },
+  { src: '/banners/sports_league/NHL.svg', label: 'NHL', span: 'sm' as const },
+  { src: '/banners/sports_league/prem.svg', label: 'EPL', span: 'sm' as const },
+  { src: '/banners/sports_league/mls.svg', label: 'MLS', span: 'sm' as const },
+  { src: '/banners/sports_league/laliga.svg', label: 'La Liga', span: 'sm' as const },
 ]
 
-function SportsTileGrid({ children }: { children: React.ReactNode }) {
+/**
+ * 2-row bento that fits the card height:
+ * NFL + NBA large on top, four leagues along the bottom.
+ * Logo-only — labels were clipping in short cells.
+ */
+function SportsBentoShelf() {
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
-      <div
-        className="absolute left-1/2 top-1/2 grid w-[150%] grid-cols-3 gap-2"
-        style={{
-          transform: 'translate(-50%, -50%) rotate(-10deg) skewX(-5deg)',
-        }}
-      >
-        {children}
+    <div className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#101010]" aria-hidden>
+      <div className="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2 p-3 pb-3.5">
+        {SPORTS_BENTO.map((tile) => (
+          <div
+            key={tile.label}
+            className={cn(
+              'relative flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#1c1c1c] to-[#121212]',
+              tile.span === 'lg' && 'col-span-2'
+            )}
+          >
+            <Image
+              src={tile.src}
+              alt=""
+              width={80}
+              height={80}
+              className={cn(
+                'object-contain',
+                tile.span === 'lg' ? 'h-[58%] w-[58%] max-h-[4.5rem] max-w-[4.5rem]' : 'h-[52%] w-[52%] max-h-10 max-w-10'
+              )}
+              unoptimized
+            />
+          </div>
+        ))}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/20" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
     </div>
   )
 }
@@ -263,15 +280,16 @@ export function HomeHero({
       />
 
       <div className="relative z-10 flex flex-col gap-8 px-4 py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:py-10 lg:gap-10 lg:px-10">
-        <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[320px] md:items-start md:text-left">
-          <h1 className="flex flex-col gap-1.5">
-            <span className="block text-[44px] font-bold leading-[0.95] tracking-tight text-white sm:text-[52px] md:text-[56px] lg:text-[64px]">
+        <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[400px] md:items-start md:text-left">
+          <div className="flex flex-col gap-3">
+            <h1 className="block text-[44px] font-bold leading-[0.95] tracking-tight text-white sm:text-[52px] md:text-[56px] lg:text-[64px]">
               Bet On.
-            </span>
-            <span className="block text-[28px] font-bold tracking-tight text-white sm:text-[34px] md:text-[38px] lg:text-[42px]">
-              BetOnline
-            </span>
-          </h1>
+            </h1>
+            <p className="max-w-[34ch] text-[15px] leading-snug text-white/70 sm:text-base md:max-w-none">
+              2,500+ games. Instant withdrawals. Zero wagering requirements. Real
+              human support.
+            </p>
+          </div>
 
           {!isLoggedIn ? (
             <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
@@ -316,41 +334,7 @@ export function HomeHero({
             title="Sportsbook"
             icon={<IconBallFootball className="h-4 w-4" strokeWidth={2} />}
           >
-            <SportsTileGrid>
-              {SPORTS_TILES.map((tile) => (
-                <div
-                  key={tile.label}
-                  className={cn(
-                    'relative flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] shadow-lg shadow-black/40',
-                    tile.featured && 'from-[#222] to-[#141414]'
-                  )}
-                >
-                  <Image
-                    src={tile.src}
-                    alt=""
-                    width={tile.featured ? 48 : 34}
-                    height={tile.featured ? 48 : 34}
-                    className={cn(
-                      'object-contain',
-                      tile.featured ? 'h-11 w-11' : 'h-8 w-8 opacity-85',
-                      // Dark league marks (e.g. Champions League) need invert on dark tiles
-                      (tile.label === 'UCL') && 'brightness-0 invert'
-                    )}
-                    unoptimized
-                  />
-                  <span
-                    className={cn(
-                      'font-semibold uppercase tracking-wide',
-                      tile.featured
-                        ? 'text-[10px] text-white/85'
-                        : 'text-[9px] text-white/55'
-                    )}
-                  >
-                    {tile.label}
-                  </span>
-                </div>
-              ))}
-            </SportsTileGrid>
+            <SportsBentoShelf />
           </DestinationCard>
         </div>
       </div>
