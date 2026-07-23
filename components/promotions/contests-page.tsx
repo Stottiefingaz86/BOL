@@ -372,10 +372,10 @@ function getContestStatus(startDate: Date, endDate: Date, now: number): ContestS
 }
 
 const STATUS_STYLES: Record<ContestStatusKind, string> = {
-  upcoming: 'border-black bg-white text-black',
-  open: 'border-[#5B8DEF] bg-[#E8F0FE] text-[#2F6FED]',
-  finishing: 'border-[#C4842D] bg-[#FBF3E8] text-[#B56E1A]',
-  closed: 'border-[#D1D1D1] bg-[#F2F2F2] text-black',
+  upcoming: 'border-white/35 bg-white/5 text-white/85',
+  open: 'border-[#5B8DEF]/40 bg-[#5B8DEF]/15 text-[#9DBDFF]',
+  finishing: 'border-[#C4842D]/45 bg-[#C4842D]/15 text-[#F0C48A]',
+  closed: 'border-white/15 bg-white/8 text-white/70',
 }
 
 function ContestStatusBadge({
@@ -402,7 +402,7 @@ function ContestStatusBadge({
       className={cn(
         'relative inline-flex w-fit max-w-full self-start items-center gap-1 overflow-hidden rounded-full border px-2 py-0.5 text-[11px] font-medium leading-none',
         fireFinish
-          ? 'border-[#E07A2F] bg-[#FFF0E0] text-[#C45A12]'
+          ? 'border-[#E07A2F]/50 bg-[#E07A2F]/18 text-[#FFB078]'
           : STATUS_STYLES[status.kind]
       )}
     >
@@ -435,19 +435,34 @@ function entryStatusMeta(status: ContestEntryStatus) {
       return {
         label: 'Incomplete',
         className: 'text-amber-300/90',
-        icon: <IconCircleDashed className="h-3.5 w-3.5 shrink-0 text-amber-300/90" strokeWidth={2} />,
+        icon: (
+          <IconCircleDashed
+            className="h-3.5 w-3.5 shrink-0 text-amber-300/90"
+            strokeWidth={2}
+          />
+        ),
       }
     case 'submitted':
       return {
         label: 'Submitted',
         className: 'text-sky-300/90',
-        icon: <IconCircleCheck className="h-3.5 w-3.5 shrink-0 text-sky-300/90" strokeWidth={2} />,
+        icon: (
+          <IconCircleCheck
+            className="h-3.5 w-3.5 shrink-0 text-sky-300/90"
+            strokeWidth={2}
+          />
+        ),
       }
     case 'finished':
       return {
         label: 'Finished',
         className: 'text-emerald-300/90',
-        icon: <IconTrophy className="h-3.5 w-3.5 shrink-0 text-emerald-300/90" strokeWidth={2} />,
+        icon: (
+          <IconTrophy
+            className="h-3.5 w-3.5 shrink-0 text-emerald-300/90"
+            strokeWidth={2}
+          />
+        ),
       }
   }
 }
@@ -458,7 +473,7 @@ function MyEntriesPopover({ entries }: { entries: ContestEntry[] }) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-white/[0.06] px-2.5 text-[10px] font-semibold text-white/55 transition-colors hover:bg-white/[0.1] hover:text-white/80 data-[state=open]:bg-white/[0.1] data-[state=open]:text-white/80"
+          className="flex h-8 shrink-0 items-center gap-0.5 rounded-md border border-white/10 bg-white/5 px-2.5 text-[10px] font-semibold text-white/65 transition-colors hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
         >
           My Entries
           <IconChevronDown className="h-3 w-3 opacity-50" strokeWidth={2} />
@@ -468,11 +483,13 @@ function MyEntriesPopover({ entries }: { entries: ContestEntry[] }) {
         align="start"
         side="top"
         sideOffset={8}
-        className="z-[80] w-[260px] border-white/10 bg-[#222] p-0 text-white shadow-xl"
+        className="dark z-[80] w-[260px] border-white/10 bg-[#2d2d2d] p-0 text-white shadow-xl"
       >
         <div className="border-b border-white/10 px-3 py-2">
-          <p className="text-[11px] font-semibold text-white/80">My Entries</p>
-          <p className="text-[10px] text-white/40">{entries.length} for this contest</p>
+          <p className="text-[11px] font-semibold text-white">My Entries</p>
+          <p className="text-[10px] text-white/45">
+            {entries.length} for this contest
+          </p>
         </div>
         <ul className="max-h-[220px] overflow-y-auto py-1">
           {entries.map((entry) => {
@@ -481,12 +498,12 @@ function MyEntriesPopover({ entries }: { entries: ContestEntry[] }) {
               <li key={entry.id}>
                 <button
                   type="button"
-                  className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06]"
+                  className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-white/5"
                 >
                   {meta.icon}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[12px] font-medium text-white/90">
+                      <span className="truncate text-[12px] font-medium text-white">
                         {entry.label}
                       </span>
                       <span className={cn('shrink-0 text-[10px] font-medium', meta.className)}>
@@ -844,16 +861,16 @@ function ContestCard({
       }}
       whileHover={{ y: -3 }}
       className={cn(
-        "group relative flex min-h-[200px] overflow-hidden rounded-xl border bg-[#1a1a1a] transition-colors duration-300 sm:min-h-[180px]",
+        'contest-card dark group relative flex min-h-[200px] overflow-hidden rounded-xl border bg-[#1a1a1a] text-white transition-[border-color,transform] duration-300 sm:min-h-[180px]',
         contest.featured
-          ? "border-[#ff6b35]/35 hover:border-[#ff6b35]/55 active:border-[#ff6b35]/55"
-          : "border-white/[0.08] hover:border-white/[0.14] active:border-white/[0.14]"
+          ? 'border-[#ff6b35]/35 hover:border-[#ff6b35]/55'
+          : 'border-white/10 hover:border-white/20'
       )}
     >
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100",
-          contest.featured ? "tile-shimmer-fire opacity-60 group-hover:opacity-100" : "tile-shimmer"
+          'pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-active:opacity-100',
+          contest.featured ? 'tile-shimmer-fire opacity-60 group-hover:opacity-100' : 'tile-shimmer'
         )}
         aria-hidden
       />
@@ -864,23 +881,26 @@ function ContestCard({
         />
       )}
 
-      {/* Full-bleed right art — wider on mobile so athletes aren't sliced */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[48%] max-w-none overflow-hidden sm:w-[38%] sm:max-w-[140px]">
+      {/* Right art — mask fades into dark card surface */}
+      <div className="contest-card-art pointer-events-none absolute inset-y-0 right-0 z-0 w-[52%] overflow-hidden sm:w-[42%] sm:max-w-[168px]">
         <Image
           src={contest.image}
           alt=""
           fill
-          className="scale-105 object-cover object-[70%_center] transition-transform duration-500 group-hover:scale-110 sm:object-[center_20%]"
-          sizes="(max-width: 640px) 48vw, 140px"
+          className={cn(
+            'contest-card-art-img scale-105 object-cover object-[70%_center] transition-transform duration-500 group-hover:scale-110 sm:object-[center_18%]',
+            !canEnter && 'opacity-80 grayscale-[0.2]'
+          )}
+          sizes="(max-width: 640px) 52vw, 168px"
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a] from-[8%] via-[#1a1a1a]/75 via-[42%] to-transparent to-[75%]" />
+        <div className="contest-card-art-fade absolute inset-0" aria-hidden />
       </div>
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-2.5 p-3.5 pr-[46%] sm:pr-[36%]">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-2.5 p-3.5 pr-[48%] sm:pr-[38%]">
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/[0.08]">
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
               <Image
                 src={contest.league.icon}
                 alt={contest.league.label}
@@ -903,7 +923,7 @@ function ContestCard({
                 <TooltipContent
                   portal
                   side="top"
-                  className="z-[200] border-white/10 bg-[#2d2d2d] px-2.5 py-1 text-xs text-white"
+                  className="dark z-[200] border-white/10 bg-[#2d2d2d] px-2.5 py-1 text-xs text-white"
                 >
                   Featured contest
                 </TooltipContent>
@@ -926,7 +946,7 @@ function ContestCard({
           featured={contest.featured}
         />
 
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {[
             { label: 'Type', value: contest.contestType },
             { label: 'Entry', value: contest.entryFee },
@@ -934,10 +954,10 @@ function ContestCard({
           ].map((row) => (
             <div
               key={row.label}
-              className="grid grid-cols-[4.5rem_1fr] items-baseline gap-x-2 text-[11px] leading-none"
+              className="grid grid-cols-[3.25rem_1fr] items-baseline gap-x-3 text-[11px] leading-none"
             >
-              <span className="text-white/40">{row.label}</span>
-              <span className="font-medium text-white/75">{row.value}</span>
+              <span className="text-white/45">{row.label}</span>
+              <span className="font-semibold text-white/70">{row.value}</span>
             </div>
           ))}
         </div>
@@ -945,7 +965,7 @@ function ContestCard({
         <div className="mt-auto flex items-center gap-1.5 pt-1 pr-14 sm:pr-0">
           <button
             type="button"
-            className="flex h-8 shrink-0 items-center rounded-md bg-white/[0.06] px-2.5 text-[10px] font-semibold text-white/55 transition-colors hover:bg-white/[0.1] hover:text-white/80"
+            className="flex h-8 shrink-0 items-center rounded-md border border-white/10 bg-white/5 px-2.5 text-[10px] font-semibold text-white/65 transition-colors hover:bg-white/10 hover:text-white"
           >
             Rules
           </button>
@@ -957,13 +977,13 @@ function ContestCard({
         <button
           type="button"
           onClick={() => onPurchase(contest)}
-          className="absolute bottom-3 right-3 z-30 flex h-8 max-w-[calc(100%-1.5rem)] shrink-0 items-center justify-center rounded-md px-2.5 text-[11px] font-bold whitespace-nowrap text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98] sm:px-3 sm:text-xs"
+          className="absolute bottom-3 right-3 z-30 flex h-8 max-w-[calc(100%-1.5rem)] shrink-0 items-center justify-center rounded-md px-2.5 text-[11px] font-bold whitespace-nowrap text-white shadow-[0_2px_8px_rgba(238,53,54,0.35)] transition-all duration-200 hover:brightness-110 active:scale-[0.98] sm:px-3 sm:text-xs"
           style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
         >
           {ctaLabel}
         </button>
       ) : (
-        <span className="absolute bottom-3 right-3 z-30 flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-[#2a2a2a]/90 px-2.5 text-[11px] font-semibold text-white/45 shadow-lg backdrop-blur-sm sm:px-3 sm:text-xs">
+        <span className="absolute bottom-3 right-3 z-30 flex h-8 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/10 px-2.5 text-[11px] font-semibold text-white/45 sm:px-3 sm:text-xs">
           {ctaLabel}
         </span>
       )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
+import { SiteFooter } from '@/components/site-footer'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 
 import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
@@ -74,6 +75,7 @@ import {
   IconLock,
   IconSettings,
   IconCrown,
+  IconLogout,
   IconDice,
   IconHeart,
   IconStar,
@@ -2284,29 +2286,7 @@ function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string
 // VIP Rewards Page Component
 function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowToast, setToastMessage, setToastAction, setShowVipRewards, setIsPageTransitioning, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav, quickLinksOpen, vipActiveSidebarItem, setVipActiveSidebarItem }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; setShowVipRewards: (show: boolean) => void; setIsPageTransitioning: (transitioning: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void; quickLinksOpen?: boolean; vipActiveSidebarItem?: string; setVipActiveSidebarItem?: (item: string) => void }) {
   // vipActiveSidebarItem and setVipActiveSidebarItem come from props
-  const [hasShownToast, setHasShownToast] = useState(false)
-  
 
-  
-  // Show toast when VIP Rewards page is first shown
-  useEffect(() => {
-    if (!hasShownToast) {
-      setToastMessage('You have a cash boost available')
-      setToastAction({
-        label: 'View',
-        onClick: () => {
-          setVipDrawerOpen(true)
-          setVipActiveTab('VIP')
-        }
-      })
-      setShowToast(true)
-      setTimeout(() => {
-        setShowToast(false)
-        setToastAction(null)
-      }, 5000)
-      setHasShownToast(true)
-    }
-  }, [hasShownToast, setShowToast, setToastMessage, setToastAction, setVipDrawerOpen, setVipActiveTab])
   
   const isMobileVip = useIsMobile()
   
@@ -2599,152 +2579,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
       )}
       {/* VIP Footer - inside sidebar layout so it respects the sidebar width */}
       <SidebarInset className="bg-[#1a1a1a] text-white !min-h-0">
-        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-          <div className="w-full px-4 md:px-6 py-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
-                </ul>
-              </div>
-            </div>
-            <Separator className="bg-white/10 mb-6" />
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
-                <IconShield className="w-4 h-4" />
-              </div>
-              <p className="text-xs text-white/70 mb-4 max-w-2xl">
-                At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
-                  <PaymentLogo key={method} method={method} />
-                ))}
-                {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
-                  <PaymentLogo key={method} method={method} />
-                ))}
-                <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
-                <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                  <span className="text-[10px] font-bold text-white">18+</span>
-                </div>
-              </div>
-            </div>
-            <Separator className="bg-white/10 mb-6" />
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
-                <Separator orientation="vertical" className="h-5 bg-white/20" />
-                <div className="flex items-center gap-3">
-                  {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
-                    <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
-                      <Image
-                        src={`/banners/partners/${partner}.svg`}
-                        alt={partner}
-                        width={70}
-                        height={28}
-                        className="object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandFacebook className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandInstagram className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandX className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandYoutube className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandTiktok className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
-              <div>Copyright \u00a92024 BetOnline.ag. All rights reserved.</div>
-              <div></div>
-            </div>
-          </div>
-        </footer>
+        <SiteFooter />
       </SidebarInset>
     </div>
   )
@@ -8081,175 +7916,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         )}
         
         {/* Footer - responsive to sidebar state */}
-        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
-          <div className="w-full px-6 py-6">
-            {/* Quick Links Section - More compact */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Casino</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Sports</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Poker</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Other</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-3 text-sm">Support</h3>
-                <ul className="space-y-1.5 text-xs text-white/70">
-                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <Separator className="bg-white/10 mb-6" />
-
-            {/* Trust & Security Section - More compact */}
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
-                <IconShield className="w-4 h-4" />
-              </div>
-              <p className="text-xs text-white/70 mb-4 max-w-2xl">
-                At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Crypto payment method logos */}
-                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
-                  <PaymentLogo key={method} method={method} />
-                ))}
-                {/* Traditional payment method logos */}
-                {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
-                  <PaymentLogo key={method} method={method} />
-                ))}
-                {/* Security badges */}
-                <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
-                <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
-                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
-                  <span className="text-[10px] font-bold text-white">18+</span>
-                </div>
-              </div>
-            </div>
-
-            <Separator className="bg-white/10 mb-6" />
-
-            {/* Partners & Social Media - More compact */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
-                <Separator orientation="vertical" className="h-5 bg-white/20" />
-                <div className="flex items-center gap-3">
-                  {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
-                    <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
-                      <Image
-                        src={`/banners/partners/${partner}.svg`}
-                        alt={partner}
-                        width={70}
-                        height={28}
-                        className="object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {/* Social media icons using Button components */}
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandFacebook className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandInstagram className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandX className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandYoutube className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
-                  <IconBrandTiktok className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Timestamp and Copyright */}
-            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
-              <div>
-                Copyright ©2024 BetOnline.ag. All rights reserved.
-              </div>
-              <div>
-                {typeof currentTime !== 'undefined' ? currentTime : ''}
-              </div>
-            </div>
-          </div>
-        </footer>
+        <SiteFooter />
       </SidebarInset>
       {/* Betslip Drawer - Floating from bottom, grows upward */}
       <FamilyDrawerRoot 
@@ -12232,7 +11899,7 @@ function NavTestPageContent() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
-                        <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
+                        <span className="text-sm font-semibold text-[var(--ds-fg-muted)]">Gold · 62</span>
                       </div>
                     </div>
               </div>
@@ -12254,7 +11921,8 @@ function NavTestPageContent() {
                   <Separator className="bg-[var(--ds-control-hover)] mb-6" />
                   
                   {/* Navigation List */}
-                  <div className="space-y-1 w-full mb-8">
+                  <div className="space-y-1 w-full">
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
@@ -12266,7 +11934,7 @@ function NavTestPageContent() {
                       <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                 </Button>
-                    
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
@@ -12282,22 +11950,14 @@ function NavTestPageContent() {
                     >
                       <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
-                      <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
+                      <span className="ml-auto flex items-center gap-1.5 text-sm text-[var(--ds-fg-muted)]">
                         {sampleBets.filter(b => !b.status && !b.isLive).length > 0 && (
-                          <span className="bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{sampleBets.filter(b => !b.status && !b.isLive).length}</span>
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--ds-control-hover)] text-[10px] font-bold text-[var(--ds-fg-muted)]">{sampleBets.filter(b => !b.status && !b.isLive).length}</span>
                         )}
                         ${sampleBets.filter(b => !b.status && !b.isLive).reduce((sum, b) => sum + b.amount, 0).toFixed(2)}
                       </span>
                 </Button>
-                    
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
-                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
-                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
-                </Button>
-                    
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
@@ -12305,7 +11965,7 @@ function NavTestPageContent() {
                       <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                 </Button>
-                    
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
@@ -12313,7 +11973,18 @@ function NavTestPageContent() {
                       <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                     </Button>
-                    
+
+                    <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-3" : "my-4")} />
+
+
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    >
+                      <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
+                </Button>
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
@@ -12321,7 +11992,7 @@ function NavTestPageContent() {
                       <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                     </Button>
-                    
+
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
@@ -12332,17 +12003,17 @@ function NavTestPageContent() {
                       <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                 </Button>
+
+                    <Separator className="my-2 bg-[var(--ds-control-hover)]" />
+
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    >
+                      <IconLogout className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                      <span className="flex-1 text-left text-[var(--ds-fg)]">Log Out</span>
+                    </Button>
               </div>
-                  
-                  <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
-                  
-                  {/* Logout Button */}
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
-                  >
-                    <span className="text-sm">Log out</span>
-                  </Button>
                 </>
               ) : (
                 <>

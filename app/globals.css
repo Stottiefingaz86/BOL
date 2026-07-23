@@ -34,13 +34,13 @@
   --ds-surface-raised: #ffffff;
   --ds-surface-muted: #eeeeee;
   --ds-surface-inset: #f0f0f0;
-  --ds-border: rgba(0, 0, 0, 0.05);
-  --ds-border-strong: rgba(0, 0, 0, 0.1);
+  --ds-border: rgba(0, 0, 0, 0.04);
+  --ds-border-strong: rgba(0, 0, 0, 0.07);
   --ds-fg: rgba(0, 0, 0, 0.87);
   --ds-fg-muted: rgba(0, 0, 0, 0.6);
   --ds-fg-subtle: rgba(0, 0, 0, 0.45);
   --ds-control-bg: rgba(0, 0, 0, 0.04);
-  --ds-control-border: rgba(0, 0, 0, 0.08);
+  --ds-control-border: rgba(0, 0, 0, 0.06);
   --ds-control-hover: rgba(0, 0, 0, 0.06);
   --ds-overlay: rgba(0, 0, 0, 0.04);
   --ds-primary: #ee3536;
@@ -49,15 +49,15 @@
   --ds-promo-card-bg: #1a1a1a;
   --ds-promo-card-fg: #ffffff;
   --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
-  --ds-promo-card-border: rgba(255, 255, 255, 0.1);
+  --ds-promo-card-border: rgba(255, 255, 255, 0.06);
 }
 
 .dark {
   color-scheme: dark;
   --background: #1a1a1a;
   --foreground: #ffffff;
-  --border: 0 0% 100% / 0.1;
-  --input: 0 0% 100% / 0.15;
+  --border: 0 0% 100% / 0.055;
+  --input: 0 0% 100% / 0.08;
   --ring: 359 84% 57%;
   --card: 0 0% 17.6%;
   --card-foreground: 0 0% 98%;
@@ -81,14 +81,14 @@
   --ds-surface-raised: #2d2d2d;
   --ds-surface-muted: rgba(255, 255, 255, 0.04);
   --ds-surface-inset: #252525;
-  --ds-border: rgba(255, 255, 255, 0.1);
-  --ds-border-strong: rgba(255, 255, 255, 0.15);
+  --ds-border: rgba(255, 255, 255, 0.055);
+  --ds-border-strong: rgba(255, 255, 255, 0.09);
   --ds-fg: #ffffff;
   --ds-fg-muted: rgba(255, 255, 255, 0.6);
   --ds-fg-subtle: rgba(255, 255, 255, 0.45);
   --ds-control-bg: rgba(255, 255, 255, 0.05);
-  --ds-control-border: rgba(255, 255, 255, 0.06);
-  --ds-control-hover: rgba(255, 255, 255, 0.1);
+  --ds-control-border: rgba(255, 255, 255, 0.05);
+  --ds-control-hover: rgba(255, 255, 255, 0.08);
   --ds-overlay: rgba(255, 255, 255, 0.04);
   --ds-primary: #ee3536;
   --ds-on-primary: #ffffff;
@@ -96,7 +96,7 @@
   --ds-promo-card-bg: #1a1a1a;
   --ds-promo-card-fg: #ffffff;
   --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
-  --ds-promo-card-border: rgba(255, 255, 255, 0.1);
+  --ds-promo-card-border: rgba(255, 255, 255, 0.06);
 }
 
 * {
@@ -268,13 +268,31 @@ img[decoding="sync"] {
 }
 
 .tile-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.06) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: tile-shimmer 1.5s ease-in-out infinite;
 }
 
+.dark .tile-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+}
+
 /* Featured contest — warmer fire sweep */
 .tile-shimmer-fire {
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 107, 53, 0.1) 28%,
+    rgba(255, 140, 0, 0.18) 48%,
+    rgba(255, 69, 0, 0.12) 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: tile-shimmer 1.8s ease-in-out infinite;
+}
+
+.dark .tile-shimmer-fire {
   background: linear-gradient(
     110deg,
     transparent 0%,
@@ -284,7 +302,34 @@ img[decoding="sync"] {
     transparent 100%
   );
   background-size: 220% 100%;
-  animation: tile-shimmer 1.8s ease-in-out infinite;
+}
+
+/* Contest lobby cards — always dark; soft-mask art into #1a1a1a */
+.contest-card-art-img {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.45) 22%,
+    rgba(0, 0, 0, 0.9) 50%,
+    #000 72%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.45) 22%,
+    rgba(0, 0, 0, 0.9) 50%,
+    #000 72%
+  );
+}
+
+.contest-card-art-fade {
+  background: linear-gradient(
+    to right,
+    #1a1a1a 0%,
+    rgba(26, 26, 26, 0.88) 28%,
+    rgba(26, 26, 26, 0.45) 55%,
+    transparent 82%
+  );
 }
 
 /* Jackpot wheel — winning segment flash once the wheel has stopped */
@@ -391,7 +436,7 @@ img[decoding="sync"] {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 10%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-border: 0 0% 100% / 0.055;
     --sidebar-ring: 359 84% 57%;
     --background-image-lp-controls-fade: linear-gradient(
           to bottom,
@@ -424,7 +469,7 @@ img[decoding="sync"] {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 10%; /* #1a1a1a */
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 0.1; /* white/10 */
+    --sidebar-border: 0 0% 100% / 0.055; /* white/10 */
     --sidebar-ring: 217.2 91.2% 59.8%;
     --background-image-lp-controls-fade:  linear-gradient(
           to bottom,
@@ -579,7 +624,53 @@ header.bg-\[#2d2d2d\] {
   z-index: 103;
   width: 1px;
   pointer-events: none;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.055);
+}
+
+/*
+ * Soften common Tailwind stroke utilities site-wide.
+ * Many screens hardcode border-white/10–20 which reads too sharp on dark surfaces.
+ */
+.border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.04) !important;
+}
+.border-white\/10,
+.border-t-white\/10,
+.border-b-white\/10,
+.border-l-white\/10,
+.border-r-white\/10,
+.border-x-white\/10,
+.border-y-white\/10 {
+  border-color: rgba(255, 255, 255, 0.055) !important;
+}
+.border-white\/15,
+.border-t-white\/15,
+.border-b-white\/15,
+.border-l-white\/15,
+.border-r-white\/15 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.border-white\/20,
+.border-t-white\/20,
+.border-b-white\/20,
+.border-l-white\/20,
+.border-r-white\/20 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.055) !important;
+}
+.divide-white\/15 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.ring-white\/10 {
+  --tw-ring-color: rgba(255, 255, 255, 0.055) !important;
+}
+.ring-white\/20 {
+  --tw-ring-color: rgba(255, 255, 255, 0.1) !important;
+}
+.outline-white\/10 {
+  outline-color: rgba(255, 255, 255, 0.055) !important;
 }
 
 /* Ensure sidebar content is dark — uses brand variable */
@@ -606,15 +697,15 @@ html:not(.dark) [data-mobile="true"][data-sidebar="sidebar"] {
   --accent-foreground: 0 0% 100%;
   --muted: 0 0% 100% / 0.08;
   --muted-foreground: 0 0% 100% / 0.6;
-  --input: 0 0% 100% / 0.15;
+  --input: 0 0% 100% / 0.08;
   --ds-fg: #ffffff;
   --ds-fg-muted: rgba(255, 255, 255, 0.6);
   --ds-fg-subtle: rgba(255, 255, 255, 0.45);
-  --ds-border: rgba(255, 255, 255, 0.1);
-  --ds-border-strong: rgba(255, 255, 255, 0.15);
+  --ds-border: rgba(255, 255, 255, 0.055);
+  --ds-border-strong: rgba(255, 255, 255, 0.09);
   --ds-control-bg: rgba(255, 255, 255, 0.05);
-  --ds-control-border: rgba(255, 255, 255, 0.06);
-  --ds-control-hover: rgba(255, 255, 255, 0.1);
+  --ds-control-border: rgba(255, 255, 255, 0.05);
+  --ds-control-hover: rgba(255, 255, 255, 0.08);
   --ds-overlay: rgba(255, 255, 255, 0.04);
   --ds-surface: #1a1a1a;
   --ds-surface-raised: #2d2d2d;
