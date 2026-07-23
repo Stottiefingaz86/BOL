@@ -72,6 +72,7 @@ import {
   IconBrandTiktok,
   IconArrowDownLeft,
   IconArrowUpRight,
+  IconLogout,
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -4111,141 +4112,144 @@ function AccountPageContent() {
           <div className={cn("flex-1 overflow-y-auto", isMobile ? "px-4 pt-4 pb-4" : "px-4 pt-6 pb-4")}>
             {accountDrawerView === 'account' ? (
               <>
-                {/* Balance Information */}
+                {/* Balance Information — match site account hub */}
                 <div className="mb-4">
-                  <div className="rounded-lg bg-[var(--ds-control-bg)] px-3 py-3 space-y-3">
+                  <div className="space-y-3 rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)] px-3 py-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[var(--ds-fg-muted)]">Available Balance</span>
-                      <span className="text-sm font-semibold text-[var(--ds-fg)]">
+                      <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
                         $<NumberFlow value={displayBalance} format={{ notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[var(--ds-fg-muted)]">Free Bet</span>
-                      <span className="text-sm font-semibold text-[var(--ds-fg)]">$0.00</span>
+                      <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">$25.00</span>
                     </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
-                        <span className="text-sm font-semibold text-[#EAAF6D]">Gold · 62%</span>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[var(--ds-fg-muted)]">Level</span>
+                      <span className="text-sm font-semibold text-[var(--ds-fg-muted)]">Gold · 62</span>
+                    </div>
                   </div>
                 </div>
 
-                <Separator className="bg-[var(--ds-control-hover)] mb-3" />
+                <Separator className="mb-3 bg-[var(--ds-control-hover)]" />
 
-                  {/* Notifications */}
-                  <div className="space-y-0.5 w-full mb-3">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-10 px-3"
-                      onClick={() => setAccountDrawerView('notifications')}
-                    >
-                      <IconBell className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
-                      <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
-                      {webInboxUnreadCount > 0 && (
-                        <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center">
-                          {webInboxUnreadCount}
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-
-                <Separator className="bg-[var(--ds-control-hover)] mb-6" />
-
-                {/* Navigation List */}
-                <div className="space-y-1 w-full mb-8">
+                <div className="mb-3 w-full space-y-0.5">
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
+                    className="h-10 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                    onClick={() => setAccountDrawerView('notifications')}
+                  >
+                    <IconBell className="mr-3 size-5 shrink-0 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Notifications</span>
+                    {webInboxUnreadCount > 0 && (
+                      <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--ds-primary,#ee3536)] px-1.5 text-[10px] font-bold text-white">
+                        {webInboxUnreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </div>
+
+                <Separator className="mb-6 bg-[var(--ds-control-hover)]" />
+
+                <div className="mb-2 w-full space-y-1">
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-full min-w-0 justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('dashboard')
                     }}
                   >
-                    <IconUser className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <IconUser className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">My Account</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3 min-w-0"
+                    className="h-12 w-full min-w-0 justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('bet-history')
                     }}
                   >
-                    <IconFileText className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)] flex-shrink-0" />
+                    <IconFileText className="mr-3 size-5 shrink-0 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">Pending Bets</span>
-                    <span className="text-sm text-[var(--ds-fg-muted)] ml-auto flex items-center gap-1.5">
-                      <span className="bg-amber-500 text-[var(--ds-fg)] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                    <span className="ml-auto flex items-center gap-1.5 text-sm text-[var(--ds-fg-muted)]">
+                      <span className="flex size-5 items-center justify-center rounded-full bg-[var(--ds-control-hover)] text-[10px] font-bold text-[var(--ds-fg-muted)]">
+                        4
+                      </span>
                       $40.00
                     </span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    onClick={() => {
-                      setAccountDrawerOpen(false)
-                      setActiveSection('my-bonus')
-                    }}
-                  >
-                    <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
-                    <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('transactions')
                     }}
                   >
-                    <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <IconCurrencyDollar className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('bet-history')
                     }}
                   >
-                    <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <IconTicket className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
+                  </Button>
+
+                  <Separator className={cn('bg-[var(--ds-control-hover)]', isMobile ? 'my-3' : 'my-4')} />
+
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                    onClick={() => {
+                      setAccountDrawerOpen(false)
+                      setActiveSection('my-bonus')
+                    }}
+                  >
+                    <IconGift className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       setActiveSection('refer')
                     }}
                   >
-                    <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <IconUserPlus className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
                       openVipDrawer()
                     }}
                   >
-                    <IconCrown className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
+                    <IconCrown className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
                     <span className="flex-1 text-left text-[var(--ds-fg)]">VIP Hub</span>
                   </Button>
+
+                  <Separator className="my-2 bg-[var(--ds-control-hover)]" />
+
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                  >
+                    <IconLogout className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
+                    <span className="flex-1 text-left text-[var(--ds-fg)]">Log Out</span>
+                  </Button>
                 </div>
-
-                <Separator className={cn("bg-[var(--ds-control-hover)]", isMobile ? "my-4" : "my-5")} />
-
-                {/* Logout Button */}
-                <Button
-                  variant="ghost"
-                  className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
-                >
-                  <span className="text-sm">Log out</span>
-                </Button>
               </>
             ) : (
               <NotificationHub />
