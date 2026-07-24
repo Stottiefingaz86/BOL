@@ -327,16 +327,27 @@ const Sidebar = React.forwardRef<
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
-    // Capture open-on-mount once — vaul's defaultOpen=true skips the enter animation.
+    // Capture mount time for product-route handoff (hide outgoing drawer only).
     const mountedAtRef = React.useRef(Date.now())
-    const mountedAlreadyOpenRef = React.useRef(openMobile)
-    const skipOpenAnimationRef = React.useRef(
-      openMobile && (_persistedMobileOpen || _skipNextMobileOpenAnimation)
-    )
-    if (skipOpenAnimationRef.current && _skipNextMobileOpenAnimation) {
-      _skipNextMobileOpenAnimation = false
-    }
-    const skipOpenAnimation = Boolean(skipOpenAnimationRef.current)
+
+    // Skip enter animation ONLY for the first paint when remounting already-open
+    // (Casino↔Sports handoff). Clear immediately after so normal open/close animates.
+    const [skipOpenAnimation, setSkipOpenAnimation] = React.useState(() => {
+      const skip = Boolean(
+        openMobile && (_persistedMobileOpen || _skipNextMobileOpenAnimation)
+      )
+      if (skip && _skipNextMobileOpenAnimation) {
+        _skipNextMobileOpenAnimation = false
+      }
+      return skip
+    })
+
+    React.useEffect(() => {
+      if (!skipOpenAnimation) return
+      // Drop skip attrs after paint so Vaul can animate subsequent open/close.
+      const t = window.setTimeout(() => setSkipOpenAnimation(false), 80)
+      return () => window.clearTimeout(t)
+    }, [skipOpenAnimation])
 
     if (collapsible === "none") {
       return (
@@ -365,8 +376,8 @@ const Sidebar = React.forwardRef<
         <Drawer 
           open={openMobile} 
           onOpenChange={setOpenMobile}
-          // vaul: defaultOpen=true → shouldAnimate starts false (no slide-in on remount)
-          defaultOpen={Boolean(mountedAlreadyOpenRef.current || skipOpenAnimation)}
+          // Only when remounting already-open: vaul skips the first enter animation.
+          {...(skipOpenAnimation ? { defaultOpen: true } : {})}
           direction="left"
           shouldScaleBackground={false}
           modal={true}
@@ -375,14 +386,11 @@ const Sidebar = React.forwardRef<
           <DrawerContent
             data-sidebar="sidebar"
             data-mobile="true"
-            {...(skipOpenAnimation || mountedAlreadyOpenRef.current
-              ? { 'data-skip-open-animation': '' }
-              : {})}
+            {...(skipOpenAnimation ? { 'data-skip-open-animation': '' } : {})}
             showOverlay={mobileOverlay}
             overlayClassName={cn(
               mobileOverlayClassName,
-              (skipOpenAnimation || mountedAlreadyOpenRef.current) &&
-                "sidebar-drawer-skip-open-animation"
+              skipOpenAnimation && "sidebar-drawer-skip-open-animation"
             )}
             onOverlayClick={mobileNoDrag ? () => setOpenMobile(false) : undefined}
             noDrag={mobileNoDrag}
@@ -390,8 +398,7 @@ const Sidebar = React.forwardRef<
               "w-[320px] sm:max-w-[320px] bg-[var(--ds-sidebar-bg)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] p-0 [&>button]:hidden",
               "shadow-2xl",
               mobileNoDrag && "!rounded-l-none !rounded-tr-2xl !rounded-br-none overflow-hidden",
-              (skipOpenAnimation || mountedAlreadyOpenRef.current) &&
-                "sidebar-drawer-skip-open-animation",
+              skipOpenAnimation && "sidebar-drawer-skip-open-animation",
               className
             )}
             style={
@@ -410,8 +417,7 @@ const Sidebar = React.forwardRef<
                 display: 'flex',
                 boxShadow: '4px 0 24px rgba(0, 0, 0, 0.5)',
                 WebkitBoxShadow: '4px 0 24px rgba(0, 0, 0, 0.5)',
-                transform: 'translateZ(0)',
-                WebkitTransform: 'translateZ(0)',
+                // Don't set `transform` here — it fights Vaul's slide open/close animation.
                 willChange: 'transform',
               } as React.CSSProperties
             }
