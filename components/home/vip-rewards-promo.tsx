@@ -81,7 +81,7 @@ const IDLE_MS_PER_TILE = 900
 function TierTile({ tier }: { tier: TierName }) {
   return (
     <div
-      className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] py-4"
+      className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg bg-white/[0.06] py-4"
       style={{ width: TILE_W }}
     >
       <IconCrown
@@ -163,7 +163,10 @@ export function VipRewardsPromo({ onExplore, className }: VipRewardsPromoProps) 
 
   return (
     <div className={cn(isMobile ? 'px-3' : 'px-6', 'mb-6', className)}>
-      <div className="rounded-xl border border-white/10 bg-white/5">
+      <div
+        className="rounded-xl border border-white/10"
+        style={{ backgroundColor: 'rgba(20, 20, 20, 0.85)' }}
+      >
         <div className="grid items-center gap-6 p-4 md:grid-cols-2 md:gap-8 md:p-6">
           {/* Left — hub benefit tile surface */}
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -172,7 +175,8 @@ export function VipRewardsPromo({ onExplore, className }: VipRewardsPromoProps) 
               return (
                 <div
                   key={benefit.id}
-                  className="rounded-xl border border-white/[0.06] bg-white/[0.04] p-3"
+                  className="rounded-xl p-3"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
                 >
                   <div
                     className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-white/95"
@@ -192,7 +196,9 @@ export function VipRewardsPromo({ onExplore, className }: VipRewardsPromoProps) 
           {/* Right — slot reel of crowns */}
           <div className="flex flex-col items-center justify-center gap-5 text-center">
             <h3 className="max-w-[320px] text-base font-semibold leading-snug text-white md:text-lg">
-              Become a VIP the moment you place your first bet.
+              Become a VIP the moment
+              <br />
+              you place your first bet.
             </h3>
 
             <CrownSlotReel />

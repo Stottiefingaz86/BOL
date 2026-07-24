@@ -113,7 +113,7 @@ const SPORTS_BENTO = [
  */
 function SportsBentoShelf() {
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[inherit] bg-[#101010]" aria-hidden>
+    <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
       <div className="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2 p-3 pb-3.5">
         {SPORTS_BENTO.map((tile) => (
           <div
@@ -137,7 +137,7 @@ function SportsBentoShelf() {
           </div>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#141414] via-[#141414]/80 to-transparent" />
     </div>
   )
 }
@@ -168,7 +168,7 @@ function CasinoOriginalsShelf() {
           </div>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/25" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#141414] via-[#141414]/85 to-transparent" />
     </div>
   )
 }
@@ -199,8 +199,11 @@ function DestinationCard({
           router.push(href)
         }
       }}
-      className="group relative isolate flex min-h-[200px] flex-1 cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141414] text-left transition-colors duration-200 hover:border-white/20 md:min-h-[240px]"
-      style={{ clipPath: 'inset(0 round 1rem)' }}
+      className="group relative isolate flex min-h-[200px] flex-1 cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 md:min-h-[240px]"
+      style={{
+        clipPath: 'inset(0 round 1rem)',
+        backgroundColor: 'rgba(20, 20, 20, 0.85)',
+      }}
     >
       <div className="absolute inset-0 overflow-hidden rounded-2xl">
         <div className="absolute inset-0 origin-center transition-transform duration-500 ease-out group-hover:scale-[1.05]">
@@ -213,7 +216,7 @@ function DestinationCard({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={spotlightSurfaceStyle}
-        className="relative z-[2] mt-auto flex items-center justify-between overflow-hidden border-t border-white/15 bg-black/55 px-4 py-3 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-xl"
+        className="relative z-[2] mt-auto flex items-center justify-between overflow-hidden border-t border-white/[0.06] bg-[#141414] px-4 py-3"
       >
         <SpotlightOverlay radiusPx={120} mixPercent={16} />
         <span className="relative z-[1] flex items-center gap-2 text-sm font-semibold text-white md:text-[15px]">
@@ -221,6 +224,77 @@ function DestinationCard({
           {title}
         </span>
         <IconArrowRight className="relative z-[1] h-4 w-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
+      </div>
+    </div>
+  )
+}
+
+function HeroAtmosphere() {
+  const embers = [
+    { left: '14%', delay: '0s', duration: '7s', size: 2, drift: '-12px' },
+    { left: '28%', delay: '1.4s', duration: '7.8s', size: 2.5, drift: '10px' },
+    { left: '42%', delay: '2.6s', duration: '6.8s', size: 2, drift: '-8px' },
+    { left: '56%', delay: '0.8s', duration: '8.2s', size: 2.5, drift: '14px' },
+    { left: '68%', delay: '3.2s', duration: '7.2s', size: 2, drift: '-10px' },
+    { left: '80%', delay: '1.8s', duration: '7.6s', size: 2.5, drift: '8px' },
+    { left: '22%', delay: '4s', duration: '8s', size: 2, drift: '6px' },
+    { left: '74%', delay: '4.6s', duration: '6.9s', size: 2, drift: '-14px' },
+  ]
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-[2] overflow-hidden"
+      aria-hidden
+    >
+      {/* Soft smoke wisps — kept quiet */}
+      <div
+        className="hero-smoke absolute -left-[12%] bottom-[-25%] h-[70%] w-[50%] rounded-full blur-[52px]"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(238,53,54,0.18) 0%, rgba(238,53,54,0.05) 40%, transparent 70%)',
+          animation: 'hero-smoke-drift 18s ease-in-out infinite alternate',
+          opacity: 0.45,
+        }}
+      />
+      <div
+        className="hero-smoke absolute left-[25%] bottom-[-28%] h-[60%] w-[48%] rounded-full blur-[56px]"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, rgba(180,50,50,0.07) 42%, transparent 68%)',
+          animation: 'hero-smoke-drift 22s ease-in-out infinite alternate-reverse',
+          animationDelay: '-4s',
+          opacity: 0.4,
+        }}
+      />
+      <div
+        className="hero-smoke absolute right-[-10%] bottom-[-20%] h-[65%] w-[45%] rounded-full blur-[54px]"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, rgba(238,53,54,0.14) 0%, rgba(60,60,60,0.06) 45%, transparent 72%)',
+          animation: 'hero-smoke-drift 20s ease-in-out infinite alternate',
+          animationDelay: '-8s',
+          opacity: 0.4,
+        }}
+      />
+
+      {/* Rising red embers */}
+      <div className="absolute inset-x-0 bottom-0 top-[35%]">
+        {embers.map((ember, i) => (
+          <span
+            key={i}
+            className="hero-ember absolute bottom-[6%] rounded-full"
+            style={{
+              left: ember.left,
+              width: ember.size,
+              height: ember.size,
+              background: 'rgba(238, 53, 54, 0.75)',
+              boxShadow: `0 0 ${ember.size * 2.5}px rgba(238,53,54,0.4)`,
+              ['--ember-drift' as string]: ember.drift,
+              animation: `hero-ember-rise ${ember.duration} linear infinite`,
+              animationDelay: ember.delay,
+            }}
+          />
+        ))}
       </div>
     </div>
   )
@@ -278,6 +352,8 @@ export function HomeHero({
         }}
         aria-hidden
       />
+
+      <HeroAtmosphere />
 
       <div className="relative z-10 flex flex-col gap-8 px-4 py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:py-10 lg:gap-10 lg:px-10">
         <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[400px] md:items-start md:text-left">

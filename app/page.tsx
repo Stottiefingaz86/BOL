@@ -2074,7 +2074,8 @@ function HomePageContent() {
                     <button
                       type="button"
                       onClick={() => router.push(sport.href)}
-                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] transition-colors hover:border-white/20 hover:bg-[var(--ds-control-hover)] md:h-[100px] md:w-[100px]"
+                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl transition-colors hover:bg-white/[0.06] md:h-[100px] md:w-[100px]"
+                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
                       aria-label={sport.name}
                     >
                       <Image

@@ -1953,6 +1953,48 @@ button[data-active="true"][class*="SidebarMenuButton"],
   }
 }
 
+/* Home hero — soft smoke drift */
+@keyframes hero-smoke-drift {
+  0% {
+    transform: translate3d(0, 6%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, -8%, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-4%, -16%, 0) scale(1.15);
+  }
+}
+
+/* Home hero — rising red embers */
+@keyframes hero-ember-rise {
+  0% {
+    transform: translate3d(0, 20px, 0) scale(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(var(--ember-drift, 8px), -160px, 0) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-smoke,
+  .hero-ember {
+    animation: none !important;
+  }
+
+  .hero-smoke {
+    opacity: 0.55 !important;
+  }
+}
+
 /* Custom scrollbar for chat */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
