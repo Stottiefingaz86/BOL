@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   IconBrandTelegram,
   IconCheck,
@@ -58,6 +58,8 @@ type HubRow =
       subtitle?: string
       /** On-demand rows disappear after claim (except multi-release Special Reload) */
       removeOnClaim?: boolean
+      /** After claim, show a live countdown then become claimable again */
+      claimCooldownMs?: number
     }
   | {
       id: string
@@ -85,6 +87,15 @@ type HubRow =
       subtitle?: string
     }
 
+const RAKEBACK_COOLDOWN_MS = 15 * 60 * 1000
+
+function formatCooldownMmSs(ms: number) {
+  const totalSec = Math.max(0, Math.ceil(ms / 1000))
+  const minutes = Math.floor(totalSec / 60)
+  const seconds = totalSec % 60
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
 type HubSection = {
   id: HubSectionId
   title: string | null
@@ -102,10 +113,11 @@ function buildHubSections(tier: VipHubTierBand): HubSection[] {
   const rakeback: HubRow = {
     id: 'rakeback',
     name: 'Rakeback',
-    info: 'Claim a share of every bet back, every 7 minutes. Terms & Conditions',
+    info: 'Claim a share of every bet back, every 15 minutes. Terms & Conditions',
     icon: 'rakeback',
     kind: 'claim',
     amount: 0.2,
+    claimCooldownMs: RAKEBACK_COOLDOWN_MS,
   }
 
   const weeklyBoostActive: HubRow = {
@@ -358,8 +370,40 @@ function BenefitRow({
   const { isLoggedIn } = useAuthSession()
   const rowRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
+  const claimCooldownMs = row.kind === 'claim' ? row.claimCooldownMs : undefined
+
   const [claimed, setClaimed] = useState(false)
   const [claiming, setClaiming] = useState(false)
+  const [showClaimedFlash, setShowClaimedFlash] = useState(false)
+  const [cooldownEndsAt, setCooldownEndsAt] = useState<number | null>(null)
+  const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0)
+
+  useEffect(() => {
+    if (!cooldownEndsAt) {
+      setCooldownRemainingMs(0)
+      return
+    }
+
+    const tick = () => {
+      const left = Math.max(0, cooldownEndsAt - Date.now())
+      setCooldownRemainingMs(left)
+      if (left <= 0) {
+        setCooldownEndsAt(null)
+        setClaimed(false)
+        setShowClaimedFlash(false)
+      }
+    }
+
+    tick()
+    const id = window.setInterval(tick, 250)
+    return () => window.clearInterval(id)
+  }, [cooldownEndsAt])
+
+  useEffect(() => {
+    if (!showClaimedFlash) return
+    const t = window.setTimeout(() => setShowClaimedFlash(false), 2200)
+    return () => window.clearTimeout(t)
+  }, [showClaimedFlash])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = rowRef.current
@@ -377,7 +421,7 @@ function BenefitRow({
   const handleClaim = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
-      if (claimed || claiming || row.kind !== 'claim') return
+      if (claimed || claiming || row.kind !== 'claim' || cooldownEndsAt) return
       buttonRef.current = e.currentTarget
       setClaiming(true)
 
@@ -404,10 +448,15 @@ function BenefitRow({
         }
         setClaiming(false)
         setClaimed(true)
+        if (claimCooldownMs) {
+          const endsAt = Date.now() + claimCooldownMs
+          setCooldownEndsAt(endsAt)
+          setShowClaimedFlash(true)
+        }
         onClaimed?.(row.id, Boolean(row.removeOnClaim))
       }, delayMs)
     },
-    [claimed, claiming, onClaimed, row]
+    [claimed, claiming, claimCooldownMs, cooldownEndsAt, onClaimed, row]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -417,10 +466,12 @@ function BenefitRow({
     requestLogin()
   }, [])
 
+  const onCooldown = Boolean(cooldownEndsAt && cooldownRemainingMs > 0)
+
   const showClaimHighlight =
     !isLoggedIn ||
     row.kind === 'login' ||
-    (row.kind === 'claim' && !claimed)
+    (row.kind === 'claim' && !claimed && !onCooldown)
 
   const claimLabel =
     row.kind === 'claim' && row.amount != null
@@ -504,6 +555,19 @@ function BenefitRow({
         ) : row.kind === 'cooldown' ? (
           <div className="flex h-9 min-w-[44px] items-center justify-center rounded-lg bg-[var(--ds-control-bg)] px-2.5 text-[11px] font-semibold uppercase tabular-nums tracking-wide text-[var(--ds-fg-muted)]">
             {row.cooldownLabel}
+          </div>
+        ) : showClaimedFlash ? (
+          <div className="flex h-9 items-center justify-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+            <IconCheck className="size-3.5" />
+            Claimed
+          </div>
+        ) : onCooldown ? (
+          <div
+            className="flex h-9 min-w-[4.5rem] items-center justify-center rounded-lg bg-[var(--ds-control-bg)] px-2.5 text-[11px] font-semibold tabular-nums tracking-wide text-[var(--ds-fg-muted)]"
+            aria-live="polite"
+            aria-label={`Available in ${formatCooldownMmSs(cooldownRemainingMs)}`}
+          >
+            {formatCooldownMmSs(cooldownRemainingMs)}
           </div>
         ) : claimed ? (
           <div className="flex h-9 items-center justify-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
