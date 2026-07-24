@@ -7962,14 +7962,14 @@ function NavTestPageContent() {
         }}
         aria-hidden={searchOverlayOpen}
       >
-          <div className="flex items-center gap-6">
+          <div className={cn('flex items-center', isMobile ? 'gap-1.5' : 'gap-6')}>
             {/* Hamburger + Logo — mobile only (desktop has sidebar logo) */}
             {isMobile && (
               <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0"
+                className="h-7 w-7 shrink-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] focus-visible:ring-0 focus-visible:ring-offset-0 ring-offset-0"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -7991,7 +7991,7 @@ function NavTestPageContent() {
                 <span className="sr-only">Toggle Sidebar</span>
               </Button>
               <div 
-                className="relative h-8 w-[120px] flex items-center cursor-pointer"
+                className="relative flex h-8 w-[110px] shrink-0 cursor-pointer items-center"
                 onClick={() => {
                   router.push('/')
                 }}
@@ -11709,8 +11709,8 @@ function NavTestPageContent() {
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : undefined}
@@ -11911,8 +11911,8 @@ function NavTestPageContent() {
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
@@ -12799,8 +12799,8 @@ function NavTestPageContent() {
                   }
                 : isMobile
                   ? {
-                      height: '80vh',
-                      maxHeight: '80vh',
+                      height: '90vh',
+                      maxHeight: '90vh',
                       top: 'auto',
                       bottom: 0,
                     }

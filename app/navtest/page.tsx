@@ -9002,8 +9002,8 @@ function NavTestPageContent() {
               "border-l border-[var(--ds-border)]"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : undefined}
@@ -9914,8 +9914,8 @@ function NavTestPageContent() {
               "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : undefined}

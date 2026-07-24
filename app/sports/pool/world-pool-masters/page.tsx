@@ -12128,8 +12128,8 @@ function NavTestPageContent() {
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : undefined}
@@ -12381,8 +12381,8 @@ function NavTestPageContent() {
               isMobile && "rounded-t-[10px]"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
@@ -13054,8 +13054,8 @@ function NavTestPageContent() {
               "w-full sm:max-w-2xl border-l border-white/10 overflow-hidden"
             )}
             style={isMobile ? {
-              height: '80vh',
-              maxHeight: '80vh',
+              height: '90vh',
+              maxHeight: '90vh',
               top: 'auto',
               bottom: 0,
             } : undefined}

@@ -185,7 +185,10 @@ export function WalletHubActionTabs({
             alt=""
             width={16}
             height={16}
-            className="size-4"
+            className={cn(
+              "size-4",
+              active === "deposit" && "brightness-0 invert",
+            )}
             unoptimized
           />
         </span>
@@ -243,7 +246,7 @@ export function WalletHubCategoryPills({
               className={cn(
                 'relative flex h-9 shrink-0 items-center justify-center rounded-2xl px-4 text-xs font-medium transition-colors duration-300',
                 isActive
-                  ? 'text-[var(--ds-fg)]'
+                  ? 'text-white'
                   : 'text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]',
               )}
             >

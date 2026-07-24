@@ -3379,14 +3379,14 @@ function AccountPageContent() {
           boxShadow: '0 -200px 0 0 var(--ds-nav-bg, #2D2E2C)',
         }}
       >
-        <div className="flex items-center gap-6">
+        <div className={cn('flex items-center', isMobile ? 'gap-1.5' : 'gap-6')}>
           {/* Hamburger + Logo — mobile only */}
           {isMobile && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                className="h-7 w-7 shrink-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -3408,7 +3408,7 @@ function AccountPageContent() {
                 <span className="sr-only">Toggle Sidebar</span>
               </Button>
               <div
-                className="relative h-8 w-[120px] flex items-center cursor-pointer"
+                className="relative flex h-8 w-[110px] shrink-0 cursor-pointer items-center"
                 onClick={() => router.push('/')}
               >
                 {bolLogo}
@@ -4067,8 +4067,8 @@ function AccountPageContent() {
             isMobile && "rounded-t-[10px]"
           )}
           style={isMobile ? {
-            height: '80vh',
-            maxHeight: '80vh',
+            height: '90vh',
+            maxHeight: '90vh',
             top: 'auto',
             bottom: 0,
           } : undefined}
@@ -4273,8 +4273,8 @@ function AccountPageContent() {
             isMobile && "rounded-t-[10px]"
           )}
           style={isMobile ? {
-            height: '80vh',
-            maxHeight: '80vh',
+            height: '90vh',
+            maxHeight: '90vh',
             top: 'auto',
             bottom: 0,
           } : { display: 'flex', flexDirection: 'column' as const, overflow: 'hidden' }}
