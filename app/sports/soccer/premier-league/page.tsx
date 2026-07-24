@@ -238,6 +238,7 @@ import {
 import { InteractiveGridBackground } from '@/components/interactive-grid-background'
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
+import { MobileOtherNavLinks } from '@/components/navigation/mobile-other-nav-links'
 import { DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS, SIDEBAR_FOOTER_NEED_HELP, SIDEBAR_FOOTER_PROMOTIONS, SIDEBAR_FOOTER_VIP_HUB, SIDEBAR_FOOTER_WALLET } from '@/lib/sidebar-footer-nav'
 import DynamicIsland from '@/components/dynamic-island'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
@@ -5213,54 +5214,12 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </button>
                 )
               })}
-              {/* Other — inline dropdown toggle */}
-              <button 
-                onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-white/60 flex items-center gap-0.5"
-              >
-                Other
-                <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
-              </button>
+              <MobileOtherNavLinks variant="white" />
             </div>
           </div>
         )}
 
-        {/* Expandable Other sub-items — outside sticky strip so it renders below */}
-        {isMobile && (
-          <AnimatePresence initial={false}>
-            {otherDropdownOpen && (
-              <motion.div
-                key="sports-other-dropdown"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                className="overflow-hidden border-b border-white/5"
-                style={{ backgroundColor: 'rgba(45, 45, 45, 0.95)' }}
-              >
-                <div className="flex items-center gap-0 px-1 py-1">
-                  {[
-                    { label: 'Esports', href: '/esports' },
-                    { label: 'Racebook', href: '/racebook' },
-                    { label: 'Contests', href: '/contests' },
-                    { label: 'Virtuals', href: '/virtuals' },
-                  ].map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setOpenMobile(false)}
-                      className="flex-shrink-0 px-3 py-2 text-[13px] text-white/50 font-medium hover:text-white whitespace-nowrap transition-colors"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-
-        <SidebarContent className="overflow-y-auto overflow-x-hidden flex flex-col">
+            <SidebarContent className="overflow-y-auto overflow-x-hidden flex flex-col">
           <TooltipProvider>
                 <SidebarPromos
                   collapsed={sidebarState === 'collapsed' && !isMobile}
@@ -9263,7 +9222,6 @@ function NavTestPageContent() {
                   { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
                   { label: 'Promotions', onClick: () => { router.push('/promotions'); setQuickLinksOpen(false); } },
-                  { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -9290,6 +9248,40 @@ function NavTestPageContent() {
                     )}
                   </button>
                 ))}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex flex-shrink-0 items-center gap-0.5 rounded-small px-3 py-1.5 text-xs font-medium text-white/70 transition-colors hover:text-white data-[state=open]:text-white"
+                    >
+                      Other
+                      <IconChevronDown className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={6}
+                    className="z-[200] w-[200px] border-white/10 bg-[#2d2d2d]"
+                  >
+                    {[
+                      { label: 'Contests', href: '/promotions?section=Contests' },
+                      { label: 'Esports', href: '/esports' },
+                      { label: 'Racebook', href: '/racebook' },
+                      { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },
+                    ].map((item) => (
+                      <DropdownMenuItem
+                        key={item.label}
+                        className="text-white/70 hover:bg-white/5 hover:text-white"
+                        onSelect={() => {
+                          setQuickLinksOpen(false)
+                          router.push(item.href)
+                        }}
+                      >
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
           </div>
         </motion.div>
       )}
@@ -9517,16 +9509,16 @@ function NavTestPageContent() {
                         style={{ zIndex: 120 }}
                       >
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
-                          <a href="#" className="w-full">Esports</a>
+                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
-                          <a href="#" className="w-full">Racebook</a>
+                          <a href="/esports" className="w-full">Esports</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
-                          <a href="#" className="w-full">Contests</a>
+                          <a href="/racebook" className="w-full">Racebook</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
-                          <a href="#" className="w-full">Virtuals</a>
+                          <a href="/casino?vipRewardsPage=true" className="w-full">VIP Rewards</a>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

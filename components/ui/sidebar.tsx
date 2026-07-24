@@ -44,6 +44,39 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 // When the user toggles the sidebar on any page, this stores their preference
 // so it carries over when they navigate to a different page.
 let _persistedSidebarOpen: boolean | undefined = undefined
+/** Mobile drawer open state — survives remounts (e.g. Casino ↔ Poker sidebar swap). */
+let _persistedMobileOpen = false
+/** When true, next mobile Sidebar mount with open=true skips the slide-in animation. */
+let _skipNextMobileOpenAnimation = false
+/** Timestamp of last product-route handoff; sidebars mounted before this hide immediately. */
+let _mobileHandoffAt = 0
+/** While true, closing the drawer must not clear `_persistedMobileOpen` (Vaul onOpenChange). */
+let _protectPersistedMobileOpen = false
+
+/** Skip the next mobile drawer open animation (e.g. product switch while already open). */
+function skipNextMobileSidebarOpenAnimation() {
+  _skipNextMobileOpenAnimation = true
+}
+
+/**
+ * Keep the menu "open" across a route change (Casino ↔ Sports) without stacking
+ * two drawers or replaying the slide-in. Hides drawers that existed before the
+ * handoff, preserves persisted open, and skips enter animation on the next page.
+ */
+function handoffMobileSidebarToNextPage() {
+  _skipNextMobileOpenAnimation = true
+  _persistedMobileOpen = true
+  _protectPersistedMobileOpen = true
+  _mobileHandoffAt = Date.now()
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('sidebar:mobile-handoff'))
+    // Re-assert after Vaul's sync onOpenChange(false); clear protect once the next page has mounted.
+    window.setTimeout(() => {
+      _persistedMobileOpen = true
+      _protectPersistedMobileOpen = false
+    }, 400)
+  }
+}
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
@@ -87,18 +120,30 @@ const SidebarProvider = React.forwardRef<
     ref
   ) => {
     const isMobile = useIsMobile()
-    const [openMobile, _setOpenMobile] = React.useState(false)
+    const [openMobile, _setOpenMobile] = React.useState(_persistedMobileOpen)
 
     // Wrap setOpenMobile to enforce panel exclusivity via events (no direct store import)
     const setOpenMobile = React.useCallback((value: boolean | ((prev: boolean) => boolean)) => {
       _setOpenMobile((prev) => {
         const newVal = typeof value === 'function' ? value(prev) : value
+        // Handoff closes the outgoing drawer; Vaul may echo onOpenChange(false).
+        // Don't wipe persisted open or the next page remounts closed.
+        if (!(_protectPersistedMobileOpen && !newVal)) {
+          _persistedMobileOpen = newVal
+        }
         // If opening the mobile sidebar, tell other panels to close
         if (newVal && typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('panel:sidebar-opened'))
         }
         return newVal
       })
+    }, [])
+
+    // After a product-route handoff, ensure this page opens from persisted state.
+    React.useLayoutEffect(() => {
+      if (_persistedMobileOpen) {
+        _setOpenMobile(true)
+      }
     }, [])
 
     // Lock body scroll when mobile drawer is open
@@ -168,9 +213,19 @@ const SidebarProvider = React.forwardRef<
         _setOpen(false)
         _persistedSidebarOpen = false
         _setOpenMobile(false)
+        _persistedMobileOpen = false
       }
       window.addEventListener('panel:chat-opened', handleChatOpened)
       return () => window.removeEventListener('panel:chat-opened', handleChatOpened)
+    }, [])
+
+    // Product route handoff: close this page's drawer without clearing persisted open.
+    React.useEffect(() => {
+      const handleMobileHandoff = () => {
+        _setOpenMobile(false)
+      }
+      window.addEventListener('sidebar:mobile-handoff', handleMobileHandoff)
+      return () => window.removeEventListener('sidebar:mobile-handoff', handleMobileHandoff)
     }, [])
 
     // On mount: if sidebar is open, tell chat to close (enforces exclusivity after navigation)
@@ -198,8 +253,8 @@ const SidebarProvider = React.forwardRef<
     }, [toggleSidebar])
 
     // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
-    const state = open ? "expanded" : "collapsed"
+    // Mobile always uses the full drawer with labels — never the desktop icon rail.
+    const state = isMobile ? "expanded" : open ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo<SidebarContextProps>(
       () => ({
@@ -272,6 +327,17 @@ const Sidebar = React.forwardRef<
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
+    // Capture open-on-mount once — vaul's defaultOpen=true skips the enter animation.
+    const mountedAtRef = React.useRef(Date.now())
+    const mountedAlreadyOpenRef = React.useRef(openMobile)
+    const skipOpenAnimationRef = React.useRef(
+      openMobile && (_persistedMobileOpen || _skipNextMobileOpenAnimation)
+    )
+    if (skipOpenAnimationRef.current && _skipNextMobileOpenAnimation) {
+      _skipNextMobileOpenAnimation = false
+    }
+    const skipOpenAnimation = Boolean(skipOpenAnimationRef.current)
+
     if (collapsible === "none") {
       return (
         <div
@@ -288,12 +354,19 @@ const Sidebar = React.forwardRef<
     }
 
     if (isMobile) {
+      // Hide drawers that existed before a product-route handoff (prevents stacked menus).
+      if (_mobileHandoffAt > 0 && mountedAtRef.current < _mobileHandoffAt) {
+        return null
+      }
+
       // Use Drawer component (same as balance sidebar) for mobile sidebar
       // This ensures consistent behavior and appearance
       return (
         <Drawer 
           open={openMobile} 
           onOpenChange={setOpenMobile}
+          // vaul: defaultOpen=true → shouldAnimate starts false (no slide-in on remount)
+          defaultOpen={Boolean(mountedAlreadyOpenRef.current || skipOpenAnimation)}
           direction="left"
           shouldScaleBackground={false}
           modal={true}
@@ -302,14 +375,23 @@ const Sidebar = React.forwardRef<
           <DrawerContent
             data-sidebar="sidebar"
             data-mobile="true"
+            {...(skipOpenAnimation || mountedAlreadyOpenRef.current
+              ? { 'data-skip-open-animation': '' }
+              : {})}
             showOverlay={mobileOverlay}
-            overlayClassName={mobileOverlayClassName}
+            overlayClassName={cn(
+              mobileOverlayClassName,
+              (skipOpenAnimation || mountedAlreadyOpenRef.current) &&
+                "sidebar-drawer-skip-open-animation"
+            )}
             onOverlayClick={mobileNoDrag ? () => setOpenMobile(false) : undefined}
             noDrag={mobileNoDrag}
             className={cn(
               "w-[320px] sm:max-w-[320px] bg-[var(--ds-sidebar-bg)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] p-0 [&>button]:hidden",
               "shadow-2xl",
               mobileNoDrag && "!rounded-l-none !rounded-tr-2xl !rounded-br-none overflow-hidden",
+              (skipOpenAnimation || mountedAlreadyOpenRef.current) &&
+                "sidebar-drawer-skip-open-animation",
               className
             )}
             style={
@@ -910,5 +992,7 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  skipNextMobileSidebarOpenAnimation,
+  handoffMobileSidebarToNextPage,
   useSidebar,
 }

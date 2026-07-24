@@ -99,6 +99,7 @@ import {
   IconLogin2,
   IconLogout,
   IconDice,
+  IconArrowsShuffle,
   IconHeart,
   IconStar,
   IconFlame,
@@ -197,6 +198,8 @@ import {
   SidebarInset,
   SidebarHeader,
   SidebarFooter,
+  skipNextMobileSidebarOpenAnimation,
+  handoffMobileSidebarToNextPage,
   useSidebar,
 } from '@/components/ui/sidebar'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -278,6 +281,8 @@ import {
 import { InteractiveGridBackground } from '@/components/interactive-grid-background'
 import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
+import { MobileOtherNavLinks } from '@/components/navigation/mobile-other-nav-links'
+import { MobileSidebarMenuSkeleton } from '@/components/navigation/mobile-sidebar-menu-skeleton'
 import DynamicIsland from '@/components/dynamic-island'
 import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 // DesignCustomizer now lives in app/layout.tsx globally
@@ -6134,12 +6139,11 @@ function TournamentCountdown({ endDate }: { endDate: Date }) {
 // =====================================================
 // POKER LANDING PAGE COMPONENT
 // =====================================================
-function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandPrimary: string; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void }) {
+function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoading = false, hideSidebar = false }: { brandPrimary: string; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void; menuLoading?: boolean; hideSidebar?: boolean }) {
   const isMobile = useIsMobile()
   const router = useRouter()
   const { state: sidebarState, toggleSidebar, setOpenMobile } = useSidebar()
   const [activeSidebarItem, setActiveSidebarItem] = useState('Poker Lobby')
-  const [otherDropdownOpen, setOtherDropdownOpen] = useState(false)
 
   // Resolve actual primary color hex for canvas-based components
   const [resolvedPrimary, setResolvedPrimary] = useState('#ee3536')
@@ -6185,7 +6189,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
 
   return (
     <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)]" data-sidebar-full-height>
-      {/* Poker Sidebar — full height, above main nav */}
+      {/* Poker Sidebar — desktop only when parent keeps mobile drawer mounted */}
+      {!hideSidebar && (
       <Sidebar
         collapsible="icon"
         variant="sidebar"
@@ -6302,10 +6307,18 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   <button
                     key={item.label}
                     onClick={() => {
-                      setOpenMobile(false)
+                      // Keep drawer open when switching products; only leave for Sports route.
                       if (item.page === 'sports') {
+                        handoffMobileSidebarToNextPage()
                         router.push('/sports/football')
-                      } else if (onNavigate) {
+                        return
+                      }
+                      if (item.page === 'home') {
+                        setOpenMobile(false)
+                        router.push('/')
+                        return
+                      }
+                      if (onNavigate) {
                         onNavigate(item.page as any)
                       }
                     }}
@@ -6323,55 +6336,17 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                   </button>
                 )
               })}
-              {/* Other — inline dropdown toggle */}
-              <button 
-                onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
-              >
-                Other
-                <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
-              </button>
+              <MobileOtherNavLinks />
             </div>
           </div>
         )}
 
-        {/* Expandable Other sub-items — outside sticky strip so it renders below */}
-        {isMobile && (
-          <AnimatePresence initial={false}>
-            {otherDropdownOpen && (
-              <motion.div
-                key="other-dropdown"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                className="overflow-hidden border-b border-white/5"
-                style={{ backgroundColor: 'rgba(45, 45, 45, 0.95)' }}
-              >
-                <div className="flex items-center gap-0 px-1 py-1">
-                  {[
-                    { label: 'Esports', href: '/esports' },
-                    { label: 'Racebook', href: '/racebook' },
-                    { label: 'Contests', href: '/promotions?section=Contests' },
-                    { label: 'Virtuals', href: '/virtuals' },
-                  ].map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setOpenMobile(false)}
-                      className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-
-        <SidebarContent className="overflow-y-auto overflow-x-hidden flex flex-col">
+            <SidebarContent className="overflow-y-auto overflow-x-hidden flex flex-col">
           <TooltipProvider>
+            {menuLoading ? (
+              <MobileSidebarMenuSkeleton />
+            ) : (
+            <>
             <SidebarPromos
               collapsed={sidebarState === 'collapsed' && !isMobile}
             />
@@ -6464,12 +6439,14 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate }: { brandP
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-
+            </>
+            )}
           </TooltipProvider>
           {/* Spacer for Safari bottom bar on mobile */}
           {isMobile && <div className="flex-shrink-0 h-24" />}
         </SidebarContent>
       </Sidebar>
+      )}
 
       {/* Main Content */}
       <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
@@ -7572,7 +7549,22 @@ function NavTestPageContent() {
   const [isContentUnderNav, setIsContentUnderNav] = useState(false)
   const { state: sidebarState, open: sidebarOpen, setOpen, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
   const isChatOpen = useChatStore(state => state.isOpen)
-  const [otherDropdownOpen, setOtherDropdownOpen] = useState(false)
+  const [sidebarMenuLoading, setSidebarMenuLoading] = useState(false)
+  const [pokerActiveSidebarItem, setPokerActiveSidebarItem] = useState('Poker Lobby')
+
+  /** Keep mobile drawer open across Casino/Poker/Promotions; briefly skeleton the menu. */
+  const startMobileProductSwitch = () => {
+    if (isMobile && openMobile) {
+      skipNextMobileSidebarOpenAnimation()
+      setSidebarMenuLoading(true)
+    }
+  }
+
+  useEffect(() => {
+    if (!sidebarMenuLoading) return
+    const t = window.setTimeout(() => setSidebarMenuLoading(false), 320)
+    return () => window.clearTimeout(t)
+  }, [sidebarMenuLoading, showPoker, showVipRewards])
 
   // Debug: Log drawer state changes
   useEffect(() => {
@@ -7823,8 +7815,22 @@ function NavTestPageContent() {
 
   const casinoTopItems = [
     { icon: IconHeart, label: 'My Favorites' },
-    { icon: IconDice, label: 'Play Random' },
+    { icon: IconArrowsShuffle, label: 'Play Random' },
     { icon: null, label: 'Last Game Played', image: '/banners/casino/casino_banner1.svg', gameName: 'Golden Fortune' },
+  ]
+
+  const pokerPlayNowItems = [
+    { icon: IconPlayerPlay, label: 'Play Online' },
+    { icon: IconDownload, label: 'Download' },
+  ]
+
+  const pokerNavMenuItems = [
+    { icon: IconCards, label: 'Poker Lobby' },
+    { icon: IconRocket, label: 'Getting Started' },
+    { icon: IconStar, label: 'Features' },
+    { icon: IconShield, label: 'Integrity' },
+    { icon: IconGift, label: 'Promos' },
+    { icon: IconHelpCircle, label: 'Help' },
   ]
 
   const sidebarMenuItems = [
@@ -7898,12 +7904,11 @@ function NavTestPageContent() {
         >
           <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-[var(--ds-border)]">
                 {[
-                  { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setQuickLinksOpen(false); } },
-                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
+                  { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setOpenMobile(false); router.push('/'); setQuickLinksOpen(false); } },
+                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
                   { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
-                  { label: 'Other', product: null, onClick: () => { setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
                   <button
                     key={item.label}
@@ -7931,6 +7936,40 @@ function NavTestPageContent() {
                     )}
                   </button>
                 ))}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex flex-shrink-0 items-center gap-0.5 rounded-small px-3 py-1.5 text-xs font-medium text-[var(--ds-fg-muted)] transition-colors hover:text-[var(--ds-fg)] data-[state=open]:text-[var(--ds-fg)]"
+                    >
+                      Other
+                      <IconChevronDown className="h-3 w-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={6}
+                    className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
+                  >
+                    {[
+                      { label: 'Contests', href: '/promotions?section=Contests' },
+                      { label: 'Esports', href: '/esports' },
+                      { label: 'Racebook', href: '/racebook' },
+                      { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },
+                    ].map((item) => (
+                      <DropdownMenuItem
+                        key={item.label}
+                        className="text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                        onSelect={() => {
+                          setQuickLinksOpen(false)
+                          router.push(item.href)
+                        }}
+                      >
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
           </div>
         </motion.div>
       )}
@@ -8033,6 +8072,7 @@ function NavTestPageContent() {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
+                        handoffMobileSidebarToNextPage()
                         router.push('/sports/football')
                       }}
                       data-active={showSports}
@@ -8184,16 +8224,16 @@ function NavTestPageContent() {
                         className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                       >
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="/esports" className="w-full">Esports</a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="#" className="w-full">Racebook</a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="/promotions?section=Contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="#" className="w-full">Virtuals</a>
+                          <a href="/esports" className="w-full">Esports</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/racebook" className="w-full">Racebook</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/casino?vipRewardsPage=true" className="w-full">VIP Rewards</a>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -8305,8 +8345,8 @@ function NavTestPageContent() {
             />
             </>
           )}
-          {/* Sidebar — full height, same as poker — Hide on Sports and Poker */}
-          {!showSports && !showPoker && (
+          {/* Sidebar — full height; stay mounted on mobile for Poker so the drawer does not re-animate */}
+          {!showSports && !(showPoker && !isMobile) && (
           <Sidebar 
             collapsible="icon"
             variant="sidebar"
@@ -8425,15 +8465,18 @@ function NavTestPageContent() {
                       <button
                         key={item.label}
                         onClick={() => {
-                          setOpenMobile(false)
                           if (item.page === 'sports') {
+                            handoffMobileSidebarToNextPage()
                             router.push('/sports/football')
-                          } else if (item.page === 'home') {
-                            setShowSports(false)
-                            setShowVipRewards(false)
-                            setShowPoker(false)
-                            window.scrollTo(0, 0)
-                          } else if (item.page === 'casino') {
+                            return
+                          }
+                          if (item.page === 'home') {
+                            setOpenMobile(false)
+                            router.push('/')
+                            return
+                          }
+                          startMobileProductSwitch()
+                          if (item.page === 'casino') {
                             setShowSports(false)
                             setShowVipRewards(false)
                             setShowPoker(false)
@@ -8450,7 +8493,10 @@ function NavTestPageContent() {
                             window.scrollTo(0, 0)
                           } else if (item.page === 'promotions') {
                             trackNav('promotions', 'Promotions')
-                            router.push('/promotions')
+                            setShowPoker(false)
+                            setShowSports(false)
+                            setShowVipRewards(true)
+                            window.scrollTo(0, 0)
                           }
                         }}
                         className={cn(
@@ -8467,56 +8513,16 @@ function NavTestPageContent() {
                       </button>
                     )
                   })}
-                  {/* Other — inline dropdown toggle */}
-                  <button 
-                    onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                    className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
-                  >
-                    Other
-                    <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
-                  </button>
+                  <MobileOtherNavLinks />
                 </div>
               </div>
             )}
 
-            {/* Expandable Other sub-items — outside sticky strip so it renders below */}
-            {isMobile && (
-              <AnimatePresence initial={false}>
-                {otherDropdownOpen && (
-                  <motion.div
-                    key="casino-other-dropdown"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="overflow-hidden border-b border-white/5"
-                    style={{ backgroundColor: 'rgba(45, 45, 45, 0.95)' }}
-                  >
-                    <div className="flex items-center gap-0 px-1 py-1">
-                      {[
-                        { label: 'Esports', href: '/esports' },
-                        { label: 'Racebook', href: '/racebook' },
-                        { label: 'Contests', href: '/promotions?section=Contests' },
-                        { label: 'Virtuals', href: '/virtuals' },
-                      ].map((item) => (
-                        <a
-                          key={item.label}
-                          href={item.href}
-                          onClick={() => setOpenMobile(false)}
-                          className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
-                        >
-                          {item.label}
-                        </a>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            )}
-
             <SidebarContent className="overflow-y-auto overflow-x-hidden flex flex-col">
               <TooltipProvider>
-                {showVipRewards ? (
+                {sidebarMenuLoading ? (
+                  <MobileSidebarMenuSkeleton />
+                ) : showVipRewards ? (
                   <>
                     <SidebarPromos
                       collapsed={sidebarState === 'collapsed' && !isMobile}
@@ -8649,6 +8655,97 @@ function NavTestPageContent() {
                                     >
                                       <Icon strokeWidth={1.5} className="w-5 h-5" />
                                       <span className="flex-1">{item.label}</span>
+                                    </SidebarMenuButton>
+                                  </TooltipTrigger>
+                                  {sidebarState === 'collapsed' && (
+                                    <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
+                                      <p>{item.label}</p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </SidebarMenuItem>
+                            )
+                          })}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                  </>
+                ) : showPoker ? (
+                  <>
+                    <SidebarPromos
+                      collapsed={sidebarState === 'collapsed' && !isMobile}
+                    />
+                    <Separator className="bg-[var(--ds-control-hover)] mx-2 group-data-[collapsible=icon]:hidden" />
+                    <SidebarGroup className="mt-3">
+                      {isMobile && <SidebarGroupLabel className="px-2 py-1 text-xs text-[var(--ds-fg-subtle)]">POKER MENU</SidebarGroupLabel>}
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {pokerPlayNowItems.map((item, index) => {
+                            const Icon = item.icon
+                            const isActive = pokerActiveSidebarItem === item.label
+                            return (
+                              <SidebarMenuItem key={index}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SidebarMenuButton
+                                      isActive={isActive}
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        setPokerActiveSidebarItem(item.label)
+                                      }}
+                                      className={cn(
+                                        "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
+                                        "data-[active=true]:text-white data-[active=true]:font-medium",
+                                        "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                      )}
+                                      style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
+                                    >
+                                      <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
+                                        <Icon strokeWidth={1.5} className="w-4 h-4" />
+                                      </div>
+                                      <span>{item.label}</span>
+                                    </SidebarMenuButton>
+                                  </TooltipTrigger>
+                                  {sidebarState === 'collapsed' && (
+                                    <TooltipContent side="right" className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)] text-[var(--ds-fg)]">
+                                      <p>{item.label}</p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              </SidebarMenuItem>
+                            )
+                          })}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                    <Separator className="bg-[var(--ds-control-hover)] mx-2" />
+                    <SidebarGroup>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {pokerNavMenuItems.map((item, index) => {
+                            const Icon = item.icon
+                            const isActive = pokerActiveSidebarItem === item.label
+                            return (
+                              <SidebarMenuItem key={index}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SidebarMenuButton
+                                      isActive={isActive}
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        setPokerActiveSidebarItem(item.label)
+                                      }}
+                                      className={cn(
+                                        "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
+                                        "data-[active=true]:text-white data-[active=true]:font-medium",
+                                        "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                      )}
+                                      style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
+                                    >
+                                      <Icon strokeWidth={1.5} className="w-5 h-5" />
+                                      <span>{item.label}</span>
                                     </SidebarMenuButton>
                                   </TooltipTrigger>
                                   {sidebarState === 'collapsed' && (
@@ -9169,11 +9266,16 @@ function NavTestPageContent() {
                       vipActiveSidebarItem={vipActiveSidebarItem}
                       setVipActiveSidebarItem={setVipActiveSidebarItem}
                     onNavigate={(page) => {
-                      if (page === 'home') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); }
-                      else if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); }
+                      if (page === 'home') {
+                        setOpenMobile(false)
+                        router.push('/')
+                        return
+                      }
+                      startMobileProductSwitch()
+                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); }
                       else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); }
-                      else if (page === 'vipRewards') { /* already on VIP */ }
+                      else if (page === 'vipRewards') { setShowPoker(false); setShowSports(false); setShowVipRewards(true); }
                     }}
                   />
                 </motion.div>
@@ -9182,12 +9284,19 @@ function NavTestPageContent() {
                   <PokerLandingPage 
                     brandPrimary={brandPrimary || '#ee3536'}
                     quickLinksOpen={quickLinksOpen}
+                    menuLoading={sidebarMenuLoading}
+                    hideSidebar={isMobile}
                     onNavigate={(page) => {
-                      if (page === 'home') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); window.scrollTo(0, 0); }
-                      else if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); window.scrollTo(0, 0); }
+                      if (page === 'home') {
+                        setOpenMobile(false)
+                        router.push('/')
+                        return
+                      }
+                      startMobileProductSwitch()
+                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); window.scrollTo(0, 0); }
                       else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); window.scrollTo(0, 0); }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); window.scrollTo(0, 0); }
-                      else if (page === 'vipRewards') { /* already on VIP */ }
+                      else if (page === 'vipRewards') { setShowPoker(false); setShowSports(false); setShowVipRewards(true); window.scrollTo(0, 0); }
                     }}
                   />
                 </div>

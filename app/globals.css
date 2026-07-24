@@ -1339,6 +1339,20 @@ main[data-sidebar="inset"] div.flex.items-center.justify-between.mb-4 > div:last
 /* Let vaul handle its own layout. We only add z-index for layering
    and prevent body scroll-lock for non-modal drawers. */
 
+/* Skip slide-in when mobile sidebar remounts while already open (product tabs / Sports). */
+[data-vaul-drawer].sidebar-drawer-skip-open-animation,
+[data-vaul-drawer][data-skip-open-animation],
+[data-vaul-drawer][data-skip-open-animation][data-state='open'],
+[data-vaul-drawer].sidebar-drawer-skip-open-animation[data-state='open'],
+[data-vaul-overlay].sidebar-drawer-skip-open-animation {
+  animation: none !important;
+  animation-name: none !important;
+  animation-duration: 0s !important;
+  transition: none !important;
+  transition-duration: 0s !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
 /* Drawer content should appear above page content, below the main nav */
 [data-vaul-drawer] {
   z-index: 100000 !important;

@@ -76,6 +76,7 @@ import {
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { MobileOtherNavLinks } from '@/components/navigation/mobile-other-nav-links'
 import {
   DEFAULT_SIDEBAR_FOOTER_NAV_ITEMS,
   SIDEBAR_FOOTER_NEED_HELP,
@@ -3025,7 +3026,6 @@ function AccountPageContent() {
   const [currentTime, setCurrentTime] = useState('')
   const [quickLinksOpen, setQuickLinksOpen] = useState(true)
   const [loadingQuickLink, setLoadingQuickLink] = useState<string | null>(null)
-  const [otherDropdownOpen, setOtherDropdownOpen] = useState(false)
   const lastScrollYRef = useRef(0)
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
@@ -3533,17 +3533,17 @@ function AccountPageContent() {
                       style={{ zIndex: 120 }}
                     >
                       <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="/esports" className="w-full">Esports</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Racebook</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Contests</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Virtuals</a>
-                      </DropdownMenuItem>
+                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/esports" className="w-full">Esports</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/racebook" className="w-full">Racebook</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/casino?vipRewardsPage=true" className="w-full">VIP Rewards</a>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </SidebarMenuItem>
@@ -3713,54 +3713,12 @@ function AccountPageContent() {
                     {item.label}
                   </button>
                 ))}
-                {/* Other — inline dropdown toggle */}
-                <button 
-                  onClick={() => setOtherDropdownOpen(!otherDropdownOpen)}
-                  className="flex-shrink-0 px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors relative text-white/35 font-medium hover:text-[var(--ds-fg-muted)] flex items-center gap-0.5"
-                >
-                  Other
-                  <IconChevronDown className={cn("w-3 h-3 transition-transform duration-200", otherDropdownOpen && "rotate-180")} />
-                </button>
+                <MobileOtherNavLinks />
               </div>
             </div>
           )}
 
-          {/* Expandable Other sub-items — outside sticky strip so it renders below */}
-          {isMobile && (
-            <AnimatePresence initial={false}>
-              {otherDropdownOpen && (
-                <motion.div
-                  key="account-other-dropdown"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  className="overflow-hidden border-b border-white/5"
-                  style={{ backgroundColor: 'rgba(45, 45, 45, 0.95)' }}
-                >
-                  <div className="flex items-center gap-0 px-1 py-1">
-                    {[
-                      { label: 'Esports', href: '/esports' },
-                      { label: 'Racebook', href: '/racebook' },
-                      { label: 'Contests', href: '/contests' },
-                      { label: 'Virtuals', href: '/virtuals' },
-                    ].map((item) => (
-                      <a
-                        key={item.label}
-                        href={item.href}
-                        onClick={() => setOpenMobile(false)}
-                        className="flex-shrink-0 px-3 py-2 text-[13px] text-[var(--ds-fg-subtle)] font-medium hover:text-[var(--ds-fg)] whitespace-nowrap transition-colors"
-                      >
-                        {item.label}
-                      </a>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          )}
-
-          <SidebarContent className="overflow-y-auto flex flex-col">
+            <SidebarContent className="overflow-y-auto flex flex-col">
             <TooltipProvider delayDuration={0}>
               {/* Top section — My Account with square icon style, highlighted */}
               <SidebarGroup className="mt-3">

@@ -1410,7 +1410,6 @@ function HomePageContent() {
               { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
               { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
-              { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
             ].map((item) => (
               <button
                 key={item.label}
@@ -1435,6 +1434,40 @@ function HomePageContent() {
                 )}
               </button>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex flex-shrink-0 items-center gap-0.5 rounded-small px-3 py-1.5 text-xs font-medium text-[var(--ds-fg-muted)] transition-colors hover:text-[var(--ds-fg)] data-[state=open]:text-[var(--ds-fg)]"
+                >
+                  Other
+                  <IconChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={6}
+                className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
+              >
+                {[
+                  { label: 'Contests', href: '/promotions?section=Contests' },
+                  { label: 'Esports', href: '/esports' },
+                  { label: 'Racebook', href: '/racebook' },
+                  { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },
+                ].map((item) => (
+                  <DropdownMenuItem
+                    key={item.label}
+                    className="text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                    onSelect={() => {
+                      setQuickLinksOpen(false)
+                      router.push(item.href)
+                    }}
+                  >
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </motion.div>
       )}
@@ -1530,17 +1563,17 @@ function HomePageContent() {
                       className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                     >
                       <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="/esports" className="w-full">Esports</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Racebook</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Contests</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                        <a href="#" className="w-full">Virtuals</a>
-                      </DropdownMenuItem>
+                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/esports" className="w-full">Esports</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/racebook" className="w-full">Racebook</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
+                          <a href="/casino?vipRewardsPage=true" className="w-full">VIP Rewards</a>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </SidebarMenuItem>
