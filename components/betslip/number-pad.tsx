@@ -78,7 +78,7 @@ export function BetslipNumberPad({
             {...makeTapHandler(() => handleQuickAmountTap(amount))}
             className={`shrink-0 px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors select-none touch-manipulation ${
               selectedAmount === amount
-                ? 'bg-[#059669] text-white'
+                ? 'bg-[#8fd790] text-[#0a0a0a]'
                 : 'text-black/70 bg-black/[0.05] active:bg-black/[0.12]'
             }`}
             style={{ scrollSnapAlign: 'start' }}

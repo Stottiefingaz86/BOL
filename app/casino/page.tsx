@@ -3763,7 +3763,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       className={cn(
                         "w-full text-[15px] font-semibold uppercase tracking-[0.46px] py-2 px-[22px] rounded-[4px] transition-colors",
                         totalStake > 0 
-                          ? "bg-[#059669] text-[var(--ds-fg)] hover:bg-[#10b981] cursor-pointer" 
+                          ? "bg-[#8fd790] text-[var(--ds-fg)] hover:bg-[#7fc780] cursor-pointer" 
                           : "bg-[#e0e0e0] text-[#9e9e9e] cursor-not-allowed"
                       )}
                     >
