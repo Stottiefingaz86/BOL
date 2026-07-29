@@ -6144,7 +6144,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
   const isMobile = useIsMobile()
   const router = useRouter()
   const { state: sidebarState, toggleSidebar, setOpenMobile } = useSidebar()
-  const [activeSidebarItem, setActiveSidebarItem] = useState('Poker Lobby')
+  const [activeSidebarItem, setActiveSidebarItem] = useState('Start')
   const {
     ref: heroSpotlightRef,
     handleMouseMove: handleHeroMouseMove,
@@ -6160,7 +6160,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
 
   // Main POKER nav — deep links into one-pager sections
   const pokerNavItems = [
-    { icon: IconCards, label: 'Poker Lobby', sectionId: 'poker-hero' },
+    { icon: IconCards, label: 'Start', sectionId: 'poker-hero' },
     { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
     { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
     { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
@@ -6559,7 +6559,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
         <div className="flex flex-col">
 
           {/* HERO — Figma app-integration-10: inset card, pl/py 56, art flush right/bottom */}
-          <section id="poker-hero" className="relative scroll-mt-20 w-full px-3 pt-4 sm:px-4 md:px-7 md:pt-8">
+          <section id="poker-hero" className="relative scroll-mt-20 w-full px-3 pt-4 pb-8 sm:px-4 md:px-7 md:pt-8 md:pb-12">
             <div
               ref={heroSpotlightRef}
               onMouseMove={handleHeroMouseMove}
@@ -6765,7 +6765,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
 
               <div className="mt-8 flex justify-center">
                 <Button className="text-white font-semibold text-sm px-10 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                  More Info
+                  Poker Help Center
                 </Button>
               </div>
             </div>
@@ -7674,7 +7674,7 @@ function NavTestPageContent() {
   const { state: sidebarState, open: sidebarOpen, setOpen, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
   const isChatOpen = useChatStore(state => state.isOpen)
   const [sidebarMenuLoading, setSidebarMenuLoading] = useState(false)
-  const [pokerActiveSidebarItem, setPokerActiveSidebarItem] = useState('Poker Lobby')
+  const [pokerActiveSidebarItem, setPokerActiveSidebarItem] = useState('Start')
 
   /** Keep mobile drawer open across Casino/Poker/Promotions; briefly skeleton the menu. */
   const startMobileProductSwitch = () => {
@@ -7949,7 +7949,7 @@ function NavTestPageContent() {
   ]
 
   const pokerNavMenuItems = [
-    { icon: IconCards, label: 'Poker Lobby', sectionId: 'poker-hero' },
+    { icon: IconCards, label: 'Start', sectionId: 'poker-hero' },
     { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
     { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
     { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
