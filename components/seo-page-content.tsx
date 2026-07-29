@@ -184,7 +184,7 @@ export function SeoPageContent({
   leftSections,
   rightSections,
   defaultOpen = false,
-  collapsedHeight = 220,
+  collapsedHeight = 240,
 }: SeoPageContentProps) {
   const [open, setOpen] = useState(defaultOpen)
   const panelId = useId()
@@ -192,11 +192,26 @@ export function SeoPageContent({
   const right = rightSections ?? defaultRightSections(brandName, brandUrl)
 
   return (
-    <section className={cn('w-full px-4 pb-4 pt-2 sm:px-6', className)}>
-      <div className="relative overflow-hidden rounded-xl bg-[#252525]">
+    <section className={cn('w-full px-4 pb-5 pt-2 sm:px-6', className)}>
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-2xl bg-[#1e1e1e]',
+          'border border-white/[0.08]',
+          'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.07)]'
+        )}
+      >
+        {/* Soft top wash for depth without looking glossy */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,transparent_42%)]"
+        />
         <div
           id={panelId}
-          className="relative transition-[max-height] duration-500 ease-in-out"
+          className={cn(
+            'relative transition-[max-height] duration-500 ease-in-out',
+            !open &&
+              '[mask-image:linear-gradient(to_bottom,black_0%,black_42%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_42%,transparent_100%)]'
+          )}
           style={{ maxHeight: open ? 4000 : collapsedHeight }}
         >
           <div className="px-5 py-6 sm:px-8 sm:py-8">
@@ -205,27 +220,26 @@ export function SeoPageContent({
               <SeoColumn sections={right} />
             </div>
           </div>
-
-          {!open ? (
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#252525] via-[#252525]/90 to-transparent"
-            />
-          ) : null}
         </div>
 
         <div
           className={cn(
             'relative z-10 flex justify-center',
-            open ? 'pb-6 pt-1' : 'absolute inset-x-0 bottom-4'
+            open ? 'pb-6 pt-1' : 'absolute inset-x-0 bottom-3'
           )}
         >
+          {!open ? (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e]/55 to-transparent"
+            />
+          ) : null}
           <button
             type="button"
             aria-expanded={open}
             aria-controls={panelId}
             onClick={() => setOpen((value) => !value)}
-            className="inline-flex h-9 items-center justify-center rounded-md border border-white/25 bg-[#252525] px-4 text-sm font-medium text-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)] transition-colors hover:border-white/40 hover:bg-[#2c2c2c]"
+            className="relative inline-flex h-9 items-center justify-center rounded-lg border border-white/20 bg-[#1e1e1e]/95 px-4 text-sm font-medium text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-colors hover:border-white/35 hover:bg-[#252525]"
           >
             {open ? 'See Less' : 'See More'}
           </button>

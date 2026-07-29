@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { IconHeadset } from '@tabler/icons-react'
 import { SeoPageContent, type SeoPageContentProps } from '@/components/seo-page-content'
 import { cn } from '@/lib/utils'
 
@@ -245,14 +246,7 @@ export function SiteFooter({
               type="button"
               className="inline-flex h-9 w-full max-w-[215px] items-center justify-center gap-1.5 rounded-lg bg-[#ee3536] px-2 text-sm font-medium text-white transition-colors hover:brightness-110"
             >
-              <Image
-                src="/banners/footer/badges/star.svg"
-                alt=""
-                width={16}
-                height={16}
-                className="size-4"
-                unoptimized
-              />
+              <IconHeadset className="size-4 shrink-0" stroke={2} aria-hidden />
               Need Help?
             </button>
 
