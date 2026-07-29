@@ -6174,6 +6174,51 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
     if (isMobile) setOpenMobile(false)
   }
 
+  // Keep left nav in sync with the section currently in view
+  useEffect(() => {
+    const sections = [
+      { id: 'poker-hero', label: 'Start' },
+      { id: 'poker-features', label: 'Features' },
+      { id: 'poker-getting-started', label: 'Getting Started' },
+      { id: 'poker-integrity', label: 'Integrity' },
+      { id: 'poker-download', label: 'Download' },
+    ] as const
+
+    const ratios = new Map<string, number>()
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
+        }
+        let bestId: string | null = null
+        let bestRatio = 0
+        for (const { id } of sections) {
+          const ratio = ratios.get(id) ?? 0
+          if (ratio > bestRatio) {
+            bestRatio = ratio
+            bestId = id
+          }
+        }
+        if (!bestId || bestRatio <= 0) return
+        const match = sections.find((s) => s.id === bestId)
+        if (match) setActiveSidebarItem(match.label)
+      },
+      {
+        // Activate when a section crosses the upper-middle band of the viewport
+        rootMargin: '-15% 0px -55% 0px',
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+      }
+    )
+
+    for (const { id } of sections) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   const gettingStartedSteps = [
     {
       title: 'Create Account',
@@ -6449,7 +6494,9 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                 <SidebarMenu>
                   {pokerPlayNow.map((item, index) => {
                     const Icon = item.icon
-                    const isActive = activeSidebarItem === item.label
+                    const isActive =
+                      activeSidebarItem === item.label ||
+                      (item.label === 'Play Online' && activeSidebarItem === 'Start')
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -6496,7 +6543,10 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                   {pokerNavItems.map((item, index) => {
                     const Icon = item.icon
                     const isExternal = 'external' in item && item.external
-                    const isActive = !isExternal && activeSidebarItem === item.label
+                    const isActive =
+                      !isExternal &&
+                      (activeSidebarItem === item.label ||
+                        (item.label === 'Start' && activeSidebarItem === 'Play Online'))
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -6649,21 +6699,23 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
               </p>
             </div>
             <div className="mx-auto w-full px-4 md:px-6">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4">
+              <div className="mx-auto grid w-fit max-w-full grid-cols-1 justify-items-center gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4">
                 {topFeatures.map((feature) => (
                   <article
                     key={feature.title}
-                    className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#1e1e1e] transition-colors hover:bg-[#222]"
+                    className="group relative flex w-[260px] max-w-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#1e1e1e] md:w-[300px]"
                   >
-                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141414]">
-                      <Image
-                        src={feature.image}
-                        alt={feature.title}
-                        fill
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e]/25 to-transparent" />
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#101010]">
+                      <div className="absolute inset-0 -right-[20px]">
+                        <Image
+                          src={feature.image}
+                          alt={feature.title}
+                          fill
+                          className="object-cover object-right transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 768px) 260px, 300px"
+                        />
+                      </div>
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent transition-colors duration-200 group-hover:from-[#1e1e1e] group-hover:via-[#1e1e1e]/25" />
                     </div>
                     <div className="relative z-10 flex flex-col gap-1.5 p-4 pt-3 sm:p-5">
                       <h3 className="text-base font-semibold text-white">{feature.title}</h3>
@@ -7963,6 +8015,52 @@ function NavTestPageContent() {
     if (isMobile) setOpenMobile(false)
   }
 
+  // Shared casino sidebar (mobile poker): sync active item to the section in view
+  useEffect(() => {
+    if (!showPoker) return
+
+    const sections = [
+      { id: 'poker-hero', label: 'Start' },
+      { id: 'poker-features', label: 'Features' },
+      { id: 'poker-getting-started', label: 'Getting Started' },
+      { id: 'poker-integrity', label: 'Integrity' },
+      { id: 'poker-download', label: 'Download' },
+    ] as const
+
+    const ratios = new Map<string, number>()
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
+        }
+        let bestId: string | null = null
+        let bestRatio = 0
+        for (const { id } of sections) {
+          const ratio = ratios.get(id) ?? 0
+          if (ratio > bestRatio) {
+            bestRatio = ratio
+            bestId = id
+          }
+        }
+        if (!bestId || bestRatio <= 0) return
+        const match = sections.find((s) => s.id === bestId)
+        if (match) setPokerActiveSidebarItem(match.label)
+      },
+      {
+        rootMargin: '-15% 0px -55% 0px',
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+      }
+    )
+
+    for (const { id } of sections) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+
+    return () => observer.disconnect()
+  }, [showPoker])
+
   const sidebarMenuItems = [
     { icon: IconFlame, label: 'Popular Games' },
     { icon: IconDeviceGamepad2, label: 'Slots' },
@@ -8812,7 +8910,9 @@ function NavTestPageContent() {
                         <SidebarMenu>
                           {pokerPlayNowItems.map((item, index) => {
                             const Icon = item.icon
-                            const isActive = pokerActiveSidebarItem === item.label
+                            const isActive =
+                              pokerActiveSidebarItem === item.label ||
+                              (item.label === 'Play Online' && pokerActiveSidebarItem === 'Start')
                             return (
                               <SidebarMenuItem key={index}>
                                 <Tooltip>
@@ -8856,7 +8956,10 @@ function NavTestPageContent() {
                           {pokerNavMenuItems.map((item, index) => {
                             const Icon = item.icon
                             const isExternal = 'external' in item && item.external
-                            const isActive = !isExternal && pokerActiveSidebarItem === item.label
+                            const isActive =
+                              !isExternal &&
+                              (pokerActiveSidebarItem === item.label ||
+                                (item.label === 'Start' && pokerActiveSidebarItem === 'Play Online'))
                             return (
                               <SidebarMenuItem key={index}>
                                 <Tooltip>
