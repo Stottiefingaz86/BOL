@@ -7,7 +7,7 @@ import {
   IconTrophy,
   IconChevronRight,
   IconChevronDown,
-  IconRocket,
+  IconGift,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
@@ -192,7 +192,7 @@ export function SidebarPromos({
   return (
     <div className="px-2 pt-2 pb-1 min-w-0 max-w-full">
       <div className="rounded-lg bg-white/[0.025] border border-white/[0.06] overflow-hidden min-w-0">
-        {/* Toggle bar — rocket + "Promotions" + chevron (matches Promotion nav). */}
+        {/* Toggle bar — gift + "Promotions" + chevron (matches Promotion nav). */}
         <button
           type="button"
           onClick={toggle}
@@ -200,7 +200,7 @@ export function SidebarPromos({
           aria-expanded={isOpen}
           className="w-full h-9 flex items-center gap-2 px-2.5 hover:bg-white/[0.03] transition-colors"
         >
-          <IconRocket
+          <IconGift
             strokeWidth={1.8}
             className="w-4 h-4 text-white/55 flex-shrink-0"
           />

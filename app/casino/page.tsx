@@ -6161,7 +6161,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
   // Main POKER nav — deep links into one-pager sections
   const pokerNavItems = [
     { icon: IconCards, label: 'Start', sectionId: 'poker-hero' },
-    { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
+    { icon: IconSparkles, label: 'Features', sectionId: 'poker-features' },
     { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
     { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
     { icon: IconGift, label: 'Promotions', external: true as const },
@@ -7950,7 +7950,7 @@ function NavTestPageContent() {
 
   const pokerNavMenuItems = [
     { icon: IconCards, label: 'Start', sectionId: 'poker-hero' },
-    { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
+    { icon: IconSparkles, label: 'Features', sectionId: 'poker-features' },
     { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
     { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
     { icon: IconGift, label: 'Promotions', external: true as const },
