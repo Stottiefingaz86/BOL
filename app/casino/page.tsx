@@ -222,6 +222,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { SpotlightOverlay, useCursorSpotlight } from '@/components/ui/cursor-spotlight'
 import {
   Table,
   TableBody,
@@ -6144,48 +6145,138 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
   const router = useRouter()
   const { state: sidebarState, toggleSidebar, setOpenMobile } = useSidebar()
   const [activeSidebarItem, setActiveSidebarItem] = useState('Poker Lobby')
-
-  // Resolve actual primary color hex for canvas-based components
-  const [resolvedPrimary, setResolvedPrimary] = useState('#ee3536')
-  useEffect(() => {
-    const resolve = () => {
-      const val = getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim()
-      if (val) setResolvedPrimary(val)
-      else setResolvedPrimary('#ee3536')
-    }
-    resolve()
-    // Re-resolve when brand changes (CSS variable updates)
-    const observer = new MutationObserver(() => resolve())
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] })
-    return () => observer.disconnect()
-  }, [])
+  const {
+    ref: heroSpotlightRef,
+    handleMouseMove: handleHeroMouseMove,
+    handleMouseLeave: handleHeroMouseLeave,
+    spotlightSurfaceStyle: heroSpotlightStyle,
+  } = useCursorSpotlight()
 
   // Top "PLAY NOW" feature items (like sports FEATURES)
   const pokerPlayNow = [
-    { icon: IconPlayerPlay, label: 'Play Online' },
-    { icon: IconDownload, label: 'Download' },
+    { icon: IconPlayerPlay, label: 'Play Online', sectionId: 'poker-hero' },
+    { icon: IconDownload, label: 'Download', sectionId: 'poker-download' },
   ]
 
-  // Main POKER nav items
+  // Main POKER nav — deep links into one-pager sections
   const pokerNavItems = [
-    { icon: IconCards, label: 'Poker Lobby' },
-    { icon: IconRocket, label: 'Getting Started' },
-    { icon: IconStar, label: 'Features' },
-    { icon: IconShield, label: 'Integrity' },
-    { icon: IconGift, label: 'Promos' },
-    { icon: IconHelpCircle, label: 'Help' },
+    { icon: IconCards, label: 'Poker Lobby', sectionId: 'poker-hero' },
+    { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
+    { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
+    { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
+    { icon: IconGift, label: 'Promotions', external: true as const },
+  ]
+
+  const scrollToSection = (sectionId: string, label: string) => {
+    setActiveSidebarItem(label)
+    const el = document.getElementById(sectionId)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (isMobile) setOpenMobile(false)
+  }
+
+  const gettingStartedSteps = [
+    {
+      title: 'Create Account',
+      description:
+        'Select Create Account from the poker software or Join Now on the website and follow the on screen instructions.',
+      cta: 'Sign Up Now',
+    },
+    {
+      title: 'Deposit and Claim Bonus',
+      description:
+        'When the cashier loads enter your preferred deposit method and amount along with your chosen Poker Promotional Code.',
+      cta: 'Deposit Promotions',
+    },
+    {
+      title: 'Login to the Poker App',
+      description:
+        'Download and install the poker software or click Play Now to use the HTML version, then login with your newly created account.',
+      cta: 'Download Now',
+    },
+    {
+      title: 'Create Nickname',
+      description:
+        'Select your preferred nickname. This is how you will be seen at the poker tables and cannot be changed, so choose carefully.',
+      cta: 'Play Online',
+    },
+    {
+      title: 'Transfer Funds and Play!',
+      description:
+        'Click on Cashier and transfer your funds to your poker wallet, select your game of choice, and good luck at the tables.',
+      cta: 'How to Transfer',
+    },
+  ]
+
+  const integrityTopics = [
+    {
+      title: 'Combatting Bot Usage',
+      body: 'Automated programs have no place at our tables. We continuously monitor play patterns to detect and remove bots.',
+    },
+    {
+      title: 'Preventing Collusion',
+      body: 'Secret cooperation between players is actively surveilled. Suspicious rings are investigated and actioned.',
+    },
+    {
+      title: 'Tournament Integrity Checks',
+      body: 'Major tournament results are reviewed so prize pools go to players who earned them fairly.',
+    },
+    {
+      title: 'Addressing Multi-Accounting',
+      body: 'We detect and address players attempting to gain an edge through multiple accounts.',
+    },
+    {
+      title: 'Seating Scripts: Ensuring Equal Opportunity',
+      body: 'Automated table-joining scripts are monitored and blocked so every player gets a fair shot at open seats.',
+    },
+    {
+      title: 'Empowering Players through Reporting',
+      body: (
+        <>
+          See something off? Report it to{' '}
+          <a
+            href="mailto:gameintegrity@chicopokernetwork.com"
+            className="text-white underline decoration-white/40 underline-offset-2 hover:decoration-white"
+          >
+            gameintegrity@chicopokernetwork.com
+          </a>
+          .
+        </>
+      ),
+    },
   ]
 
   const topFeatures = [
-    { title: 'All-In Cash Out', description: 'Purchase the equity of your hand at any point before the river and protect your winning hands.', image: '/banners/poker/all in cash out.png' },
-    { title: 'Throwables', description: 'Fun interactive way to express yourself at the tables. What happened in the hand and how did it make you feel.', image: '/banners/poker/throwables.webp' },
-    { title: 'Straddle', description: 'Experience the thrill of bigger pots and gain a competitive edge by straddling in poker cash games. Try it now.', image: '/banners/poker/straddle.png' },
-    { title: 'Bomb Pot Discard', description: 'Welcome to the most exciting twist on Texas Hold\'em to date! Our new five-handed bomb pot discard game, designed for players who love big pots, bold plays.', image: '/banners/poker/bomb_pots.png' },
-    { title: 'Heads-Up Display', description: 'Heads-Up Display (HUD) is an easy-to-use and helpful tool that displays on the poker table to give you key stats.', image: '/banners/poker/heads up.webp' },
-    { title: 'Triple Threat Tournaments', description: 'Introducing Triple Threat Tournaments, where every game gives you three ways to cash-in bigtime!', image: '/banners/poker/tripple threat.png' },
-    { title: 'Mystery Bounty Tournaments', description: 'Welcome to Mystery Bounty Tournaments, where poker players get the chance to turn their opponents into treasure chests of cash prizes.', image: null },
-    { title: 'Run It Multiple Times', description: 'All-in? Not sure of getting the win… Run it multiple times to split the remaining board across multiple outcomes!', image: null },
-  ]
+    {
+      title: 'All-In Cash Out',
+      description: 'Purchase the equity of your hand at any point before the river and protect your winning hands.',
+      image: '/banners/poker/all in cash out.png',
+    },
+    {
+      title: 'Throwables',
+      description: 'Fun interactive way to express yourself at the tables.',
+      image: '/banners/poker/throwables.webp',
+    },
+    {
+      title: 'Straddle',
+      description: 'Bigger pots and a competitive edge in cash games.',
+      image: '/banners/poker/straddle.png',
+    },
+    {
+      title: 'Bomb Pot Discard',
+      description: 'Five-handed bomb pot discard for players who love big pots and bold plays.',
+      image: '/banners/poker/bomb_pots.png',
+    },
+    {
+      title: 'Heads-Up Display',
+      description: 'Key table stats in an easy-to-use HUD overlay.',
+      image: '/banners/poker/heads up.webp',
+    },
+    {
+      title: 'Triple Threat Tournaments',
+      description: 'Three ways to cash in every game.',
+      image: '/banners/poker/tripple threat.png',
+    },
+  ] as const
 
   return (
     <div className="flex w-full min-h-screen bg-[var(--ds-page-bg)]" data-sidebar-full-height>
@@ -6368,7 +6459,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                setActiveSidebarItem(item.label)
+                                scrollToSection(item.sectionId, item.label)
                               }}
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
@@ -6404,7 +6495,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                 <SidebarMenu>
                   {pokerNavItems.map((item, index) => {
                     const Icon = item.icon
-                    const isActive = activeSidebarItem === item.label
+                    const isExternal = 'external' in item && item.external
+                    const isActive = !isExternal && activeSidebarItem === item.label
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -6414,17 +6506,31 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
-                                setActiveSidebarItem(item.label)
+                                if (isExternal) {
+                                  if (isMobile) setOpenMobile(false)
+                                  onNavigate?.('vipRewards')
+                                  return
+                                }
+                                if ('sectionId' in item && item.sectionId) {
+                                  scrollToSection(item.sectionId, item.label)
+                                }
                               }}
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                isExternal
+                                  ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                  : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                               )}
                               style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
                               <Icon strokeWidth={1.5} className="w-5 h-5" />
-                              <span>{item.label}</span>
+                              <span className={cn(isExternal && 'flex-1 text-left')}>{item.label}</span>
+                              {isExternal ? (
+                                <IconLogin2
+                                  strokeWidth={1.5}
+                                  className="ml-auto h-4 w-4 shrink-0 opacity-50"
+                                />
+                              ) : null}
                             </SidebarMenuButton>
                           </TooltipTrigger>
                           {sidebarState === 'collapsed' && (
@@ -6452,235 +6558,253 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
       <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: 'auto', flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
         <div className="flex flex-col">
 
-          {/* HERO */}
-          <section className="relative overflow-hidden px-4 md:px-6 pt-14 pb-14">
-            {/* Dotted Glow Background — faded with bottom fade-out, uses brand primary */}
-            <DottedGlowBackground
-              className="pointer-events-none opacity-25"
-              opacity={0.5}
-              gap={11}
-              radius={1.5}
-              color="rgba(255,255,255,0.12)"
-              glowColor={(() => { try { const h = resolvedPrimary.replace('#',''); const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16); return `rgba(${r},${g},${b},0.65)`; } catch { return 'rgba(238,53,54,0.65)'; } })()}
-              darkColor="rgba(255,255,255,0.14)"
-              darkGlowColor={(() => { try { const h = resolvedPrimary.replace('#',''); const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16); return `rgba(${r},${g},${b},0.65)`; } catch { return 'rgba(238,53,54,0.65)'; } })()}
-              backgroundOpacity={0}
-              speedMin={0.3}
-              speedMax={1.6}
-              speedScale={1}
-            />
-            {/* Bottom fade overlay */}
-            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#1a1a1a] to-transparent z-[1] pointer-events-none" />
-            {/* Glow line — full width, uses brand primary */}
-            <div className="absolute top-0 left-0 right-0 z-[2] flex items-center justify-center pointer-events-none">
-              <div className="w-full h-[1px]" style={{ background: `linear-gradient(to right, transparent, ${resolvedPrimary}4D, transparent)` }} />
-              <div className="absolute w-full h-[10px] blur-sm" style={{ background: `linear-gradient(to right, transparent, ${resolvedPrimary}80, transparent)` }} />
-              <div className="absolute w-full h-[24px] blur-md" style={{ background: `linear-gradient(to right, transparent, ${resolvedPrimary}4D, transparent)` }} />
-              <div className="absolute w-3/4 h-[44px] blur-xl" style={{ background: `linear-gradient(to right, transparent, ${resolvedPrimary}33, transparent)` }} />
-                </div>
+          {/* HERO — Figma app-integration-10: inset card, pl/py 56, art flush right/bottom */}
+          <section id="poker-hero" className="relative scroll-mt-20 w-full px-3 pt-4 sm:px-4 md:px-7 md:pt-8">
+            <div
+              ref={heroSpotlightRef}
+              onMouseMove={handleHeroMouseMove}
+              onMouseLeave={handleHeroMouseLeave}
+              style={heroSpotlightStyle}
+              className="relative w-full overflow-hidden rounded-2xl bg-[#222] md:rounded-3xl"
+            >
+              <SpotlightOverlay radiusPx={320} mixPercent={22} />
+              <div className="relative z-[2] flex min-h-0 flex-col md:min-h-[470px] md:flex-row md:items-stretch">
+                {/* Copy + CTAs */}
+                <div className="relative z-10 flex w-full flex-col gap-6 px-4 py-8 text-center sm:px-6 md:w-[min(100%,560px)] md:shrink-0 md:items-start md:gap-6 md:py-14 md:pl-14 md:pr-0 md:text-left">
+                  <h1 className="w-full text-[1.75rem] font-bold leading-tight text-white sm:text-3xl md:text-[48px] md:leading-[1.15]">
+                    <span className="block">The BetOnline</span>
+                    <span className="block">Poker Platform</span>
+                  </h1>
+                  <p className="mx-auto max-w-md text-sm leading-6 text-white/60 md:mx-0 md:max-w-none md:text-base">
+                    Play online or download the BetOnline poker app today, available on iOS, PC, and Android.
+                  </p>
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-10 max-w-6xl mx-auto">
-              {/* Left — text content, left-aligned on desktop */}
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl md:text-5xl font-bold text-[var(--ds-fg)] mb-3 leading-tight">
-                  The BetOnline<br />Poker Platform
-                </h1>
-                <p className="text-sm md:text-base text-[var(--ds-fg-muted)] mb-6 max-w-lg">
-                  Play online or download the BetOnline poker app today,<br />available on IOS, PC, and Android.
-                </p>
-                <div className="flex items-center md:justify-start justify-center gap-3 mb-6">
-                  <Button className="text-white font-semibold text-sm px-6 py-3 h-11 rounded-small gap-2" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                    <IconDownload className="w-4 h-4" strokeWidth={2} />
-                    DOWNLOAD &amp; PLAY
-                  </Button>
-                  <Button variant="outline" className="text-[var(--ds-fg)] font-semibold text-sm px-6 py-3 h-11 rounded-small border-white/20 bg-transparent hover:bg-[var(--ds-control-bg)]">
-                    PLAY ONLINE
-                  </Button>
-                </div>
+                  <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:w-auto md:justify-start">
+                    <Button
+                      className="h-10 w-full rounded-lg border-0 px-6 text-sm font-medium text-white sm:w-auto"
+                      style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                    >
+                      Play Online
+                    </Button>
+                  </div>
 
-                {/* Separator */}
-                <div className="w-full max-w-md h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent mb-6 md:mx-0 mx-auto" />
+                  <Separator className="hidden w-full bg-white/[0.08] md:block" />
 
-                {/* Platform availability — compact, single row */}
-                <div className="flex items-center md:justify-start justify-center gap-2 md:gap-3">
-                  {[
-                    { icon: IconBrandApple, label: 'iOS', sublabel: 'APP STORE' },
-                    { icon: IconBrandWindows, label: 'Windows', sublabel: 'DESKTOP' },
-                    { icon: IconBrandAndroid, label: 'Android', sublabel: 'GOOGLE PLAY' },
-                    { icon: IconDeviceDesktop, label: 'Mac', sublabel: 'DESKTOP' },
-                  ].map((platform, idx) => {
-                    const Icon = platform.icon
-                    return (
-                      <button key={idx} className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg bg-[var(--ds-overlay)] border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/15 transition-all group">
-                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-[var(--ds-fg-subtle)] group-hover:text-[var(--ds-fg-muted)] transition-colors flex-shrink-0" strokeWidth={1.5} />
-                        <div className="text-left">
-                          <div className="text-[7px] md:text-[8px] text-white/35 uppercase tracking-wider leading-none">{platform.sublabel}</div>
-                          <div className="text-[10px] md:text-xs font-semibold text-[var(--ds-fg-muted)]">{platform.label}</div>
-                        </div>
+                  <div className="flex w-full flex-row gap-2 md:gap-3">
+                    {[
+                      { src: '/banners/poker/platforms/apple.svg', label: 'iOS', alt: 'Apple' },
+                      { src: '/banners/poker/platforms/windows.svg', label: 'Windows', alt: 'Windows' },
+                      { src: '/banners/poker/platforms/android.svg', label: 'Android', alt: 'Android' },
+                    ].map((platform) => (
+                      <button
+                        key={platform.label}
+                        type="button"
+                        className="inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-2 text-left transition-colors hover:bg-white/[0.08] sm:gap-2 sm:px-3 sm:py-2.5 md:flex-none"
+                      >
+                        <span className="relative flex size-6 shrink-0 items-center justify-center overflow-hidden sm:size-8">
+                          <Image
+                            src={platform.src}
+                            alt={platform.alt}
+                            width={32}
+                            height={32}
+                            className="size-full object-contain"
+                            unoptimized
+                          />
+                        </span>
+                        <span className="min-w-0 leading-none">
+                          <span className="block truncate text-[9px] leading-[12px] text-white/60 sm:text-[10px] sm:leading-[14px]">
+                            Download for
+                          </span>
+                          <span className="block truncate text-xs font-semibold leading-4 text-white sm:text-sm sm:leading-5">
+                            {platform.label}
+                          </span>
+                        </span>
                       </button>
-                    )
-                  })}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Right — Poker Ape SVG, aligned to bottom */}
-              <div className="hidden md:flex items-end justify-center flex-shrink-0" style={{ marginBottom: '-56px' }}>
-                <Image
-                  src="/pokerape/UI Design - 29/09/Image.svg"
-                  alt="Poker Ape"
-                  width={420}
-                  height={420}
-                  className="object-contain"
-                  priority
-                />
+                {/* Art — mobile stacked; desktop fills right side, flush to edges */}
+                <div className="relative aspect-[5/4] w-full md:absolute md:inset-y-0 md:right-0 md:aspect-auto md:w-[min(58%,720px)]">
+                  <Image
+                    src="/banners/poker/pro-blocks/marketing-ui/app-integration/block-heading/Container.png"
+                    alt="BetOnline Poker"
+                    fill
+                    className="object-contain object-bottom md:object-contain md:object-right-bottom"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 58vw"
+                  />
+                </div>
               </div>
             </div>
           </section>
 
 
-          {/* OUR TOP FEATURES — Carousel */}
-          <section className="py-10 bg-white/[0.02]">
+          {/* OUR TOP FEATURES — Bento grid */}
+          <section id="poker-features" className="scroll-mt-20 py-12 bg-white/[0.02]">
             <div className="px-4 md:px-6 text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-2">Our Top Features</h2>
               <p className="text-sm text-[var(--ds-fg-subtle)] max-w-lg mx-auto">
                 Some of the features available. Play Now or Download our poker software to try them out.
-                  </p>
-                </div>
-            <div className="w-full">
-              <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                {!isMobile && (
-                  <>
-                    <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
-                    <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
-                  </>
-                )}
-                <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
-                  {topFeatures.map((feature, index) => (
-                    <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-3 md:pl-4'} basis-auto flex-shrink-0`}>
-                      <Card className="bg-[var(--ds-overlay)] border-[var(--ds-control-border)] hover:bg-[var(--ds-control-bg)] transition-colors h-full w-[260px] md:w-[300px] overflow-hidden">
-                        <div className="w-full aspect-[16/10] bg-[var(--ds-control-bg)] overflow-hidden relative">
-                          {feature.image ? (
-                            <div className="absolute inset-0 -right-[20px] overflow-hidden">
-                              <Image src={feature.image} alt={feature.title} fill className="object-cover object-right" />
-              </div>
-                          ) : (
-                            <>
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
-                              <svg className="w-10 h-10 text-white/20 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            </>
-                          )}
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="text-base font-semibold text-[var(--ds-fg)] mb-2 text-left">{feature.title}</h3>
-                          <p className="text-xs text-[var(--ds-fg-subtle)] leading-relaxed text-left line-clamp-3">{feature.description}</p>
-            </CardContent>
-          </Card>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-      </div>
-            <div className="text-center mt-8">
-              <Button className="text-white font-semibold text-sm px-10 py-3 h-11 rounded-small mx-auto" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                FIND MORE
-              </Button>
+              </p>
             </div>
-          </section>
-
-          {/* NEW TO BETONLINE POKER */}
-          <section className="px-4 md:px-6 py-10">
-            <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-md rounded-xl bg-[var(--ds-control-bg)] overflow-hidden relative">
-                  <Image src="/banners/poker/new to betonline.jpg" alt="New to BetOnline Poker" fill className="object-cover" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 italic">New to Betonline Poker ?</h2>
-                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
-                    Find out how to register, how to transfer funds to your poker wallet, what games you can play here and what is the strongest hand at the tables.
-                  </p>
-                  <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                    LEARN HOW TO PLAY
-                  </Button>
-                </div>
-              </div>
-      </div>
-          </section>
-
-          {/* FAIR & TRUSTWORTHY */}
-          <section className="px-4 md:px-6 py-10 bg-white/[0.02]">
-            <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 leading-tight">
-                    Ensuring a Fair and Trustworthy Poker Experience
-                  </h2>
-                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
-                    Poker tournaments offer varied experiences, from highly competitive Sunday majors with big prize pools to casual daily events perfect for beginners. Our advanced security systems ensure fair play at every table.
-                  </p>
-                  <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                    MORE INFO
-                  </Button>
-                </div>
-                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-sm rounded-xl bg-[var(--ds-control-bg)] flex items-center justify-center overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
-                  <svg className="w-12 h-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* KEEPING GAMES CLEAN */}
-          <section className="px-4 md:px-6 py-10">
-            <div className="max-w-5xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 w-full md:w-auto max-w-sm">
-                  <div className="aspect-square rounded-xl bg-[var(--ds-control-bg)] flex items-center justify-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
-                    <div className="relative flex flex-col items-center gap-2 text-white/20">
-                      <IconShield className="w-16 h-16" strokeWidth={1} />
-                      <IconCheck className="w-8 h-8 text-green-500/40" />
+            <div className="mx-auto w-full px-4 md:px-6">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4">
+                {topFeatures.map((feature) => (
+                  <article
+                    key={feature.title}
+                    className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#1e1e1e] transition-colors hover:bg-[#222]"
+                  >
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141414]">
+                      <Image
+                        src={feature.image}
+                        alt={feature.title}
+                        fill
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e]/25 to-transparent" />
                     </div>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-4 italic">Keeping the Games Clean and Fair</h2>
-                  <p className="text-sm text-[var(--ds-fg-muted)] mb-6 leading-relaxed">
-                    We use industry-leading anti-fraud technology and independent auditing to guarantee the integrity of every game. Your safety and trust are our top priorities.
-                  </p>
-                  <Button className="text-white font-semibold text-sm px-8 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                    GETTING STARTED
-                  </Button>
-                </div>
+                    <div className="relative z-10 flex flex-col gap-1.5 p-4 pt-3 sm:p-5">
+                      <h3 className="text-base font-semibold text-white">{feature.title}</h3>
+                      <p className="text-sm leading-relaxed text-white/55 line-clamp-3">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </article>
+                ))}
               </div>
-      </div>
+            </div>
+          </section>
+
+          {/* GETTING STARTED */}
+          <section id="poker-getting-started" className="scroll-mt-20 px-4 md:px-6 py-12">
+            <div className="mx-auto max-w-4xl">
+              <div className="mb-8 text-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-2">Getting Started</h2>
+                <p className="text-sm text-[var(--ds-fg-subtle)] max-w-xl mx-auto">
+                  Five quick steps from sign-up to your first hand at the tables.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                {gettingStartedSteps.map((step, index) => (
+                  <div
+                    key={step.title}
+                    className="flex flex-col gap-4 rounded-xl bg-[var(--ds-overlay)] px-4 py-4 sm:flex-row sm:items-center sm:gap-5 sm:px-5"
+                  >
+                    <div
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                      style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                    >
+                      {index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-semibold text-[var(--ds-fg)]">{step.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-[var(--ds-fg-subtle)]">{step.description}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="h-10 shrink-0 rounded-small border-white/15 bg-white/[0.04] px-4 text-sm font-medium text-[var(--ds-fg)] hover:bg-white/[0.08] sm:self-center"
+                      onClick={() => {
+                        if (step.cta === 'Sign Up Now') requestLogin()
+                        if (step.cta === 'Download Now') scrollToSection('poker-download', 'Download')
+                        if (step.cta === 'Play Online') scrollToSection('poker-hero', 'Play Online')
+                      }}
+                    >
+                      {step.cta}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* GAME INTEGRITY */}
+          <section id="poker-integrity" className="scroll-mt-20 px-4 md:px-6 py-12 bg-white/[0.02]">
+            <div className="mx-auto max-w-5xl">
+              <div className="mb-8 text-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-2">
+                  Ensuring a Fair and Trustworthy Poker Experience
+                </h2>
+                <p className="text-sm text-[var(--ds-fg-subtle)] max-w-2xl mx-auto">
+                  Our Game Integrity team protects every table so you can focus on the cards in front of you.
+                </p>
+              </div>
+
+              <div className="relative mb-10 aspect-[21/9] w-full overflow-hidden rounded-2xl bg-[#1a1a1a]">
+                <Image
+                  src="/banners/poker/poker_topimage.jpg"
+                  alt="BetOnline poker gameplay"
+                  fill
+                  className="object-cover object-center opacity-90"
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+                <button
+                  type="button"
+                  className="absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl text-white shadow-lg transition-transform hover:scale-105"
+                  style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                  aria-label="Play integrity video"
+                >
+                  <IconPlayerPlay className="size-7 fill-white" strokeWidth={0} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
+                {integrityTopics.map((topic) => (
+                  <div key={topic.title} className="flex flex-col gap-2">
+                    <h3 className="text-base font-semibold text-[var(--ds-fg)]">{topic.title}</h3>
+                    <p className="text-sm leading-relaxed text-[var(--ds-fg-subtle)]">{topic.body}</p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-8 text-sm leading-relaxed text-[var(--ds-fg-subtle)] text-center max-w-3xl mx-auto">
+                From bots and collusion to multi-accounting and seating scripts, our integrity systems work around the clock so every pot is earned the right way.
+              </p>
+
+              <div className="mt-8 flex justify-center">
+                <Button className="text-white font-semibold text-sm px-10 py-3 h-11 rounded-small" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
+                  More Info
+                </Button>
+              </div>
+            </div>
           </section>
 
           {/* DOWNLOAD SECTION */}
-          <section className="px-4 md:px-6 py-10 bg-white/[0.02]">
+          <section id="poker-download" className="scroll-mt-20 px-4 md:px-6 py-12">
             <div className="max-w-5xl mx-auto text-center">
               <h2 className="text-2xl md:text-3xl font-bold text-[var(--ds-fg)] mb-3">Download Our Poker App</h2>
               <p className="text-sm text-[var(--ds-fg-subtle)] mb-8 max-w-lg mx-auto">
                 Available on all major platforms. Get the best poker experience on any device.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 {[
-                  { icon: IconBrandApple, label: 'iOS', sublabel: 'App Store' },
-                  { icon: IconBrandWindows, label: 'Windows', sublabel: 'Desktop' },
-                  { icon: IconBrandAndroid, label: 'Android', sublabel: 'Google Play' },
-                  { icon: IconDeviceDesktop, label: 'Mac', sublabel: 'Desktop' },
-                ].map((platform, idx) => {
-                  const Icon = platform.icon
-                  return (
-                    <button key={idx} className="flex items-center gap-3 px-5 py-3 rounded-small bg-[var(--ds-overlay)] border border-[var(--ds-control-border)] hover:bg-white/[0.08] hover:border-[var(--ds-border)] transition-all group">
-                      <Icon className="w-8 h-8 text-[var(--ds-fg-muted)] group-hover:text-[var(--ds-fg)] transition-colors" strokeWidth={1.5} />
-                      <div className="text-left">
-                        <div className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wide">{platform.sublabel}</div>
-                        <div className="text-sm font-semibold text-[var(--ds-fg)]">{platform.label}</div>
-                      </div>
-                    </button>
-                  )
-                })}
+                  { src: '/banners/poker/platforms/apple.svg', label: 'iOS', sublabel: 'App Store' },
+                  { src: '/banners/poker/platforms/windows.svg', label: 'Windows', sublabel: 'Desktop' },
+                  { src: '/banners/poker/platforms/android.svg', label: 'Android', sublabel: 'Google Play' },
+                ].map((platform) => (
+                  <button
+                    key={platform.label}
+                    type="button"
+                    className="flex items-center gap-3 rounded-lg bg-[var(--ds-overlay)] px-5 py-3 transition-colors hover:bg-white/[0.08]"
+                  >
+                    <span className="relative flex size-8 shrink-0 items-center justify-center overflow-hidden">
+                      <Image
+                        src={platform.src}
+                        alt={platform.label}
+                        width={32}
+                        height={32}
+                        className="h-full w-full object-contain"
+                        unoptimized
+                      />
+                    </span>
+                    <div className="text-left">
+                      <div className="text-[10px] text-[var(--ds-fg-subtle)] uppercase tracking-wide">{platform.sublabel}</div>
+                      <div className="text-sm font-semibold text-[var(--ds-fg)]">{platform.label}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </section>
@@ -7820,18 +7944,24 @@ function NavTestPageContent() {
   ]
 
   const pokerPlayNowItems = [
-    { icon: IconPlayerPlay, label: 'Play Online' },
-    { icon: IconDownload, label: 'Download' },
+    { icon: IconPlayerPlay, label: 'Play Online', sectionId: 'poker-hero' },
+    { icon: IconDownload, label: 'Download', sectionId: 'poker-download' },
   ]
 
   const pokerNavMenuItems = [
-    { icon: IconCards, label: 'Poker Lobby' },
-    { icon: IconRocket, label: 'Getting Started' },
-    { icon: IconStar, label: 'Features' },
-    { icon: IconShield, label: 'Integrity' },
-    { icon: IconGift, label: 'Promos' },
-    { icon: IconHelpCircle, label: 'Help' },
+    { icon: IconCards, label: 'Poker Lobby', sectionId: 'poker-hero' },
+    { icon: IconStar, label: 'Features', sectionId: 'poker-features' },
+    { icon: IconRocket, label: 'Getting Started', sectionId: 'poker-getting-started' },
+    { icon: IconShield, label: 'Integrity', sectionId: 'poker-integrity' },
+    { icon: IconGift, label: 'Promotions', external: true as const },
   ]
+
+  const scrollToPokerSection = (sectionId: string, label: string) => {
+    setPokerActiveSidebarItem(label)
+    const el = document.getElementById(sectionId)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (isMobile) setOpenMobile(false)
+  }
 
   const sidebarMenuItems = [
     { icon: IconFlame, label: 'Popular Games' },
@@ -8692,7 +8822,7 @@ function NavTestPageContent() {
                                       onClick={(e) => {
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        setPokerActiveSidebarItem(item.label)
+                                        scrollToPokerSection(item.sectionId, item.label)
                                       }}
                                       className={cn(
                                         "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
@@ -8725,7 +8855,8 @@ function NavTestPageContent() {
                         <SidebarMenu>
                           {pokerNavMenuItems.map((item, index) => {
                             const Icon = item.icon
-                            const isActive = pokerActiveSidebarItem === item.label
+                            const isExternal = 'external' in item && item.external
+                            const isActive = !isExternal && pokerActiveSidebarItem === item.label
                             return (
                               <SidebarMenuItem key={index}>
                                 <Tooltip>
@@ -8735,17 +8866,33 @@ function NavTestPageContent() {
                                       onClick={(e) => {
                                         e.preventDefault()
                                         e.stopPropagation()
-                                        setPokerActiveSidebarItem(item.label)
+                                        if (isExternal) {
+                                          if (isMobile) setOpenMobile(false)
+                                          setShowPoker(false)
+                                          setShowSports(false)
+                                          setShowVipRewards(true)
+                                          return
+                                        }
+                                        if ('sectionId' in item && item.sectionId) {
+                                          scrollToPokerSection(item.sectionId, item.label)
+                                        }
                                       }}
                                       className={cn(
                                         "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
-                                        "data-[active=true]:text-white data-[active=true]:font-medium",
-                                        "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                        isExternal
+                                          ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                          : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                       )}
                                       style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                                     >
                                       <Icon strokeWidth={1.5} className="w-5 h-5" />
-                                      <span>{item.label}</span>
+                                      <span className={cn(isExternal && 'flex-1 text-left')}>{item.label}</span>
+                                      {isExternal ? (
+                                        <IconLogin2
+                                          strokeWidth={1.5}
+                                          className="ml-auto h-4 w-4 shrink-0 opacity-50"
+                                        />
+                                      ) : null}
                                     </SidebarMenuButton>
                                   </TooltipTrigger>
                                   {sidebarState === 'collapsed' && (
@@ -9281,6 +9428,25 @@ function NavTestPageContent() {
                 </motion.div>
               ) : showPoker ? (
                 <div key="poker-page">
+                  {/* Spacer for poker page — accounts for fixed header + quick links on mobile */}
+                  <motion.div
+                    initial={false}
+                    animate={isMobile ? {
+                      height: quickLinksOpen ? '40px' : '0px'
+                    } : {
+                      height: '0px'
+                    }}
+                    transition={isMobile ? {
+                      type: "tween",
+                      ease: "linear",
+                      duration: 0.3
+                    } : {
+                      type: "tween",
+                      ease: "easeOut",
+                      duration: 0.2
+                    }}
+                    style={{ overflow: 'hidden' }}
+                  />
                   <PokerLandingPage 
                     brandPrimary={brandPrimary || '#ee3536'}
                     quickLinksOpen={quickLinksOpen}

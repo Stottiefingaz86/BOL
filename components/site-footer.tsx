@@ -179,6 +179,8 @@ export type SiteFooterProps = {
   /** Hide the expandable SEO block above the footer link directory. */
   showSeo?: boolean
   seo?: Omit<SeoPageContentProps, 'brandName' | 'brandUrl'>
+  /** Force SEO card light/dark, or follow theme (`auto`). */
+  seoAppearance?: SeoPageContentProps['appearance']
 }
 
 export function SiteFooter({
@@ -187,6 +189,7 @@ export function SiteFooter({
   brandUrl = 'BetOnline.ag',
   showSeo = true,
   seo,
+  seoAppearance = 'auto',
 }: SiteFooterProps) {
   const [currentTime, setCurrentTime] = useState('')
 
@@ -212,7 +215,12 @@ export function SiteFooter({
   return (
     <div className={cn('relative z-0 mt-10 w-full', className)}>
       {showSeo ? (
-        <SeoPageContent brandName={brandName} brandUrl={brandUrl} {...seo} />
+        <SeoPageContent
+          brandName={brandName}
+          brandUrl={brandUrl}
+          {...seo}
+          appearance={seo?.appearance ?? seoAppearance}
+        />
       ) : null}
     <footer
       className="w-full bg-[#2c2c2c] text-white"
