@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { SeoPageContent, type SeoPageContentProps } from '@/components/seo-page-content'
 import { cn } from '@/lib/utils'
 
 const FOOTER_COLUMNS = [
@@ -174,12 +175,17 @@ export type SiteFooterProps = {
   className?: string
   brandName?: string
   brandUrl?: string
+  /** Hide the expandable SEO block above the footer link directory. */
+  showSeo?: boolean
+  seo?: Omit<SeoPageContentProps, 'brandName' | 'brandUrl'>
 }
 
 export function SiteFooter({
   className,
   brandName = 'BetOnline',
   brandUrl = 'BetOnline.ag',
+  showSeo = true,
+  seo,
 }: SiteFooterProps) {
   const [currentTime, setCurrentTime] = useState('')
 
@@ -203,11 +209,12 @@ export function SiteFooter({
   }, [])
 
   return (
+    <div className={cn('relative z-0 mt-10 w-full', className)}>
+      {showSeo ? (
+        <SeoPageContent brandName={brandName} brandUrl={brandUrl} {...seo} />
+      ) : null}
     <footer
-      className={cn(
-        'relative z-0 mt-12 w-full border-t border-white/[0.08] bg-[#2c2c2c] text-white',
-        className
-      )}
+      className="w-full bg-[#2c2c2c] text-white"
     >
       <div className="flex w-full flex-col gap-8 px-6 py-12">
         {/* Link directory — 7 equal columns */}
@@ -350,5 +357,6 @@ export function SiteFooter({
         </div>
       </div>
     </footer>
+    </div>
   )
 }
