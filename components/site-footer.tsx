@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { IconHeadset } from '@tabler/icons-react'
+import {
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandTelegram,
+  IconBrandTiktok,
+  IconBrandX,
+  IconBrandYoutube,
+  IconCrown,
+  IconHeadset,
+  type Icon,
+} from '@tabler/icons-react'
 import { SeoPageContent, type SeoPageContentProps } from '@/components/seo-page-content'
 import { cn } from '@/lib/utils'
 
@@ -83,19 +93,23 @@ const PARTNERS = [
   { src: '/banners/footer/partners/golden-boy.png', alt: 'Golden Boy', width: 108 },
 ] as const
 
-const SOCIAL = [
-  { src: '/banners/footer/social/facebook.svg', alt: 'Facebook', href: '#' },
-  { src: '/banners/footer/social/telegram.svg', alt: 'Telegram', href: '#' },
+const SOCIAL: {
+  icon: Icon
+  alt: string
+  href: string
+}[] = [
+  { icon: IconBrandFacebook, alt: 'Facebook', href: '#' },
+  { icon: IconBrandTelegram, alt: 'Telegram', href: '#' },
   {
-    src: '/banners/footer/social/telegram-vip.svg',
+    icon: IconCrown,
     alt: 'VIP Telegram',
     href: 'https://t.me/BetOnline_VIP_Notices',
   },
-  { src: '/banners/footer/social/instagram.svg', alt: 'Instagram', href: '#' },
-  { src: '/banners/footer/social/x.svg', alt: 'X', href: '#' },
-  { src: '/banners/footer/social/tiktok.svg', alt: 'TikTok', href: '#' },
-  { src: '/banners/footer/social/youtube.svg', alt: 'YouTube', href: '#' },
-] as const
+  { icon: IconBrandInstagram, alt: 'Instagram', href: '#' },
+  { icon: IconBrandX, alt: 'X', href: '#' },
+  { icon: IconBrandTiktok, alt: 'TikTok', href: '#' },
+  { icon: IconBrandYoutube, alt: 'YouTube', href: '#' },
+]
 
 type PaymentTile =
   | { kind: 'tile'; src: string; alt: string; bg: string; iconClass?: string }
@@ -236,7 +250,7 @@ export function SiteFooter({
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-xs font-medium leading-4 text-white/60 transition-colors hover:text-white/87"
+                      className="text-xs font-medium leading-4 text-white/60 transition-colors duration-150 hover:text-white"
                     >
                       {link}
                     </a>
@@ -298,19 +312,22 @@ export function SiteFooter({
             </div>
           </div>
 
-          <div className="flex items-center justify-start gap-5 lg:justify-end">
-            {SOCIAL.map((item) => (
-              <a
-                key={item.alt}
-                href={item.href}
-                target={item.href.startsWith('http') ? '_blank' : undefined}
-                rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
-                className="relative size-6 shrink-0 opacity-90 transition-opacity hover:opacity-100"
-                aria-label={item.alt}
-              >
-                <Image src={item.src} alt="" fill className="object-contain" unoptimized />
-              </a>
-            ))}
+          <div className="flex items-center justify-start gap-4 lg:justify-end lg:gap-5">
+            {SOCIAL.map((item) => {
+              const Icon = item.icon
+              return (
+                <a
+                  key={item.alt}
+                  href={item.href}
+                  target={item.href.startsWith('http') ? '_blank' : undefined}
+                  rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-white/50 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white"
+                  aria-label={item.alt}
+                >
+                  <Icon className="size-5" stroke={1.5} aria-hidden />
+                </a>
+              )
+            })}
           </div>
         </div>
 

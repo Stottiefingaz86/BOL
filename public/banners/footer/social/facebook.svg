@@ -1,10 +1,6 @@
-<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 12.7573 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Isolation_Mode" clip-path="url(#clip0_0_5869)">
-<path id="Vector" d="M11.9214 13.3981L12.5825 9.08738H8.4466V6.2901C8.4466 5.11078 9.02447 3.96117 10.8769 3.96117H12.7573V0.291262C12.7573 0.291262 11.0508 0 9.41913 0C6.01282 0 3.78641 2.06447 3.78641 5.80194V9.08738H0V13.3981H3.78641V23.8188C4.54573 23.938 5.32369 24 6.1165 24C6.90932 24 7.68728 23.938 8.4466 23.8188V13.3981H11.9214Z" fill="white" fill-opacity="0.6"/>
-</g>
-<defs>
-<clipPath id="clip0_0_5869">
-<rect width="12.7573" height="24" fill="white"/>
-</clipPath>
-</defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+  <path
+    d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h3.1l.9-3H13v-2c0-.6.4-1 1-1z"
+    fill="currentColor"
+  />
 </svg>
