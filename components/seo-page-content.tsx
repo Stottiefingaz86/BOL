@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { useTheme } from 'next-themes'
+import { IconChevronDown } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 export type SeoSection = {
@@ -18,6 +19,8 @@ export type SeoPageContentProps = {
   brandUrl?: string
   leftSections?: SeoSection[]
   rightSections?: SeoSection[]
+  /** Optional flat sections list; when set, overrides left/right concatenation */
+  sections?: SeoSection[]
   defaultOpen?: boolean
   /** Collapsed preview height before See More */
   collapsedHeight?: number
@@ -51,6 +54,15 @@ function InlineLink({
       {children}
     </a>
   )
+}
+
+function slugifyHeading(heading: string, index: number): string {
+  const base = heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64)
+  return base || `section-${index + 1}`
 }
 
 function defaultLeftSections(brandName: string, brandUrl: string, light: boolean): SeoSection[] {
@@ -192,43 +204,101 @@ function defaultRightSections(brandName: string, brandUrl: string, light: boolea
   ]
 }
 
-function SeoColumn({
-  sections,
-  startAsH2 = false,
+type TocItem = { id: string; label: string }
+
+function TocNav({
+  items,
   light,
+  className,
+  showTitle = true,
+  onNavigate,
 }: {
-  sections: SeoSection[]
-  startAsH2?: boolean
+  items: TocItem[]
   light: boolean
+  className?: string
+  showTitle?: boolean
+  onNavigate?: () => void
 }) {
+  if (items.length === 0) return null
+
   return (
-    <div className="flex min-w-0 flex-col gap-7">
-      {sections.map((section, index) => {
-        const Tag = startAsH2 && index === 0 ? 'h2' : 'h3'
-        return (
-          <div key={`${section.heading ?? 'block'}-${index}`} className="flex flex-col gap-3">
-            {section.heading ? (
-              <Tag
-                className={cn(
-                  'text-lg font-semibold leading-snug tracking-tight sm:text-xl',
-                  light ? 'text-zinc-900' : 'text-white'
-                )}
-              >
-                {section.heading}
-              </Tag>
-            ) : null}
-            <div
+    <nav aria-label="On this page" className={className}>
+      {showTitle ? (
+        <p
+          className={cn(
+            'mb-3 text-xs font-semibold uppercase tracking-wide',
+            light ? 'text-zinc-500' : 'text-white/45'
+          )}
+        >
+          On this page
+        </p>
+      ) : null}
+      <ul className="flex flex-col gap-1.5">
+        {items.map((item) => (
+          <li key={item.id} className="min-w-0">
+            <a
+              href={`#${item.id}`}
+              title={item.label}
+              onClick={onNavigate}
               className={cn(
-                'space-y-3 text-[13px] leading-[1.65] sm:text-sm',
-                light ? 'text-zinc-600 [&_a]:text-zinc-900' : 'text-white/55 [&_a]:text-white'
+                'block truncate text-sm leading-5 transition-colors',
+                light
+                  ? 'text-zinc-600 hover:text-zinc-900'
+                  : 'text-white/55 hover:text-white'
               )}
             >
-              {section.body}
-            </div>
-          </div>
-        )
-      })}
-    </div>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+function MobileToc({
+  items,
+  light,
+  onNavigate,
+}: {
+  items: TocItem[]
+  light: boolean
+  onNavigate?: () => void
+}) {
+  if (items.length === 0) return null
+
+  return (
+    <details
+      className={cn(
+        'group rounded-xl border lg:hidden',
+        light ? 'border-zinc-300/80 bg-white/40' : 'border-white/10 bg-white/[0.03]'
+      )}
+    >
+      <summary
+        className={cn(
+          'flex cursor-pointer list-none items-center justify-between gap-3 px-3.5 py-2.5 text-sm font-medium',
+          light ? 'text-zinc-900' : 'text-white',
+          '[&::-webkit-details-marker]:hidden'
+        )}
+      >
+        <span>On this page</span>
+        <IconChevronDown
+          className={cn(
+            'size-4 shrink-0 transition-transform group-open:rotate-180',
+            light ? 'text-zinc-500' : 'text-white/45'
+          )}
+          aria-hidden
+        />
+      </summary>
+      <div
+        className={cn(
+          'border-t px-3.5 py-3',
+          light ? 'border-zinc-300/80' : 'border-white/10'
+        )}
+      >
+        <TocNav items={items} light={light} showTitle={false} onNavigate={onNavigate} />
+      </div>
+    </details>
   )
 }
 
@@ -238,6 +308,7 @@ export function SeoPageContent({
   brandUrl = 'BetOnline.ag',
   leftSections,
   rightSections,
+  sections: sectionsProp,
   defaultOpen = false,
   collapsedHeight = 240,
   appearance = 'auto',
@@ -257,12 +328,36 @@ export function SeoPageContent({
 
   const left = leftSections ?? defaultLeftSections(brandName, brandUrl, light)
   const right = rightSections ?? defaultRightSections(brandName, brandUrl, light)
+  const sections = sectionsProp ?? [...left, ...right]
+
+  const tocItems = useMemo<TocItem[]>(() => {
+    const used = new Set<string>()
+    return sections.flatMap((section, index) => {
+      if (!section.heading) return []
+      let id = slugifyHeading(section.heading, index)
+      if (used.has(id)) id = `${id}-${index + 1}`
+      used.add(id)
+      return [{ id, label: section.heading }]
+    })
+  }, [sections])
+
+  const tocByIndex = useMemo(() => {
+    const map = new Map<number, string>()
+    let tocIndex = 0
+    sections.forEach((section, index) => {
+      if (!section.heading) return
+      map.set(index, tocItems[tocIndex]?.id ?? slugifyHeading(section.heading, index))
+      tocIndex += 1
+    })
+    return map
+  }, [sections, tocItems])
 
   return (
     <section className={cn('w-full px-4 pb-5 pt-2 sm:px-6', className)}>
       <div
         className={cn(
-          'relative overflow-hidden rounded-2xl',
+          'relative rounded-2xl',
+          !open && 'overflow-hidden',
           light
             ? 'border border-zinc-300/80 bg-[#ececec] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]'
             : 'border border-white/[0.08] bg-[#1e1e1e] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.07)]'
@@ -284,12 +379,67 @@ export function SeoPageContent({
             !open &&
               '[mask-image:linear-gradient(to_bottom,black_0%,black_42%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_42%,transparent_100%)]'
           )}
-          style={{ maxHeight: open ? 4000 : collapsedHeight }}
+          style={{ maxHeight: open ? 6000 : collapsedHeight }}
         >
           <div className="px-5 py-6 sm:px-8 sm:py-8">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10 lg:gap-14">
-              <SeoColumn sections={left} startAsH2 light={light} />
-              <SeoColumn sections={right} light={light} />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(12rem,3fr)] lg:gap-10 xl:gap-14">
+              {/* 70% — single content column */}
+              <div className="min-w-0">
+                {sections.map((section, index) => {
+                  const headingId = tocByIndex.get(index)
+                  const isFirst = index === 0
+
+                  return (
+                    <div
+                      key={`${section.heading ?? 'block'}-${index}`}
+                      className={cn('flex flex-col gap-3', index > 0 && 'mt-7')}
+                    >
+                      {section.heading ? (
+                        <h2
+                          id={headingId}
+                          className={cn(
+                            'scroll-mt-24 text-lg font-semibold leading-snug tracking-tight sm:text-xl',
+                            light ? 'text-zinc-900' : 'text-white'
+                          )}
+                        >
+                          {section.heading}
+                        </h2>
+                      ) : null}
+
+                      {/* Mobile: collapsed TOC directly under the main heading */}
+                      {isFirst ? (
+                        <MobileToc
+                          items={tocItems}
+                          light={light}
+                          onNavigate={() => setOpen(true)}
+                        />
+                      ) : null}
+
+                      <div
+                        className={cn(
+                          'space-y-3 text-[13px] leading-[1.65] sm:text-sm',
+                          light
+                            ? 'text-zinc-600 [&_a]:text-zinc-900'
+                            : 'text-white/55 [&_a]:text-white'
+                        )}
+                      >
+                        {section.body}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* 30% — desktop TOC */}
+              <aside className="hidden min-w-0 lg:block">
+                <div className="sticky top-24">
+                  <TocNav
+                    items={tocItems}
+                    light={light}
+                    onNavigate={() => setOpen(true)}
+                  />
+                </div>
+              </aside>
             </div>
           </div>
         </div>

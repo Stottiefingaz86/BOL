@@ -86,31 +86,12 @@ const FOOTER_COLUMNS = [
   },
 ] as const
 
+/** Complete partner tiles from public/banners/footer/partners (bg + logo baked in) */
 const PARTNERS = [
-  {
-    src: '/banners/footer/partners/laliga.svg',
-    alt: 'LaLiga',
-    tileWidth: 77,
-    logoHeight: 13,
-  },
-  {
-    src: '/banners/footer/partners/lfa.svg',
-    alt: 'LFA',
-    tileWidth: 77,
-    logoHeight: 13,
-  },
-  {
-    src: '/banners/footer/partners/matchroom-mark.svg',
-    alt: 'Matchroom',
-    tileWidth: 103,
-    logoHeight: 12,
-  },
-  {
-    src: '/banners/footer/partners/golden-boy-mark.png',
-    alt: 'Golden Boy',
-    tileWidth: 108,
-    logoHeight: 18,
-  },
+  { src: '/banners/footer/partners/laliga.png', alt: 'LaLiga', width: 81, height: 30 },
+  { src: '/banners/footer/partners/lfa.png', alt: 'LFA', width: 81, height: 30 },
+  { src: '/banners/footer/partners/matchroom.png', alt: 'Matchroom', width: 109, height: 30 },
+  { src: '/banners/footer/partners/golden-boy.png', alt: 'Golden Boy', width: 114, height: 30 },
 ] as const
 
 const SOCIAL: {
@@ -318,18 +299,15 @@ export function SiteFooter({
               <span className="hidden h-5 w-px shrink-0 bg-white/87 opacity-25 sm:block" aria-hidden />
               <div className="flex flex-wrap items-center gap-3">
                 {PARTNERS.map((partner) => (
-                  <div
+                  <Image
                     key={partner.alt}
-                    role="img"
-                    aria-label={partner.alt}
-                    className="h-[30px] shrink-0 rounded-[4px] border border-white/10 bg-[#3a3a3a]"
-                    style={{
-                      width: partner.tileWidth,
-                      backgroundImage: `url('${partner.src}')`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'center center',
-                      backgroundSize: `auto ${partner.logoHeight}px`,
-                    }}
+                    src={partner.src}
+                    alt={partner.alt}
+                    width={partner.width}
+                    height={partner.height}
+                    className="h-[30px] w-auto shrink-0"
+                    style={{ width: partner.width, height: partner.height }}
+                    unoptimized
                   />
                 ))}
               </div>
