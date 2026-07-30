@@ -226,14 +226,14 @@ function TocNav({
       {showTitle ? (
         <p
           className={cn(
-            'mb-3 text-xs font-semibold uppercase tracking-wide',
-            light ? 'text-zinc-500' : 'text-white/45'
+            'mb-3 text-sm font-semibold tracking-tight',
+            light ? 'text-zinc-900' : 'text-white'
           )}
         >
           On this page
         </p>
       ) : null}
-      <ul className="flex flex-col gap-1.5">
+      <ul className="flex flex-col gap-2">
         {items.map((item) => (
           <li key={item.id} className="min-w-0">
             <a
@@ -241,10 +241,10 @@ function TocNav({
               title={item.label}
               onClick={onNavigate}
               className={cn(
-                'block truncate text-sm leading-5 transition-colors',
+                'block truncate text-[15px] font-medium leading-snug transition-colors',
                 light
                   ? 'text-zinc-600 hover:text-zinc-900'
-                  : 'text-white/55 hover:text-white'
+                  : 'text-white/70 hover:text-white'
               )}
             >
               {item.label}
