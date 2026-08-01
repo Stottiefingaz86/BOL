@@ -22,6 +22,7 @@ export type CasinoSearchParamsEffectsProps = {
   setInitialVipSidebarItem: (v: string | null) => void
   setVipActiveSidebarItem: (v: string) => void
   setHubFocusMode: (v: boolean) => void
+  setPromosActiveTab?: (v: string) => void
 }
 
 /**
@@ -43,6 +44,7 @@ export function CasinoSearchParamsEffects({
   setInitialVipSidebarItem,
   setVipActiveSidebarItem,
   setHubFocusMode,
+  setPromosActiveTab,
 }: CasinoSearchParamsEffectsProps) {
   const searchParams = useSearchParams()
 
@@ -57,6 +59,7 @@ export function CasinoSearchParamsEffects({
       setShowSports(false)
       setShowVipRewards(true)
       const promoSectionParam = searchParams.get('section')
+      const promoTabParam = searchParams.get('promoTab')
       // Cash Races removed from Promotions — open VIP Hub Daily Races instead
       if (promoSectionParam === 'Cash Races') {
         setShowPoker(false)
@@ -73,6 +76,12 @@ export function CasinoSearchParamsEffects({
       }
       if (promoSectionParam) {
         setInitialVipSidebarItem(promoSectionParam)
+      }
+      if (
+        promoTabParam &&
+        ['Deposit Bonus', 'Sports', 'Casino', 'Poker'].includes(promoTabParam)
+      ) {
+        setPromosActiveTab?.(promoTabParam)
       }
       window.scrollTo(0, 0)
 
@@ -133,6 +142,7 @@ export function CasinoSearchParamsEffects({
     setVipActiveSidebarItem,
     setVipDrawerOpen,
     setHubFocusMode,
+    setPromosActiveTab,
   ])
 
   useEffect(() => {

@@ -113,7 +113,7 @@ const SPORTS_BENTO = [
  */
 function SportsBentoShelf() {
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
+    <div className="absolute inset-0 overflow-clip rounded-[inherit]" aria-hidden>
       <div className="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2 p-3 pb-3.5">
         {SPORTS_BENTO.map((tile) => (
           <div
@@ -145,7 +145,7 @@ function SportsBentoShelf() {
 /** Simple angled shelf of Originals — full game cards, clearly visible */
 function CasinoOriginalsShelf() {
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
+    <div className="absolute inset-0 overflow-clip rounded-[inherit]" aria-hidden>
       <div
         className="absolute left-1/2 top-[46%] grid w-[155%] grid-cols-4 gap-1.5"
         style={{
@@ -199,13 +199,13 @@ function DestinationCard({
           router.push(href)
         }
       }}
-      className="group relative isolate flex min-h-[200px] flex-1 cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 md:min-h-[240px]"
+      className="group relative isolate flex min-h-[200px] flex-1 cursor-pointer flex-col overflow-clip rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 md:min-h-[240px]"
       style={{
         clipPath: 'inset(0 round 1rem)',
         backgroundColor: 'rgba(20, 20, 20, 0.85)',
       }}
     >
-      <div className="absolute inset-0 overflow-hidden rounded-2xl">
+      <div className="absolute inset-0 overflow-clip rounded-2xl">
         <div className="absolute inset-0 origin-center transition-transform duration-500 ease-out group-hover:scale-[1.05]">
           {children}
         </div>
@@ -243,7 +243,7 @@ function HeroAtmosphere() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[2] overflow-hidden"
+      className="pointer-events-none absolute inset-0 z-[2] overflow-clip"
       aria-hidden
     >
       {/* Soft smoke wisps — kept quiet */}
@@ -318,12 +318,12 @@ export function HomeHero({
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-2xl border border-white/[0.08]',
+        'relative overflow-clip rounded-2xl border border-white/[0.08]',
         className
       )}
     >
       <div className="absolute inset-0 bg-[#1a1a1a]" />
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-clip">
         <Image
           src="/banners/new_home.png"
           alt=""

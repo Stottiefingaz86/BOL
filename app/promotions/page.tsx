@@ -11,10 +11,12 @@ function PromotionsRedirectInner() {
     const section = searchParams.get('section')
     const vip = searchParams.get('vip')
     const hubSection = searchParams.get('hubSection')
+    const promoTab = searchParams.get('promoTab')
     const params = new URLSearchParams({ vipRewardsPage: 'true' })
     if (section) params.set('section', section)
     if (vip === 'true') params.set('vip', 'true')
     if (hubSection) params.set('hubSection', hubSection)
+    if (promoTab) params.set('promoTab', promoTab)
     router.replace(`/casino?${params.toString()}`)
   }, [router, searchParams])
 

@@ -70,13 +70,13 @@ import {
   IconTicket,
   IconCheck,
   IconDeviceGamepad2,
-  IconBallFootball,
+  IconBallAmericanFootball,
   IconTrophy,
   IconLock,
   IconFlame,
   IconSparkles,
   IconStopwatch,
-  IconDice,
+  IconCherry,
   IconLifebuoy,
   IconRosetteFilled,
 } from '@tabler/icons-react'
@@ -1368,7 +1368,7 @@ function HomePageContent() {
 
   return (
     <div 
-      className="w-full bg-[var(--ds-page-bg)] text-[var(--ds-fg)] font-figtree overflow-x-hidden min-h-screen transition-colors duration-300" 
+      className="w-full bg-[var(--ds-page-bg)] text-[var(--ds-fg)] font-figtree overflow-x-clip min-h-screen transition-colors duration-300" 
       style={{ 
         width: '100%', 
         maxWidth: '100vw', 
@@ -3289,8 +3289,29 @@ function HomePageContent() {
       {/* Mobile: Dynamic Island Dock - Bottom of screen (hidden during game launcher) */}
       {isMobile && !selectedGame && (
         <DynamicIsland
+          showChat={false}
           showSearch={false}
           showFavorites={false}
+          customItems={[
+            {
+              id: 'Casino',
+              label: 'Casino',
+              icon: IconCherry,
+              onClick: () => {
+                trackNav('casino', 'Casino')
+                router.push('/casino')
+              },
+            },
+            {
+              id: 'Sports',
+              label: 'Sports',
+              icon: IconBallAmericanFootball,
+              onClick: () => {
+                trackNav('sports', 'Sports')
+                router.push('/sports/football')
+              },
+            },
+          ]}
         />
       )}
       </div>

@@ -1,27 +1,42 @@
 "use client";
 
-import { IconSearch, IconHeart, IconTicket, IconMessageCircle2 } from "@tabler/icons-react";
+import { IconSearch, IconHeart, IconTicket, IconMessageCircle2, IconReceipt } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ComponentType } from "react";
 import { createPortal } from "react-dom";
 import { useChatStore } from "@/lib/store/chatStore";
 import { useBetslipStore } from "@/lib/store/betslipStore";
+import { CHAT_ENABLED } from "@/lib/chat/feature";
+
+export type DynamicIslandCustomItem = {
+  id: string;
+  label: string;
+  icon: ComponentType<{ className?: string; strokeWidth?: number | string }>;
+  active?: boolean;
+  onClick: () => void;
+};
 
 export type DynamicIslandProps = {
   onSearchClick?: () => void;
   onFavoriteClick?: () => void;
   onBetslipClick?: () => void;
   onChatClick?: () => void;
+  onMyBetsClick?: () => void;
   className?: string;
   isSearchActive?: boolean;
   isFavoriteActive?: boolean;
   isChatActive?: boolean;
+  isMyBetsActive?: boolean;
   betCount?: number;
+  myBetsAlertCount?: number;
   showBetslip?: boolean;
   showChat?: boolean;
   showSearch?: boolean;
   showFavorites?: boolean;
+  showMyBets?: boolean;
+  /** When set, replaces the default search/chat/favorites cluster (betslip still shows if bets exist) */
+  customItems?: DynamicIslandCustomItem[];
 };
 
 export default function DynamicIsland({
@@ -29,15 +44,20 @@ export default function DynamicIsland({
   onFavoriteClick,
   onBetslipClick,
   onChatClick,
+  onMyBetsClick,
   className = "",
   isSearchActive = false,
   isFavoriteActive = false,
   isChatActive: isChatActiveProp,
+  isMyBetsActive = false,
   betCount = 0,
+  myBetsAlertCount = 0,
   showBetslip = false,
-  showChat = true,
+  showChat = CHAT_ENABLED,
   showSearch = true,
   showFavorites = true,
+  showMyBets,
+  customItems,
 }: DynamicIslandProps) {
   // Use the global chat store directly — chat is now global
   const chatStore = useChatStore()
@@ -67,6 +87,10 @@ export default function DynamicIsland({
   const [portalEl, setPortalEl] = useState<HTMLElement | null>(null);
   const [scrollVisible, setScrollVisible] = useState(true);
   const lastScrollYRef = useRef(0);
+  const hasCustomItems = Boolean(customItems && customItems.length > 0)
+  // Sports dock: Search + My Bets + Betslip (no chat). Default My Bets on when betslip is shown.
+  const shouldShowMyBets = showMyBets ?? (showBetslip && Boolean(onMyBetsClick))
+  const chatVisible = showChat && CHAT_ENABLED && !shouldShowMyBets
 
   // Create or find a dedicated portal root for the dock.
   // Uses a MutationObserver to ensure the root stays as a DIRECT child of body.
@@ -167,86 +191,155 @@ export default function DynamicIsland({
               duration: 0.3
             }}
             style={{ pointerEvents: 'auto' }}
+            className={className}
           >
-            <div className="flex items-center justify-center gap-2.5 px-3.5 py-2.5 rounded-full bg-[#2d2d2d]/60 backdrop-blur-2xl border border-white/20 shadow-2xl">
-              {/* Search Button */}
-              {showSearch && (
-                <button
-                  onClick={onSearchClick}
-                  className={cn(
-                    "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                    isSearchActive 
-                      ? "bg-[#ee3536] active:bg-[#ee3536]/80" 
-                      : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+            <div className="flex items-center justify-center gap-2.5 rounded-full border border-white/20 bg-[#2d2d2d]/60 px-3.5 py-2.5 shadow-2xl backdrop-blur-2xl">
+              {hasCustomItems ? (
+                <>
+                  {customItems!.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={item.onClick}
+                        className={cn(
+                          "relative flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                          item.active
+                            ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                            : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                        )}
+                        aria-label={item.label}
+                        aria-current={item.active ? 'page' : undefined}
+                      >
+                        <Icon className="relative z-10 h-4 w-4 text-white" strokeWidth={2} />
+                      </button>
+                    )
+                  })}
+                  {shouldShowBetslip ? (
+                    <button
+                      type="button"
+                      onClick={handleBetslipClick}
+                      className={cn(
+                        "relative flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                        globalBetslipOpen
+                          ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                          : "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                      )}
+                      aria-label="Betslip"
+                    >
+                      <IconTicket className="relative z-10 h-4 w-4 text-white" strokeWidth={2} />
+                      {effectiveBetCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#ee3536] px-1 text-[10px] font-bold text-white">
+                          {effectiveBetCount > 99 ? '99+' : effectiveBetCount}
+                        </span>
+                      )}
+                    </button>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {/* Search Button */}
+                  {showSearch && (
+                    <button
+                      onClick={onSearchClick}
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                        isSearchActive 
+                          ? "bg-[#ee3536] active:bg-[#ee3536]/80" 
+                          : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                      )}
+                      aria-label="Search"
+                    >
+                      <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
+                    </button>
                   )}
-                  aria-label="Search"
-                >
-                  <IconSearch className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
-                </button>
-              )}
 
-              {/* Chat Button */}
-              {showChat && (
-                <button
-                  onClick={handleChatClick}
-                  className={cn(
-                    "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                    chatActive
-                      ? "bg-[#ee3536] active:bg-[#ee3536]/80"
-                      : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                  {/* Chat Button — gated; hidden on sports when My Bets is shown */}
+                  {chatVisible && (
+                    <button
+                      onClick={handleChatClick}
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                        chatActive
+                          ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                          : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                      )}
+                      aria-label="Chat"
+                    >
+                      <IconMessageCircle2 className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
+                      {!chatActive && (
+                        <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      )}
+                    </button>
                   )}
-                  aria-label="Chat"
-                >
-                  <IconMessageCircle2 className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
-                  {/* Online pulse indicator */}
-                  {!chatActive && (
-                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  )}
-                </button>
-              )}
 
-              {/* Betslip or Favorites Button */}
-              {shouldShowBetslip ? (
-                <button
-                  onClick={handleBetslipClick}
-                  className={cn(
-                    "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                    globalBetslipOpen
-                      ? "bg-[#ee3536] active:bg-[#ee3536]/80"
-                      : "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                  {/* My Bets — sports dock */}
+                  {shouldShowMyBets && (
+                    <button
+                      type="button"
+                      onClick={onMyBetsClick}
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                        isMyBetsActive
+                          ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                          : "bg-white/5 hover:bg-white/10 active:bg-[#ee3536]"
+                      )}
+                      aria-label="My Bets"
+                    >
+                      <IconReceipt className="w-4 h-4 text-white relative z-10" strokeWidth={2} />
+                      {myBetsAlertCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#ee3536] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                          {myBetsAlertCount > 99 ? '99+' : myBetsAlertCount}
+                        </span>
+                      )}
+                    </button>
                   )}
-                  aria-label="Betslip"
-                >
-                  <IconTicket 
-                    className="w-4 h-4 relative z-10 text-white"
-                    strokeWidth={2} 
-                  />
-                  {effectiveBetCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-[#ee3536] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
-                      {effectiveBetCount > 99 ? '99+' : effectiveBetCount}
-                    </span>
-                  )}
-                </button>
-              ) : showFavorites ? (
-                <button
-                  onClick={onFavoriteClick}
-                  className={cn(
-                    "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
-                    isFavoriteActive
-                      ? "bg-pink-500/20 hover:bg-pink-500/30 active:bg-pink-500/40"
-                      : "bg-white/5 hover:bg-white/10 active:bg-white/15"
-                  )}
-                  aria-label="Favorites"
-                >
-                  <IconHeart 
-                    className={cn(
-                      "w-4 h-4 relative z-10 transition-colors",
-                      isFavoriteActive ? "text-pink-500 fill-pink-500" : "text-white"
-                    )}
-                    strokeWidth={2} 
-                  />
-                </button>
-              ) : null}
+
+                  {/* Betslip or Favorites Button */}
+                  {shouldShowBetslip ? (
+                    <button
+                      onClick={handleBetslipClick}
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                        globalBetslipOpen
+                          ? "bg-[#ee3536] active:bg-[#ee3536]/80"
+                          : "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                      )}
+                      aria-label="Betslip"
+                    >
+                      <IconTicket 
+                        className="w-4 h-4 relative z-10 text-white"
+                        strokeWidth={2} 
+                      />
+                      {effectiveBetCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-[#ee3536] text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                          {effectiveBetCount > 99 ? '99+' : effectiveBetCount}
+                        </span>
+                      )}
+                    </button>
+                  ) : showFavorites && !shouldShowMyBets ? (
+                    <button
+                      onClick={onFavoriteClick}
+                      className={cn(
+                        "flex items-center justify-center w-9 h-9 rounded-full transition-colors relative",
+                        isFavoriteActive
+                          ? "bg-pink-500/20 hover:bg-pink-500/30 active:bg-pink-500/40"
+                          : "bg-white/5 hover:bg-white/10 active:bg-white/15"
+                      )}
+                      aria-label="Favorites"
+                    >
+                      <IconHeart 
+                        className={cn(
+                          "w-4 h-4 relative z-10 transition-colors",
+                          isFavoriteActive ? "text-pink-500 fill-pink-500" : "text-white"
+                        )}
+                        strokeWidth={2} 
+                      />
+                    </button>
+                  ) : null}
+                </>
+              )}
             </div>
           </motion.div>
         </div>

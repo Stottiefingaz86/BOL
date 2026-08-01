@@ -13238,12 +13238,16 @@ function NavTestPageContent() {
             // Reset manually closed flag when user clicks dock button
             setBetslipManuallyClosed(false)
           }}
+          onMyBetsClick={() => setShowMyBets?.(true)}
+          isMyBetsActive={showMyBets}
+          myBetsAlertCount={myBetsAlertCount}
           showBetslip={true}
+          showChat={false}
+          showFavorites={false}
           betCount={bets.length}
           isSearchActive={searchOverlayOpen}
           showSearch={!showVipRewards}
-          showFavorites={!showVipRewards}
-            />
+        />
       )}
     </div>
   )

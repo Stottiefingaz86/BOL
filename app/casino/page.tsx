@@ -1965,9 +1965,28 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
 }
 
 // Promos Page Component
-function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipActiveTab, setVipActiveSidebarItem }: { brandPrimary: string; setVipDrawerOpen?: (open: boolean) => void; setShowVipRewards?: (show: boolean) => void; setVipActiveTab?: (tab: string) => void; setVipActiveSidebarItem?: (item: string) => void }) {
+function PromosPage({
+  brandPrimary,
+  setVipDrawerOpen,
+  setShowVipRewards,
+  setVipActiveTab,
+  setVipActiveSidebarItem,
+  activeTab: controlledActiveTab,
+  onActiveTabChange,
+}: {
+  brandPrimary: string
+  setVipDrawerOpen?: (open: boolean) => void
+  setShowVipRewards?: (show: boolean) => void
+  setVipActiveTab?: (tab: string) => void
+  setVipActiveSidebarItem?: (item: string) => void
+  /** Controlled sub-nav tab (Deposit Bonus / Sports / Casino / Poker) */
+  activeTab?: string
+  onActiveTabChange?: (tab: string) => void
+}) {
   const isMobile = useIsMobile()
-  const [activeTab, setActiveTab] = useState('Deposit Bonus')
+  const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState('Deposit Bonus')
+  const activeTab = controlledActiveTab ?? uncontrolledActiveTab
+  const setActiveTab = onActiveTabChange ?? setUncontrolledActiveTab
 
   const promoData = [
     { id: '1', title: '50 Free Spins', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
@@ -2919,7 +2938,7 @@ function VipSectionWireframe({ title }: { title: string }) {
 }
 
 // VIP Rewards Page Component
-function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowVipRewards, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav, quickLinksOpen, onNavigate, vipActiveSidebarItem, setVipActiveSidebarItem }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowVipRewards: (show: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void; vipActiveSidebarItem?: string; setVipActiveSidebarItem?: (item: string) => void }) {
+function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowVipRewards, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav, quickLinksOpen, onNavigate, vipActiveSidebarItem, setVipActiveSidebarItem, promosActiveTab, setPromosActiveTab }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowVipRewards: (show: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void; vipActiveSidebarItem?: string; setVipActiveSidebarItem?: (item: string) => void; promosActiveTab?: string; setPromosActiveTab?: (tab: string) => void }) {
   const router = useRouter()
   // vipActiveSidebarItem and setVipActiveSidebarItem come from props
 
@@ -2938,6 +2957,8 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           setShowVipRewards={setShowVipRewards}
           setVipActiveTab={setVipActiveTab}
           setVipActiveSidebarItem={setVipActiveSidebarItem}
+          activeTab={promosActiveTab}
+          onActiveTabChange={setPromosActiveTab}
         />
       ) : vipActiveSidebarItem === 'Refer A Friend' ? (
         <ReferAFriendPage />
@@ -6140,7 +6161,9 @@ function TournamentCountdown({ endDate }: { endDate: Date }) {
 // =====================================================
 // POKER LANDING PAGE COMPONENT
 // =====================================================
-function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoading = false, hideSidebar = false }: { brandPrimary: string; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void; menuLoading?: boolean; hideSidebar?: boolean }) {
+type PokerNavigateOptions = { promoTab?: string }
+
+function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoading = false, hideSidebar = false }: { brandPrimary: string; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards', options?: PokerNavigateOptions) => void; menuLoading?: boolean; hideSidebar?: boolean }) {
   const isMobile = useIsMobile()
   const router = useRouter()
   const { state: sidebarState, toggleSidebar, setOpenMobile } = useSidebar()
@@ -6168,7 +6191,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
   ]
 
   const scrollToSection = (sectionId: string, label: string) => {
-    setActiveSidebarItem(label)
+    // Play Online scrolls to hero but never owns the active nav highlight — Start does
+    setActiveSidebarItem(label === 'Play Online' ? 'Start' : label)
     const el = document.getElementById(sectionId)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     if (isMobile) setOpenMobile(false)
@@ -6494,9 +6518,9 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                 <SidebarMenu>
                   {pokerPlayNow.map((item, index) => {
                     const Icon = item.icon
+                    // Play Online is a CTA only — never show as the active nav item
                     const isActive =
-                      activeSidebarItem === item.label ||
-                      (item.label === 'Play Online' && activeSidebarItem === 'Start')
+                      item.label !== 'Play Online' && activeSidebarItem === item.label
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -6543,10 +6567,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                   {pokerNavItems.map((item, index) => {
                     const Icon = item.icon
                     const isExternal = 'external' in item && item.external
-                    const isActive =
-                      !isExternal &&
-                      (activeSidebarItem === item.label ||
-                        (item.label === 'Start' && activeSidebarItem === 'Play Online'))
+                    const isActive = !isExternal && activeSidebarItem === item.label
                     return (
                       <SidebarMenuItem key={index}>
                         <Tooltip>
@@ -6558,7 +6579,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                                 e.stopPropagation()
                                 if (isExternal) {
                                   if (isMobile) setOpenMobile(false)
-                                  onNavigate?.('vipRewards')
+                                  // Deep-link into Promotions → Poker sub-nav
+                                  onNavigate?.('vipRewards', { promoTab: 'Poker' })
                                   return
                                 }
                                 if ('sectionId' in item && item.sectionId) {
@@ -6698,12 +6720,12 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                 Some of the features available. Play Now or Download our poker software to try them out.
               </p>
             </div>
-            <div className="mx-auto w-full px-4 md:px-6">
-              <div className="mx-auto grid w-fit max-w-full grid-cols-1 justify-items-center gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4">
+            <div className="mx-auto w-full px-3 md:px-6">
+              <div className="mx-auto grid w-full max-w-full grid-cols-1 gap-3 sm:w-fit sm:grid-cols-2 sm:justify-items-center md:grid-cols-3 md:gap-4">
                 {topFeatures.map((feature) => (
                   <article
                     key={feature.title}
-                    className="group relative flex w-[260px] max-w-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#1e1e1e] md:w-[300px]"
+                    className="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#1e1e1e] sm:w-[260px] md:w-[300px]"
                   >
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#101010]">
                       <div className="absolute inset-0 -right-[20px]">
@@ -6712,7 +6734,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                           alt={feature.title}
                           fill
                           className="object-cover object-right transition-transform duration-500 group-hover:scale-[1.03]"
-                          sizes="(max-width: 768px) 260px, 300px"
+                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 260px, 300px"
                         />
                       </div>
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/20 to-transparent transition-colors duration-200 group-hover:from-[#1e1e1e] group-hover:via-[#1e1e1e]/25" />
@@ -7088,6 +7110,8 @@ function NavTestPageContent() {
   const [leaderboardTournament, setLeaderboardTournament] = useState<typeof cashTournamentsData[0] | null>(null)
   const [initialVipSidebarItem, setInitialVipSidebarItem] = useState<string | null>(null)
   const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState<string>('Promos')
+  /** Promos page category sub-nav: Deposit Bonus | Sports | Casino | Poker */
+  const [promosActiveTab, setPromosActiveTab] = useState('Deposit Bonus')
   
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
@@ -8009,7 +8033,8 @@ function NavTestPageContent() {
   ]
 
   const scrollToPokerSection = (sectionId: string, label: string) => {
-    setPokerActiveSidebarItem(label)
+    // Play Online scrolls to hero but never owns the active nav highlight — Start does
+    setPokerActiveSidebarItem(label === 'Play Online' ? 'Start' : label)
     const el = document.getElementById(sectionId)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     if (isMobile) setOpenMobile(false)
@@ -8102,6 +8127,7 @@ function NavTestPageContent() {
           setInitialVipSidebarItem={setInitialVipSidebarItem}
           setVipActiveSidebarItem={setVipActiveSidebarItem}
           setHubFocusMode={setHubFocusMode}
+          setPromosActiveTab={setPromosActiveTab}
         />
       </Suspense>
       {/* Mobile: Quick Links - Above main menu, pushes it down when open */}
@@ -8910,9 +8936,10 @@ function NavTestPageContent() {
                         <SidebarMenu>
                           {pokerPlayNowItems.map((item, index) => {
                             const Icon = item.icon
+                            // Play Online is a CTA only — never show as the active nav item
                             const isActive =
-                              pokerActiveSidebarItem === item.label ||
-                              (item.label === 'Play Online' && pokerActiveSidebarItem === 'Start')
+                              item.label !== 'Play Online' &&
+                              pokerActiveSidebarItem === item.label
                             return (
                               <SidebarMenuItem key={index}>
                                 <Tooltip>
@@ -8957,9 +8984,7 @@ function NavTestPageContent() {
                             const Icon = item.icon
                             const isExternal = 'external' in item && item.external
                             const isActive =
-                              !isExternal &&
-                              (pokerActiveSidebarItem === item.label ||
-                                (item.label === 'Start' && pokerActiveSidebarItem === 'Play Online'))
+                              !isExternal && pokerActiveSidebarItem === item.label
                             return (
                               <SidebarMenuItem key={index}>
                                 <Tooltip>
@@ -8971,6 +8996,9 @@ function NavTestPageContent() {
                                         e.stopPropagation()
                                         if (isExternal) {
                                           if (isMobile) setOpenMobile(false)
+                                          // Deep-link into Promotions → Poker sub-nav
+                                          setVipActiveSidebarItem('Promos')
+                                          setPromosActiveTab('Poker')
                                           setShowPoker(false)
                                           setShowSports(false)
                                           setShowVipRewards(true)
@@ -9515,6 +9543,8 @@ function NavTestPageContent() {
                     quickLinksOpen={quickLinksOpen}
                       vipActiveSidebarItem={vipActiveSidebarItem}
                       setVipActiveSidebarItem={setVipActiveSidebarItem}
+                    promosActiveTab={promosActiveTab}
+                    setPromosActiveTab={setPromosActiveTab}
                     onNavigate={(page) => {
                       if (page === 'home') {
                         setOpenMobile(false)
@@ -9555,7 +9585,7 @@ function NavTestPageContent() {
                     quickLinksOpen={quickLinksOpen}
                     menuLoading={sidebarMenuLoading}
                     hideSidebar={isMobile}
-                    onNavigate={(page) => {
+                    onNavigate={(page, options) => {
                       if (page === 'home') {
                         setOpenMobile(false)
                         router.push('/')
@@ -9565,7 +9595,14 @@ function NavTestPageContent() {
                       if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); window.scrollTo(0, 0); }
                       else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); window.scrollTo(0, 0); }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); window.scrollTo(0, 0); }
-                      else if (page === 'vipRewards') { setShowPoker(false); setShowSports(false); setShowVipRewards(true); window.scrollTo(0, 0); }
+                      else if (page === 'vipRewards') {
+                        setShowPoker(false)
+                        setShowSports(false)
+                        setVipActiveSidebarItem('Promos')
+                        if (options?.promoTab) setPromosActiveTab(options.promoTab)
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
+                      }
                     }}
                   />
                 </div>
@@ -13371,9 +13408,96 @@ function NavTestPageContent() {
           }}
           isSearchActive={searchOverlayOpen}
           isFavoriteActive={activeIconTab === 'favorite' || selectedCategory === 'Favorites'}
+          showChat={false}
           showSearch={!showVipRewards && !showPoker}
           showFavorites={!showVipRewards && !showPoker}
-            />
+          customItems={
+            showVipRewards
+              ? [
+                  {
+                    id: 'Promos',
+                    label: 'Promos',
+                    icon: IconSparkles,
+                    active: vipActiveSidebarItem === 'Promos',
+                    onClick: () => {
+                      setVipActiveSidebarItem('Promos')
+                      window.scrollTo(0, 0)
+                    },
+                  },
+                  {
+                    id: 'My Bonus',
+                    label: 'My Bonus',
+                    icon: IconGift,
+                    active: vipActiveSidebarItem === 'My Bonus',
+                    onClick: () => {
+                      setVipActiveSidebarItem('My Bonus')
+                      window.scrollTo(0, 0)
+                    },
+                  },
+                  {
+                    id: 'Contests',
+                    label: 'Contests',
+                    icon: IconTrophy,
+                    active: vipActiveSidebarItem === 'Contests',
+                    onClick: () => {
+                      setVipActiveSidebarItem('Contests')
+                      window.scrollTo(0, 0)
+                    },
+                  },
+                  {
+                    id: 'Refer A Friend',
+                    label: 'Refer',
+                    icon: IconUserPlus,
+                    active: vipActiveSidebarItem === 'Refer A Friend',
+                    onClick: () => {
+                      setVipActiveSidebarItem('Refer A Friend')
+                      window.scrollTo(0, 0)
+                    },
+                  },
+                ]
+              : showPoker
+                ? [
+                    {
+                      id: 'Play Online',
+                      label: 'Play Online',
+                      icon: IconPlayerPlay,
+                      active: pokerActiveSidebarItem === 'Start',
+                      onClick: () => {
+                        setPokerActiveSidebarItem('Start')
+                        document
+                          .getElementById('poker-hero')
+                          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      },
+                    },
+                    {
+                      id: 'Download',
+                      label: 'Download',
+                      icon: IconDownload,
+                      active: pokerActiveSidebarItem === 'Download',
+                      onClick: () => {
+                        setPokerActiveSidebarItem('Download')
+                        document
+                          .getElementById('poker-download')
+                          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      },
+                    },
+                    {
+                      id: 'Promos',
+                      label: 'Promos',
+                      icon: IconGift,
+                      onClick: () => {
+                        setVipActiveSidebarItem('Promos')
+                        setPromosActiveTab('Poker')
+                        setShowPoker(false)
+                        setShowSports(false)
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
+                      },
+                    },
+                  ]
+                : undefined
+          }
+        />
       )}
 
     </div>

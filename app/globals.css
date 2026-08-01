@@ -108,13 +108,17 @@
 html, body {
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  /* clip (not hidden): avoid creating a scrollport that traps wheel/trackpad
+     when children slightly overflow horizontally (carousels, -mx gutters). */
+  overflow-x: clip;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile only: prevent iOS rubber-band bounce on pull-down */
+/* Mobile only: prevent iOS rubber-band bounce on pull-down.
+   Apply to html (the real scroller) only — not body — so wheel/touch
+   can chain to the document when body isn't a scrollport. */
 @media (max-width: 768px) {
-  html, body {
+  html {
     overscroll-behavior-y: none;
   }
 }
@@ -148,15 +152,19 @@ img, video {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile: Allow vertical scrolling */
+/* Mobile: Allow vertical scrolling on html (document scroller) */
 @media (max-width: 768px) {
   html, body {
     height: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  html {
+    overflow-y: auto;
   }
 
   body {
-    overflow-y: auto;
+    overflow-y: visible;
     position: relative;
   }
 }
@@ -516,13 +524,15 @@ img[decoding="sync"] {
             @apply text-foreground;
             /* bg-background removed — body bg set to nav bg via html,body rule
                so iOS overscroll area matches the navigation colour.
-               Page content sets its own bg via [data-page-bg] / inline styles. */
-            overflow-x: hidden !important;
-            overflow-y: auto !important;
+               Page content sets its own bg via [data-page-bg] / inline styles.
+               Keep overflow-y visible so body is NOT a scrollport — html scrolls.
+               (body overflow-y:auto + height:auto traps wheel when overscroll-behavior is none) */
+            overflow-x: clip !important;
+            overflow-y: visible !important;
             height: auto !important;
           }
           html {
-            overflow-x: hidden !important;
+            overflow-x: clip !important;
             overflow-y: auto !important;
             height: auto !important;
           }
@@ -795,11 +805,12 @@ html:not(.dark) [data-carousel-nav] {
 
 /* Fix banner and tabs scrolling - allow natural page scroll */
 /* Remove viewport height constraint from SidebarProvider to allow natural page scroll */
+/* overflow-x: clip — not hidden — so horizontal bleed doesn't trap vertical wheel */
 .group\/sidebar-wrapper {
   min-height: auto !important;
   height: auto !important;
   overflow: visible !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   position: relative !important;
   display: flex !important;
   width: 100% !important;
@@ -811,7 +822,7 @@ html:not(.dark) [data-carousel-nav] {
   display: flex !important;
   width: 100% !important;
   max-width: 100vw !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   box-sizing: border-box !important;
 }
 
@@ -878,9 +889,9 @@ main[data-sidebar="inset"] > * {
   position: relative !important;
 }
 
-/* Lock horizontal scroll on body and html */
+/* Lock horizontal scroll on body and html (clip = no scrollport / no wheel trap) */
 html, body {
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   width: 100% !important;
   max-width: 100vw !important;
 }
@@ -1519,23 +1530,27 @@ main[data-sidebar="inset"] [data-content-item] {
 
 /* When content scrolls under sub-nav, apply stronger blur via JavaScript state */
 
-/* CRITICAL: Ensure body/html is the scrolling container, not any parent */
+/* CRITICAL: html is the ONLY document scrollport. body must stay
+   overflow-y: visible — otherwise wheel/trackpad over content targets body
+   (which can't scroll when height:auto) and overscroll-behavior blocks chaining. */
 html {
   overflow-y: scroll !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 
 body {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  overflow-x: clip !important;
   height: auto !important;
 }
 
-/* Ensure no parent creates a scroll container that prevents sticky */
+/* Ensure no parent creates a scroll container that prevents sticky.
+   Use overflow-x: clip (not hidden) so slight horizontal overflow from
+   carousels/-mx gutters does not trap vertical wheel/trackpad scrolling. */
 .group\/sidebar-wrapper {
   overflow: visible !important;
   overflow-y: visible !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   height: auto !important;
   max-height: none !important;
   min-height: 100vh !important;
@@ -1546,7 +1561,7 @@ body {
 main[data-sidebar="inset"] > * {
   overflow: visible !important;
   overflow-y: visible !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   height: auto !important;
   max-height: none !important;
 }
