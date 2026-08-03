@@ -9085,7 +9085,7 @@ function NavTestPageContent() {
                     className="z-[200] w-[200px] border-white/10 bg-[#2d2d2d]"
                   >
                     {[
-                      { label: 'Contests', href: '/promotions?section=Contests' },
+                      { label: 'Contests', href: '/promotions/contests' },
                       { label: 'Esports', href: '/esports' },
                       { label: 'Racebook', href: '/racebook' },
                       { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },
@@ -9331,7 +9331,7 @@ function NavTestPageContent() {
                         style={{ zIndex: 120 }}
                       >
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
-                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
+                          <a href="/promotions/contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-white/70 hover:text-white hover:bg-white/5">
                           <a href="/esports" className="w-full">Esports</a>
@@ -12207,7 +12207,11 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
+                    
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/account?section=transactions')
+                      }}>
                       <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
                 </Button>
@@ -12215,7 +12219,11 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
+                    
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/account?section=bet-history')
+                      }}>
                       <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
                     </Button>
@@ -12226,7 +12234,11 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
+                    
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/promotions/my-bonus')
+                      }}>
                       <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
                 </Button>
@@ -12234,7 +12246,11 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
+                    
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/promotions/refer-a-friend')
+                      }}>
                       <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
                     </Button>
@@ -12255,7 +12271,11 @@ function NavTestPageContent() {
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
-                    >
+                    
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/')
+                      }}>
                       <IconLogout className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Log Out</span>
                     </Button>

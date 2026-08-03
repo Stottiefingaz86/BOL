@@ -29,6 +29,7 @@ import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
+import { promoPathForSection } from '@/lib/promotions-routes'
 import {
   JackpotActivityFeed,
   JackpotNetworkBadge,
@@ -1965,6 +1966,113 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
 }
 
 // Promos Page Component
+const PROMO_TABS = ['Deposit Bonus', 'Sports', 'Casino', 'Poker'] as const
+type PromoTab = (typeof PROMO_TABS)[number]
+
+const ALL_PROMOS: Array<{
+  id: string
+  title: string
+  description: string
+  category: PromoTab
+}> = [
+  {
+    id: 'dep-1',
+    title: '100% Deposit Match',
+    description: 'Double your first deposit up to $1,000. Bonus funds credited instantly after deposit.',
+    category: 'Deposit Bonus',
+  },
+  {
+    id: 'dep-2',
+    title: 'Reload Bonus 50%',
+    description: 'Get 50% back on your next deposit this week. Available once every 7 days.',
+    category: 'Deposit Bonus',
+  },
+  {
+    id: 'dep-3',
+    title: 'Weekend Deposit Boost',
+    description: 'Extra 25% on deposits Saturday–Sunday. Minimum deposit $25.',
+    category: 'Deposit Bonus',
+  },
+  {
+    id: 'dep-4',
+    title: 'High Roller Match',
+    description: 'Deposit $500+ and unlock an enhanced match rate with faster unlock terms.',
+    category: 'Deposit Bonus',
+  },
+  {
+    id: 'sp-1',
+    title: 'Risk-Free Bet $50',
+    description: 'Place a sports wager — if it loses, get a free bet back up to $50.',
+    category: 'Sports',
+  },
+  {
+    id: 'sp-2',
+    title: 'Odds Boost Daily',
+    description: 'Boosted odds on featured games every day. Look for the boost badge.',
+    category: 'Sports',
+  },
+  {
+    id: 'sp-3',
+    title: 'Parlay Insurance',
+    description: 'Miss one leg on a 4+ team parlay and still get a free bet consolation.',
+    category: 'Sports',
+  },
+  {
+    id: 'sp-4',
+    title: 'Same Game Parlay Bonus',
+    description: 'Extra profit boost when you build same-game parlays on NFL and NBA.',
+    category: 'Sports',
+  },
+  {
+    id: 'cas-1',
+    title: '50 Free Spins',
+    description: 'Free spins on selected slots. Wagering applies to winnings only.',
+    category: 'Casino',
+  },
+  {
+    id: 'cas-2',
+    title: 'Casino Cashback 10%',
+    description: 'Weekly cashback on net casino losses. Credited every Monday.',
+    category: 'Casino',
+  },
+  {
+    id: 'cas-3',
+    title: 'Live Dealer Reload',
+    description: 'Bonus for live blackjack and roulette play this weekend.',
+    category: 'Casino',
+  },
+  {
+    id: 'cas-4',
+    title: 'Slots Tournament Entry',
+    description: 'Free entry into this week’s slots race with a $2,500 prize pool.',
+    category: 'Casino',
+  },
+  {
+    id: 'pok-1',
+    title: 'Poker Freeroll Ticket',
+    description: 'Claim a freeroll seat and play for cash prizes with no buy-in.',
+    category: 'Poker',
+  },
+  {
+    id: 'pok-2',
+    title: 'Rakeback Boost',
+    description: 'Extra rakeback for 7 days when you opt into this poker promo.',
+    category: 'Poker',
+  },
+  {
+    id: 'pok-3',
+    title: 'Sit & Go Ticket Pack',
+    description: 'Three Sit & Go tickets to get you into the action quickly.',
+    category: 'Poker',
+  },
+  {
+    id: 'pok-4',
+    title: 'Poker Deposit Match',
+    description: 'Match bonus for poker play — transferable to cash games and tournaments.',
+    category: 'Poker',
+  },
+]
+
 function PromosPage({
   brandPrimary,
   setVipDrawerOpen,
@@ -1988,16 +2096,10 @@ function PromosPage({
   const activeTab = controlledActiveTab ?? uncontrolledActiveTab
   const setActiveTab = onActiveTabChange ?? setUncontrolledActiveTab
 
-  const promoData = [
-    { id: '1', title: '50 Free Spins', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '2', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '3', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '4', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '5', title: '50 Free Spins', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '6', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '7', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-    { id: '8', title: 'Tittle', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp.' },
-  ]
+  const filteredPromos = useMemo(
+    () => ALL_PROMOS.filter((promo) => promo.category === activeTab),
+    [activeTab]
+  )
 
   return (
     <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
@@ -2086,7 +2188,7 @@ function PromosPage({
           <div className="mb-6">
             <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <AnimateTabsList className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] bg-gray-100/80 dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
-                {['Deposit Bonus', 'Sports', 'Casino', 'Poker'].map((tab) => (
+                {PROMO_TABS.map((tab) => (
                   <TabsTab 
                     key={tab}
                     value={tab} 
@@ -2112,27 +2214,52 @@ function PromosPage({
             </AnimateTabs>
           </div>
 
-          {/* Promo Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {promoData.map((promo) => (
-              <Card key={promo.id} className="bg-[var(--ds-promo-card-bg)] border-[var(--ds-promo-card-border)] text-[var(--ds-promo-card-fg)] overflow-hidden">
-                {/* Image Placeholder with Glare Animation */}
-                <div className="w-full h-48 bg-white/5 relative overflow-hidden">
-                  <div className="absolute inset-0 tile-shimmer"></div>
+          {/* Promo Cards Grid — filtered by active category */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+            >
+              {filteredPromos.length === 0 ? (
+                <div className="col-span-full rounded-xl border border-white/[0.05] bg-white/[0.03] px-6 py-12 text-center">
+                  <p className="text-sm text-[var(--ds-fg-muted)]">
+                    No promotions in {activeTab} right now.
+                  </p>
                 </div>
-                <CardContent className="p-4">
-                  <CardTitle className="text-lg font-semibold text-white mb-2">{promo.title}</CardTitle>
-                  <p className="text-sm text-white/65 mb-4 line-clamp-3">{promo.description}</p>
-                  <Button
-                    variant="ghost"
-                    className="w-full rounded-md border border-white/20 bg-transparent text-white shadow-none hover:bg-white/10 hover:text-white hover:border-white/30"
+              ) : (
+                filteredPromos.map((promo, index) => (
+                  <motion.div
+                    key={promo.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: index * 0.04, ease: 'easeOut' }}
                   >
-                    MORE INFO
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <Card className="h-full overflow-hidden border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)]">
+                      <div className="relative h-48 w-full overflow-hidden bg-white/5">
+                        <div className="tile-shimmer absolute inset-0" />
+                      </div>
+                      <CardContent className="p-4">
+                        <CardTitle className="mb-2 text-lg font-semibold text-white">
+                          {promo.title}
+                        </CardTitle>
+                        <p className="mb-4 line-clamp-3 text-sm text-white/65">{promo.description}</p>
+                        <Button
+                          variant="ghost"
+                          className="w-full rounded-md border border-white/20 bg-transparent text-white shadow-none hover:border-white/30 hover:bg-white/10 hover:text-white"
+                        >
+                          MORE INFO
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </SidebarInset>
@@ -7030,14 +7157,16 @@ function NavTestPageContent() {
   // through props.
   useEffect(() => {
     const handler = (evt: Event) => {
-      const tab = (evt as CustomEvent<{ tab?: string }>).detail?.tab
+      const detail = (evt as CustomEvent<{ tab?: string; focusRewardId?: string }>).detail
+      const keepOpen = Boolean(detail?.tab || detail?.focusRewardId)
       setVipDrawerOpen((open) => {
-        if (open && !tab) return false
+        if (open && !keepOpen) return false
         queueMicrotask(() => {
           setAccountDrawerOpen(false)
           setDepositDrawerOpen(false)
           useChatStore.getState().setIsOpen(false)
-          if (tab) setVipActiveTab(tab)
+          if (detail?.tab) setVipActiveTab(detail.tab)
+          else if (detail?.focusRewardId) setVipActiveTab('VIP')
         })
         return true
       })
@@ -7771,22 +7900,23 @@ function NavTestPageContent() {
     console.log('depositDrawerOpen state changed to:', depositDrawerOpen)
   }, [depositDrawerOpen])
 
-  // Sync URL when VIP Rewards page is shown/hidden
+  // Sync URL when VIP Rewards / Promotions section is shown
   const originalPathRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '/casino')
   useEffect(() => {
     if (typeof window === 'undefined') return
+    const onPromotionsPath = window.location.pathname === '/promotions' || window.location.pathname.startsWith('/promotions/')
     if (showVipRewards) {
-      // Save current path before switching (full-page Promotions on casino)
-      if (window.location.pathname !== '/promotions') {
+      if (!onPromotionsPath) {
         originalPathRef.current = window.location.pathname
       }
-      window.history.replaceState(null, '', '/promotions')
-    } else {
-      if (window.location.pathname === '/promotions') {
-        window.history.replaceState(null, '', originalPathRef.current || '/casino')
+      const nextPath = promoPathForSection(vipActiveSidebarItem)
+      if (window.location.pathname !== nextPath) {
+        window.history.replaceState(null, '', nextPath)
       }
+    } else if (onPromotionsPath) {
+      window.history.replaceState(null, '', originalPathRef.current || '/casino')
     }
-  }, [showVipRewards])
+  }, [showVipRewards, vipActiveSidebarItem])
 
   // Sync URL when Poker page is shown/hidden
   useEffect(() => {
@@ -8206,7 +8336,7 @@ function NavTestPageContent() {
                     className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                   >
                     {[
-                      { label: 'Contests', href: '/promotions?section=Contests' },
+                      { label: 'Contests', href: '/promotions/contests' },
                       { label: 'Esports', href: '/esports' },
                       { label: 'Racebook', href: '/racebook' },
                       { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },
@@ -8478,7 +8608,7 @@ function NavTestPageContent() {
                         className="z-[200] w-[200px] border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                       >
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
+                          <a href="/promotions/contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="/esports" className="w-full">Esports</a>
@@ -12246,6 +12376,10 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/account?section=transactions')
+                      }}
                     >
                       <IconCurrencyDollar className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Transactions History</span>
@@ -12254,6 +12388,10 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/account?section=bet-history')
+                      }}
                     >
                       <IconTicket className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Bet History</span>
@@ -12264,6 +12402,10 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/promotions/my-bonus')
+                      }}
                     >
                       <IconGift className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
@@ -12272,6 +12414,10 @@ function NavTestPageContent() {
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/promotions/refer-a-friend')
+                      }}
                     >
                       <IconUserPlus className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
@@ -12281,6 +12427,7 @@ function NavTestPageContent() {
                       variant="ghost" 
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
                       onClick={() => {
+                        setAccountDrawerOpen(false)
                         openVipDrawer()
                       }}
                     >
@@ -12293,6 +12440,10 @@ function NavTestPageContent() {
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] h-12 px-3"
+                      onClick={() => {
+                        setAccountDrawerOpen(false)
+                        router.push('/')
+                      }}
                     >
                       <IconLogout className="w-5 h-5 mr-3 text-[var(--ds-fg-muted)]" />
                       <span className="flex-1 text-left text-[var(--ds-fg)]">Log Out</span>

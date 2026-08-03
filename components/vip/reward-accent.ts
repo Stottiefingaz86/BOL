@@ -41,6 +41,8 @@ export function rewardAccentFor(key: string): RewardAccent {
     'free crypto withdrawals': PALETTE[0],
     'reduced deposit fees': PALETTE[5],
     'exclusive refer-a-friend': PALETTE[6],
+    'refer-a-friend': PALETTE[6],
+    'refer a friend': PALETTE[6],
     'tailored gifts & rewards': PALETTE[3],
     'exclusive events': PALETTE[7],
     'personal account manager': PALETTE[1],

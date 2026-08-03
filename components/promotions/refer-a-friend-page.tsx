@@ -1,204 +1,818 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  IconChartBar,
+  IconBrandX,
+  IconChevronDown,
+  IconCopy,
+  IconInfinity,
   IconLink,
-  IconMail,
-  IconUserPlus,
-  IconWallet,
+  IconShare2,
+  IconTopologyStar3,
+  IconUsers,
 } from '@tabler/icons-react'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { SpotlightOverlay, useCursorSpotlight } from '@/components/ui/cursor-spotlight'
 import { requestLogin } from '@/lib/auth-session'
+import {
+  REFERRAL_REWARD_ID,
+  useReferralStore,
+  type ReferralRow,
+} from '@/lib/store/referralStore'
 import { cn } from '@/lib/utils'
 
-const WHY_CHOOSE = [
-  'Unlimited earning potential — earn as much as your friends wager, with no caps.',
-  'Transparency at every step — real-time reporting shows wagers, commissions, and progress.',
-  'Flexible campaign tools — manage up to 10 unique referral links to test and optimize.',
-  'Fair rewards system — commissions are based on the theoretical house edge across all games.',
-  'Exclusive deals for top partners — high-volume referrers can unlock tailored opportunities.',
+/** @deprecated Prefer `REFERRAL_REWARD_ID` from `@/lib/store/referralStore` */
+export { REFERRAL_REWARD_ID }
+/** @deprecated Prefer store claimable amount */
+export const REFERRAL_CLAIMABLE_AMOUNT = 40
+
+const REFERRAL_LINK = 'https://www.betonline.ag/?RAF=7NNSD1Q5'
+
+const PAGE_SIZE = 10
+
+const LANDING_FEATURES = [
+  {
+    title: 'Lifetime commission',
+    description:
+      'Keep earning as long as your friends play. No expiry on referrals that stick.',
+    icon: IconInfinity,
+  },
+  {
+    title: 'No earnings cap',
+    description:
+      'The more they wager, the more you make, with no artificial limits.',
+    icon: IconTopologyStar3,
+  },
+  {
+    title: 'Sports + Casino',
+    description: 'Commission follows real play across the products they use.',
+    icon: IconUsers,
+  },
 ]
 
-function ContentSection({
-  title,
-  children,
-  className,
-}: {
-  title: string
-  children: React.ReactNode
-  className?: string
-}) {
-  return (
-    <section className={cn('space-y-4', className)}>
-      <h2 className="text-xl font-bold text-white md:text-2xl">{title}</h2>
-      <div className="max-w-3xl space-y-3 text-sm leading-relaxed text-white/65 md:text-[15px]">
-        {children}
-      </div>
-    </section>
+const LANDING_GETTING_STARTED = [
+  {
+    title: 'Share your link',
+    description:
+      'Share your unique signup link by email, social, or anywhere you connect.',
+    cta: 'Get started',
+  },
+  {
+    title: 'Friends play',
+    description:
+      'Earn commission on every wager your friends place on Sports and Casino, win or lose.',
+    cta: 'Log in',
+  },
+  {
+    title: 'Claim anytime',
+    description:
+      'Commissions are ready to claim instantly from VIP Hub whenever you want.',
+    cta: 'Open VIP Hub',
+  },
+]
+
+/** Match My Account hub cards: soft fill + hairline stroke */
+const cardClass =
+  'rounded-xl border border-black/[0.06] bg-black/[0.03] dark:border-white/[0.05] dark:bg-white/[0.03]'
+
+const controlClass =
+  'h-11 rounded-[10px] border border-black/[0.06] bg-black/[0.03] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] dark:border-white/[0.06] dark:bg-white/[0.04]'
+
+const hairline = 'border-black/[0.06] dark:border-white/[0.04]'
+const softFill = 'bg-black/[0.03] dark:bg-white/[0.03]'
+const controlSurface =
+  'border border-black/[0.06] bg-black/[0.03] dark:border-white/[0.06] dark:bg-white/[0.04]'
+
+function openVipReferClaim() {
+  window.dispatchEvent(
+    new CustomEvent('vip:open-drawer', {
+      detail: { focusRewardId: REFERRAL_REWARD_ID },
+    })
   )
 }
 
-function StepCard({
-  icon: Icon,
-  title,
-  description,
+function DemoAuthToggle({
+  isLoggedIn,
+  onChange,
 }: {
-  icon: typeof IconLink
-  title: string
-  description: string
+  isLoggedIn: boolean
+  onChange: (loggedIn: boolean) => void
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 md:p-5">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--ds-primary,#ee3536)]/15 text-[var(--ds-primary,#ee3536)]">
-        <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden />
+    <div
+      className="flex items-center gap-1 rounded-full border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0.5"
+      role="group"
+      aria-label="Demo login state"
+    >
+      {(['Log in', 'Log out'] as const).map((label) => {
+        const loggedIn = label === 'Log in'
+        const active = isLoggedIn === loggedIn
+        return (
+          <button
+            key={label}
+            type="button"
+            onClick={() => onChange(loggedIn)}
+            className={cn(
+              'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+              active
+                ? 'bg-[var(--ds-primary,#ee3536)] text-white'
+                : 'text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]'
+            )}
+          >
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof IconUsers
+  label: string
+  value: string
+}) {
+  return (
+    <div className={cn('flex min-w-0 flex-1 flex-col gap-2.5 p-4', cardClass)}>
+      <div className="flex items-center gap-2.5">
+        <Icon
+          className="size-[18px] text-[var(--ds-fg-subtle)]"
+          strokeWidth={1.8}
+          aria-hidden
+        />
+        <p className="text-[13px] font-semibold text-[var(--ds-fg-muted)]">{label}</p>
       </div>
-      <h3 className="mb-2 text-sm font-semibold text-white md:text-base">{title}</h3>
-      <p className="text-sm leading-relaxed text-white/60">{description}</p>
+      <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
+        {value}
+      </p>
+    </div>
+  )
+}
+
+function StatusPill({ status }: { status: ReferralRow['status'] }) {
+  if (status === 'pending') {
+    return (
+      <span className="inline-flex rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:text-amber-200">
+        Pending
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+      Joined
+    </span>
+  )
+}
+
+function CommissionPill({ amount, pending }: { amount: number; pending?: boolean }) {
+  if (pending) {
+    return (
+      <span className="inline-flex rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-semibold text-[var(--ds-fg-subtle)] dark:bg-white/[0.04]">
+        —
+      </span>
+    )
+  }
+  const positive = amount > 0
+  return (
+    <span
+      className={cn(
+        'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums',
+        positive
+          ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+          : 'bg-black/[0.04] text-[var(--ds-fg-muted)] dark:bg-white/[0.04]'
+      )}
+    >
+      ${amount.toFixed(2)}
+    </span>
+  )
+}
+
+function ReferLanding({ onLogin }: { onLogin: () => void }) {
+  const {
+    ref: heroSpotlightRef,
+    handleMouseMove: handleHeroMouseMove,
+    handleMouseLeave: handleHeroMouseLeave,
+    spotlightSurfaceStyle: heroSpotlightStyle,
+  } = useCursorSpotlight()
+
+  const handleStepCta = (cta: string) => {
+    if (cta === 'Open VIP Hub') {
+      onLogin()
+      openVipReferClaim()
+      return
+    }
+    onLogin()
+  }
+
+  return (
+    <div className="w-full">
+      {/* HERO — same structure as poker lander */}
+      <section className="relative w-full px-3 pb-8 pt-4 sm:px-4 md:px-7 md:pb-12 md:pt-8">
+        <div
+          ref={heroSpotlightRef}
+          onMouseMove={handleHeroMouseMove}
+          onMouseLeave={handleHeroMouseLeave}
+          style={heroSpotlightStyle}
+          className="relative w-full overflow-hidden rounded-2xl bg-[#222] md:rounded-3xl"
+        >
+          <SpotlightOverlay radiusPx={320} mixPercent={22} />
+          <div className="relative z-[2] flex min-h-0 flex-col md:min-h-[470px] md:flex-row md:items-stretch">
+            <div className="relative z-10 flex w-full flex-col gap-6 px-4 py-8 text-center sm:px-6 md:w-[min(100%,560px)] md:shrink-0 md:items-start md:gap-6 md:py-14 md:pl-14 md:pr-0 md:text-left">
+              <h1 className="w-full text-[1.75rem] font-bold leading-tight text-white sm:text-3xl md:text-[48px] md:leading-[1.15]">
+                <span className="block">Refer friends.</span>
+                <span className="block">Earn 10% for life.</span>
+              </h1>
+              <p className="mx-auto max-w-md text-sm leading-6 text-white/60 md:mx-0 md:max-w-none md:text-base">
+                Share your link once. Earn commission on every Sports and Casino wager
+                your friends place, with no expiry.
+              </p>
+
+              <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:w-auto md:justify-start">
+                <Button
+                  type="button"
+                  onClick={onLogin}
+                  className="h-10 w-full rounded-lg border-0 px-6 text-sm font-medium text-white sm:w-auto"
+                  style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                >
+                  Log in to start referring
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => requestLogin()}
+                  className="h-10 w-full rounded-lg border-white/15 bg-white/[0.04] px-6 text-sm font-medium text-white hover:bg-white/[0.08] hover:text-white sm:w-auto"
+                >
+                  Create account
+                </Button>
+              </div>
+
+              <Separator className="hidden w-full bg-white/[0.08] md:block" />
+
+              <p className="text-sm text-white/45 md:text-left">
+                Lifetime commission · No earnings cap · Sports + Casino
+              </p>
+            </div>
+
+            {/* Art — animated mark, flush right like poker hero art */}
+            <div className="relative flex aspect-[5/4] w-full items-end justify-center overflow-hidden px-4 pb-8 pt-10 md:absolute md:inset-y-0 md:right-0 md:aspect-auto md:w-[min(58%,720px)] md:items-center md:justify-end md:px-0 md:py-14 md:pr-10 lg:pr-16">
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                animate={{ opacity: [0.45, 0.75, 0.45] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  background:
+                    'radial-gradient(ellipse at 70% 48%, rgba(238,53,54,0.32), transparent 58%)',
+                }}
+              />
+              <motion.div
+                className="relative z-[1] flex flex-col items-center md:items-end"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <motion.span
+                  className="block overflow-visible bg-gradient-to-b from-white via-white to-white/35 bg-clip-text py-[0.12em] text-[5.5rem] font-black leading-none tracking-tighter text-transparent sm:text-[7rem] md:text-[8.5rem] lg:text-[10rem]"
+                  animate={{ y: [0, -6, 0], scale: [1, 1.02, 1] }}
+                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{
+                    filter: 'drop-shadow(0 0 40px rgba(238,53,54,0.35))',
+                  }}
+                >
+                  10%
+                </motion.span>
+                <motion.span
+                  className="mt-1 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-white/50"
+                  animate={{ opacity: [0.45, 0.8, 0.45] }}
+                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <IconInfinity
+                    className="size-5 text-[var(--ds-primary,#ee3536)]"
+                    strokeWidth={2}
+                  />
+                  for life
+                </motion.span>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES — compact overlay cards (same language as Getting Started) */}
+      <section className="scroll-mt-20 bg-white/[0.02] py-12">
+        <div className="mb-8 px-4 text-center md:px-6">
+          <h2 className="mb-2 text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">
+            Why Refer-A-Friend
+          </h2>
+          <p className="mx-auto max-w-lg text-sm text-[var(--ds-fg-subtle)]">
+            One invite can keep paying as your friends play, month after month.
+          </p>
+        </div>
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-3 px-4 sm:grid-cols-3 md:gap-4 md:px-6">
+          {LANDING_FEATURES.map((feature) => {
+            const Icon = feature.icon
+            return (
+              <article
+                key={feature.title}
+                className="flex flex-col gap-3 rounded-xl bg-[var(--ds-overlay)] px-5 py-5 transition-colors hover:bg-white/[0.06]"
+              >
+                <div
+                  className="flex size-10 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                >
+                  <Icon className="size-5" strokeWidth={1.8} />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-semibold text-[var(--ds-fg)]">{feature.title}</h3>
+                  <p className="text-sm leading-relaxed text-[var(--ds-fg-subtle)]">
+                    {feature.description}
+                  </p>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* GETTING STARTED — numbered rows like poker */}
+      <section className="scroll-mt-20 px-4 py-12 md:px-6">
+        <div className="mx-auto max-w-4xl">
+          <div className="mb-8 text-center">
+            <h2 className="mb-2 text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">
+              Getting Started
+            </h2>
+            <p className="mx-auto max-w-xl text-sm text-[var(--ds-fg-subtle)]">
+              Three quick steps from invite to lifetime commission.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            {LANDING_GETTING_STARTED.map((step, index) => (
+              <div
+                key={step.title}
+                className="flex flex-col gap-4 rounded-xl bg-[var(--ds-overlay)] px-4 py-4 sm:flex-row sm:items-center sm:gap-5 sm:px-5"
+              >
+                <div
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                  style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                >
+                  {index + 1}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base font-semibold text-[var(--ds-fg)]">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-[var(--ds-fg-subtle)]">
+                    {step.description}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 shrink-0 rounded-small border-white/15 bg-white/[0.04] px-4 text-sm font-medium text-[var(--ds-fg)] hover:bg-white/[0.08] sm:self-center"
+                  onClick={() => handleStepCta(step.cta)}
+                >
+                  {step.cta}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA — same centered close as poker integrity / download */}
+      <section className="scroll-mt-20 bg-white/[0.02] px-4 py-12 md:px-6">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="mb-3 text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">
+            Ready to earn on every invite?
+          </h2>
+          <p className="mx-auto mb-8 max-w-lg text-sm text-[var(--ds-fg-subtle)]">
+            Log in to grab your referral link, track friends, and claim commission from VIP Hub.
+          </p>
+          <Button
+            type="button"
+            onClick={onLogin}
+            className="h-11 rounded-small px-10 text-sm font-semibold text-white"
+            style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+          >
+            Log in
+          </Button>
+        </div>
+      </section>
     </div>
   )
 }
 
 export function ReferAFriendPage() {
+  const [demoLoggedIn, setDemoLoggedIn] = useState(false)
+  const claimableAmount = useReferralStore((s) => s.claimableAmount)
+  const referrals = useReferralStore((s) => s.referrals)
+  const addPendingInvite = useReferralStore((s) => s.addPendingInvite)
+
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [page, setPage] = useState(0)
+
+  const canClaim = claimableAmount > 0
+  const joinedCount = useMemo(
+    () => referrals.filter((row) => row.status === 'joined').length,
+    [referrals]
+  )
+  const sentCount = referrals.length
+
   useEffect(() => {
     window.scrollTo(0, 0)
+  }, [demoLoggedIn])
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(referrals.length / PAGE_SIZE) - 1)
+    if (page > maxPage) setPage(maxPage)
+  }, [page, referrals.length])
+
+  const pageRows = useMemo(() => {
+    const start = page * PAGE_SIZE
+    return referrals.slice(start, start + PAGE_SIZE)
+  }, [page, referrals])
+
+  const rangeLabel = useMemo(() => {
+    if (referrals.length === 0) return '0-0 of 0'
+    const start = page * PAGE_SIZE + 1
+    const end = Math.min(referrals.length, (page + 1) * PAGE_SIZE)
+    return `${start}-${end} of ${referrals.length}`
+  }, [page, referrals.length])
+
+  const handleClaim = useCallback(() => {
+    if (!demoLoggedIn) {
+      requestLogin()
+      return
+    }
+    if (!canClaim) return
+    openVipReferClaim()
+  }, [canClaim, demoLoggedIn])
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(REFERRAL_LINK)
+      setCopied(true)
+      toast.success('Referral link copied')
+      window.setTimeout(() => setCopied(false), 1800)
+    } catch {
+      toast.error('Could not copy link')
+    }
+  }, [])
+
+  const handleSendEmail = useCallback(() => {
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+      toast.error('Add a name and email to send')
+      return
+    }
+    const row = addPendingInvite({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+    })
+    if (!row) {
+      toast.error('That email already has a pending invite')
+      return
+    }
+    toast.success(`Invite sent to ${email.trim()}`)
+    setFirstName('')
+    setLastName('')
+    setEmail('')
+    setPage(0)
+  }, [addPendingInvite, email, firstName, lastName])
+
+  const handleShareX = useCallback(() => {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      'Join me on BetOnline and play with my referral link:'
+    )}&url=${encodeURIComponent(REFERRAL_LINK)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
   }, [])
 
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white">
-      <div className="mx-auto w-full max-w-7xl px-4 pb-8 pt-6 md:px-6 md:pt-8">
-        {/* Hero banner */}
-        <div className="relative mb-8 overflow-hidden rounded-xl border border-white/10 md:mb-10">
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-[var(--ds-primary,#ee3536)]/25 via-[#242424] to-[#1a1a1a]"
-            aria-hidden
+    <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
+      {!demoLoggedIn ? (
+        <div className="w-full pb-10">
+          <div className="flex items-center justify-end px-3 pt-4 sm:px-4 md:px-7">
+            <DemoAuthToggle isLoggedIn={demoLoggedIn} onChange={setDemoLoggedIn} />
+          </div>
+          <ReferLanding
+            onLogin={() => {
+              setDemoLoggedIn(true)
+              requestLogin()
+            }}
           />
-          <div
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(238,53,54,0.2),transparent_60%)]"
-            aria-hidden
-          />
-          <div className="relative space-y-4 p-6 md:p-8">
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/45">
-              Promotions
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
-              Refer-a-Friend
-            </h1>
-            <p className="max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
-              Maximize your earnings with the Refer-a-Friend program. Share your link,
-              track activity in real time, and earn commission on every wager your friends
-              place.
-            </p>
-            <p className="text-xs text-white/40">Updated February 11, 2026</p>
-            <Button
-              type="button"
-              onClick={() => requestLogin()}
-              className="h-10 rounded-lg bg-[var(--ds-primary,#ee3536)] px-5 text-sm font-semibold text-white hover:bg-[var(--ds-primary,#ee3536)]/90 md:h-11 md:px-6"
-            >
-              Login to refer
-            </Button>
+        </div>
+      ) : (
+        <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 md:px-6 md:pt-8">
+          <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-1.5">
+              <h1 className="text-2xl font-bold tracking-tight text-[var(--ds-fg)]">
+                Refer-A-Friend
+              </h1>
+              <p className="max-w-2xl text-sm text-[var(--ds-fg-muted)]">
+                Share your unique link and earn rewards when friends join and start playing.
+              </p>
+            </div>
+            <DemoAuthToggle isLoggedIn={demoLoggedIn} onChange={setDemoLoggedIn} />
+          </div>
+
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+            <div className="flex min-w-0 flex-1 flex-col gap-6">
+              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                <div className="space-y-1.5">
+                  <p className="text-base font-bold text-[var(--ds-fg)]">Claim</p>
+                  <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
+                    ${claimableAmount.toFixed(2)}
+                  </p>
+                  <p className="text-[13px] text-[var(--ds-fg-subtle)]">
+                    {canClaim
+                      ? 'Available commission ready to claim in VIP Hub.'
+                      : 'No commission available to claim right now.'}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleClaim}
+                  disabled={!canClaim}
+                  className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
+                >
+                  {canClaim ? 'Claim' : 'Claimed'}
+                </Button>
+              </section>
+
+              <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
+                <StatCard icon={IconShare2} label="Referrals Sent" value={String(sentCount)} />
+                <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value="$20,000" />
+              </section>
+
+              <section className={cn('overflow-hidden', cardClass)}>
+                <div className="divide-y divide-black/[0.06] dark:divide-white/[0.04] md:hidden">
+                  {pageRows.map((row) => (
+                    <div key={row.id} className="space-y-3 px-4 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[var(--ds-fg)]">{row.nick}</p>
+                          {row.status === 'pending' ? (
+                            <div className="mt-1.5">
+                              <StatusPill status="pending" />
+                            </div>
+                          ) : null}
+                        </div>
+                        <CommissionPill
+                          amount={row.commission}
+                          pending={row.status === 'pending'}
+                        />
+                      </div>
+                      <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[13px]">
+                        <div>
+                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Registered</dt>
+                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">
+                            {row.status === 'pending' ? 'Invite sent' : row.registered}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">VIP Level</dt>
+                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.vipLevel}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">First Deposit</dt>
+                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.firstDeposit}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Wagered</dt>
+                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.wagered}</dd>
+                        </div>
+                        <div className="col-span-2">
+                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Lifetime Amount</dt>
+                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.lifetime}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="hidden md:block">
+                  <Table className="min-w-[760px]">
+                    <TableHeader>
+                      <TableRow className={cn('hover:bg-transparent', hairline)}>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          User
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          Registered
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          VIP Level
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          First Deposit
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          Wagered
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          Lifetime Amount
+                        </TableHead>
+                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
+                          Commission
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pageRows.map((row, index) => (
+                        <TableRow
+                          key={row.id}
+                          className={cn(
+                            hairline,
+                            index % 2 === 1 ? softFill : 'bg-transparent'
+                          )}
+                        >
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm font-semibold text-[var(--ds-fg)]">
+                            <div className="flex items-center gap-2">
+                              <span>{row.nick}</span>
+                              {row.status === 'pending' ? <StatusPill status="pending" /> : null}
+                            </div>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
+                            {row.status === 'pending' ? 'Invite sent' : row.registered}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
+                            {row.vipLevel}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
+                            {row.firstDeposit}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
+                            {row.wagered}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
+                            {row.lifetime}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-4 py-3.5">
+                            <CommissionPill
+                              amount={row.commission}
+                              pending={row.status === 'pending'}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className={cn('flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 text-[13px] text-[var(--ds-fg-muted)]', hairline)}>
+                  <div className="flex items-center gap-2">
+                    <span>Rows per page:</span>
+                    <span className="inline-flex items-center gap-1 font-medium text-[var(--ds-fg)]">
+                      {PAGE_SIZE}
+                      <IconChevronDown className="size-4 opacity-60" aria-hidden />
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="tabular-nums text-[var(--ds-fg)]">{rangeLabel}</span>
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={page === 0}
+                        onClick={() => setPage((p) => Math.max(0, p - 1))}
+                        className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
+                      >
+                        Prev
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={(page + 1) * PAGE_SIZE >= referrals.length}
+                        onClick={() => setPage((p) => p + 1)}
+                        className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[350px]">
+              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Email</h2>
+                  <p className="text-[13px] text-[var(--ds-fg-muted)]">
+                    Send your referral link to friends via email.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">First Name</span>
+                    <Input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="John"
+                      className={controlClass}
+                    />
+                  </label>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Last Name</span>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Doe"
+                      className={controlClass}
+                    />
+                  </label>
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Email</span>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@email.com"
+                      className={controlClass}
+                    />
+                  </label>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleSendEmail}
+                  className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110"
+                >
+                  Send
+                </Button>
+              </section>
+
+              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                <div className="space-y-1.5">
+                  <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
+                  <p className="text-[13px] text-[var(--ds-fg-muted)]">
+                    Copy your link or share it on X.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      'flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-3',
+                      controlSurface
+                    )}
+                  >
+                    <IconLink
+                      className="size-[18px] shrink-0 text-[var(--ds-fg-subtle)]"
+                      strokeWidth={1.8}
+                    />
+                    <p className="truncate text-sm text-[var(--ds-fg)]">{REFERRAL_LINK}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCopy}
+                    className={cn(
+                      'h-11 shrink-0 gap-2 rounded-[10px] px-3.5 text-[var(--ds-fg)] hover:text-[var(--ds-fg)]',
+                      controlSurface,
+                      'hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
+                    )}
+                  >
+                    <IconCopy className="size-[18px]" strokeWidth={1.8} />
+                    {copied ? 'Copied' : 'Copy'}
+                  </Button>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleShareX}
+                  aria-label="Share on X"
+                  className={cn(
+                    'flex size-11 items-center justify-center rounded-[10px] text-[var(--ds-fg)] transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.05]',
+                    controlSurface
+                  )}
+                >
+                  <IconBrandX className="size-5" strokeWidth={1.8} />
+                </button>
+              </section>
+            </aside>
           </div>
         </div>
-
-        <div className="space-y-10 md:space-y-12">
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-white md:text-2xl">How it works</h2>
-            <p className="max-w-3xl text-sm leading-relaxed text-white/65 md:text-[15px]">
-              Joining the Refer-a-Friend program is simple. Share your personalized link,
-              track referred players in your dashboard, and earn as they wager on sports and
-              casino games.
-            </p>
-            <div className="grid gap-4 pt-2 md:grid-cols-3">
-              <StepCard
-                icon={IconLink}
-                title="Share your personalized link"
-                description="Invite friends with your unique referral link. If someone registers using your link—or visits it and signs up later—your referral code is automatically applied."
-              />
-              <StepCard
-                icon={IconChartBar}
-                title="Track progress in real time"
-                description="Stay updated on your referred users' activity with a transparent dashboard. See live stats on wagers and know exactly how much commission you are earning."
-              />
-              <StepCard
-                icon={IconWallet}
-                title="Earn commissions on every wager"
-                description="Every bet your referred players make contributes to your commission, based on the game's theoretical house edge. This applies to both sports and casino wagers and is calculated instantly."
-              />
-            </div>
-          </section>
-
-          <ContentSection title="How much can you earn?">
-            <p>
-              There is no limit to how much you can earn. The more your friends wager, the
-              more you make—without caps or restrictions. Top referrers already generate tens
-              of thousands of dollars in commissions, and there is no ceiling on your
-              potential.
-            </p>
-          </ContentSection>
-
-          <ContentSection title="Why did I earn less for a player?">
-            <p>
-              Commissions are tied to the theoretical house edge of each game, so the rate
-              varies depending on what your friends wager on. Some games naturally have lower
-              house edges, meaning lower commission per bet, while others generate more. Over
-              time, activity balances out, ensuring fair and transparent rewards.
-            </p>
-          </ContentSection>
-
-          <ContentSection title="Customize with campaigns">
-            <p>
-              Create up to 10 unique campaigns, each with its own referral link. Use them to
-              test different strategies, track performance across traffic sources, and optimize
-              for success.
-            </p>
-          </ContentSection>
-
-          <ContentSection title="Why choose Refer-a-Friend?">
-            <ul className="space-y-2.5">
-              {WHY_CHOOSE.map((item) => (
-                <li key={item} className="flex gap-2.5">
-                  <IconUserPlus
-                    className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ds-primary,#ee3536)]"
-                    strokeWidth={2}
-                    aria-hidden
-                  />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </ContentSection>
-
-          <ContentSection title="Extra opportunities for larger partners">
-            <p>
-              While anyone can earn through Refer-a-Friend, partners with larger audiences or
-              professional marketing platforms can access special deals. If you are a
-              high-performing referrer or influencer, contact{' '}
-              <a
-                href="mailto:partners@betonline.ag"
-                className="inline-flex items-center gap-1 font-medium text-white underline decoration-white/30 underline-offset-2 transition-colors hover:text-[var(--ds-primary,#ee3536)]"
-              >
-                <IconMail className="h-4 w-4" aria-hidden />
-                partners@betonline.ag
-              </a>{' '}
-              to unlock tailored partnerships and exclusive offers.
-            </p>
-            <p>
-              Whether you are sharing with friends or scaling your referral efforts, the
-              Refer-a-Friend program is designed to reward everyone. Log in to get your link
-              and start earning with every wager.
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => requestLogin()}
-              className="mt-1 border-white/15 bg-white/[0.04] text-white hover:bg-white/10 hover:text-white"
-            >
-              Login to refer
-            </Button>
-          </ContentSection>
-        </div>
-      </div>
+      )}
     </SidebarInset>
   )
 }
+
+export default ReferAFriendPage

@@ -12,6 +12,21 @@ function PromotionsRedirectInner() {
     const vip = searchParams.get('vip')
     const hubSection = searchParams.get('hubSection')
     const promoTab = searchParams.get('promoTab')
+
+    // Prefer path slugs when possible (legacy ?section= still works)
+    if (section === 'Contests') {
+      router.replace('/promotions/contests')
+      return
+    }
+    if (section === 'My Bonus') {
+      router.replace('/promotions/my-bonus')
+      return
+    }
+    if (section === 'Refer A Friend') {
+      router.replace('/promotions/refer-a-friend')
+      return
+    }
+
     const params = new URLSearchParams({ vipRewardsPage: 'true' })
     if (section) params.set('section', section)
     if (vip === 'true') params.set('vip', 'true')

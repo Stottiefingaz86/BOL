@@ -9,12 +9,17 @@ import {
   IconLock,
   IconRefresh,
   IconSparkles,
+  IconUserPlus,
 } from '@tabler/icons-react'
 import { fireConfetti } from '@/lib/confetti'
 import { playSound } from '@/lib/sounds'
 import { toast } from 'sonner'
 import { useAuthSession } from '@/hooks/use-auth-session'
 import { requestLogin } from '@/lib/auth-session'
+import {
+  REFERRAL_REWARD_ID,
+  useReferralStore,
+} from '@/lib/store/referralStore'
 import { cn } from '@/lib/utils'
 import {
   Tooltip,
@@ -41,8 +46,9 @@ type IconKind =
   | 'boost-30'
   | 'boost-star'
   | 'free-spins'
+  | 'refer-a-friend'
 
-type HubSectionId = 'rakeback' | 'scheduled' | 'locked' | 'on-demand'
+type HubSectionId = 'rakeback' | 'referral' | 'scheduled' | 'locked' | 'on-demand'
 
 /** Tier bands from HUB-SORTING.pdf final views */
 export type VipHubTierBand = 'bronze' | 'silver-gold' | 'platinum'
@@ -52,6 +58,8 @@ type HubRow =
       id: string
       name: string
       info?: string
+      infoLinkHref?: string
+      infoLinkLabel?: string
       icon: IconKind
       kind: 'claim'
       amount?: number
@@ -65,6 +73,8 @@ type HubRow =
       id: string
       name: string
       info?: string
+      infoLinkHref?: string
+      infoLinkLabel?: string
       icon: IconKind
       kind: 'cooldown'
       subtitle?: string
@@ -74,6 +84,8 @@ type HubRow =
       id: string
       name: string
       info?: string
+      infoLinkHref?: string
+      infoLinkLabel?: string
       icon: IconKind
       kind: 'locked'
       unlockTier: string
@@ -82,6 +94,8 @@ type HubRow =
       id: string
       name: string
       info?: string
+      infoLinkHref?: string
+      infoLinkLabel?: string
       icon: IconKind
       kind: 'login'
       subtitle?: string
@@ -109,7 +123,10 @@ type HubSection = {
  * 3. Locked — future VIP levels
  * 4. On-demand — Special Reload pinned, then others by expiry
  */
-function buildHubSections(tier: VipHubTierBand): HubSection[] {
+function buildHubSections(
+  tier: VipHubTierBand,
+  referralClaimable = 0
+): HubSection[] {
   const rakeback: HubRow = {
     id: 'rakeback',
     name: 'Rakeback',
@@ -194,6 +211,22 @@ function buildHubSections(tier: VipHubTierBand): HubSection[] {
     unlockTier: 'PLATINUM',
   }
 
+  const referAFriend: HubRow | null =
+    referralClaimable > 0
+      ? {
+          id: REFERRAL_REWARD_ID,
+          name: 'Refer-A-Friend',
+          info: 'Claim commission earned when friends you referred wager on sports and casino.',
+          infoLinkHref: '/promotions/refer-a-friend',
+          infoLinkLabel: 'Open Refer-A-Friend',
+          icon: 'refer-a-friend',
+          kind: 'claim',
+          amount: referralClaimable,
+          subtitle: 'Commission ready',
+          removeOnClaim: true,
+        }
+      : null
+
   const onDemand: HubRow[] = [
     {
       id: 'special-reload',
@@ -239,8 +272,13 @@ function buildHubSections(tier: VipHubTierBand): HubSection[] {
 
   const sections: HubSection[] = [
     { id: 'rakeback', title: null, rows: [rakeback] },
-    { id: 'scheduled', title: 'SCHEDULED', rows: scheduled },
   ]
+
+  if (referAFriend) {
+    sections.push({ id: 'referral', title: null, rows: [referAFriend] })
+  }
+
+  sections.push({ id: 'scheduled', title: 'SCHEDULED', rows: scheduled })
 
   if (locked.length > 0) {
     sections.push({ id: 'locked', title: 'LOCKED', rows: locked })
@@ -260,6 +298,8 @@ function asLoginRows(sections: HubSection[]): HubSection[] {
         id: row.id,
         name: row.name,
         info: row.info,
+        infoLinkHref: row.infoLinkHref,
+        infoLinkLabel: row.infoLinkLabel,
         icon: row.icon,
         kind: 'login' as const,
         subtitle: 'subtitle' in row ? row.subtitle : undefined,
@@ -287,6 +327,8 @@ function RowIcon({ type }: { type: IconKind }) {
       return <VipIconSpecial className={cls} />
     case 'free-spins':
       return <IconSparkles className={cls} strokeWidth={1.75} />
+    case 'refer-a-friend':
+      return <IconUserPlus className={cls} strokeWidth={1.75} />
     default:
       return <IconRefresh className={cls} strokeWidth={1.75} />
   }
@@ -363,9 +405,11 @@ function ClaimStyleButton({
 function BenefitRow({
   row,
   onClaimed,
+  highlighted = false,
 }: {
   row: HubRow
   onClaimed?: (id: string, remove: boolean) => void
+  highlighted?: boolean
 }) {
   const { isLoggedIn } = useAuthSession()
   const rowRef = useRef<HTMLDivElement | null>(null)
@@ -446,6 +490,9 @@ function BenefitRow({
             new CustomEvent('notification:claim-reward', { detail: { amount } })
           )
         }
+        if (row.id === REFERRAL_REWARD_ID) {
+          useReferralStore.getState().claimCommission()
+        }
         setClaiming(false)
         setClaimed(true)
         if (claimCooldownMs) {
@@ -481,13 +528,16 @@ function BenefitRow({
   return (
     <div
       ref={rowRef}
+      data-reward-id={row.id}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
         'group relative flex items-center gap-3 overflow-visible rounded-xl border bg-[var(--ds-overlay)] px-3 py-3 transition-colors duration-200',
-        showClaimHighlight
-          ? 'border-[var(--ds-control-border)] hover:border-[var(--ds-primary,#ee3536)]/50'
-          : 'border-[var(--ds-control-border)] hover:border-[var(--ds-border-strong)]'
+        highlighted
+          ? 'border-[var(--ds-primary,#ee3536)] ring-2 ring-[var(--ds-primary,#ee3536)]/35'
+          : showClaimHighlight
+            ? 'border-[var(--ds-control-border)] hover:border-[var(--ds-primary,#ee3536)]/50'
+            : 'border-[var(--ds-control-border)] hover:border-[var(--ds-border-strong)]'
       )}
       style={
         {
@@ -531,9 +581,21 @@ function BenefitRow({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="z-[200] max-w-[240px] border-[var(--ds-border)] bg-[var(--ds-surface)] text-xs text-[var(--ds-fg)]"
+                  className="z-[200] max-w-[260px] border-[var(--ds-border)] bg-[var(--ds-surface)] text-xs text-[var(--ds-fg)]"
                 >
-                  {row.info}
+                  <p>{row.info}</p>
+                  {row.infoLinkHref ? (
+                    <a
+                      href={row.infoLinkHref}
+                      className="mt-1.5 inline-block font-semibold text-[var(--ds-primary,#ee3536)] underline-offset-2 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        window.dispatchEvent(new CustomEvent('vip:close-drawer'))
+                      }}
+                    >
+                      {row.infoLinkLabel ?? 'Learn more'}
+                    </a>
+                  ) : null}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -639,10 +701,28 @@ export function VipHubOverview({
   tier?: VipHubTierBand
 }) {
   const { isLoggedIn } = useAuthSession()
+  const referralClaimable = useReferralStore((s) => s.claimableAmount)
   const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set())
+  const [focusedRewardId, setFocusedRewardId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handler = (evt: Event) => {
+      const id = (evt as CustomEvent<{ focusRewardId?: string }>).detail?.focusRewardId
+      if (!id) return
+      setFocusedRewardId(id)
+      window.setTimeout(() => {
+        document
+          .querySelector(`[data-reward-id="${id}"]`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 180)
+      window.setTimeout(() => setFocusedRewardId((current) => (current === id ? null : current)), 4200)
+    }
+    window.addEventListener('vip:open-drawer', handler)
+    return () => window.removeEventListener('vip:open-drawer', handler)
+  }, [])
 
   const sections = useMemo(() => {
-    const base = buildHubSections(tier)
+    const base = buildHubSections(tier, referralClaimable)
     const withAuth = isLoggedIn ? base : asLoginRows(base)
     if (removedIds.size === 0) return withAuth
     return withAuth
@@ -651,7 +731,7 @@ export function VipHubOverview({
         rows: section.rows.filter((row) => !removedIds.has(row.id)),
       }))
       .filter((section) => section.rows.length > 0)
-  }, [isLoggedIn, removedIds, tier])
+  }, [isLoggedIn, referralClaimable, removedIds, tier])
 
   const handleClaimed = useCallback((id: string, remove: boolean) => {
     if (!remove) return
@@ -675,7 +755,12 @@ export function VipHubOverview({
               </p>
             ) : null}
             {section.rows.map((row) => (
-              <BenefitRow key={row.id} row={row} onClaimed={handleClaimed} />
+              <BenefitRow
+                key={row.id}
+                row={row}
+                onClaimed={handleClaimed}
+                highlighted={focusedRewardId === row.id}
+              />
             ))}
           </div>
         ))}

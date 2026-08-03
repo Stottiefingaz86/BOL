@@ -8,7 +8,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import React, { Suspense } from 'react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import {
   ColumnDef,
@@ -675,7 +675,18 @@ function DashboardSection({
   onOpenNotifications?: () => void
   unreadNotifications?: number
 }) {
+  const router = useRouter()
   const isMobile = useIsMobile()
+  const goToMyBonus = () => router.push('/promotions/my-bonus')
+  const goToRefer = () => router.push('/promotions/refer-a-friend')
+  const openReferClaim = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('vip:open-drawer', { detail: { focusRewardId: 'refer-a-friend' } })
+      )
+    }
+    onOpenVipHub?.()
+  }
   const [favCarouselApi, setFavCarouselApi] = React.useState<any>(null)
   const [favCanScrollPrev, setFavCanScrollPrev] = React.useState(false)
   const [favCanScrollNext, setFavCanScrollNext] = React.useState(true)
@@ -1099,7 +1110,7 @@ function DashboardSection({
             </div>
             <button
               type="button"
-              onClick={() => onNavigate('my-bonus')}
+              onClick={goToMyBonus}
               className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
             >
               View all
@@ -1124,7 +1135,7 @@ function DashboardSection({
               <button
                 key={bonus.id}
                 type="button"
-                onClick={() => onNavigate('my-bonus')}
+                onClick={goToMyBonus}
                 className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
               >
                 <PreviewRowIcon
@@ -1186,16 +1197,16 @@ function DashboardSection({
           </div>
         </div>
 
-        {/* Refer a Friend — VIP Hub style */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-[var(--ds-control-border)] bg-[var(--ds-overlay)]">
-          <div className="flex items-center justify-between border-b border-white/[0.04] px-4 py-3">
+        {/* Refer a Friend — same shell as Bet History / Transactions / Payments */}
+        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
             <div className="flex items-center gap-2">
               <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
               <h3 className="text-sm font-medium text-[var(--ds-fg)]">Refer a Friend</h3>
             </div>
             <button
               type="button"
-              onClick={() => onNavigate('refer')}
+              onClick={goToRefer}
               className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
             >
               Details
@@ -1213,7 +1224,7 @@ function DashboardSection({
               </div>
               <button
                 type="button"
-                onClick={() => onOpenVipHub?.()}
+                onClick={openReferClaim}
                 className="relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] hover:brightness-110"
                 style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
               >
@@ -1230,19 +1241,19 @@ function DashboardSection({
             </p>
 
             <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
                 <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
                   {referralDashboardStats.friendsReferred}
                 </div>
                 <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Friends</div>
               </div>
-              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
                 <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
                   ${referralDashboardStats.friendsDeposited.toLocaleString()}
                 </div>
                 <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Deposited</div>
               </div>
-              <div className="rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] px-2 py-2 text-center">
+              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
                 <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
                   ${referralDashboardStats.pending.toFixed(2)}
                 </div>
@@ -1252,8 +1263,8 @@ function DashboardSection({
 
             <button
               type="button"
-              onClick={() => onOpenVipHub?.()}
-              className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[var(--ds-control-border)] bg-[var(--ds-control-bg)] text-sm font-medium text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
+              onClick={goToRefer}
+              className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-transparent text-sm font-medium text-[var(--ds-fg)] transition-colors hover:bg-white/[0.04]"
             >
               <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
               Refer Now
@@ -3019,6 +3030,7 @@ function VipDrawerContent({
 function AccountPageContent() {
   const isMobile = useIsMobile()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { trackNav, trackClick, trackAction, trackSidebar } = useTracking('account')
   const { state: sidebarState, open: sidebarOpen, setOpen, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
   const [activeSection, setActiveSection] = useState<AccountSection>('dashboard')
@@ -3032,6 +3044,32 @@ function AccountPageContent() {
   useRainBalance(setBalance, setDisplayBalance)
   const pendingBalanceRef = useRef(0)
   const brandPrimary = 'var(--ds-primary, #ee3536)'
+
+  // Deep-link: /account?section=transactions | bet-history | payments | ...
+  useEffect(() => {
+    const section = searchParams.get('section')
+    const valid: AccountSection[] = [
+      'dashboard',
+      'bet-history',
+      'transactions',
+      'my-bonus',
+      'payments',
+      'refer',
+      'security',
+      'profile',
+    ]
+    if (section && valid.includes(section as AccountSection)) {
+      if (section === 'my-bonus') {
+        router.replace('/promotions/my-bonus')
+        return
+      }
+      if (section === 'refer') {
+        router.replace('/promotions/refer-a-friend')
+        return
+      }
+      setActiveSection(section as AccountSection)
+    }
+  }, [router, searchParams])
 
   // ─── Drawer state ───
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
@@ -3533,7 +3571,7 @@ function AccountPageContent() {
                       style={{ zIndex: 120 }}
                     >
                       <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
-                          <a href="/promotions?section=Contests" className="w-full">Contests</a>
+                          <a href="/promotions/contests" className="w-full">Contests</a>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]">
                           <a href="/esports" className="w-full">Esports</a>
@@ -3780,6 +3818,16 @@ function AccountPageContent() {
                                   e.stopPropagation()
                                   trackSidebar(item.id, item.label)
                                   trackAction('account-section', item.label, { section: item.id, from: activeSection })
+                                  if (item.id === 'my-bonus') {
+                                    router.push('/promotions/my-bonus')
+                                    if (isMobile) setOpenMobile(false)
+                                    return
+                                  }
+                                  if (item.id === 'refer') {
+                                    router.push('/promotions/refer-a-friend')
+                                    if (isMobile) setOpenMobile(false)
+                                    return
+                                  }
                                   setActiveSection(item.id)
                                   if (isMobile) setOpenMobile(false)
                                 }}
@@ -3878,7 +3926,22 @@ function AccountPageContent() {
             transition={{ type: "tween", ease: "linear", duration: 0.3 }}
           >
             <div>
-              <AnimateTabs value={activeSection} onValueChange={(v) => { trackClick('account-tab', v, { section: 'sub-nav', from: activeSection, to: v }); setActiveSection(v as AccountSection) }} className="w-max">
+              <AnimateTabs
+                value={activeSection}
+                onValueChange={(v) => {
+                  trackClick('account-tab', v, { section: 'sub-nav', from: activeSection, to: v })
+                  if (v === 'my-bonus') {
+                    router.push('/promotions/my-bonus')
+                    return
+                  }
+                  if (v === 'refer') {
+                    router.push('/promotions/refer-a-friend')
+                    return
+                  }
+                  setActiveSection(v as AccountSection)
+                }}
+                className="w-max"
+              >
                 <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative">
                   {sidebarItems.map((item) => (
                     <TabsTab
@@ -4169,7 +4232,7 @@ function AccountPageContent() {
                     className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
-                      setActiveSection('my-bonus')
+                      router.push('/promotions/my-bonus')
                     }}
                   >
                     <IconGift className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
@@ -4180,7 +4243,7 @@ function AccountPageContent() {
                     className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
                     onClick={() => {
                       setAccountDrawerOpen(false)
-                      setActiveSection('refer')
+                      router.push('/promotions/refer-a-friend')
                     }}
                   >
                     <IconUserPlus className="mr-3 size-5 text-[var(--ds-fg-muted)]" />

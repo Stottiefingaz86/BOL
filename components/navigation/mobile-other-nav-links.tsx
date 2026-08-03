@@ -7,7 +7,7 @@ import { useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 
 const OTHER_LINKS = [
-  { label: 'Contests', href: '/promotions?section=Contests' },
+  { label: 'Contests', href: '/promotions/contests' },
   { label: 'Esports', href: '/esports' },
   { label: 'Racebook', href: '/racebook' },
   { label: 'VIP Rewards', href: '/casino?vipRewardsPage=true' },

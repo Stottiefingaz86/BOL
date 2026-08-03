@@ -1,0 +1,145 @@
+'use client'
+
+import { create } from 'zustand'
+
+export const REFERRAL_REWARD_ID = 'refer-a-friend'
+export const REFERRAL_INITIAL_CLAIMABLE = 40
+
+export type ReferralStatus = 'pending' | 'joined'
+
+export type ReferralRow = {
+  id: string
+  nick: string
+  email?: string
+  registered: string
+  vipLevel: string
+  firstDeposit: string
+  wagered: string
+  lifetime: string
+  commission: number
+  status: ReferralStatus
+}
+
+const SEED_REFERRALS: ReferralRow[] = [
+  {
+    id: 'seed-1',
+    nick: '******eff',
+    registered: '20/04/2026',
+    vipLevel: 'Bronze',
+    firstDeposit: '20/04/2026',
+    wagered: '—',
+    lifetime: '$1.00',
+    commission: 0,
+    status: 'joined',
+  },
+  {
+    id: 'seed-2',
+    nick: '******sso',
+    registered: '17/04/2026',
+    vipLevel: 'Black I',
+    firstDeposit: '20/04/2026',
+    wagered: '$41.01',
+    lifetime: '$4.00',
+    commission: 0.08,
+    status: 'joined',
+  },
+  {
+    id: 'seed-3',
+    nick: '******a24',
+    registered: '11/04/2026',
+    vipLevel: 'Elite II',
+    firstDeposit: '20/04/2026',
+    wagered: '$41.01',
+    lifetime: '$5.00',
+    commission: 0.2,
+    status: 'joined',
+  },
+  {
+    id: 'seed-4',
+    nick: '******ily',
+    registered: '02/04/2026',
+    vipLevel: 'Gold',
+    firstDeposit: '20/04/2026',
+    wagered: '$340.50',
+    lifetime: '$5.00',
+    commission: 5,
+    status: 'joined',
+  },
+  {
+    id: 'seed-5',
+    nick: '******k9r',
+    registered: '28/03/2026',
+    vipLevel: 'Silver',
+    firstDeposit: '29/03/2026',
+    wagered: '$88.40',
+    lifetime: '$12.00',
+    commission: 1.15,
+    status: 'joined',
+  },
+]
+
+function formatInviteDate(date = new Date()) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+function maskEmail(email: string) {
+  const [local, domain] = email.split('@')
+  if (!domain) return '******'
+  const visible = local.slice(0, Math.min(2, local.length))
+  return `${visible}******@${domain}`
+}
+
+type ReferralStore = {
+  claimableAmount: number
+  referrals: ReferralRow[]
+  claimCommission: () => number
+  addPendingInvite: (input: {
+    firstName: string
+    lastName: string
+    email: string
+  }) => ReferralRow | null
+}
+
+export const useReferralStore = create<ReferralStore>((set, get) => ({
+  claimableAmount: REFERRAL_INITIAL_CLAIMABLE,
+  referrals: SEED_REFERRALS,
+
+  claimCommission: () => {
+    const amount = get().claimableAmount
+    if (amount <= 0) return 0
+    set({ claimableAmount: 0 })
+    return amount
+  },
+
+  addPendingInvite: ({ firstName, lastName, email }) => {
+    const normalizedEmail = email.trim().toLowerCase()
+    if (!normalizedEmail) return null
+
+    const existing = get().referrals.find(
+      (row) => row.email?.toLowerCase() === normalizedEmail && row.status === 'pending'
+    )
+    if (existing) return null
+
+    const displayName = [firstName.trim(), lastName.trim()].filter(Boolean).join(' ')
+    const row: ReferralRow = {
+      id: `invite-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      nick: displayName || maskEmail(normalizedEmail),
+      email: normalizedEmail,
+      registered: formatInviteDate(),
+      vipLevel: '—',
+      firstDeposit: '—',
+      wagered: '—',
+      lifetime: '—',
+      commission: 0,
+      status: 'pending',
+    }
+
+    set((state) => ({
+      referrals: [row, ...state.referrals],
+    }))
+    return row
+  },
+}))
