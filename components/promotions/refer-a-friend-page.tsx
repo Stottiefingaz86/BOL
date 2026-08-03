@@ -115,10 +115,14 @@ function DemoAuthToggle({
     <div
       className="flex items-center gap-1 rounded-full border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0.5"
       role="group"
-      aria-label="Demo login state"
+      aria-label="Demo auth scenario"
     >
-      {(['Log in', 'Log out'] as const).map((label) => {
-        const loggedIn = label === 'Log in'
+      {(
+        [
+          { label: 'Log in scenario', loggedIn: true },
+          { label: 'Log out scenario', loggedIn: false },
+        ] as const
+      ).map(({ label, loggedIn }) => {
         const active = isLoggedIn === loggedIn
         return (
           <button
@@ -418,7 +422,7 @@ function ReferLanding({ onLogin }: { onLogin: () => void }) {
 }
 
 export function ReferAFriendPage() {
-  const [demoLoggedIn, setDemoLoggedIn] = useState(false)
+  const [demoLoggedIn, setDemoLoggedIn] = useState(true)
   const claimableAmount = useReferralStore((s) => s.claimableAmount)
   const referrals = useReferralStore((s) => s.referrals)
   const addPendingInvite = useReferralStore((s) => s.addPendingInvite)
