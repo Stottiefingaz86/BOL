@@ -727,9 +727,9 @@ export function ReferAFriendPage() {
               <aside className="flex w-full shrink-0 flex-col gap-6 lg:sticky lg:top-20 lg:w-[350px] lg:self-start">
                 <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
                   <div className="space-y-1.5">
-                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
+                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Your referral link</h2>
                     <p className="text-[13px] text-[var(--ds-fg-muted)]">
-                      Copy your link or share it on X.
+                      Copy and share anywhere. Or post it on X in one click.
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
