@@ -5,6 +5,7 @@ import {
   IconBrandX,
   IconChevronDown,
   IconCopy,
+  IconCurrencyDollar,
   IconInfinity,
   IconLink,
   IconShare2,
@@ -146,7 +147,7 @@ function StatCard({
   value: string
 }) {
   return (
-    <div className={cn('flex min-w-0 flex-1 flex-col gap-2.5 p-4', cardClass)}>
+    <div className={cn('flex h-full min-w-0 flex-1 flex-col gap-2.5 p-4', cardClass)}>
       <div className="flex items-center gap-2.5">
         <Icon
           className="size-[18px] text-[var(--ds-fg-subtle)]"
@@ -155,7 +156,7 @@ function StatCard({
         />
         <p className="text-[13px] font-semibold text-[var(--ds-fg-muted)]">{label}</p>
       </div>
-      <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
+      <p className="mt-auto text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
         {value}
       </p>
     </div>
@@ -518,7 +519,7 @@ export function ReferAFriendPage() {
           />
         </div>
       ) : (
-        <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-6 md:px-6 md:pt-8">
+        <div className="w-full px-3 pb-10 pt-6 md:px-6 md:pt-8">
           <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 space-y-1.5">
               <h1 className="text-2xl font-bold tracking-tight text-[var(--ds-fg)]">
@@ -533,29 +534,50 @@ export function ReferAFriendPage() {
 
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
               <div className="flex min-w-0 flex-1 flex-col gap-6">
-                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
-                  <div className="space-y-1.5">
-                    <p className="text-base font-bold text-[var(--ds-fg)]">Claim</p>
-                    <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
+                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div
+                    className={cn(
+                      'relative flex h-full min-w-0 flex-col gap-3 overflow-hidden p-4',
+                      cardClass,
+                      canClaim && 'border-[var(--ds-primary,#ee3536)]/30'
+                    )}
+                  >
+                    {canClaim ? (
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 animate-[shimmer_2s_infinite]"
+                        style={{
+                          background:
+                            'linear-gradient(90deg, transparent 0%, rgba(238,53,54,0.14) 45%, transparent 100%)',
+                          backgroundSize: '200% 100%',
+                        }}
+                      />
+                    ) : null}
+                    <div className="relative z-[1] flex items-center gap-2.5">
+                      <IconCurrencyDollar
+                        className={cn(
+                          'size-[18px]',
+                          canClaim
+                            ? 'text-[var(--ds-primary,#ee3536)]'
+                            : 'text-[var(--ds-fg-subtle)]'
+                        )}
+                        strokeWidth={1.8}
+                        aria-hidden
+                      />
+                      <p className="text-[13px] font-semibold text-[var(--ds-fg-muted)]">Claim</p>
+                    </div>
+                    <p className="relative z-[1] text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
                       ${claimableAmount.toFixed(2)}
                     </p>
-                    <p className="text-[13px] text-[var(--ds-fg-subtle)]">
-                      {canClaim
-                        ? 'Available commission ready to claim in VIP Hub.'
-                        : 'No commission available to claim right now.'}
-                    </p>
+                    <Button
+                      type="button"
+                      onClick={handleClaim}
+                      disabled={!canClaim}
+                      className="relative z-[1] mt-auto h-9 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
+                    >
+                      {canClaim ? 'Claim' : 'Claimed'}
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={handleClaim}
-                    disabled={!canClaim}
-                    className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
-                  >
-                    {canClaim ? 'Claim' : 'Claimed'}
-                  </Button>
-                </section>
-
-                <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
                   <StatCard icon={IconShare2} label="Referrals Sent" value={String(sentCount)} />
                   <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value="$20,000" />
@@ -575,7 +597,10 @@ export function ReferAFriendPage() {
                       </p>
                     ) : (
                       pageRows.map((row) => (
-                        <div key={row.id} className="flex items-start gap-3 px-4 py-2.5">
+                        <div
+                          key={row.id}
+                          className="flex items-start gap-3 px-4 py-2.5 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                        >
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5">
                               <p className="truncate text-xs font-medium text-[var(--ds-fg)]">{row.nick}</p>
@@ -641,7 +666,7 @@ export function ReferAFriendPage() {
                           <tr
                             key={row.id}
                             className={cn(
-                              'border-b',
+                              'border-b transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]',
                               hairline,
                               index % 2 === 1 ? softFill : 'bg-transparent'
                             )}
