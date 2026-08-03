@@ -89,7 +89,7 @@ const cardClass =
   'rounded-xl border border-black/[0.06] bg-black/[0.03] dark:border-white/[0.05] dark:bg-white/[0.03]'
 
 const controlClass =
-  'h-11 rounded-[10px] border border-black/[0.06] bg-black/[0.03] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] dark:border-white/[0.06] dark:bg-white/[0.04]'
+  'h-11 rounded-[10px] border border-black/[0.06] bg-black/[0.03] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] shadow-none ring-offset-0 focus-visible:border-black/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 focus-visible:ring-offset-0 dark:border-white/[0.06] dark:bg-white/[0.04] dark:focus-visible:border-white/22 dark:focus-visible:ring-white/15'
 
 const hairline = 'border-black/[0.06] dark:border-white/[0.04]'
 const softFill = 'bg-black/[0.03] dark:bg-white/[0.03]'
@@ -434,6 +434,8 @@ export function ReferAFriendPage() {
   const [page, setPage] = useState(0)
 
   const canClaim = claimableAmount > 0
+  const canSendInvite =
+    firstName.trim().length > 0 && lastName.trim().length > 0 && email.trim().length > 0
   const joinedCount = useMemo(
     () => referrals.filter((row) => row.status === 'joined').length,
     [referrals]
@@ -759,7 +761,13 @@ export function ReferAFriendPage() {
                 <Button
                   type="button"
                   onClick={handleSendEmail}
-                  className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110"
+                  disabled={!canSendInvite}
+                  className={cn(
+                    'h-11 w-full rounded-lg text-sm font-semibold transition-colors',
+                    canSendInvite
+                      ? 'border-0 bg-[var(--ds-primary,#ee3536)] text-white hover:brightness-110'
+                      : 'border border-black/15 bg-transparent text-[var(--ds-fg-muted)] hover:bg-transparent disabled:opacity-100 dark:border-white/20'
+                  )}
                 >
                   Send
                 </Button>
