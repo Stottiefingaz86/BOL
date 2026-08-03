@@ -17,14 +17,6 @@ import { SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { SpotlightOverlay, useCursorSpotlight } from '@/components/ui/cursor-spotlight'
 import { requestLogin } from '@/lib/auth-session'
 import {
@@ -173,13 +165,13 @@ function StatCard({
 function StatusPill({ status }: { status: ReferralRow['status'] }) {
   if (status === 'pending') {
     return (
-      <span className="inline-flex rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:text-amber-200">
+      <span className="inline-flex rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
         Pending
       </span>
     )
   }
   return (
-    <span className="inline-flex rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+    <span className="inline-flex rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:text-emerald-300">
       Joined
     </span>
   )
@@ -188,7 +180,7 @@ function StatusPill({ status }: { status: ReferralRow['status'] }) {
 function CommissionPill({ amount, pending }: { amount: number; pending?: boolean }) {
   if (pending) {
     return (
-      <span className="inline-flex rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-semibold text-[var(--ds-fg-subtle)] dark:bg-white/[0.04]">
+      <span className="inline-flex rounded-full bg-black/[0.04] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--ds-fg-subtle)] dark:bg-white/[0.04]">
         —
       </span>
     )
@@ -197,7 +189,7 @@ function CommissionPill({ amount, pending }: { amount: number; pending?: boolean
   return (
     <span
       className={cn(
-        'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold tabular-nums',
+        'inline-flex rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums',
         positive
           ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
           : 'bg-black/[0.04] text-[var(--ds-fg-muted)] dark:bg-white/[0.04]'
@@ -540,287 +532,299 @@ export function ReferAFriendPage() {
           </div>
 
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-            <div className="flex min-w-0 flex-1 flex-col gap-6">
-              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
-                <div className="space-y-1.5">
-                  <p className="text-base font-bold text-[var(--ds-fg)]">Claim</p>
-                  <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
-                    ${claimableAmount.toFixed(2)}
-                  </p>
-                  <p className="text-[13px] text-[var(--ds-fg-subtle)]">
-                    {canClaim
-                      ? 'Available commission ready to claim in VIP Hub.'
-                      : 'No commission available to claim right now.'}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleClaim}
-                  disabled={!canClaim}
-                  className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
-                >
-                  {canClaim ? 'Claim' : 'Claimed'}
-                </Button>
-              </section>
+              <div className="flex min-w-0 flex-1 flex-col gap-6">
+                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                  <div className="space-y-1.5">
+                    <p className="text-base font-bold text-[var(--ds-fg)]">Claim</p>
+                    <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--ds-fg)]">
+                      ${claimableAmount.toFixed(2)}
+                    </p>
+                    <p className="text-[13px] text-[var(--ds-fg-subtle)]">
+                      {canClaim
+                        ? 'Available commission ready to claim in VIP Hub.'
+                        : 'No commission available to claim right now.'}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleClaim}
+                    disabled={!canClaim}
+                    className="h-11 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
+                  >
+                    {canClaim ? 'Claim' : 'Claimed'}
+                  </Button>
+                </section>
 
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
-                <StatCard icon={IconShare2} label="Referrals Sent" value={String(sentCount)} />
-                <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value="$20,000" />
-              </section>
+                <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
+                  <StatCard icon={IconShare2} label="Referrals Sent" value={String(sentCount)} />
+                  <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value="$20,000" />
+                </section>
 
-              <section className={cn('overflow-hidden', cardClass)}>
-                <div className="divide-y divide-black/[0.06] dark:divide-white/[0.04] md:hidden">
-                  {pageRows.map((row) => (
-                    <div key={row.id} className="space-y-3 px-4 py-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-[var(--ds-fg)]">{row.nick}</p>
-                          {row.status === 'pending' ? (
-                            <div className="mt-1.5">
-                              <StatusPill status="pending" />
-                            </div>
-                          ) : null}
-                        </div>
-                        <CommissionPill
-                          amount={row.commission}
-                          pending={row.status === 'pending'}
-                        />
-                      </div>
-                      <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-[13px]">
-                        <div>
-                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Registered</dt>
-                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">
-                            {row.status === 'pending' ? 'Invite sent' : row.registered}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">VIP Level</dt>
-                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.vipLevel}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">First Deposit</dt>
-                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.firstDeposit}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Wagered</dt>
-                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.wagered}</dd>
-                        </div>
-                        <div className="col-span-2">
-                          <dt className="text-[11px] text-[var(--ds-fg-subtle)]">Lifetime Amount</dt>
-                          <dd className="mt-0.5 text-[var(--ds-fg-muted)]">{row.lifetime}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  ))}
-                </div>
+                {/* Referrals fill the left column under stats */}
+                <section className={cn('overflow-hidden', cardClass)}>
+                  <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] px-4 py-2.5 dark:border-white/[0.04]">
+                    <h2 className="text-sm font-medium text-[var(--ds-fg)]">Your referrals</h2>
+                    <p className="text-[11px] text-[var(--ds-fg-subtle)]">{referrals.length} total</p>
+                  </div>
 
-                <div className="hidden md:block">
-                  <Table className="min-w-[760px]">
-                    <TableHeader>
-                      <TableRow className={cn('hover:bg-transparent', hairline)}>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          User
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          Registered
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          VIP Level
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          First Deposit
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          Wagered
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          Lifetime Amount
-                        </TableHead>
-                        <TableHead className={cn('h-auto whitespace-nowrap px-4 py-3 text-xs font-semibold text-[var(--ds-fg-muted)]', softFill)}>
-                          Commission
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pageRows.map((row, index) => (
-                        <TableRow
-                          key={row.id}
-                          className={cn(
-                            hairline,
-                            index % 2 === 1 ? softFill : 'bg-transparent'
-                          )}
-                        >
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm font-semibold text-[var(--ds-fg)]">
-                            <div className="flex items-center gap-2">
-                              <span>{row.nick}</span>
+                  <div className="divide-y divide-black/[0.06] dark:divide-white/[0.04] md:hidden">
+                    {pageRows.length === 0 ? (
+                      <p className="px-4 py-8 text-center text-xs text-[var(--ds-fg-subtle)]">
+                        No referrals yet. Send an invite to get started.
+                      </p>
+                    ) : (
+                      pageRows.map((row) => (
+                        <div key={row.id} className="flex items-start gap-3 px-4 py-2.5">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <p className="truncate text-xs font-medium text-[var(--ds-fg)]">{row.nick}</p>
                               {row.status === 'pending' ? <StatusPill status="pending" /> : null}
                             </div>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
-                            {row.status === 'pending' ? 'Invite sent' : row.registered}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
-                            {row.vipLevel}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
-                            {row.firstDeposit}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
-                            {row.wagered}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5 text-sm text-[var(--ds-fg-muted)]">
-                            {row.lifetime}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-4 py-3.5">
+                            <p className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
+                              {row.status === 'pending' ? 'Invite sent' : row.registered}
+                              {' · '}
+                              {row.vipLevel}
+                              {' · '}
+                              {row.rate}
+                            </p>
+                            <p className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-muted)]">
+                              Deposits {row.totalDeposits}
+                              {' · '}
+                              Wagered {row.wagered}
+                              {' · '}
+                              Claimed {row.claimed}
+                            </p>
+                          </div>
+                          <div className="shrink-0 pt-0.5">
                             <CommissionPill
                               amount={row.commission}
                               pending={row.status === 'pending'}
                             />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <div className={cn('flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 text-[13px] text-[var(--ds-fg-muted)]', hairline)}>
-                  <div className="flex items-center gap-2">
-                    <span>Rows per page:</span>
-                    <span className="inline-flex items-center gap-1 font-medium text-[var(--ds-fg)]">
-                      {PAGE_SIZE}
-                      <IconChevronDown className="size-4 opacity-60" aria-hidden />
-                    </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="tabular-nums text-[var(--ds-fg)]">{rangeLabel}</span>
-                    <div className="flex gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        disabled={page === 0}
-                        onClick={() => setPage((p) => Math.max(0, p - 1))}
-                        className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
-                      >
-                        Prev
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        disabled={(page + 1) * PAGE_SIZE >= referrals.length}
-                        onClick={() => setPage((p) => p + 1)}
-                        className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
-                      >
-                        Next
-                      </Button>
-                    </div>
+
+                  <div className="hidden md:block">
+                    <table className="w-full table-fixed border-collapse text-left">
+                      <thead>
+                        <tr className={cn('border-b', hairline)}>
+                          {(
+                            [
+                              { label: 'User', w: 'w-[16%]' },
+                              { label: 'Registered', w: 'w-[12%]' },
+                              { label: 'VIP', w: 'w-[10%]' },
+                              { label: 'Deposits', w: 'w-[12%]' },
+                              { label: 'Wagered', w: 'w-[12%]' },
+                              { label: 'Rate', w: 'w-[8%]' },
+                              { label: 'Claimed', w: 'w-[12%]' },
+                              { label: 'Commission', w: 'w-[18%]' },
+                            ] as const
+                          ).map((col) => (
+                            <th
+                              key={col.label}
+                              className={cn(
+                                'px-2 py-2 text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]',
+                                softFill,
+                                col.w
+                              )}
+                            >
+                              {col.label}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pageRows.map((row, index) => (
+                          <tr
+                            key={row.id}
+                            className={cn(
+                              'border-b',
+                              hairline,
+                              index % 2 === 1 ? softFill : 'bg-transparent'
+                            )}
+                          >
+                            <td className="px-2 py-2 text-xs font-medium text-[var(--ds-fg)]">
+                              <div className="flex min-w-0 items-center gap-1.5">
+                                <span className="truncate">{row.nick}</span>
+                                {row.status === 'pending' ? <StatusPill status="pending" /> : null}
+                              </div>
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
+                              {row.status === 'pending' ? 'Invite sent' : row.registered}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
+                              {row.vipLevel}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.totalDeposits}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.wagered}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.rate}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.claimed}
+                            </td>
+                            <td className="px-2 py-2">
+                              <CommissionPill
+                                amount={row.commission}
+                                pending={row.status === 'pending'}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                </div>
-              </section>
-            </div>
 
-            <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[350px]">
-              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
-                <div className="space-y-1.5">
-                  <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Email</h2>
-                  <p className="text-[13px] text-[var(--ds-fg-muted)]">
-                    Send your referral link to friends via email.
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <label className="block space-y-1.5">
-                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">First Name</span>
-                    <Input
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="John"
-                      className={controlClass}
-                    />
-                  </label>
-                  <label className="block space-y-1.5">
-                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Last Name</span>
-                    <Input
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe"
-                      className={controlClass}
-                    />
-                  </label>
-                  <label className="block space-y-1.5">
-                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Email</span>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@email.com"
-                      className={controlClass}
-                    />
-                  </label>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleSendEmail}
-                  disabled={!canSendInvite}
-                  className={cn(
-                    'h-11 w-full rounded-lg text-sm font-semibold transition-colors',
-                    canSendInvite
-                      ? 'border-0 bg-[var(--ds-primary,#ee3536)] text-white hover:brightness-110'
-                      : 'border border-black/15 bg-transparent text-[var(--ds-fg-muted)] hover:bg-transparent disabled:opacity-100 dark:border-white/20'
-                  )}
-                >
-                  Send
-                </Button>
-              </section>
-
-              <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
-                <div className="space-y-1.5">
-                  <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
-                  <p className="text-[13px] text-[var(--ds-fg-muted)]">
-                    Copy your link or share it on X.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      'flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-3',
-                      controlSurface
+                      'flex flex-wrap items-center justify-between gap-3 border-t px-4 py-2.5 text-[11px] text-[var(--ds-fg-muted)]',
+                      hairline
                     )}
                   >
-                    <IconLink
-                      className="size-[18px] shrink-0 text-[var(--ds-fg-subtle)]"
-                      strokeWidth={1.8}
-                    />
-                    <p className="truncate text-sm text-[var(--ds-fg)]">{REFERRAL_LINK}</p>
+                    <div className="flex items-center gap-2">
+                      <span>Rows per page:</span>
+                      <span className="inline-flex items-center gap-1 font-medium text-[var(--ds-fg)]">
+                        {PAGE_SIZE}
+                        <IconChevronDown className="size-4 opacity-60" aria-hidden />
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="tabular-nums text-[var(--ds-fg)]">{rangeLabel}</span>
+                      <div className="flex gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={page === 0}
+                          onClick={() => setPage((p) => Math.max(0, p - 1))}
+                          className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
+                        >
+                          Prev
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={(page + 1) * PAGE_SIZE >= referrals.length}
+                          onClick={() => setPage((p) => p + 1)}
+                          className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[350px]">
+                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                  <div className="space-y-1.5">
+                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Email</h2>
+                    <p className="text-[13px] text-[var(--ds-fg-muted)]">
+                      Send your referral link to friends via email.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">First Name</span>
+                      <Input
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="John"
+                        className={controlClass}
+                      />
+                    </label>
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Last Name</span>
+                      <Input
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe"
+                        className={controlClass}
+                      />
+                    </label>
+                    <label className="block space-y-1.5">
+                      <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Email</span>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@email.com"
+                        className={controlClass}
+                      />
+                    </label>
                   </div>
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={handleCopy}
+                    onClick={handleSendEmail}
+                    disabled={!canSendInvite}
                     className={cn(
-                      'h-11 shrink-0 gap-2 rounded-[10px] px-3.5 text-[var(--ds-fg)] hover:text-[var(--ds-fg)]',
-                      controlSurface,
-                      'hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
+                      'h-11 w-full rounded-lg text-sm font-semibold transition-colors',
+                      canSendInvite
+                        ? 'border-0 bg-[var(--ds-primary,#ee3536)] text-white hover:brightness-110'
+                        : 'border border-black/15 bg-transparent text-[var(--ds-fg-muted)] hover:bg-transparent disabled:opacity-100 dark:border-white/20'
                     )}
                   >
-                    <IconCopy className="size-[18px]" strokeWidth={1.8} />
-                    {copied ? 'Copied' : 'Copy'}
+                    Send
                   </Button>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleShareX}
-                  aria-label="Share on X"
-                  className={cn(
-                    'flex size-11 items-center justify-center rounded-[10px] text-[var(--ds-fg)] transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.05]',
-                    controlSurface
-                  )}
-                >
-                  <IconBrandX className="size-5" strokeWidth={1.8} />
-                </button>
-              </section>
-            </aside>
-          </div>
+                </section>
+
+                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                  <div className="space-y-1.5">
+                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
+                    <p className="text-[13px] text-[var(--ds-fg-muted)]">
+                      Copy your link or share it on X.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-3',
+                        controlSurface
+                      )}
+                    >
+                      <IconLink
+                        className="size-[18px] shrink-0 text-[var(--ds-fg-subtle)]"
+                        strokeWidth={1.8}
+                      />
+                      <p className="truncate text-sm text-[var(--ds-fg)]">{REFERRAL_LINK}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCopy}
+                      className={cn(
+                        'h-11 shrink-0 gap-2 rounded-[10px] px-3.5 text-[var(--ds-fg)] hover:text-[var(--ds-fg)]',
+                        controlSurface,
+                        'hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
+                      )}
+                    >
+                      <IconCopy className="size-[18px]" strokeWidth={1.8} />
+                      {copied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleShareX}
+                    aria-label="Share on X"
+                    className={cn(
+                      'flex size-11 items-center justify-center rounded-[10px] text-[var(--ds-fg)] transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.05]',
+                      controlSurface
+                    )}
+                  >
+                    <IconBrandX className="size-5" strokeWidth={1.8} />
+                  </button>
+                </section>
+              </aside>
+            </div>
         </div>
       )}
     </SidebarInset>

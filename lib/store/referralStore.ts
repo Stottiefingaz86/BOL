@@ -4,6 +4,7 @@ import { create } from 'zustand'
 
 export const REFERRAL_REWARD_ID = 'refer-a-friend'
 export const REFERRAL_INITIAL_CLAIMABLE = 40
+export const REFERRAL_COMMISSION_RATE = '10%'
 
 export type ReferralStatus = 'pending' | 'joined'
 
@@ -13,9 +14,10 @@ export type ReferralRow = {
   email?: string
   registered: string
   vipLevel: string
-  firstDeposit: string
+  totalDeposits: string
   wagered: string
-  lifetime: string
+  claimed: string
+  rate: string
   commission: number
   status: ReferralStatus
 }
@@ -26,9 +28,10 @@ const SEED_REFERRALS: ReferralRow[] = [
     nick: '******eff',
     registered: '20/04/2026',
     vipLevel: 'Bronze',
-    firstDeposit: '20/04/2026',
+    totalDeposits: '$25.00',
     wagered: '—',
-    lifetime: '$1.00',
+    claimed: '$1.00',
+    rate: '10%',
     commission: 0,
     status: 'joined',
   },
@@ -37,9 +40,10 @@ const SEED_REFERRALS: ReferralRow[] = [
     nick: '******sso',
     registered: '17/04/2026',
     vipLevel: 'Black I',
-    firstDeposit: '20/04/2026',
+    totalDeposits: '$100.00',
     wagered: '$41.01',
-    lifetime: '$4.00',
+    claimed: '$4.00',
+    rate: '10%',
     commission: 0.08,
     status: 'joined',
   },
@@ -48,9 +52,10 @@ const SEED_REFERRALS: ReferralRow[] = [
     nick: '******a24',
     registered: '11/04/2026',
     vipLevel: 'Elite II',
-    firstDeposit: '20/04/2026',
+    totalDeposits: '$150.00',
     wagered: '$41.01',
-    lifetime: '$5.00',
+    claimed: '$5.00',
+    rate: '10%',
     commission: 0.2,
     status: 'joined',
   },
@@ -59,9 +64,10 @@ const SEED_REFERRALS: ReferralRow[] = [
     nick: '******ily',
     registered: '02/04/2026',
     vipLevel: 'Gold',
-    firstDeposit: '20/04/2026',
+    totalDeposits: '$500.00',
     wagered: '$340.50',
-    lifetime: '$5.00',
+    claimed: '$5.00',
+    rate: '10%',
     commission: 5,
     status: 'joined',
   },
@@ -70,9 +76,10 @@ const SEED_REFERRALS: ReferralRow[] = [
     nick: '******k9r',
     registered: '28/03/2026',
     vipLevel: 'Silver',
-    firstDeposit: '29/03/2026',
+    totalDeposits: '$200.00',
     wagered: '$88.40',
-    lifetime: '$12.00',
+    claimed: '$12.00',
+    rate: '10%',
     commission: 1.15,
     status: 'joined',
   },
@@ -130,9 +137,10 @@ export const useReferralStore = create<ReferralStore>((set, get) => ({
       email: normalizedEmail,
       registered: formatInviteDate(),
       vipLevel: '—',
-      firstDeposit: '—',
+      totalDeposits: '—',
       wagered: '—',
-      lifetime: '—',
+      claimed: '—',
+      rate: REFERRAL_COMMISSION_RATE,
       commission: 0,
       status: 'pending',
     }
