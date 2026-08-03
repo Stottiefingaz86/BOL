@@ -724,7 +724,54 @@ export function ReferAFriendPage() {
                 </section>
               </div>
 
-              <aside className="flex w-full shrink-0 flex-col gap-6 lg:w-[350px]">
+              <aside className="flex w-full shrink-0 flex-col gap-6 lg:sticky lg:top-20 lg:w-[350px] lg:self-start">
+                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
+                  <div className="space-y-1.5">
+                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
+                    <p className="text-[13px] text-[var(--ds-fg-muted)]">
+                      Copy your link or share it on X.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-3',
+                        controlSurface
+                      )}
+                    >
+                      <IconLink
+                        className="size-[18px] shrink-0 text-[var(--ds-fg-subtle)]"
+                        strokeWidth={1.8}
+                      />
+                      <p className="truncate text-sm text-[var(--ds-fg)]">{REFERRAL_LINK}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCopy}
+                      className={cn(
+                        'h-11 shrink-0 gap-2 rounded-[10px] px-3.5 text-[var(--ds-fg)] hover:text-[var(--ds-fg)]',
+                        controlSurface,
+                        'hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
+                      )}
+                    >
+                      <IconCopy className="size-[18px]" strokeWidth={1.8} />
+                      {copied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleShareX}
+                    aria-label="Share on X"
+                    className={cn(
+                      'flex size-11 items-center justify-center rounded-[10px] text-[var(--ds-fg)] transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.05]',
+                      controlSurface
+                    )}
+                  >
+                    <IconBrandX className="size-5" strokeWidth={1.8} />
+                  </button>
+                </section>
+
                 <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
                   <div className="space-y-1.5">
                     <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Email</h2>
@@ -775,53 +822,6 @@ export function ReferAFriendPage() {
                   >
                     Send
                   </Button>
-                </section>
-
-                <section className={cn('flex flex-col gap-4 p-5', cardClass)}>
-                  <div className="space-y-1.5">
-                    <h2 className="text-base font-bold text-[var(--ds-fg)]">Share to Social</h2>
-                    <p className="text-[13px] text-[var(--ds-fg-muted)]">
-                      Copy your link or share it on X.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-[10px] px-3',
-                        controlSurface
-                      )}
-                    >
-                      <IconLink
-                        className="size-[18px] shrink-0 text-[var(--ds-fg-subtle)]"
-                        strokeWidth={1.8}
-                      />
-                      <p className="truncate text-sm text-[var(--ds-fg)]">{REFERRAL_LINK}</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleCopy}
-                      className={cn(
-                        'h-11 shrink-0 gap-2 rounded-[10px] px-3.5 text-[var(--ds-fg)] hover:text-[var(--ds-fg)]',
-                        controlSurface,
-                        'hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
-                      )}
-                    >
-                      <IconCopy className="size-[18px]" strokeWidth={1.8} />
-                      {copied ? 'Copied' : 'Copy'}
-                    </Button>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleShareX}
-                    aria-label="Share on X"
-                    className={cn(
-                      'flex size-11 items-center justify-center rounded-[10px] text-[var(--ds-fg)] transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.05]',
-                      controlSurface
-                    )}
-                  >
-                    <IconBrandX className="size-5" strokeWidth={1.8} />
-                  </button>
                 </section>
               </aside>
             </div>
