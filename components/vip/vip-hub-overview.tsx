@@ -30,6 +30,11 @@ import {
 import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import {
+  FreeSpinsGamePicker,
+  type FreeSpinGameOption,
+} from '@/components/vip/free-spins-game-picker'
+import { launchCasinoGame } from '@/lib/casino/launch-game'
+import {
   VipIconMonthly,
   VipIconPostMonthly,
   VipIconSpecial,
@@ -66,8 +71,10 @@ type HubRow =
       subtitle?: string
       /** On-demand rows disappear after claim (except multi-release Special Reload) */
       removeOnClaim?: boolean
-      /** After claim, show a live countdown then become claimable again */
-      claimCooldownMs?: number
+      /** Override default Claim / Claim $X button label */
+      ctaLabel?: string
+      /** Remaining free spins (Choose Game flow) */
+      spinsLeft?: number
     }
   | {
       id: string
@@ -101,14 +108,7 @@ type HubRow =
       subtitle?: string
     }
 
-const RAKEBACK_COOLDOWN_MS = 15 * 60 * 1000
-
-function formatCooldownMmSs(ms: number) {
-  const totalSec = Math.max(0, Math.ceil(ms / 1000))
-  const minutes = Math.floor(totalSec / 60)
-  const seconds = totalSec % 60
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`
-}
+const CLAIMED_FLASH_MS = 3000
 
 type HubSection = {
   id: HubSectionId
@@ -134,7 +134,6 @@ function buildHubSections(
     icon: 'rakeback',
     kind: 'claim',
     amount: 0.2,
-    claimCooldownMs: RAKEBACK_COOLDOWN_MS,
   }
 
   const weeklyBoostActive: HubRow = {
@@ -211,21 +210,20 @@ function buildHubSections(
     unlockTier: 'PLATINUM',
   }
 
-  const referAFriend: HubRow | null =
-    referralClaimable > 0
-      ? {
-          id: REFERRAL_REWARD_ID,
-          name: 'Refer-A-Friend',
-          info: 'Claim commission earned when friends you referred wager on sports and casino.',
-          infoLinkHref: '/promotions/refer-a-friend',
-          infoLinkLabel: 'Open Refer-A-Friend',
-          icon: 'refer-a-friend',
-          kind: 'claim',
-          amount: referralClaimable,
-          subtitle: 'Commission ready',
-          removeOnClaim: true,
-        }
-      : null
+  const referAFriend: HubRow = {
+    id: REFERRAL_REWARD_ID,
+    name: 'Refer-A-Friend',
+    info: 'Claim commission earned when friends you referred wager on sports and casino.',
+    infoLinkHref: '/promotions/refer-a-friend',
+    infoLinkLabel: 'Open Refer-A-Friend',
+    icon: 'refer-a-friend',
+    kind: 'claim',
+    amount: referralClaimable,
+    subtitle:
+      referralClaimable > 0
+        ? 'Commission ready'
+        : 'No commission ready — earn more as friends play',
+  }
 
   const onDemand: HubRow[] = [
     {
@@ -249,10 +247,12 @@ function buildHubSections(
     {
       id: 'free-spins',
       name: 'Free Spins',
-      info: 'Claim free spins from on-demand VIP campaigns.',
+      info: 'Choose a game to play free spins from on-demand VIP campaigns.',
       icon: 'free-spins',
       kind: 'claim',
-      removeOnClaim: true,
+      subtitle: '50 spins ready',
+      ctaLabel: 'Choose Game',
+      spinsLeft: 50,
     },
   ]
 
@@ -272,11 +272,8 @@ function buildHubSections(
 
   const sections: HubSection[] = [
     { id: 'rakeback', title: null, rows: [rakeback] },
+    { id: 'referral', title: null, rows: [referAFriend] },
   ]
-
-  if (referAFriend) {
-    sections.push({ id: 'referral', title: null, rows: [referAFriend] })
-  }
 
   sections.push({ id: 'scheduled', title: 'SCHEDULED', rows: scheduled })
 
@@ -372,26 +369,36 @@ function ClaimStyleButton({
   onClick,
   disabled,
   className,
+  subtle = false,
   ...props
 }: {
   children: React.ReactNode
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
   className?: string
+  /** Soft outline CTA (e.g. Choose Game) instead of solid primary fill */
+  subtle?: boolean
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="button"
-      style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+      style={
+        subtle
+          ? undefined
+          : { backgroundColor: 'var(--ds-primary, #ee3536)' }
+      }
       className={cn(
-        'relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] duration-150 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-80',
+        'relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider transition-[filter,colors] duration-150 disabled:cursor-not-allowed disabled:opacity-80',
+        subtle
+          ? 'border border-[var(--ds-primary,#ee3536)]/45 bg-[var(--ds-primary,#ee3536)]/10 text-[var(--ds-fg)] hover:bg-[var(--ds-primary,#ee3536)]/18 hover:border-[var(--ds-primary,#ee3536)]/70'
+          : 'text-white hover:brightness-110',
         className
       )}
       {...props}
       disabled={disabled}
       onClick={onClick}
     >
-      {!disabled ? (
+      {!disabled && !subtle ? (
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
@@ -414,38 +421,59 @@ function BenefitRow({
   const { isLoggedIn } = useAuthSession()
   const rowRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
-  const claimCooldownMs = row.kind === 'claim' ? row.claimCooldownMs : undefined
 
-  const [claimed, setClaimed] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [showClaimedFlash, setShowClaimedFlash] = useState(false)
-  const [cooldownEndsAt, setCooldownEndsAt] = useState<number | null>(null)
-  const [cooldownRemainingMs, setCooldownRemainingMs] = useState(0)
+  const [claimInactive, setClaimInactive] = useState(
+    () =>
+      row.kind === 'claim' &&
+      !row.ctaLabel &&
+      typeof row.amount === 'number' &&
+      row.amount <= 0
+  )
+  const [gamePickerOpen, setGamePickerOpen] = useState(false)
+  const [spinsLeft, setSpinsLeft] = useState(() =>
+    row.kind === 'claim' && typeof row.spinsLeft === 'number' ? row.spinsLeft : 0
+  )
 
+  const isChooseGame = row.kind === 'claim' && Boolean(row.ctaLabel)
+  const freeSpinsExhausted = isChooseGame && spinsLeft <= 0
+  const nothingToClaim =
+    row.kind === 'claim' &&
+    !isChooseGame &&
+    typeof row.amount === 'number' &&
+    row.amount <= 0
+  const isClaimDisabled = claimInactive || nothingToClaim
+
+  // Grey out when nothing to claim; re-enable only when amount goes from 0 → >0 (e.g. new RAF commission)
+  const prevAmountRef = useRef(
+    row.kind === 'claim' ? row.amount : undefined
+  )
   useEffect(() => {
-    if (!cooldownEndsAt) {
-      setCooldownRemainingMs(0)
+    if (row.kind !== 'claim' || isChooseGame) return
+    const amount = row.amount
+    const prev = prevAmountRef.current
+    prevAmountRef.current = amount
+    if (typeof amount === 'number' && amount <= 0) {
+      setClaimInactive(true)
       return
     }
-
-    const tick = () => {
-      const left = Math.max(0, cooldownEndsAt - Date.now())
-      setCooldownRemainingMs(left)
-      if (left <= 0) {
-        setCooldownEndsAt(null)
-        setClaimed(false)
-        setShowClaimedFlash(false)
-      }
+    if (
+      typeof amount === 'number' &&
+      amount > 0 &&
+      typeof prev === 'number' &&
+      prev <= 0
+    ) {
+      setClaimInactive(false)
     }
-
-    tick()
-    const id = window.setInterval(tick, 250)
-    return () => window.clearInterval(id)
-  }, [cooldownEndsAt])
+  }, [isChooseGame, row])
 
   useEffect(() => {
     if (!showClaimedFlash) return
-    const t = window.setTimeout(() => setShowClaimedFlash(false), 2200)
+    const t = window.setTimeout(() => {
+      setShowClaimedFlash(false)
+      setClaimInactive(true)
+    }, CLAIMED_FLASH_MS)
     return () => window.clearTimeout(t)
   }, [showClaimedFlash])
 
@@ -462,21 +490,32 @@ function BenefitRow({
     rowRef.current?.style.setProperty('--spot-opacity', '0')
   }, [])
 
-  const handleClaim = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-      if (claimed || claiming || row.kind !== 'claim' || cooldownEndsAt) return
-      buttonRef.current = e.currentTarget
-      setClaiming(true)
+  const completeClaim = useCallback(
+    (opts?: {
+      game?: FreeSpinGameOption
+      buttonEl?: HTMLButtonElement | null
+      spinsUsed?: number
+    }) => {
+      if (row.kind !== 'claim') return
+      playSound('redeem')
+      fireClaimConfetti(opts?.buttonEl ?? buttonRef.current)
+      const amount = row.amount
+      const remainingAfter =
+        opts?.spinsUsed != null
+          ? Math.max(0, spinsLeft - opts.spinsUsed)
+          : spinsLeft
 
-      // Simulate pending DB / claim API round-trip
-      const delayMs = 1100 + Math.floor(Math.random() * 500)
       window.setTimeout(() => {
-        playSound('redeem')
-        fireClaimConfetti(buttonRef.current)
-        const amount = row.amount
-        window.setTimeout(() => {
-          playSound('button-click')
+        playSound('button-click')
+        if (opts?.game) {
+          toast.success(`Playing ${opts.game.name}`, {
+            description:
+              remainingAfter > 0
+                ? `${opts.spinsUsed ?? 0} spins used · ${remainingAfter} left — choose another game anytime.`
+                : `Last spins used on ${opts.game.name}.`,
+            duration: 3500,
+          })
+        } else {
           toast.success(
             amount != null ? `Claimed $${amount.toFixed(2)}` : `Claimed ${row.name}`,
             {
@@ -484,26 +523,83 @@ function BenefitRow({
               duration: 3500,
             }
           )
-        }, 2000)
-        if (typeof window !== 'undefined' && amount != null && amount > 0) {
-          window.dispatchEvent(
-            new CustomEvent('notification:claim-reward', { detail: { amount } })
-          )
         }
-        if (row.id === REFERRAL_REWARD_ID) {
-          useReferralStore.getState().claimCommission()
-        }
-        setClaiming(false)
-        setClaimed(true)
-        if (claimCooldownMs) {
-          const endsAt = Date.now() + claimCooldownMs
-          setCooldownEndsAt(endsAt)
-          setShowClaimedFlash(true)
-        }
+      }, 2000)
+      if (typeof window !== 'undefined' && amount != null && amount > 0) {
+        window.dispatchEvent(
+          new CustomEvent('notification:claim-reward', { detail: { amount } })
+        )
+      }
+      if (row.id === REFERRAL_REWARD_ID) {
+        useReferralStore.getState().claimCommission()
+      }
+      setClaiming(false)
+      if (opts?.spinsUsed != null) {
+        setSpinsLeft(remainingAfter)
+      } else {
+        // Claimed flash → then inactive grey Claim (no timer)
+        setShowClaimedFlash(true)
         onClaimed?.(row.id, Boolean(row.removeOnClaim))
+      }
+    },
+    [onClaimed, row, spinsLeft]
+  )
+
+  const handleClaim = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      if (
+        claiming ||
+        showClaimedFlash ||
+        isClaimDisabled ||
+        freeSpinsExhausted ||
+        row.kind !== 'claim'
+      )
+        return
+      buttonRef.current = e.currentTarget
+
+      if (isChooseGame) {
+        setGamePickerOpen(true)
+        return
+      }
+
+      setClaiming(true)
+      const delayMs = 1100 + Math.floor(Math.random() * 500)
+      window.setTimeout(() => {
+        completeClaim({ buttonEl: buttonRef.current })
       }, delayMs)
     },
-    [claimed, claiming, claimCooldownMs, cooldownEndsAt, onClaimed, row]
+    [
+      claiming,
+      completeClaim,
+      freeSpinsExhausted,
+      isChooseGame,
+      isClaimDisabled,
+      row.kind,
+      showClaimedFlash,
+    ]
+  )
+
+  const handleGameSelect = useCallback(
+    (game: FreeSpinGameOption) => {
+      setGamePickerOpen(false)
+      const spinsUsed = Math.min(10, spinsLeft)
+      launchCasinoGame({
+        title: game.name,
+        image: game.image,
+        provider: game.provider,
+        features: [`${spinsUsed} free spins applied`],
+      })
+      setClaiming(true)
+      window.setTimeout(() => {
+        completeClaim({
+          game,
+          buttonEl: buttonRef.current,
+          spinsUsed,
+        })
+      }, 400)
+    },
+    [completeClaim, spinsLeft]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -513,17 +609,28 @@ function BenefitRow({
     requestLogin()
   }, [])
 
-  const onCooldown = Boolean(cooldownEndsAt && cooldownRemainingMs > 0)
-
   const showClaimHighlight =
     !isLoggedIn ||
     row.kind === 'login' ||
-    (row.kind === 'claim' && !claimed && !onCooldown)
+    (row.kind === 'claim' &&
+      !showClaimedFlash &&
+      !isClaimDisabled &&
+      !freeSpinsExhausted)
 
   const claimLabel =
-    row.kind === 'claim' && row.amount != null
-      ? `Claim $${row.amount.toFixed(2)}`
-      : 'Claim'
+    row.kind === 'claim' && row.ctaLabel
+      ? row.ctaLabel
+      : row.kind === 'claim' && row.amount != null && row.amount > 0
+        ? `Claim $${row.amount.toFixed(2)}`
+        : 'Claim'
+
+  const rowSubtitle = isChooseGame
+    ? spinsLeft > 0
+      ? `${spinsLeft} spin${spinsLeft === 1 ? '' : 's'} left`
+      : 'All spins used'
+    : 'subtitle' in row
+      ? row.subtitle
+      : undefined
 
   return (
     <div
@@ -565,7 +672,9 @@ function BenefitRow({
       </div>
       <div className="relative z-20 min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="truncate text-sm font-semibold text-[var(--ds-fg)]">{row.name}</span>
+          <span className="truncate text-sm font-semibold text-[var(--ds-fg)]">
+            {row.name}
+          </span>
           {row.info ? (
             <TooltipProvider delayDuration={200}>
               <Tooltip>
@@ -601,8 +710,10 @@ function BenefitRow({
             </TooltipProvider>
           ) : null}
         </div>
-        {'subtitle' in row && row.subtitle && (isLoggedIn || row.kind === 'login') ? (
-          <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">{row.subtitle}</p>
+        {rowSubtitle && (isLoggedIn || row.kind === 'login') ? (
+          <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">
+            {rowSubtitle}
+          </p>
         ) : null}
       </div>
 
@@ -619,34 +730,34 @@ function BenefitRow({
             {row.cooldownLabel}
           </div>
         ) : showClaimedFlash ? (
-          <div className="flex h-9 items-center justify-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+          <div className="flex h-9 min-w-[7.5rem] items-center justify-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
             <IconCheck className="size-3.5" />
             Claimed
           </div>
-        ) : onCooldown ? (
-          <div
-            className="flex h-9 min-w-[4.5rem] items-center justify-center rounded-lg bg-[var(--ds-control-bg)] px-2.5 text-[11px] font-semibold tabular-nums tracking-wide text-[var(--ds-fg-muted)]"
-            aria-live="polite"
-            aria-label={`Available in ${formatCooldownMmSs(cooldownRemainingMs)}`}
+        ) : freeSpinsExhausted ? (
+          <div className="flex h-9 items-center justify-center gap-1 rounded-lg border border-white/15 bg-white/[0.03] px-3 text-[11px] font-bold uppercase tracking-wider text-[var(--ds-fg-muted)]">
+            Used
+          </div>
+        ) : isClaimDisabled ? (
+          <button
+            type="button"
+            disabled
+            className="flex h-9 min-w-[7.5rem] cursor-not-allowed items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-3 text-[11px] font-bold uppercase tracking-wider text-[var(--ds-fg-subtle)] opacity-55"
           >
-            {formatCooldownMmSs(cooldownRemainingMs)}
-          </div>
-        ) : claimed ? (
-          <div className="flex h-9 items-center justify-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-            <IconCheck className="size-3.5" />
-            Claimed
-          </div>
+            Claim
+          </button>
         ) : (
           <ClaimStyleButton
             disabled={claiming}
             className="min-w-[7.5rem]"
+            subtle={isChooseGame}
             onClick={handleClaim}
             aria-busy={claiming}
           >
             {claiming ? (
               <span className="inline-flex items-center gap-1.5">
                 <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
-                Claiming
+                {isChooseGame ? 'Opening' : 'Claiming'}
               </span>
             ) : (
               claimLabel
@@ -654,6 +765,15 @@ function BenefitRow({
           </ClaimStyleButton>
         )}
       </div>
+
+      {isChooseGame && spinsLeft > 0 ? (
+        <FreeSpinsGamePicker
+          open={gamePickerOpen}
+          onOpenChange={setGamePickerOpen}
+          spinsLeft={spinsLeft}
+          onSelect={handleGameSelect}
+        />
+      ) : null}
     </div>
   )
 }

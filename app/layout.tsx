@@ -6,6 +6,7 @@ import { AuthSessionSync } from '@/components/auth/auth-session-sync'
 import { AuthModal } from '@/components/auth/auth-modal'
 import GlobalBetslip from '@/components/betslip/global-betslip'
 import { DesignCustomizer } from '@/components/design-customizer'
+import { AnimationInspector } from '@/components/dev/animation-inspector'
 import { PreventOverscroll } from '@/components/prevent-overscroll'
 import EsportsLinkFix from '@/components/navigation/esports-link-fix'
 import { Toaster } from '@/components/ui/sonner'
@@ -60,6 +61,7 @@ export default function RootLayout({
           </GlobalChatWrapper>
           <GlobalBetslip />
           <DesignCustomizer />
+          <AnimationInspector />
           <Toaster position="top-left" />
         </ThemeProvider>
       </body>
