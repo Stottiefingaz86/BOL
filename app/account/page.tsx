@@ -675,18 +675,7 @@ function DashboardSection({
   onOpenNotifications?: () => void
   unreadNotifications?: number
 }) {
-  const router = useRouter()
   const isMobile = useIsMobile()
-  const goToMyBonus = () => router.push('/promotions/my-bonus')
-  const goToRefer = () => router.push('/promotions/refer-a-friend')
-  const openReferClaim = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('vip:open-drawer', { detail: { focusRewardId: 'refer-a-friend' } })
-      )
-    }
-    onOpenVipHub?.()
-  }
   const [favCarouselApi, setFavCarouselApi] = React.useState<any>(null)
   const [favCanScrollPrev, setFavCanScrollPrev] = React.useState(false)
   const [favCanScrollNext, setFavCanScrollNext] = React.useState(true)
@@ -1099,177 +1088,44 @@ function DashboardSection({
         </div>
       </div>
 
-      {/* Bonus · Security · Refer */}
-      <div className="mb-6 grid gap-3 md:grid-cols-3">
-        {/* My Bonus */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
-          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <IconGift className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
-              <h3 className="text-sm font-medium text-[var(--ds-fg)]">My Bonus</h3>
-            </div>
-            <button
-              type="button"
-              onClick={goToMyBonus}
-              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
-            >
-              View all
-            </button>
+      {/* Security Central */}
+      <div className="mb-6 overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <IconShield className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
+            <h3 className="text-sm font-medium text-[var(--ds-fg)]">Security Central</h3>
           </div>
-          <div className="border-b border-white/[0.04] px-4 py-3">
-            <div className="flex items-end justify-between gap-2">
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Active</div>
-                <div className="mt-0.5 text-2xl font-semibold tabular-nums text-[var(--ds-fg)]">
-                  {bonusData.filter((b) => b.status === 'ACTIVE').length}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Available</div>
-                <div className="mt-0.5 text-sm font-medium tabular-nums text-[var(--ds-fg)]">$8.00</div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col">
-            {bonusData.filter((b) => b.status === 'ACTIVE').map((bonus) => (
-              <button
-                key={bonus.id}
-                type="button"
-                onClick={goToMyBonus}
-                className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
-              >
-                <PreviewRowIcon
-                  fallback={<IconGift className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{bonus.code}</div>
-                  <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">
-                    Rollover {bonus.rollover}
-                  </div>
-                </div>
-                <div className="shrink-0 text-right">
-                  <div className="text-xs font-medium tabular-nums text-[var(--ds-fg)]">{bonus.amount}</div>
-                  <div className="mt-0.5 text-[10px] text-[var(--ds-fg-muted)]">Active</div>
-                </div>
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate('security')}
+            className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+          >
+            Manage
+          </button>
         </div>
-
-        {/* Security Central */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
-          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <IconShield className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
-              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Security Central</h3>
-            </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { icon: IconLock, label: 'Password', status: 'Protected', ok: true },
+            { icon: IconShield, label: 'Two-Factor Auth', status: 'Off', ok: false },
+            { icon: IconHistory, label: 'Login History', status: '3 devices', ok: true },
+            { icon: IconSettings, label: 'Sessions', status: '2 active', ok: true },
+          ].map((item) => (
             <button
+              key={item.label}
               type="button"
               onClick={() => onNavigate('security')}
-              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
+              className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-3 text-left last:border-b-0 hover:bg-white/[0.03] sm:border-r sm:border-b-0 sm:[&:nth-child(2n)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(4n)]:border-r-0"
             >
-              Manage
-            </button>
-          </div>
-          <div className="flex flex-1 flex-col">
-            {[
-              { icon: IconLock, label: 'Password', status: 'Protected', ok: true },
-              { icon: IconShield, label: 'Two-Factor Auth', status: 'Off', ok: false },
-              { icon: IconHistory, label: 'Login History', status: '3 devices', ok: true },
-              { icon: IconSettings, label: 'Sessions', status: '2 active', ok: true },
-            ].map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => onNavigate('security')}
-                className="flex w-full items-center gap-2.5 border-b border-white/[0.04] px-3 py-2.5 text-left last:border-b-0 hover:bg-white/[0.03]"
-              >
-                <PreviewRowIcon
-                  fallback={<item.icon className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{item.label}</div>
-                  <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">{item.status}</div>
-                </div>
-                <IconChevronRight className="size-3.5 shrink-0 text-white/25" />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Refer a Friend — same shell as Bet History / Transactions / Payments */}
-        <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.05] bg-white/[0.03]">
-          <div className="flex shrink-0 items-center justify-between border-b border-white/[0.05] bg-black/15 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
-              <h3 className="text-sm font-medium text-[var(--ds-fg)]">Refer a Friend</h3>
-            </div>
-            <button
-              type="button"
-              onClick={goToRefer}
-              className="text-[11px] font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
-            >
-              Details
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-3 p-4">
-            {/* Earn + Claim — one row like VIP hub */}
-            <div className="flex items-center gap-3">
+              <PreviewRowIcon
+                fallback={<item.icon className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />}
+              />
               <div className="min-w-0 flex-1">
-                <div className="text-[10px] uppercase tracking-wide text-[var(--ds-fg-subtle)]">Cash earned</div>
-                <div className="mt-0.5 text-xl font-semibold tabular-nums tracking-tight text-[var(--ds-fg)]">
-                  ${referralDashboardStats.totalEarned.toFixed(2)}
-                </div>
+                <div className="truncate text-xs font-medium text-[var(--ds-fg)]">{item.label}</div>
+                <div className="mt-0.5 truncate text-[10px] text-[var(--ds-fg-subtle)]">{item.status}</div>
               </div>
-              <button
-                type="button"
-                onClick={openReferClaim}
-                className="relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider text-white transition-[filter] hover:brightness-110"
-                style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
-                />
-                <span className="relative">Claim</span>
-              </button>
-            </div>
-
-            <p className="text-[11px] leading-snug text-[var(--ds-fg-muted)]">
-              {referralDashboardStats.ggrSharePercent}% GGR on friends you refer
-            </p>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
-                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                  {referralDashboardStats.friendsReferred}
-                </div>
-                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Friends</div>
-              </div>
-              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
-                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                  ${referralDashboardStats.friendsDeposited.toLocaleString()}
-                </div>
-                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Deposited</div>
-              </div>
-              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-2 py-2 text-center">
-                <div className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                  ${referralDashboardStats.pending.toFixed(2)}
-                </div>
-                <div className="mt-0.5 text-[10px] text-[var(--ds-fg-subtle)]">Pending</div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={goToRefer}
-              className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-white/[0.06] bg-transparent text-sm font-medium text-[var(--ds-fg)] transition-colors hover:bg-white/[0.04]"
-            >
-              <IconUserPlus className="size-3.5 text-[var(--ds-fg-muted)]" strokeWidth={1.75} />
-              Refer Now
+              <IconChevronRight className="size-3.5 shrink-0 text-white/25" />
             </button>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -3327,14 +3183,12 @@ function AccountPageContent() {
     </svg>
   )
 
-  // Sidebar items — matching BetOnline reference: My Account, Bet History, Transactions, My Bonus, Payments, Refer a Friend, Security Central, Profile Settings
+  // Sidebar items — My Bonus & Refer a Friend live under Promotions / VIP Hub
   const sidebarItems = [
     { id: 'dashboard' as const, icon: IconUser, label: 'My Account' },
     { id: 'bet-history' as const, icon: IconTicket, label: 'Bet History' },
     { id: 'transactions' as const, icon: IconCurrencyDollar, label: 'Transactions' },
-    { id: 'my-bonus' as const, icon: IconGift, label: 'My Bonus' },
     { id: 'payments' as const, icon: IconCreditCard, label: 'Payments' },
-    { id: 'refer' as const, icon: IconUserPlus, label: 'Refer a Friend' },
     { id: 'security' as const, icon: IconShield, label: 'Security Central' },
     { id: 'profile' as const, icon: IconSettings, label: 'Profile Settings' },
   ]
@@ -3818,16 +3672,6 @@ function AccountPageContent() {
                                   e.stopPropagation()
                                   trackSidebar(item.id, item.label)
                                   trackAction('account-section', item.label, { section: item.id, from: activeSection })
-                                  if (item.id === 'my-bonus') {
-                                    router.push('/promotions/my-bonus')
-                                    if (isMobile) setOpenMobile(false)
-                                    return
-                                  }
-                                  if (item.id === 'refer') {
-                                    router.push('/promotions/refer-a-friend')
-                                    if (isMobile) setOpenMobile(false)
-                                    return
-                                  }
                                   setActiveSection(item.id)
                                   if (isMobile) setOpenMobile(false)
                                 }}
@@ -3930,14 +3774,6 @@ function AccountPageContent() {
                 value={activeSection}
                 onValueChange={(v) => {
                   trackClick('account-tab', v, { section: 'sub-nav', from: activeSection, to: v })
-                  if (v === 'my-bonus') {
-                    router.push('/promotions/my-bonus')
-                    return
-                  }
-                  if (v === 'refer') {
-                    router.push('/promotions/refer-a-friend')
-                    return
-                  }
                   setActiveSection(v as AccountSection)
                 }}
                 className="w-max"
@@ -3987,11 +3823,9 @@ function AccountPageContent() {
                   unreadNotifications={webInboxUnreadCount}
                 />
               )}
-                {activeSection === 'bet-history' && <BetHistoryContent />}
+              {activeSection === 'bet-history' && <BetHistoryContent />}
               {activeSection === 'transactions' && <TransactionsContent />}
-              {activeSection === 'my-bonus' && <BonusContent />}
               {activeSection === 'payments' && <PaymentsContent />}
-                {activeSection === 'refer' && <ReferFriendContent onOpenVipHub={openVipDrawer} />}
               {activeSection === 'security' && <SecurityContent />}
               {activeSection === 'profile' && <ProfileContent />}
             </motion.div>
@@ -4227,28 +4061,6 @@ function AccountPageContent() {
 
                   <Separator className={cn('bg-[var(--ds-control-hover)]', isMobile ? 'my-3' : 'my-4')} />
 
-                  <Button
-                    variant="ghost"
-                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
-                    onClick={() => {
-                      setAccountDrawerOpen(false)
-                      router.push('/promotions/my-bonus')
-                    }}
-                  >
-                    <IconGift className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
-                    <span className="flex-1 text-left text-[var(--ds-fg)]">My Bonus</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
-                    onClick={() => {
-                      setAccountDrawerOpen(false)
-                      router.push('/promotions/refer-a-friend')
-                    }}
-                  >
-                    <IconUserPlus className="mr-3 size-5 text-[var(--ds-fg-muted)]" />
-                    <span className="flex-1 text-left text-[var(--ds-fg)]">Refer a Friend</span>
-                  </Button>
                   <Button
                     variant="ghost"
                     className="h-12 w-full justify-start px-3 text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"

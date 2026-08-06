@@ -1380,7 +1380,7 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
                         Animation extract
                       </span>
                       <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-white/10" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                        Right-click
+                        ⌥+click
                       </span>
                     </button>
 

@@ -136,8 +136,9 @@ export function AnimationInspector() {
     }
 
     const onContextMenu = (event: MouseEvent) => {
-      // Shift+right-click → native browser menu
-      if (event.shiftKey) return
+      // Normal right-click → native browser menu (Inspect Element, etc.)
+      // Option/Alt + right-click → animation extract menu
+      if (!event.altKey) return
 
       const target = event.target
       if (!(target instanceof Element)) return
@@ -319,7 +320,8 @@ export function AnimationInspector() {
 
           <div className="border-t border-white/[0.06] px-3 py-2">
             <p className="text-[10px] leading-relaxed text-white/35">
-              Shift+right-click for the browser menu. Toggle via{' '}
+              Option/Alt+right-click to extract. Normal right-click keeps Inspect.
+              Toggle via{' '}
               <code className="text-white/50">window.__bolAnimationInspector</code>
             </p>
           </div>
@@ -338,10 +340,10 @@ export function AnimationInspector() {
             toast.message('Animation inspector off — enable again from Design Customizer or console')
           }}
           className="fixed bottom-3 left-3 z-[9997] flex items-center gap-1.5 rounded-full border border-white/10 bg-black/70 px-2.5 py-1 text-[10px] font-medium text-white/55 backdrop-blur-sm transition-colors hover:border-white/20 hover:text-white/80"
-          title="Right-click any component to extract its animation. Click to disable."
+          title="Option/Alt + right-click to extract animation. Normal right-click uses Inspect. Click to disable."
         >
           <IconCheck className="size-3 text-[var(--ds-primary,#ee3536)]" strokeWidth={2} />
-          Anim extract
+          Anim extract ⌥
         </button>
       ) : null}
     </div>,
