@@ -117,11 +117,12 @@ type HubSection = {
 }
 
 /**
- * Build VIP hub sections per HUB-SORTING.pdf:
- * 1. Rakeback (always top)
- * 2. Scheduled — active (tier naming: Reload below Platinum, Boost at Platinum+)
- * 3. Locked — future VIP levels
- * 4. On-demand — Special Reload pinned, then others by expiry
+ * Build VIP hub rows (no SCHEDULED / LOCKED / ON DEMAND section titles).
+ * 1. Rakeback
+ * 2. Refer-A-Friend
+ * 3. Scheduled rewards (tier-based)
+ * 4. Locked rewards (tier-based)
+ * 5. On-demand
  */
 function buildHubSections(
   tier: VipHubTierBand,
@@ -273,15 +274,14 @@ function buildHubSections(
   const sections: HubSection[] = [
     { id: 'rakeback', title: null, rows: [rakeback] },
     { id: 'referral', title: null, rows: [referAFriend] },
+    { id: 'scheduled', title: null, rows: scheduled },
   ]
 
-  sections.push({ id: 'scheduled', title: 'SCHEDULED', rows: scheduled })
-
   if (locked.length > 0) {
-    sections.push({ id: 'locked', title: 'LOCKED', rows: locked })
+    sections.push({ id: 'locked', title: null, rows: locked })
   }
 
-  sections.push({ id: 'on-demand', title: 'ON DEMAND', rows: onDemand })
+  sections.push({ id: 'on-demand', title: null, rows: onDemand })
 
   return sections
 }

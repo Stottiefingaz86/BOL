@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { SpotlightOverlay, useCursorSpotlight } from '@/components/ui/cursor-spotlight'
 import { requestLogin } from '@/lib/auth-session'
+import { fireConfetti } from '@/lib/confetti'
+import { playSound } from '@/lib/sounds'
 import {
   REFERRAL_REWARD_ID,
   useReferralStore,
@@ -95,6 +97,38 @@ function openVipReferClaim() {
       detail: { focusRewardId: REFERRAL_REWARD_ID },
     })
   )
+}
+
+function fireClaimConfetti(buttonEl: HTMLElement | null) {
+  let primary = '#ee3536'
+  if (typeof window !== 'undefined') {
+    const computed = getComputedStyle(document.documentElement)
+      .getPropertyValue('--ds-primary')
+      .trim()
+    if (computed) primary = computed
+  }
+  const colors = [primary, '#ffffff', '#fef3c7', '#fde68a']
+  const origin =
+    buttonEl && typeof window !== 'undefined'
+      ? (() => {
+          const r = buttonEl.getBoundingClientRect()
+          return {
+            x: (r.left + r.width / 2) / window.innerWidth,
+            y: (r.top + r.height / 2) / window.innerHeight,
+          }
+        })()
+      : { x: 0.5, y: 0.55 }
+
+  fireConfetti({
+    particleCount: 70,
+    startVelocity: 38,
+    spread: 70,
+    ticks: 200,
+    gravity: 0.9,
+    scalar: 0.9,
+    origin,
+    colors,
+  })
 }
 
 function DemoAuthToggle({
@@ -417,6 +451,7 @@ function ReferLanding({ onLogin }: { onLogin: () => void }) {
 export function ReferAFriendPage() {
   const [demoLoggedIn, setDemoLoggedIn] = useState(true)
   const claimableAmount = useReferralStore((s) => s.claimableAmount)
+  const claimCommission = useReferralStore((s) => s.claimCommission)
   const referrals = useReferralStore((s) => s.referrals)
   const addPendingInvite = useReferralStore((s) => s.addPendingInvite)
 
@@ -425,8 +460,10 @@ export function ReferAFriendPage() {
   const [email, setEmail] = useState('')
   const [copied, setCopied] = useState(false)
   const [page, setPage] = useState(0)
+  const [claiming, setClaiming] = useState(false)
 
-  const canClaim = claimableAmount > 0
+  const hasClaimable = claimableAmount > 0
+  const canClaim = hasClaimable && !claiming
   const canSendInvite =
     firstName.trim().length > 0 && lastName.trim().length > 0 && email.trim().length > 0
   const joinedCount = useMemo(
@@ -456,14 +493,46 @@ export function ReferAFriendPage() {
     return `${start}-${end} of ${referrals.length}`
   }, [page, referrals.length])
 
-  const handleClaim = useCallback(() => {
-    if (!demoLoggedIn) {
-      requestLogin()
-      return
-    }
-    if (!canClaim) return
-    openVipReferClaim()
-  }, [canClaim, demoLoggedIn])
+  const handleClaim = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!demoLoggedIn) {
+        requestLogin()
+        return
+      }
+      if (claimableAmount <= 0 || claiming) return
+
+      const buttonEl = e.currentTarget
+      setClaiming(true)
+      const delayMs = 900 + Math.floor(Math.random() * 400)
+
+      window.setTimeout(() => {
+        const amount = claimCommission()
+        if (amount <= 0) {
+          setClaiming(false)
+          return
+        }
+
+        playSound('redeem')
+        fireClaimConfetti(buttonEl)
+
+        window.setTimeout(() => {
+          playSound('button-click')
+          toast.success(`Claimed $${amount.toFixed(2)}`, {
+            description: 'Refer-A-Friend commission has been added to your balance.',
+            duration: 3500,
+          })
+        }, 2000)
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('notification:claim-reward', { detail: { amount } })
+          )
+        }
+        setClaiming(false)
+      }, delayMs)
+    },
+    [claimCommission, claimableAmount, claiming, demoLoggedIn]
+  )
 
   const handleCopy = useCallback(async () => {
     try {
@@ -599,10 +668,10 @@ export function ReferAFriendPage() {
                   className={cn(
                     'relative flex h-full min-w-0 flex-col gap-3 overflow-hidden p-4',
                     cardClass,
-                    canClaim && 'border-[var(--ds-primary,#ee3536)]/30'
+                    (hasClaimable || claiming) && 'border-[var(--ds-primary,#ee3536)]/30'
                   )}
                 >
-                  {canClaim ? (
+                  {hasClaimable || claiming ? (
                     <div
                       aria-hidden
                       className="pointer-events-none absolute inset-0 animate-[shimmer_2s_infinite]"
@@ -617,7 +686,7 @@ export function ReferAFriendPage() {
                     <IconCurrencyDollar
                       className={cn(
                         'size-[18px]',
-                        canClaim
+                        hasClaimable || claiming
                           ? 'text-[var(--ds-primary,#ee3536)]'
                           : 'text-[var(--ds-fg-subtle)]'
                       )}
@@ -633,9 +702,14 @@ export function ReferAFriendPage() {
                     type="button"
                     onClick={handleClaim}
                     disabled={!canClaim}
-                    className="relative z-[1] mt-auto h-9 w-full rounded-lg border-0 bg-[var(--ds-primary,#ee3536)] text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:bg-black/[0.05] disabled:text-[var(--ds-fg-subtle)] disabled:opacity-100 disabled:hover:brightness-100 dark:disabled:bg-white/[0.06]"
+                    className={cn(
+                      'relative z-[1] mt-auto h-9 w-full rounded-lg border-0 text-sm font-semibold text-white',
+                      canClaim || claiming
+                        ? 'bg-[var(--ds-primary,#ee3536)] hover:brightness-110'
+                        : 'cursor-not-allowed bg-black/[0.05] text-[var(--ds-fg-subtle)] hover:brightness-100 dark:bg-white/[0.06]'
+                    )}
                   >
-                    {canClaim ? 'Claim' : 'Claimed'}
+                    {claiming ? 'Claiming…' : hasClaimable ? 'Claim' : 'Claimed'}
                   </Button>
                 </div>
                 <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
