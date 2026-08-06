@@ -34,7 +34,7 @@ export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
     seedAmount: 485.73,
     tickMin: 0.01,
     tickMax: 0.12,
-    accent: '#34d399',
+    accent: '#58cc83',
   },
   {
     id: 'minor',
@@ -43,7 +43,7 @@ export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
     seedAmount: 6225,
     tickMin: 0.05,
     tickMax: 0.35,
-    accent: '#38bdf8',
+    accent: '#4b76f8',
   },
   {
     id: 'major',
@@ -52,7 +52,7 @@ export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
     seedAmount: 72700,
     tickMin: 0.2,
     tickMax: 1.5,
-    accent: '#a78bfa',
+    accent: '#dd57e1',
   },
   {
     id: 'mega',
@@ -61,7 +61,7 @@ export const JACKPOT_TICKER_TIERS: JackpotTickerTierConfig[] = [
     seedAmount: 1312000,
     tickMin: 0.8,
     tickMax: 5,
-    accent: '#fbbf24',
+    accent: '#ebb532',
   },
 ]
 
@@ -75,9 +75,9 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     seedAmount: 485.73,
     tickMin: 0.01,
     tickMax: 0.12,
-    accent: '#34d399',
-    accentMuted: 'rgba(52, 211, 153, 0.15)',
-    borderColor: 'rgba(52, 211, 153, 0.35)',
+    accent: '#58cc83',
+    accentMuted: 'rgba(88, 204, 131, 0.15)',
+    borderColor: 'rgba(88, 204, 131, 0.35)',
   },
   {
     id: 'minor',
@@ -88,9 +88,9 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     seedAmount: 6225,
     tickMin: 0.05,
     tickMax: 0.35,
-    accent: '#38bdf8',
-    accentMuted: 'rgba(56, 189, 248, 0.15)',
-    borderColor: 'rgba(56, 189, 248, 0.35)',
+    accent: '#4b76f8',
+    accentMuted: 'rgba(75, 118, 248, 0.15)',
+    borderColor: 'rgba(75, 118, 248, 0.35)',
   },
   {
     id: 'major',
@@ -101,9 +101,9 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     seedAmount: 72700,
     tickMin: 0.2,
     tickMax: 1.5,
-    accent: '#a78bfa',
-    accentMuted: 'rgba(167, 139, 250, 0.15)',
-    borderColor: 'rgba(167, 139, 250, 0.35)',
+    accent: '#dd57e1',
+    accentMuted: 'rgba(221, 87, 225, 0.15)',
+    borderColor: 'rgba(221, 87, 225, 0.35)',
   },
   {
     id: 'mega',
@@ -114,9 +114,9 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
     seedAmount: 1312000,
     tickMin: 0.8,
     tickMax: 5,
-    accent: '#fbbf24',
-    accentMuted: 'rgba(251, 191, 36, 0.18)',
-    borderColor: 'rgba(251, 191, 36, 0.4)',
+    accent: '#ebb532',
+    accentMuted: 'rgba(235, 181, 50, 0.18)',
+    borderColor: 'rgba(235, 181, 50, 0.4)',
   },
   {
     id: 'network',

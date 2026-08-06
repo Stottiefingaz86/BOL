@@ -41,9 +41,10 @@ import { Button } from '@/components/ui/button'
 const SEGMENTS_PER_TIER = 2
 const SEGMENT_COUNT = JACKPOT_TICKER_TIERS.length * SEGMENTS_PER_TIER
 const SEGMENT_ANGLE = 360 / SEGMENT_COUNT
-// Continuous spin — visible slow crawl at the end (high decel power freezes visually).
-const SPIN_DURATION_MS = 44000
-const EXTRA_SPINS = 6
+// Anticipation-forward spin: one turn into the slowdown — same crawl speed as before,
+// without the long multi-revolution wind-up.
+const SPIN_DURATION_MS = 18000
+const EXTRA_SPINS = 1
 /** Last N segment crossings: louder + higher pitch each step — the anticipation run. */
 const EXCITE_SEGMENTS = 10
 /** Land mid-slice so the wheel comes to rest dead-centre under the pointer. */
@@ -52,8 +53,10 @@ const LAND_SEGMENT_FRACTION = 0.5
 const LAND_SNAP_TOLERANCE_DEG = SEGMENT_ANGLE * 0.32
 /** Spring settle into dead centre — smooth ease, no overshoot (avoids segment flicker). */
 const LAND_SETTLE_MS = 520
-/** Camera push-in as the wheel enters the slow tail. */
-const CLOSE_IN_AT = 0.4
+/** Camera push-in once we're into the slow tail (most of this spin is that tail). */
+const CLOSE_IN_AT = 0.22
+/** Camera push duration (seconds) — keep in sync with remaining spin after CLOSE_IN_AT. */
+const CLOSE_IN_DURATION_S = ((1 - CLOSE_IN_AT) * SPIN_DURATION_MS) / 1000
 /** final-segment → transition → overlay → wipe */
 const WIPE_DURATION_MS = 920
 const JACKPOT_BG_VOLUME = 0.30
@@ -68,7 +71,7 @@ const DESKTOP_WHEEL_LAYOUT = {
   zoomY: '40%',
   closeY: '46%',
   wheelSizeClass: 'h-[min(92vw,420px)] w-[min(92vw,420px)]',
-  pointerClass: 'h-[72px] w-[80px]',
+  pointerClass: 'h-[58px] w-[40px]',
 } as const
 
 const MOBILE_WHEEL_LAYOUT = {
@@ -80,22 +83,25 @@ const MOBILE_WHEEL_LAYOUT = {
   zoomY: '50%',
   closeY: '50%',
   wheelSizeClass: 'h-[min(100vw,420px)] w-[min(100vw,420px)]',
-  pointerClass: 'h-[58px] w-[64px]',
+  pointerClass: 'h-[46px] w-[32px]',
 } as const
 
 const WHEEL_CX = 200
 const WHEEL_CY = 200
 
-/** Vivid, saturated FanDuel-style palette per tier (no pastels). */
+/** Figma jackpot-wheel segment fills (Casino — Jackpot in Game Header). */
 const SEGMENT_PALETTE: Record<
   JackpotTickerTierId,
   { hub: string; mid: string; rim: string; neon: string }
 > = {
-  mini: { hub: '#053b30', mid: '#0d9488', rim: '#2dd4bf', neon: '#5eead4' },
-  minor: { hub: '#10215c', mid: '#1d4ed8', rim: '#3b82f6', neon: '#7dd3fc' },
-  major: { hub: '#3b0d68', mid: '#7c3aed', rim: '#b026d3', neon: '#f0abfc' },
-  mega: { hub: '#6b2406', mid: '#ea580c', rim: '#f59e0b', neon: '#fcd34d' },
+  mini: { hub: '#1a3d28', mid: '#2b613f', rim: '#58cc83', neon: '#7dde9f' },
+  major: { hub: '#5a1058', mid: '#d02ac5', rim: '#dd57e1', neon: '#f0abfc' },
+  mega: { hub: '#6b2410', mid: '#dc5c31', rim: '#ebb532', neon: '#fcd34d' },
+  minor: { hub: '#0c1460', mid: '#1b22ec', rim: '#4b76f8', neon: '#93b4ff' },
 }
+
+/** Clockwise order from top — matches Figma: Mini → Major → Mega → Minor. */
+const WHEEL_TIER_ORDER: JackpotTickerTierId[] = ['mini', 'major', 'mega', 'minor']
 
 type WheelPhase = 'intro' | 'zoom' | 'spin' | 'landed' | 'wipe'
 
@@ -111,9 +117,12 @@ function buildSegments(): WheelSegment[] {
   // Interleave by shade first so the copies of each tier are spaced evenly
   // around the wheel (e.g. the two Mini slices end up directly opposite each
   // other) rather than sitting next to each other.
+  const tiersById = Object.fromEntries(
+    JACKPOT_TICKER_TIERS.map((tier) => [tier.id, tier])
+  ) as Record<JackpotTickerTierId, JackpotTickerTierConfig>
   for (let shade = 0; shade < SEGMENTS_PER_TIER; shade++) {
-    for (const tier of JACKPOT_TICKER_TIERS) {
-      segments.push({ index: index++, tier, shade })
+    for (const id of WHEEL_TIER_ORDER) {
+      segments.push({ index: index++, tier: tiersById[id], shade })
     }
   }
   return segments
@@ -181,11 +190,10 @@ function segmentAtPointer(rotationDeg: number): number {
 /**
  * Single continuous ease — velocity never resets mid-spin.
  *
- *  • Quarter-sine launch (~20% time) — soft takeoff, C¹-continuous into decel.
- *  • One long decel (~80% time) with power n ≈ 2.75:
- *      keeps meaningful velocity through the last ~10 segment crossings.
+ * Brief launch, then the long decel (anticipation) that used to sit at the
+ * end of the multi-revolution spin. Fewer revolutions; same crawl feel.
  */
-const SPIN_ACCEL_FRAC = 0.20
+const SPIN_ACCEL_FRAC = 0.10
 const SPIN_DECEL_POW = 2.75
 const SPIN_TWO_OVER_PI = 2 / Math.PI
 const SPIN_DECEL_SPAN = 1 - SPIN_ACCEL_FRAC
@@ -320,72 +328,41 @@ function FanDuelBackground({
 function WheelPointer({
   active,
   pointerClass,
-  showPinMount = true,
 }: {
   active: boolean
   pointerClass: string
   showPinMount?: boolean
 }) {
   return (
-    <div
-      className={cn(
-        'pointer-events-none absolute left-1/2 top-0 z-40 -translate-x-1/2',
-        showPinMount ? '-translate-y-2' : '-translate-y-5'
-      )}
-    >
+    <div className="pointer-events-none absolute left-1/2 top-0 z-40 -translate-x-1/2 -translate-y-[18%]">
       <motion.div
-        className={cn(
-          'absolute left-1/2 h-14 w-24 -translate-x-1/2 rounded-full blur-2xl',
-          showPinMount ? 'top-[52px]' : 'top-[38px]'
-        )}
+        className="absolute left-1/2 top-[55%] h-10 w-16 -translate-x-1/2 rounded-full blur-2xl"
         animate={{
-          opacity: active ? 0.9 : 0.25,
-          scale: active ? 1.15 : 0.85,
+          opacity: active ? 0.85 : 0.2,
+          scale: active ? 1.12 : 0.88,
         }}
         transition={{ duration: 0.12 }}
         style={{
           background:
-            'radial-gradient(circle, rgba(238,53,54,0.6) 0%, rgba(238,53,54,0.2) 50%, transparent 72%)',
+            'radial-gradient(circle, rgba(255,85,85,0.55) 0%, rgba(255,85,85,0.18) 50%, transparent 72%)',
         }}
       />
-
-      <svg
-        viewBox={showPinMount ? '0 0 80 72' : '0 13 80 59'}
-        className={cn('relative block drop-shadow-[0_8px_18px_rgba(0,0,0,0.7)]', pointerClass)}
+      <motion.img
+        src="/jackpot/wheel-pointer.svg"
+        alt=""
         aria-hidden
-      >
-        <defs>
-          <linearGradient id="flapMetal" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stopColor="#3a3a3e" />
-            <stop offset="45%" stopColor="#1c1c1f" />
-            <stop offset="100%" stopColor="#0a0a0b" />
-          </linearGradient>
-          <linearGradient id="flapGem" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stopColor="#ff6b6b" />
-            <stop offset="55%" stopColor="#ee3536" />
-            <stop offset="100%" stopColor="#a51f20" />
-          </linearGradient>
-          <filter id="flapGlow">
-            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#ee3536" floodOpacity="0.55" />
-          </filter>
-        </defs>
-        {showPinMount && (
-          <rect x="30" y="4" width="20" height="10" rx="3" fill="#1c1c1f" stroke="#000000" strokeWidth="1" />
+        draggable={false}
+        className={cn(
+          'relative block drop-shadow-[0_5px_4px_rgba(255,255,255,0.25)]',
+          pointerClass
         )}
-        {/* Flapper — apex points DOWN into the wheel (black bezel) */}
-        <polygon
-          points="40,66 12,16 68,16"
-          fill="url(#flapMetal)"
-          stroke="#000000"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          filter="url(#flapGlow)"
-        />
-        {/* Inset red gem */}
-        <polygon points="40,56 22,22 58,22" fill="url(#flapGem)" />
-        {/* Subtle top sheen on the gem */}
-        <polygon points="40,33 30,23 50,23" fill="#ffffff" opacity="0.22" />
-      </svg>
+        animate={active ? { y: [0, 3, 0] } : { y: 0 }}
+        transition={
+          active
+            ? { duration: 0.16, ease: 'easeOut' }
+            : { duration: 0.2 }
+        }
+      />
     </div>
   )
 }
@@ -495,11 +472,9 @@ function WheelSvg({
   const showHighlight = phase === 'spin' || phase === 'landed' || phase === 'wipe'
   // Only during spin — landed/wipe use React state so the winner slice stays lit.
   const domDrivenHighlight = phase === 'spin'
-  // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 170×121.
-  const logoH = isMobile ? 64 : 56
-  const logoW = (logoH * 170) / 121
-  // Hidden on the intro/front screen; they fade in as the wheel zooms big.
-  const showLogos = phase === 'zoom' || phase === 'spin' || phase === 'landed' || phase === 'wipe'
+  // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 304×304.
+  const logoH = isMobile ? 78 : 72
+  const logoW = logoH
   const logosEntering = phase === 'zoom'
 
   return (
@@ -563,8 +538,8 @@ function WheelSvg({
 
         {/* Subtle glossy top crescent — light, so it never washes colours to pastel */}
         <radialGradient id="wheelSheen" cx="50%" cy="14%" r="52%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.16" />
-          <stop offset="55%" stopColor="#ffffff" stopOpacity="0.03" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.12" />
+          <stop offset="55%" stopColor="#ffffff" stopOpacity="0.02" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
 
@@ -586,22 +561,25 @@ function WheelSvg({
           </feMerge>
         </filter>
 
-        {/* Deep hub → vivid neon rim gradient per tier shade. Stays fully
-            saturated (no white blend) for the FanDuel neon slice look. */}
-        {JACKPOT_TICKER_TIERS.map((tier) => {
-          const p = SEGMENT_PALETTE[tier.id]
+        <clipPath id="wheelFaceClip">
+          <circle cx="200" cy="200" r="178" />
+        </clipPath>
+
+        {/* Figma segment fills — bright rim → deeper hub. */}
+        {WHEEL_TIER_ORDER.map((tierId) => {
+          const p = SEGMENT_PALETTE[tierId]
           return [0, 1].map((shade) => (
             <radialGradient
-              key={`${tier.id}-${shade}`}
-              id={`segGrad-${tier.id}-${shade}`}
+              key={`${tierId}-${shade}`}
+              id={`segGrad-${tierId}-${shade}`}
               gradientUnits="userSpaceOnUse"
               cx="200"
               cy="200"
               r="178"
             >
               <stop offset="0%" stopColor={adjustHex(p.hub, shade === 0 ? 0 : -10)} />
-              <stop offset="40%" stopColor={adjustHex(p.mid, shade === 0 ? 0 : -14)} />
-              <stop offset="84%" stopColor={p.rim} />
+              <stop offset="42%" stopColor={adjustHex(p.mid, shade === 0 ? 0 : -12)} />
+              <stop offset="82%" stopColor={p.rim} />
               <stop offset="100%" stopColor={p.neon} />
             </radialGradient>
           ))
@@ -643,7 +621,7 @@ function WheelSvg({
           strokeWidth="1.5"
         />
 
-        <g ref={wheelGroupRef} style={{ willChange: 'transform' }}>
+        <g ref={wheelGroupRef} style={{ willChange: 'transform' }} clipPath="url(#wheelFaceClip)">
           {WHEEL_SEGMENTS.map((seg) => {
             const start = seg.index * SEGMENT_ANGLE - 90
             const end = start + SEGMENT_ANGLE
@@ -670,8 +648,8 @@ function WheelSvg({
                 <path
                   d={segmentPath}
                   fill={`url(#${fillId})`}
-                  stroke="rgba(6,2,12,0.7)"
-                  strokeWidth="2"
+                  stroke="rgba(6,2,12,0.55)"
+                  strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
                 {showHighlight && (
@@ -684,42 +662,44 @@ function WheelSvg({
                     opacity={domDrivenHighlight ? 0.46 : isUnderPointer ? 0 : 0.46}
                   />
                 )}
-                {/* Neon resting edge — stays neon; the bright white lit edge is
-                    drawn in the overlay pass below so it sits ON TOP of neighbours. */}
+                {/* Soft neon resting edge */}
                 <path
                   d={segmentPath}
                   fill="none"
                   stroke={neon}
-                  strokeOpacity="0.55"
-                  strokeWidth="1.4"
+                  strokeOpacity="0.35"
+                  strokeWidth="1.2"
                   strokeLinejoin="round"
                 />
-                {/* Tier wordmark logo — oriented radially so the winning slice
-                    reads upright at the top pointer when it lands. */}
-                {showLogos && (
-                  <image
-                    className="seg-logo"
-                    href={`/jackpot/${seg.tier.id}_reel.svg`}
-                    x={label.x - logoW / 2}
-                    y={label.y - logoH / 2}
-                    width={logoW}
-                    height={logoH}
-                    transform={`rotate(${midAngle + 90} ${label.x} ${label.y})`}
-                    opacity={
-                      domDrivenHighlight ? 0.5 : isUnderPointer ? 1 : showHighlight ? 0.5 : 0.9
-                    }
-                    style={{
-                      pointerEvents: 'none',
-                      animation: logosEntering
-                        ? 'seg-logo-in 0.6s ease-out both'
+                {/* Tier wordmark — Figma blob + Pacifico label + crown */}
+                <image
+                  className="seg-logo"
+                  href={`/jackpot/${seg.tier.id}_reel.svg`}
+                  x={label.x - logoW / 2}
+                  y={label.y - logoH / 2}
+                  width={logoW}
+                  height={logoH}
+                  transform={`rotate(${midAngle + 90} ${label.x} ${label.y})`}
+                  opacity={
+                    domDrivenHighlight
+                      ? 0.55
+                      : isUnderPointer
+                        ? 1
+                        : showHighlight
+                          ? 0.55
+                          : 0.95
+                  }
+                  style={{
+                    pointerEvents: 'none',
+                    animation: logosEntering
+                      ? 'seg-logo-in 0.6s ease-out both'
+                      : undefined,
+                    filter:
+                      !domDrivenHighlight && isUnderPointer
+                        ? 'drop-shadow(0 0 6px rgba(255,255,255,0.55))'
                         : undefined,
-                      filter:
-                        !domDrivenHighlight && isUnderPointer
-                          ? 'drop-shadow(0 0 6px rgba(255,255,255,0.55))'
-                          : undefined,
-                    }}
-                  />
-                )}
+                  }}
+                />
               </g>
             )
           })}
@@ -811,6 +791,16 @@ function WheelSvg({
           style={{ pointerEvents: 'none' }}
         />
 
+        {/* Figma centre hub — fixed, does not spin with segments */}
+        <image
+          href="/jackpot/wheel-center.svg"
+          x={cx - 12}
+          y={cy - 12}
+          width="24"
+          height="24"
+          preserveAspectRatio="xMidYMid meet"
+          style={{ pointerEvents: 'none' }}
+        />
       </g>
     </svg>
   )
@@ -887,9 +877,8 @@ export function JackpotWheelBonus({
   const winTier = useMemo(() => winTierProp ?? pickWinTier(), [winTierProp])
 
   const winningSegmentIndex = useMemo(() => {
-    // Segments are interleaved by shade, so the shade-0 copy of a tier sits at
-    // the tier's own index (its second copy is one full tier-set further round).
-    const tierIndex = JACKPOT_TICKER_TIERS.findIndex((t) => t.id === winTier)
+    // Shade-0 copy of a tier sits at its index in WHEEL_TIER_ORDER.
+    const tierIndex = WHEEL_TIER_ORDER.findIndex((id) => id === winTier)
     if (tierIndex < 0) return 0
     return tierIndex
   }, [winTier])
@@ -948,7 +937,7 @@ export function JackpotWheelBonus({
     setPhase('zoom')
     setPointerActive(true)
     setHighlightedIndex(segmentAtPointer(0))
-    zoomTimerRef.current = setTimeout(() => setPhase('spin'), 1500)
+    zoomTimerRef.current = setTimeout(() => setPhase('spin'), 900)
   }, [])
 
   useEffect(() => {
@@ -1130,10 +1119,13 @@ export function JackpotWheelBonus({
         closingInStartedRef.current = true
         const l = layoutRef.current
         animate(wheelScaleMV, l.closeScale, {
-          duration: 12,
+          duration: CLOSE_IN_DURATION_S,
           ease: [0.33, 0, 0.15, 1],
         })
-        animate(wheelYMV, l.closeY, { duration: 12, ease: [0.33, 0, 0.15, 1] })
+        animate(wheelYMV, l.closeY, {
+          duration: CLOSE_IN_DURATION_S,
+          ease: [0.33, 0, 0.15, 1],
+        })
       }
 
       applyWheelRotation(current)
@@ -1180,7 +1172,8 @@ export function JackpotWheelBonus({
   }, [phase, winningSegmentIndex, applyWheelRotation])
 
   const zoomed = phase !== 'intro'
-  const showPointer = phase === 'zoom' || phase === 'spin' || phase === 'landed' || phase === 'wipe'
+  // Figma shows the pointer on the idle wheel as well as during the spin.
+  const showPointer = true
   // Mobile half-wheel: bottom-pinned centre only after Spin — intro stays centred.
   const mobileBottomWheel = isMobile && zoomed
 
@@ -1226,33 +1219,6 @@ export function JackpotWheelBonus({
         )}
       </AnimatePresence>
 
-      {/* Jackpot logo on the intro/front screen — centred over the wheel, fades
-          out cleanly the moment the player taps Spin to Win. */}
-      <AnimatePresence>
-        {phase === 'intro' && (
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-[25] flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <motion.img
-              src="/jackpot/jackpot_wheel_logo.svg"
-              alt="Jackpot Wheel"
-              className="w-[clamp(9rem,34vw,13rem)] max-w-none select-none"
-              draggable={false}
-              initial={{ scale: 0.92 }}
-              animate={{ scale: [1, 1.06, 1] }}
-              transition={{
-                scale: { duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: 0.35 },
-              }}
-              style={{ marginTop: isMobile ? '-4%' : 0 }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div
         className={cn(
           'absolute inset-0 z-10 overflow-hidden',
@@ -1275,7 +1241,6 @@ export function JackpotWheelBonus({
             <WheelPointer
               active={pointerActive}
               pointerClass={layout.pointerClass}
-              showPinMount={!isMobile}
             />
           )}
 
@@ -1334,7 +1299,7 @@ export function JackpotWheelBonus({
             className="pointer-events-auto h-12 w-full max-w-xs rounded-small text-base font-semibold text-white hover:opacity-90"
             style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
           >
-            Spin to Win
+            Spin To Win
           </Button>
         </motion.div>
       )}
