@@ -536,7 +536,7 @@ export function RewardCrates({
           <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center">
             <div className="text-sm font-medium text-white/70">No crates right now</div>
             <p className="text-xs text-white/40 mt-1">
-              Keep playing — new crates drop from level-ups, streaks and challenges.
+              Keep playing. New crates drop from level-ups, streaks and challenges.
             </p>
           </div>
         )}
@@ -908,7 +908,7 @@ function CrateOpener({ crate, reward, balance, onClose, onClaim }: CrateOpenerPr
     chatStore.setIsOpen(true)
     chatStore.shareBetToChat([
       {
-        eventName: `📦 ${crate.title} — ${reward.label}`,
+        eventName: `📦 ${crate.title}: ${reward.label}`,
         selection: `${styles.label} Crate Reward`,
         odds: '🎁',
         stake: reward.cashValue ?? 0,

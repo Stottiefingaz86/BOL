@@ -199,7 +199,7 @@ export function MyBenefitsAccordion({
                 <BenefitLine label="All Diamond I - III Benefits" />
                 <BenefitLine label="Free Crypto Withdrawals" />
                 <BenefitLine label="Reduced Deposit Fees" />
-                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Exclusive Refer a Friend" />
                 <BenefitLine label="Dedicated VIP Team" />
               </div>
             </div>
@@ -220,7 +220,7 @@ export function MyBenefitsAccordion({
               <div className="space-y-2">
                 <BenefitLine label="All Elite I - III Benefits" />
                 <BenefitLine label="Reduced Deposit Fees" />
-                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Exclusive Refer a Friend" />
                 <BenefitLine label="Tailored Gifts & Rewards" />
                 <BenefitLine label="Dedicated VIP Team" />
               </div>
@@ -242,7 +242,7 @@ export function MyBenefitsAccordion({
               <div className="space-y-2">
                 <BenefitLine label="All Black I - III Benefits" />
                 <BenefitLine label="Reduced Deposit Fees" />
-                <BenefitLine label="Exclusive Refer-A-Friend" />
+                <BenefitLine label="Exclusive Refer a Friend" />
                 <BenefitLine label="Tailored Gifts & Rewards" />
                 <BenefitLine label="Dedicated VIP Team" />
               </div>

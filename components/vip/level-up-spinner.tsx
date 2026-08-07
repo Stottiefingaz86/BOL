@@ -359,7 +359,7 @@ export function LevelUpSpinner({
         playSound('button-click')
         if (isCrate) {
           toast.success(`You won a ${winningReward.label}!`, {
-            description: 'Added to your Loot Crates — open it any time.',
+            description: 'Added to your Loot Crates. Open it any time.',
             duration: 3500,
           })
         } else {

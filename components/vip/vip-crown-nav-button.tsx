@@ -38,7 +38,7 @@ export function VipCrownNavButton({ active = false, className, onClick }: VipCro
           ? 'Close VIP Hub'
           : isLoggedIn
             ? 'Open VIP Hub'
-            : 'Open VIP Hub — log in to claim rewards'
+            : 'Open VIP Hub. Log in to claim rewards'
       }
       className={cn(
         'relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border p-2.5 transition-colors',

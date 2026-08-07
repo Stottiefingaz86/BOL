@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
 import {
   IconBrandTelegram,
   IconCheck,
@@ -30,7 +31,7 @@ import {
 import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import {
-  FreeSpinsGamePicker,
+  FREE_SPIN_GAME_OPTIONS,
   type FreeSpinGameOption,
 } from '@/components/vip/free-spins-game-picker'
 import { launchCasinoGame } from '@/lib/casino/launch-game'
@@ -73,8 +74,12 @@ type HubRow =
       removeOnClaim?: boolean
       /** Override default Claim / Claim $X button label */
       ctaLabel?: string
-      /** Remaining free spins (Choose Game flow) */
+      /** Remaining free spins (Play Game flow) */
       spinsLeft?: number
+      /** Ops-assigned game for free-spins (single title) */
+      assignedGame?: FreeSpinGameOption
+      /** Stake value applied per free spin (shown in info) */
+      stakePerSpin?: number
     }
   | {
       id: string
@@ -109,6 +114,7 @@ type HubRow =
     }
 
 const CLAIMED_FLASH_MS = 3000
+const FREE_SPIN_STAKE_PER_SPIN = 1
 
 type HubSection = {
   id: HubSectionId
@@ -118,11 +124,7 @@ type HubSection = {
 
 /**
  * Build VIP hub rows (no SCHEDULED / LOCKED / ON DEMAND section titles).
- * 1. Rakeback
- * 2. Refer-A-Friend
- * 3. Scheduled rewards (tier-based)
- * 4. Locked rewards (tier-based)
- * 5. On-demand
+ * Final display order is claimable-first via orderHubSections().
  */
 function buildHubSections(
   tier: VipHubTierBand,
@@ -213,24 +215,24 @@ function buildHubSections(
 
   const referAFriend: HubRow = {
     id: REFERRAL_REWARD_ID,
-    name: 'Refer-A-Friend',
+    name: 'Refer a Friend',
     info: 'Claim commission earned when friends you referred wager on sports and casino.',
     infoLinkHref: '/promotions/refer-a-friend',
-    infoLinkLabel: 'Open Refer-A-Friend',
+    infoLinkLabel: 'Open Refer a Friend',
     icon: 'refer-a-friend',
     kind: 'claim',
     amount: referralClaimable,
     subtitle:
       referralClaimable > 0
         ? 'Commission ready'
-        : 'No commission ready — earn more as friends play',
+        : 'No commission ready. Earn more as friends play',
   }
 
   const onDemand: HubRow[] = [
     {
       id: 'special-reload',
       name: 'Special Reload',
-      info: 'Limited-time reload offers for VIP members. Multi-release — older campaigns stay pinned first.',
+      info: 'Limited-time reload offers for VIP members. Multi-release: older campaigns stay pinned first.',
       icon: 'reload-star',
       kind: 'claim',
       amount: 5,
@@ -248,12 +250,14 @@ function buildHubSections(
     {
       id: 'free-spins',
       name: 'Free Spins',
-      info: 'Choose a game to play free spins from on-demand VIP campaigns.',
+      info: `$${FREE_SPIN_STAKE_PER_SPIN} per spin on ${FREE_SPIN_GAME_OPTIONS[0].name}. Open the game to play your free spins.`,
       icon: 'free-spins',
       kind: 'claim',
       subtitle: '50 spins ready',
-      ctaLabel: 'Choose Game',
+      ctaLabel: 'Claim',
       spinsLeft: 50,
+      stakePerSpin: FREE_SPIN_STAKE_PER_SPIN,
+      assignedGame: FREE_SPIN_GAME_OPTIONS[0],
     },
   ]
 
@@ -303,6 +307,34 @@ function asLoginRows(sections: HubSection[]): HubSection[] {
       }
     }),
   }))
+}
+
+/** Lower = higher in the hub. Claimable first, then empty claims, cooldowns, locked. */
+function hubRowPriority(row: HubRow): number {
+  if (row.kind === 'locked') return 40
+  if (row.kind === 'cooldown') return 30
+  if (row.kind === 'login') return 10
+  if (row.kind === 'claim') {
+    if (row.ctaLabel && (row.spinsLeft ?? 0) > 0) return 0
+    if (typeof row.amount === 'number' && row.amount > 0) return 0
+    return 20
+  }
+  return 50
+}
+
+function orderRowsByAvailability(rows: HubRow[]): HubRow[] {
+  return [...rows].sort((a, b) => {
+    const diff = hubRowPriority(a) - hubRowPriority(b)
+    if (diff !== 0) return diff
+    return 0
+  })
+}
+
+/** Flatten sections and put claimable rewards at the top. */
+function orderHubSections(sections: HubSection[]): HubSection[] {
+  const rows = orderRowsByAvailability(sections.flatMap((section) => section.rows))
+  if (rows.length === 0) return []
+  return [{ id: 'rakeback', title: null, rows }]
 }
 
 function RowIcon({ type }: { type: IconKind }) {
@@ -376,7 +408,7 @@ function ClaimStyleButton({
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
   className?: string
-  /** Soft outline CTA (e.g. Choose Game) instead of solid primary fill */
+  /** Soft outline CTA (e.g. free spins Claim) instead of solid primary fill */
   subtle?: boolean
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -431,16 +463,17 @@ function BenefitRow({
       typeof row.amount === 'number' &&
       row.amount <= 0
   )
-  const [gamePickerOpen, setGamePickerOpen] = useState(false)
   const [spinsLeft, setSpinsLeft] = useState(() =>
     row.kind === 'claim' && typeof row.spinsLeft === 'number' ? row.spinsLeft : 0
   )
 
-  const isChooseGame = row.kind === 'claim' && Boolean(row.ctaLabel)
-  const freeSpinsExhausted = isChooseGame && spinsLeft <= 0
+  const isPlayGame = row.kind === 'claim' && Boolean(row.ctaLabel)
+  const assignedGame =
+    row.kind === 'claim' ? row.assignedGame ?? FREE_SPIN_GAME_OPTIONS[0] : undefined
+  const freeSpinsExhausted = isPlayGame && spinsLeft <= 0
   const nothingToClaim =
     row.kind === 'claim' &&
-    !isChooseGame &&
+    !isPlayGame &&
     typeof row.amount === 'number' &&
     row.amount <= 0
   const isClaimDisabled = claimInactive || nothingToClaim
@@ -450,7 +483,7 @@ function BenefitRow({
     row.kind === 'claim' ? row.amount : undefined
   )
   useEffect(() => {
-    if (row.kind !== 'claim' || isChooseGame) return
+    if (row.kind !== 'claim' || isPlayGame) return
     const amount = row.amount
     const prev = prevAmountRef.current
     prevAmountRef.current = amount
@@ -466,7 +499,7 @@ function BenefitRow({
     ) {
       setClaimInactive(false)
     }
-  }, [isChooseGame, row])
+  }, [isPlayGame, row])
 
   useEffect(() => {
     if (!showClaimedFlash) return
@@ -511,7 +544,7 @@ function BenefitRow({
           toast.success(`Playing ${opts.game.name}`, {
             description:
               remainingAfter > 0
-                ? `${opts.spinsUsed ?? 0} spins used · ${remainingAfter} left — choose another game anytime.`
+                ? `${opts.spinsUsed ?? 0} spins used · ${remainingAfter} left on ${opts.game.name}.`
                 : `Last spins used on ${opts.game.name}.`,
             duration: 3500,
           })
@@ -558,8 +591,23 @@ function BenefitRow({
         return
       buttonRef.current = e.currentTarget
 
-      if (isChooseGame) {
-        setGamePickerOpen(true)
+      if (isPlayGame) {
+        if (!assignedGame) return
+        const spinsUsed = Math.min(10, spinsLeft)
+        launchCasinoGame({
+          title: assignedGame.name,
+          image: assignedGame.image,
+          provider: assignedGame.provider,
+          features: [`${spinsUsed} free spins applied`],
+        })
+        setClaiming(true)
+        window.setTimeout(() => {
+          completeClaim({
+            game: assignedGame,
+            buttonEl: buttonRef.current,
+            spinsUsed,
+          })
+        }, 400)
         return
       }
 
@@ -570,36 +618,16 @@ function BenefitRow({
       }, delayMs)
     },
     [
+      assignedGame,
       claiming,
       completeClaim,
       freeSpinsExhausted,
-      isChooseGame,
+      isPlayGame,
       isClaimDisabled,
       row.kind,
       showClaimedFlash,
+      spinsLeft,
     ]
-  )
-
-  const handleGameSelect = useCallback(
-    (game: FreeSpinGameOption) => {
-      setGamePickerOpen(false)
-      const spinsUsed = Math.min(10, spinsLeft)
-      launchCasinoGame({
-        title: game.name,
-        image: game.image,
-        provider: game.provider,
-        features: [`${spinsUsed} free spins applied`],
-      })
-      setClaiming(true)
-      window.setTimeout(() => {
-        completeClaim({
-          game,
-          buttonEl: buttonRef.current,
-          spinsUsed,
-        })
-      }, 400)
-    },
-    [completeClaim, spinsLeft]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -624,10 +652,8 @@ function BenefitRow({
         ? `Claim $${row.amount.toFixed(2)}`
         : 'Claim'
 
-  const rowSubtitle = isChooseGame
-    ? spinsLeft > 0
-      ? `${spinsLeft} spin${spinsLeft === 1 ? '' : 's'} left`
-      : 'All spins used'
+  const rowSubtitle = isPlayGame
+    ? null
     : 'subtitle' in row
       ? row.subtitle
       : undefined
@@ -664,12 +690,24 @@ function BenefitRow({
         }}
       />
 
-      <div
-        className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
-        style={rewardAccentStyle(row.name)}
-      >
-        <RowIcon type={row.icon} />
-      </div>
+      {isPlayGame && assignedGame ? (
+        <div className="relative z-10 size-10 shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10">
+          <Image
+            src={assignedGame.image}
+            alt={assignedGame.name}
+            fill
+            className="object-cover"
+            sizes="40px"
+          />
+        </div>
+      ) : (
+        <div
+          className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
+          style={rewardAccentStyle(row.name)}
+        >
+          <RowIcon type={row.icon} />
+        </div>
+      )}
       <div className="relative z-20 min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold text-[var(--ds-fg)]">
@@ -710,7 +748,26 @@ function BenefitRow({
             </TooltipProvider>
           ) : null}
         </div>
-        {rowSubtitle && (isLoggedIn || row.kind === 'login') ? (
+        {isPlayGame && (isLoggedIn || row.kind === 'login') ? (
+          <div className="mt-0.5 min-w-0 space-y-0.5 text-[11px]">
+            {assignedGame ? (
+              <p className="truncate text-[var(--ds-fg-muted)]">
+                {assignedGame.name}
+              </p>
+            ) : null}
+            {spinsLeft > 0 ? (
+              <p className="leading-none text-[var(--ds-fg-subtle)]">
+                <span className="text-[13px] font-bold tabular-nums tracking-tight text-[var(--ds-fg)]">
+                  {spinsLeft}
+                </span>
+                {' '}
+                free spin{spinsLeft === 1 ? '' : 's'} left
+              </p>
+            ) : (
+              <p className="text-[var(--ds-fg-subtle)]">All spins used</p>
+            )}
+          </div>
+        ) : rowSubtitle && (isLoggedIn || row.kind === 'login') ? (
           <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">
             {rowSubtitle}
           </p>
@@ -749,15 +806,14 @@ function BenefitRow({
         ) : (
           <ClaimStyleButton
             disabled={claiming}
-            className="min-w-[7.5rem]"
-            subtle={isChooseGame}
+            className={isPlayGame ? 'min-w-[5.5rem]' : 'min-w-[7.5rem]'}
             onClick={handleClaim}
             aria-busy={claiming}
           >
             {claiming ? (
               <span className="inline-flex items-center gap-1.5">
                 <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
-                {isChooseGame ? 'Opening' : 'Claiming'}
+                {isPlayGame ? 'Opening' : 'Claiming'}
               </span>
             ) : (
               claimLabel
@@ -765,15 +821,6 @@ function BenefitRow({
           </ClaimStyleButton>
         )}
       </div>
-
-      {isChooseGame && spinsLeft > 0 ? (
-        <FreeSpinsGamePicker
-          open={gamePickerOpen}
-          onOpenChange={setGamePickerOpen}
-          spinsLeft={spinsLeft}
-          onSelect={handleGameSelect}
-        />
-      ) : null}
     </div>
   )
 }
@@ -844,13 +891,16 @@ export function VipHubOverview({
   const sections = useMemo(() => {
     const base = buildHubSections(tier, referralClaimable)
     const withAuth = isLoggedIn ? base : asLoginRows(base)
-    if (removedIds.size === 0) return withAuth
-    return withAuth
-      .map((section) => ({
-        ...section,
-        rows: section.rows.filter((row) => !removedIds.has(row.id)),
-      }))
-      .filter((section) => section.rows.length > 0)
+    const filtered =
+      removedIds.size === 0
+        ? withAuth
+        : withAuth
+            .map((section) => ({
+              ...section,
+              rows: section.rows.filter((row) => !removedIds.has(row.id)),
+            }))
+            .filter((section) => section.rows.length > 0)
+    return orderHubSections(filtered)
   }, [isLoggedIn, referralClaimable, removedIds, tier])
 
   const handleClaimed = useCallback((id: string, remove: boolean) => {

@@ -43,7 +43,7 @@ export function VipDailyRaces({ className }: { className?: string }) {
 
       <p className="px-0.5 text-[11px] leading-relaxed text-[var(--ds-fg-subtle)]">
         Place bets across Sportsbook, Casino, Poker, Racebook or Esports to climb the leaderboard.
-        Everyone qualifies — you&apos;re enrolled as soon as you start wagering.
+        Everyone qualifies. You&apos;re enrolled as soon as you start wagering.
       </p>
     </div>
   )

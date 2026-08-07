@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import {
   IconBrandX,
   IconChevronDown,
@@ -12,12 +12,33 @@ import {
   IconTopologyStar3,
   IconUsers,
 } from '@tabler/icons-react'
-import { motion } from 'framer-motion'
+import {
+  ArrowDownWideNarrowIcon,
+  CircleXIcon,
+  FilterIcon,
+  ListFilterIcon,
+} from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { SpotlightOverlay, useCursorSpotlight } from '@/components/ui/cursor-spotlight'
 import { requestLogin } from '@/lib/auth-session'
 import { fireConfetti } from '@/lib/confetti'
@@ -26,6 +47,7 @@ import {
   REFERRAL_REWARD_ID,
   useReferralStore,
   type ReferralRow,
+  type ReferralStatus,
 } from '@/lib/store/referralStore'
 import { cn } from '@/lib/utils'
 
@@ -37,6 +59,26 @@ export const REFERRAL_CLAIMABLE_AMOUNT = 40
 const REFERRAL_LINK = 'https://www.betonline.ag/?RAF=7NNSD1Q5'
 
 const PAGE_SIZE = 10
+
+type ReferralSort = 'commission-desc' | 'commission-asc' | 'newest' | 'oldest'
+
+const SORT_LABELS: Record<ReferralSort, string> = {
+  'commission-desc': 'Top commission',
+  'commission-asc': 'Lowest commission',
+  newest: 'Newest first',
+  oldest: 'Oldest first',
+}
+
+const STATUS_OPTIONS: ReferralStatus[] = ['joined', 'pending']
+
+function parseReferralDate(value: string): number {
+  // DD/MM/YYYY
+  const parts = value.split('/')
+  if (parts.length !== 3) return 0
+  const [dd, mm, yyyy] = parts.map(Number)
+  if (!dd || !mm || !yyyy) return 0
+  return new Date(yyyy, mm - 1, dd).getTime()
+}
 
 const LANDING_FEATURES = [
   {
@@ -301,46 +343,16 @@ function ReferLanding({ onLogin }: { onLogin: () => void }) {
               </p>
             </div>
 
-            {/* Art — animated mark, flush right like poker hero art */}
-            <div className="relative flex aspect-[5/4] w-full items-end justify-center overflow-hidden px-4 pb-8 pt-10 md:absolute md:inset-y-0 md:right-0 md:aspect-auto md:w-[min(58%,720px)] md:items-center md:justify-end md:px-0 md:py-14 md:pr-10 lg:pr-16">
-              <motion.div
-                aria-hidden
-                className="pointer-events-none absolute inset-0"
-                animate={{ opacity: [0.45, 0.75, 0.45] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{
-                  background:
-                    'radial-gradient(ellipse at 70% 48%, rgba(238,53,54,0.32), transparent 58%)',
-                }}
+            {/* Art — same flush-right image treatment as poker hero */}
+            <div className="relative aspect-[5/4] w-full md:absolute md:inset-y-0 md:right-0 md:aspect-auto md:w-[min(58%,720px)]">
+              <Image
+                src="/banners/poker/pro-blocks/marketing-ui/app-integration/block-heading/Container.png"
+                alt="Refer a Friend"
+                fill
+                className="object-contain object-bottom md:object-contain md:object-right-bottom"
+                priority
+                sizes="(max-width: 768px) 100vw, 58vw"
               />
-              <motion.div
-                className="relative z-[1] flex flex-col items-center md:items-end"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <motion.span
-                  className="block overflow-visible bg-gradient-to-b from-white via-white to-white/35 bg-clip-text py-[0.12em] text-[5.5rem] font-black leading-none tracking-tighter text-transparent sm:text-[7rem] md:text-[8.5rem] lg:text-[10rem]"
-                  animate={{ y: [0, -6, 0], scale: [1, 1.02, 1] }}
-                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{
-                    filter: 'drop-shadow(0 0 40px rgba(238,53,54,0.35))',
-                  }}
-                >
-                  10%
-                </motion.span>
-                <motion.span
-                  className="mt-1 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-white/50"
-                  animate={{ opacity: [0.45, 0.8, 0.45] }}
-                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <IconInfinity
-                    className="size-5 text-[var(--ds-primary,#ee3536)]"
-                    strokeWidth={2}
-                  />
-                  for life
-                </motion.span>
-              </motion.div>
             </div>
           </div>
         </div>
@@ -350,7 +362,7 @@ function ReferLanding({ onLogin }: { onLogin: () => void }) {
       <section className="scroll-mt-20 bg-white/[0.02] py-12">
         <div className="mb-8 px-4 text-center md:px-6">
           <h2 className="mb-2 text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">
-            Why Refer-A-Friend
+            Why Refer a Friend
           </h2>
           <p className="mx-auto max-w-lg text-sm text-[var(--ds-fg-subtle)]">
             One invite can keep paying as your friends play, month after month.
@@ -449,6 +461,8 @@ function ReferLanding({ onLogin }: { onLogin: () => void }) {
 }
 
 export function ReferAFriendPage() {
+  const filterId = useId()
+  const filterInputRef = useRef<HTMLInputElement>(null)
   const [demoLoggedIn, setDemoLoggedIn] = useState(true)
   const claimableAmount = useReferralStore((s) => s.claimableAmount)
   const claimCommission = useReferralStore((s) => s.claimCommission)
@@ -461,6 +475,9 @@ export function ReferAFriendPage() {
   const [copied, setCopied] = useState(false)
   const [page, setPage] = useState(0)
   const [claiming, setClaiming] = useState(false)
+  const [userQuery, setUserQuery] = useState('')
+  const [selectedStatuses, setSelectedStatuses] = useState<ReferralStatus[]>([])
+  const [sortBy, setSortBy] = useState<ReferralSort>('commission-desc')
 
   const hasClaimable = claimableAmount > 0
   const canClaim = hasClaimable && !claiming
@@ -472,26 +489,76 @@ export function ReferAFriendPage() {
   )
   const sentCount = referrals.length
 
+  const statusCounts = useMemo(() => {
+    const counts = new Map<ReferralStatus, number>()
+    for (const status of STATUS_OPTIONS) counts.set(status, 0)
+    for (const row of referrals) {
+      counts.set(row.status, (counts.get(row.status) ?? 0) + 1)
+    }
+    return counts
+  }, [referrals])
+
+  const filteredReferrals = useMemo(() => {
+    const q = userQuery.trim().toLowerCase()
+    let rows = referrals.filter((row) => {
+      if (selectedStatuses.length > 0 && !selectedStatuses.includes(row.status)) {
+        return false
+      }
+      if (!q) return true
+      const haystack = [row.nick, row.email ?? '', row.vipLevel, row.status]
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(q)
+    })
+
+    rows = [...rows].sort((a, b) => {
+      switch (sortBy) {
+        case 'commission-asc':
+          return a.commission - b.commission
+        case 'newest':
+          return parseReferralDate(b.registered) - parseReferralDate(a.registered)
+        case 'oldest':
+          return parseReferralDate(a.registered) - parseReferralDate(b.registered)
+        case 'commission-desc':
+        default:
+          return b.commission - a.commission
+      }
+    })
+
+    return rows
+  }, [referrals, selectedStatuses, sortBy, userQuery])
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [demoLoggedIn])
 
   useEffect(() => {
-    const maxPage = Math.max(0, Math.ceil(referrals.length / PAGE_SIZE) - 1)
+    setPage(0)
+  }, [userQuery, selectedStatuses, sortBy])
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(filteredReferrals.length / PAGE_SIZE) - 1)
     if (page > maxPage) setPage(maxPage)
-  }, [page, referrals.length])
+  }, [page, filteredReferrals.length])
 
   const pageRows = useMemo(() => {
     const start = page * PAGE_SIZE
-    return referrals.slice(start, start + PAGE_SIZE)
-  }, [page, referrals])
+    return filteredReferrals.slice(start, start + PAGE_SIZE)
+  }, [filteredReferrals, page])
 
   const rangeLabel = useMemo(() => {
-    if (referrals.length === 0) return '0-0 of 0'
+    if (filteredReferrals.length === 0) return '0-0 of 0'
     const start = page * PAGE_SIZE + 1
-    const end = Math.min(referrals.length, (page + 1) * PAGE_SIZE)
-    return `${start}-${end} of ${referrals.length}`
-  }, [page, referrals.length])
+    const end = Math.min(filteredReferrals.length, (page + 1) * PAGE_SIZE)
+    return `${start}-${end} of ${filteredReferrals.length}`
+  }, [filteredReferrals.length, page])
+
+  const handleStatusChange = useCallback((checked: boolean, value: ReferralStatus) => {
+    setSelectedStatuses((prev) => {
+      if (checked) return prev.includes(value) ? prev : [...prev, value]
+      return prev.filter((status) => status !== value)
+    })
+  }, [])
 
   const handleClaim = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -518,7 +585,7 @@ export function ReferAFriendPage() {
         window.setTimeout(() => {
           playSound('button-click')
           toast.success(`Claimed $${amount.toFixed(2)}`, {
-            description: 'Refer-A-Friend commission has been added to your balance.',
+            description: 'Refer a Friend commission has been added to your balance.',
             duration: 3500,
           })
         }, 2000)
@@ -592,7 +659,7 @@ export function ReferAFriendPage() {
           <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 space-y-1.5">
               <h1 className="text-2xl font-bold tracking-tight text-[var(--ds-fg)]">
-                Refer-A-Friend
+                Refer a Friend
               </h1>
               <p className="max-w-2xl text-sm text-[var(--ds-fg-muted)]">
                 Share your unique link and earn rewards when friends join and start playing.
@@ -720,13 +787,151 @@ export function ReferAFriendPage() {
               <section className={cn('min-w-0 overflow-hidden', cardClass)}>
                 <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] px-4 py-2.5 dark:border-white/[0.04]">
                   <h2 className="text-sm font-medium text-[var(--ds-fg)]">Your referrals</h2>
-                  <p className="text-[11px] text-[var(--ds-fg-subtle)]">{referrals.length} total</p>
+                  <p className="text-[11px] text-[var(--ds-fg-subtle)]">
+                    {filteredReferrals.length === referrals.length
+                      ? `${referrals.length} total`
+                      : `${filteredReferrals.length} of ${referrals.length}`}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 border-b border-black/[0.06] px-3 py-2.5 dark:border-white/[0.04] sm:px-4">
+                  <div className="relative min-w-0 flex-1 basis-[min(100%,14rem)] sm:max-w-xs">
+                    <Input
+                      id={`${filterId}-user`}
+                      ref={filterInputRef}
+                      className={cn(
+                        'h-9 border-[var(--ds-border)] bg-[var(--ds-control-bg)] pe-9 ps-9 text-sm text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]',
+                        userQuery && 'pe-9'
+                      )}
+                      value={userQuery}
+                      onChange={(e) => setUserQuery(e.target.value)}
+                      placeholder="Filter by user..."
+                      type="text"
+                      aria-label="Filter referrals by user"
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-[var(--ds-fg-subtle)]">
+                      <ListFilterIcon size={15} aria-hidden="true" />
+                    </div>
+                    {userQuery ? (
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-[var(--ds-fg-subtle)] outline-none hover:text-[var(--ds-fg)]"
+                        aria-label="Clear user filter"
+                        onClick={() => {
+                          setUserQuery('')
+                          filterInputRef.current?.focus()
+                        }}
+                      >
+                        <CircleXIcon size={15} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-label={
+                          selectedStatuses.length > 0
+                            ? `Status filter, ${selectedStatuses.length} selected`
+                            : 'Filter by status'
+                        }
+                        className="relative h-9 w-9 shrink-0 border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
+                      >
+                        <FilterIcon
+                          className="opacity-60"
+                          size={15}
+                          aria-hidden="true"
+                        />
+                        {selectedStatuses.length > 0 ? (
+                          <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full border border-white/20 bg-[var(--ds-control-hover)] px-1 text-[0.625rem] font-medium text-[var(--ds-fg-muted)]">
+                            {selectedStatuses.length}
+                          </span>
+                        ) : null}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto min-w-40 border-[var(--ds-border)] bg-[var(--ds-surface-raised)] p-3"
+                      align="start"
+                    >
+                      <div className="space-y-3">
+                        <div className="text-xs font-medium text-[var(--ds-fg-muted)]">
+                          Filter by status
+                        </div>
+                        <div className="space-y-3">
+                          {STATUS_OPTIONS.map((status) => (
+                            <div key={status} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${filterId}-${status}`}
+                                checked={selectedStatuses.includes(status)}
+                                onCheckedChange={(checked: boolean) =>
+                                  handleStatusChange(checked, status)
+                                }
+                                className="border-white/20"
+                              />
+                              <Label
+                                htmlFor={`${filterId}-${status}`}
+                                className="flex grow justify-between gap-2 font-normal capitalize text-[var(--ds-fg)]"
+                              >
+                                {status}
+                                <span className="ms-2 text-xs text-[var(--ds-fg-subtle)]">
+                                  {statusCounts.get(status) ?? 0}
+                                </span>
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        aria-label="Sort referrals"
+                        className="h-9 w-9 shrink-0 border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
+                      >
+                        <ArrowDownWideNarrowIcon
+                          className="opacity-60"
+                          size={15}
+                          aria-hidden="true"
+                        />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
+                    >
+                      <DropdownMenuLabel className="text-[var(--ds-fg)]">
+                        Sort referrals
+                      </DropdownMenuLabel>
+                      <DropdownMenuRadioGroup
+                        value={sortBy}
+                        onValueChange={(value) => setSortBy(value as ReferralSort)}
+                      >
+                        {(Object.keys(SORT_LABELS) as ReferralSort[]).map((key) => (
+                          <DropdownMenuRadioItem
+                            key={key}
+                            value={key}
+                            className="text-[var(--ds-fg)]"
+                          >
+                            {SORT_LABELS[key]}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 <div className="divide-y divide-black/[0.06] dark:divide-white/[0.04] md:hidden">
                   {pageRows.length === 0 ? (
                     <p className="px-4 py-8 text-center text-xs text-[var(--ds-fg-subtle)]">
-                      No referrals yet. Send an invite to get started.
+                      {referrals.length === 0
+                        ? 'No referrals yet. Send an invite to get started.'
+                        : 'No referrals match your filters.'}
                     </p>
                   ) : (
                     pageRows.map((row) => (
@@ -778,7 +983,7 @@ export function ReferAFriendPage() {
                             { label: 'Wagered', w: 'w-[12%]' },
                             { label: 'Rate', w: 'w-[8%]' },
                             { label: 'Claimed', w: 'w-[12%]' },
-                            { label: 'Commission', w: 'w-[18%]' },
+                            { label: 'Commission', w: 'w-[18%]', sortable: true },
                           ] as const
                         ).map((col) => (
                           <th
@@ -789,53 +994,89 @@ export function ReferAFriendPage() {
                               col.w
                             )}
                           >
-                            {col.label}
+                            {'sortable' in col && col.sortable ? (
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 uppercase tracking-wide text-[var(--ds-fg-subtle)] transition-colors hover:text-[var(--ds-fg)]"
+                                onClick={() =>
+                                  setSortBy((prev) =>
+                                    prev === 'commission-desc'
+                                      ? 'commission-asc'
+                                      : 'commission-desc'
+                                  )
+                                }
+                              >
+                                {col.label}
+                                <IconChevronDown
+                                  className={cn(
+                                    'size-3.5 opacity-70 transition-transform',
+                                    sortBy === 'commission-asc' && 'rotate-180'
+                                  )}
+                                  aria-hidden
+                                />
+                              </button>
+                            ) : (
+                              col.label
+                            )}
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {pageRows.map((row, index) => (
-                        <tr
-                          key={row.id}
-                          className={cn(
-                            'border-b transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]',
-                            hairline,
-                            index % 2 === 1 ? softFill : 'bg-transparent'
-                          )}
-                        >
-                          <td className="px-2 py-2 text-xs font-medium text-[var(--ds-fg)]">
-                            <div className="flex min-w-0 items-center gap-1.5">
-                              <span className="truncate">{row.nick}</span>
-                              {row.status === 'pending' ? <StatusPill status="pending" /> : null}
-                            </div>
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
-                            {row.status === 'pending' ? 'Invite sent' : row.registered}
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
-                            {row.vipLevel}
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
-                            {row.totalDeposits}
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
-                            {row.wagered}
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
-                            {row.rate}
-                          </td>
-                          <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
-                            {row.claimed}
-                          </td>
-                          <td className="px-2 py-2">
-                            <CommissionPill
-                              amount={row.commission}
-                              pending={row.status === 'pending'}
-                            />
+                      {pageRows.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={8}
+                            className="px-4 py-10 text-center text-xs text-[var(--ds-fg-subtle)]"
+                          >
+                            {referrals.length === 0
+                              ? 'No referrals yet. Send an invite to get started.'
+                              : 'No referrals match your filters.'}
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        pageRows.map((row, index) => (
+                          <tr
+                            key={row.id}
+                            className={cn(
+                              'border-b transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]',
+                              hairline,
+                              index % 2 === 1 ? softFill : 'bg-transparent'
+                            )}
+                          >
+                            <td className="px-2 py-2 text-xs font-medium text-[var(--ds-fg)]">
+                              <div className="flex min-w-0 items-center gap-1.5">
+                                <span className="truncate">{row.nick}</span>
+                                {row.status === 'pending' ? <StatusPill status="pending" /> : null}
+                              </div>
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
+                              {row.status === 'pending' ? 'Invite sent' : row.registered}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] text-[var(--ds-fg-muted)]">
+                              {row.vipLevel}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.totalDeposits}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.wagered}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.rate}
+                            </td>
+                            <td className="truncate px-2 py-2 text-[11px] tabular-nums text-[var(--ds-fg-muted)]">
+                              {row.claimed}
+                            </td>
+                            <td className="px-2 py-2">
+                              <CommissionPill
+                                amount={row.commission}
+                                pending={row.status === 'pending'}
+                              />
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -870,7 +1111,7 @@ export function ReferAFriendPage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        disabled={(page + 1) * PAGE_SIZE >= referrals.length}
+                        disabled={(page + 1) * PAGE_SIZE >= filteredReferrals.length}
                         onClick={() => setPage((p) => p + 1)}
                         className="h-8 px-2 text-[var(--ds-fg-muted)] hover:bg-black/[0.04] hover:text-[var(--ds-fg)] dark:hover:bg-white/[0.04]"
                       >

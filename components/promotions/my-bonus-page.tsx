@@ -26,7 +26,6 @@ import {
   IconFilter,
   IconGift,
 } from '@tabler/icons-react'
-import { motion } from 'framer-motion'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -52,18 +51,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Tabs as AnimateTabs,
-  TabsList as AnimateTabsList,
-  TabsTab,
-} from '@/components/animate-ui/components/base/tabs'
 import { requestLogin } from '@/lib/auth-session'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
-import {
-  FreeSpinsGamePicker,
-  type FreeSpinGameOption,
-} from '@/components/vip/free-spins-game-picker'
+import { FREE_SPIN_GAME_OPTIONS } from '@/components/vip/free-spins-game-picker'
 import { playSound } from '@/lib/sounds'
 import { toast } from 'sonner'
 import { launchCasinoGame } from '@/lib/casino/launch-game'
@@ -78,6 +69,12 @@ export type RewardType =
 
 export type RewardStatus = 'AVAILABLE' | 'CLAIMED' | 'EXPIRED' | 'USED'
 
+export type RewardGame = {
+  name: string
+  image: string
+  provider?: string
+}
+
 export type RewardItem = {
   id: string
   type: RewardType
@@ -90,6 +87,8 @@ export type RewardItem = {
   /** Remaining free spins when type is free-spins */
   freeSpinsLeft?: number
   freeSpinsTotal?: number
+  /** Assigned game for free-spins rewards (ops-selected, one title) */
+  game?: RewardGame
   detail?: string
 }
 
@@ -101,6 +100,13 @@ const REWARD_TYPE_LABEL: Record<RewardType, string> = {
   boost: 'Boost',
   other: 'Reward',
 }
+
+const TYPE_FILTER_OPTIONS: RewardType[] = [
+  'rakeback',
+  'referral',
+  'reload',
+  'free-spins',
+]
 
 const STATUS_STYLES: Record<
   RewardStatus,
@@ -128,6 +134,9 @@ const STATUS_STYLES: Record<
   },
 }
 
+const DEMO_FS_GAME = FREE_SPIN_GAME_OPTIONS[0]
+const DEMO_FS_GAME_2 = FREE_SPIN_GAME_OPTIONS[2]
+
 /** Seeded hub claim history — rakebacks, RAF, reloads, free spins */
 const SEED_REWARDS: RewardItem[] = [
   {
@@ -140,7 +149,12 @@ const SEED_REWARDS: RewardItem[] = [
     status: 'AVAILABLE',
     freeSpinsLeft: 42,
     freeSpinsTotal: 50,
-    detail: 'Select a game to play your remaining free spins.',
+    game: {
+      name: DEMO_FS_GAME.name,
+      image: DEMO_FS_GAME.image,
+      provider: DEMO_FS_GAME.provider,
+    },
+    detail: `Play on ${DEMO_FS_GAME.name}.`,
   },
   {
     id: 'rb-1',
@@ -170,7 +184,7 @@ const SEED_REWARDS: RewardItem[] = [
     dateClaimed: '03/08/2026',
     amountClaimed: '$5.00',
     status: 'CLAIMED',
-    detail: 'On-demand VIP reload — 1 of 7 claimed.',
+    detail: 'On-demand VIP reload. 1 of 7 claimed.',
   },
   {
     id: 'rb-2',
@@ -191,7 +205,12 @@ const SEED_REWARDS: RewardItem[] = [
     status: 'AVAILABLE',
     freeSpinsLeft: 8,
     freeSpinsTotal: 25,
-    detail: 'Select a game to play your remaining free spins.',
+    game: {
+      name: DEMO_FS_GAME_2.name,
+      image: DEMO_FS_GAME_2.image,
+      provider: DEMO_FS_GAME_2.provider,
+    },
+    detail: `Play on ${DEMO_FS_GAME_2.name}.`,
   },
   {
     id: 'rl-2',
@@ -221,6 +240,11 @@ const SEED_REWARDS: RewardItem[] = [
     status: 'USED',
     freeSpinsLeft: 0,
     freeSpinsTotal: 20,
+    game: {
+      name: DEMO_FS_GAME.name,
+      image: DEMO_FS_GAME.image,
+      provider: DEMO_FS_GAME.provider,
+    },
     detail: 'All spins used.',
   },
   {
@@ -251,6 +275,7 @@ const searchFilterFn: FilterFn<RewardItem> = (row, _columnId, filterValue) => {
   const hay = [
     item.name,
     REWARD_TYPE_LABEL[item.type],
+    item.game?.name ?? '',
     item.amountClaimed ?? '',
     item.freeSpinsLeft != null ? String(item.freeSpinsLeft) : '',
     item.status,
@@ -293,7 +318,7 @@ function StatusBadge({ status }: { status: RewardStatus }) {
   )
 }
 
-function ChooseGameButton({
+function PlayGameButton({
   onClick,
   className,
 }: {
@@ -312,7 +337,7 @@ function ChooseGameButton({
         className
       )}
     >
-      Choose Game
+      Claim
     </button>
   )
 }
@@ -326,34 +351,40 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
   const id = useId()
   const isMobile = useIsMobile()
   const [isLoggedIn, setIsLoggedIn] = useState(true)
-  const [typeFilter, setTypeFilter] = useState<'All' | RewardType>('All')
+  const [selectedTypes, setSelectedTypes] = useState<RewardType[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'dateAwarded', desc: true },
   ])
   const inputRef = useRef<HTMLInputElement>(null)
-  const [data, setData] = useState<RewardItem[]>(SEED_REWARDS)
-  const [gamePickerOpen, setGamePickerOpen] = useState(false)
-  const [pickerRewardId, setPickerRewardId] = useState<string | null>(null)
+  const [data] = useState<RewardItem[]>(SEED_REWARDS)
+
+  const typeCounts = useMemo(() => {
+    const counts = new Map<RewardType, number>()
+    for (const type of TYPE_FILTER_OPTIONS) counts.set(type, 0)
+    for (const item of data) {
+      if (!TYPE_FILTER_OPTIONS.includes(item.type)) continue
+      counts.set(item.type, (counts.get(item.type) ?? 0) + 1)
+    }
+    return counts
+  }, [data])
 
   const filteredByType = useMemo(() => {
-    if (typeFilter === 'All') return data
-    return data.filter((r) => r.type === typeFilter)
-  }, [data, typeFilter])
+    if (selectedTypes.length === 0) return data
+    return data.filter((r) => selectedTypes.includes(r.type))
+  }, [data, selectedTypes])
 
-  const pickerSpinsLeft = useMemo(() => {
-    if (!pickerRewardId) return undefined
-    return data.find((r) => r.id === pickerRewardId)?.freeSpinsLeft
-  }, [data, pickerRewardId])
-
-  const goChooseGame = (rewardId?: string) => {
-    setPickerRewardId(rewardId ?? null)
-    setGamePickerOpen(true)
+  const handleTypeChange = (checked: boolean, value: RewardType) => {
+    setSelectedTypes((prev) => {
+      if (checked) return prev.includes(value) ? prev : [...prev, value]
+      return prev.filter((type) => type !== value)
+    })
   }
 
-  const handleGameSelect = (game: FreeSpinGameOption) => {
-    setGamePickerOpen(false)
+  const playAssignedGame = (item: RewardItem) => {
+    const game = item.game
+    if (!game) return
     setShowVipRewards?.(false)
     launchCasinoGame({
       title: game.name,
@@ -363,22 +394,9 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
     })
     playSound('redeem')
     toast.success(`Playing ${game.name}`, {
-      description: 'Free spins applied to your selected game.',
+      description: 'Free spins applied to your game.',
       duration: 3500,
     })
-    if (pickerRewardId) {
-      setData((prev) =>
-        prev.map((item) =>
-          item.id === pickerRewardId
-            ? {
-                ...item,
-                detail: `Playing on ${game.name}.`,
-              }
-            : item
-        )
-      )
-    }
-    setPickerRewardId(null)
   }
 
   const columns: ColumnDef<RewardItem>[] = useMemo(
@@ -393,8 +411,10 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
               <div className="text-sm font-medium text-[var(--ds-fg)] truncate">
                 {item.name}
               </div>
-              <div className="text-[11px] text-[var(--ds-fg-subtle)] mt-0.5">
-                {REWARD_TYPE_LABEL[item.type]}
+              <div className="text-[11px] text-[var(--ds-fg-subtle)] mt-0.5 truncate">
+                {item.type === 'free-spins' && item.game?.name
+                  ? item.game.name
+                  : REWARD_TYPE_LABEL[item.type]}
               </div>
             </div>
           )
@@ -454,9 +474,10 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
           if (
             item.type === 'free-spins' &&
             (item.freeSpinsLeft ?? 0) > 0 &&
-            item.status === 'AVAILABLE'
+            item.status === 'AVAILABLE' &&
+            item.game
           ) {
-            return <ChooseGameButton onClick={() => goChooseGame(item.id)} />
+            return <PlayGameButton onClick={() => playAssignedGame(item)} />
           }
           return <StatusBadge status={item.status} />
         },
@@ -464,7 +485,8 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
         filterFn: statusFilterFn,
       },
     ],
-    []
+    // playAssignedGame closes over setShowVipRewards; recreate when that changes
+    [setShowVipRewards]
   )
 
   const table = useReactTable({
@@ -520,33 +542,24 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
       ?.setFilterValue(next.length ? next : undefined)
   }
 
-  const typeTabs: Array<'All' | RewardType> = [
-    'All',
-    'rakeback',
-    'referral',
-    'reload',
-    'free-spins',
-  ]
-
-  const typeTabLabel = (t: 'All' | RewardType) =>
-    t === 'All' ? 'All' : REWARD_TYPE_LABEL[t]
+  const appliedFilterCount = selectedTypes.length + selectedStatuses.length
 
   return (
     <SidebarInset className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
-      <div className="w-full px-3 md:px-6 pt-6 md:pt-8 pb-8">
+      <div className="w-full px-4 pb-28 pt-6 md:px-6 md:pb-8 md:pt-8">
         <div className="w-full">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-6">
-            <div>
+          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <h1 className="text-2xl font-bold text-[var(--ds-fg)] md:text-3xl">
                 My Bonus
               </h1>
-              <p className="mt-1 text-sm text-[var(--ds-fg-subtle)]">
-                Every reward you claim from the hub — rakeback, referrals,
+              <p className="mt-1 max-w-xl text-sm text-[var(--ds-fg-subtle)]">
+                Every reward you claim from the hub: rakeback, referrals,
                 reloads, and free spins.
               </p>
             </div>
             <div
-              className="flex items-center gap-1 rounded-full border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0.5"
+              className="flex w-fit shrink-0 items-center gap-1 self-start rounded-full border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0.5"
               role="group"
               aria-label="Demo login state"
             >
@@ -570,40 +583,6 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
                 )
               })}
             </div>
-          </div>
-
-          <div className="mb-4 md:mb-6">
-            <AnimateTabs
-              value={typeFilter}
-              onValueChange={(v) =>
-                setTypeFilter(v as 'All' | RewardType)
-              }
-              className="w-full"
-            >
-              <AnimateTabsList className="bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 relative flex-wrap">
-                {typeTabs.map((tab) => (
-                  <TabsTab
-                    key={tab}
-                    value={tab}
-                    className="relative z-10 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] rounded-2xl px-3.5 py-1 h-9 text-xs font-medium transition-colors data-[state=active]:text-[var(--ds-fg)] focus-visible:outline-none focus-visible:ring-0"
-                  >
-                    {typeFilter === tab && (
-                      <motion.div
-                        layoutId="activeBonusTypeTab"
-                        className="absolute inset-0 rounded-2xl -z-10 bg-[var(--ds-control-hover)] ring-1 ring-white/10"
-                        initial={false}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 400,
-                          damping: 40,
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10">{typeTabLabel(tab)}</span>
-                  </TabsTab>
-                ))}
-              </AnimateTabsList>
-            </AnimateTabs>
           </div>
 
           {!isLoggedIn ? (
@@ -637,65 +616,95 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
             <>
               {isMobile ? (
                 <Popover>
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="mb-4 flex items-center gap-3">
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="flex items-center gap-2 text-sm font-semibold text-[var(--ds-fg-muted)] uppercase tracking-wide"
+                        className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-[var(--ds-fg-muted)]"
                       >
-                        <IconFilter className="w-4 h-4 text-[var(--ds-fg-subtle)]" />
+                        <IconFilter className="h-4 w-4 text-[var(--ds-fg-subtle)]" />
                         Add Filter
                       </button>
                     </PopoverTrigger>
                     <div className="h-5 w-px bg-[var(--ds-control-hover)]" />
                     <span className="text-sm text-[var(--ds-fg-subtle)]">
-                      {selectedStatuses.length > 0
-                        ? `${selectedStatuses.length} filter${selectedStatuses.length > 1 ? 's' : ''} applied`
+                      {appliedFilterCount > 0
+                        ? `${appliedFilterCount} filter${appliedFilterCount > 1 ? 's' : ''} applied`
                         : 'No filters applied'}
                     </span>
                   </div>
                   <PopoverContent
-                    className="w-auto min-w-36 p-3 bg-[var(--ds-surface-raised)] border-[var(--ds-border)]"
+                    className="w-auto min-w-44 border-[var(--ds-border)] bg-[var(--ds-surface-raised)] p-3"
                     align="start"
                   >
-                    <div className="space-y-3">
-                      <div className="text-[var(--ds-fg-muted)] text-xs font-medium">
-                        Filter by Status
+                    <div className="space-y-4">
+                      <div className="space-y-3">
+                        <div className="text-xs font-medium text-[var(--ds-fg-muted)]">
+                          Filter by Type
+                        </div>
+                        <div className="space-y-3">
+                          {TYPE_FILTER_OPTIONS.map((type, i) => (
+                            <div key={type} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${id}-m-type-${i}`}
+                                checked={selectedTypes.includes(type)}
+                                onCheckedChange={(checked: boolean) =>
+                                  handleTypeChange(checked, type)
+                                }
+                                className="border-white/20"
+                              />
+                              <Label
+                                htmlFor={`${id}-m-type-${i}`}
+                                className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
+                              >
+                                {REWARD_TYPE_LABEL[type]}{' '}
+                                <span className="ms-2 text-xs text-[var(--ds-fg-subtle)]">
+                                  {typeCounts.get(type) ?? 0}
+                                </span>
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <div className="space-y-3">
-                        {uniqueStatusValues.map((value, i) => (
-                          <div key={value} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`${id}-m-${i}`}
-                              checked={selectedStatuses.includes(value)}
-                              onCheckedChange={(checked: boolean) =>
-                                handleStatusChange(checked, value)
-                              }
-                              className="border-white/20"
-                            />
-                            <Label
-                              htmlFor={`${id}-m-${i}`}
-                              className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
-                            >
-                              {value}{' '}
-                              <span className="text-[var(--ds-fg-subtle)] ms-2 text-xs">
-                                {statusCounts.get(value)}
-                              </span>
-                            </Label>
-                          </div>
-                        ))}
+                        <div className="text-xs font-medium text-[var(--ds-fg-muted)]">
+                          Filter by Status
+                        </div>
+                        <div className="space-y-3">
+                          {uniqueStatusValues.map((value, i) => (
+                            <div key={value} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`${id}-m-${i}`}
+                                checked={selectedStatuses.includes(value)}
+                                onCheckedChange={(checked: boolean) =>
+                                  handleStatusChange(checked, value)
+                                }
+                                className="border-white/20"
+                              />
+                              <Label
+                                htmlFor={`${id}-m-${i}`}
+                                className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
+                              >
+                                {value}{' '}
+                                <span className="ms-2 text-xs text-[var(--ds-fg-subtle)]">
+                                  {statusCounts.get(value)}
+                                </span>
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </PopoverContent>
                 </Popover>
               ) : (
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
                   <div className="relative">
                     <Input
                       id={`${id}-input`}
                       ref={inputRef}
                       className={cn(
-                        'peer min-w-60 ps-9 bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] text-sm',
+                        'peer min-w-60 border-[var(--ds-border)] bg-[var(--ds-control-bg)] ps-9 text-sm text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)]',
                         Boolean(table.getColumn('name')?.getFilterValue()) &&
                           'pe-9'
                       )}
@@ -710,13 +719,13 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
                       type="text"
                       aria-label="Filter by reward or amount"
                     />
-                    <div className="text-[var(--ds-fg-subtle)] pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
+                    <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-[var(--ds-fg-subtle)] peer-disabled:opacity-50">
                       <ListFilterIcon size={16} aria-hidden="true" />
                     </div>
                     {Boolean(table.getColumn('name')?.getFilterValue()) && (
                       <button
                         type="button"
-                        className="text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md outline-none"
+                        className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-[var(--ds-fg-subtle)] outline-none hover:text-[var(--ds-fg)]"
                         aria-label="Clear filter"
                         onClick={() => {
                           table.getColumn('name')?.setFilterValue('')
@@ -732,54 +741,91 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] h-9 px-3 text-xs"
+                        aria-label={
+                          appliedFilterCount > 0
+                            ? `Filters, ${appliedFilterCount} applied`
+                            : 'Filters'
+                        }
+                        className="relative h-9 w-9 shrink-0 border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
                       >
                         <FilterIcon
-                          className="-ms-1 opacity-60"
+                          className="opacity-60"
                           size={16}
                           aria-hidden="true"
                         />
-                        Status
-                        {selectedStatuses.length > 0 && (
-                          <span className="bg-[var(--ds-control-hover)] text-[var(--ds-fg-muted)] -me-1 inline-flex h-5 max-h-full items-center rounded border border-white/20 px-1 font-[inherit] text-[0.625rem] font-medium">
-                            {selectedStatuses.length}
+                        {appliedFilterCount > 0 && (
+                          <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full border border-white/20 bg-[var(--ds-control-hover)] px-1 text-[0.625rem] font-medium text-[var(--ds-fg-muted)]">
+                            {appliedFilterCount}
                           </span>
                         )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-auto min-w-36 p-3 bg-[var(--ds-surface-raised)] border-[var(--ds-border)]"
+                      className="w-auto min-w-44 border-[var(--ds-border)] bg-[var(--ds-surface-raised)] p-3"
                       align="start"
                     >
-                      <div className="space-y-3">
-                        <div className="text-[var(--ds-fg-muted)] text-xs font-medium">
-                          Filters
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <div className="text-xs font-medium text-[var(--ds-fg-muted)]">
+                            Type
+                          </div>
+                          <div className="space-y-3">
+                            {TYPE_FILTER_OPTIONS.map((type, i) => (
+                              <div
+                                key={type}
+                                className="flex items-center gap-2"
+                              >
+                                <Checkbox
+                                  id={`${id}-type-${i}`}
+                                  checked={selectedTypes.includes(type)}
+                                  onCheckedChange={(checked: boolean) =>
+                                    handleTypeChange(checked, type)
+                                  }
+                                  className="border-white/20"
+                                />
+                                <Label
+                                  htmlFor={`${id}-type-${i}`}
+                                  className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
+                                >
+                                  {REWARD_TYPE_LABEL[type]}{' '}
+                                  <span className="ms-2 text-xs text-[var(--ds-fg-subtle)]">
+                                    {typeCounts.get(type) ?? 0}
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                         <div className="space-y-3">
-                          {uniqueStatusValues.map((value, i) => (
-                            <div
-                              key={value}
-                              className="flex items-center gap-2"
-                            >
-                              <Checkbox
-                                id={`${id}-${i}`}
-                                checked={selectedStatuses.includes(value)}
-                                onCheckedChange={(checked: boolean) =>
-                                  handleStatusChange(checked, value)
-                                }
-                                className="border-white/20"
-                              />
-                              <Label
-                                htmlFor={`${id}-${i}`}
-                                className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
+                          <div className="text-xs font-medium text-[var(--ds-fg-muted)]">
+                            Status
+                          </div>
+                          <div className="space-y-3">
+                            {uniqueStatusValues.map((value, i) => (
+                              <div
+                                key={value}
+                                className="flex items-center gap-2"
                               >
-                                {value}{' '}
-                                <span className="text-[var(--ds-fg-subtle)] ms-2 text-xs">
-                                  {statusCounts.get(value)}
-                                </span>
-                              </Label>
-                            </div>
-                          ))}
+                                <Checkbox
+                                  id={`${id}-${i}`}
+                                  checked={selectedStatuses.includes(value)}
+                                  onCheckedChange={(checked: boolean) =>
+                                    handleStatusChange(checked, value)
+                                  }
+                                  className="border-white/20"
+                                />
+                                <Label
+                                  htmlFor={`${id}-${i}`}
+                                  className="flex grow justify-between gap-2 font-normal text-[var(--ds-fg)]"
+                                >
+                                  {value}{' '}
+                                  <span className="ms-2 text-xs text-[var(--ds-fg-subtle)]">
+                                    {statusCounts.get(value)}
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </PopoverContent>
@@ -789,19 +835,19 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)] h-9 px-3 text-xs"
+                        aria-label="Toggle columns"
+                        className="h-9 w-9 shrink-0 border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-0 text-[var(--ds-fg)] hover:bg-[var(--ds-control-hover)]"
                       >
                         <Columns3Icon
-                          className="-ms-1 opacity-60"
+                          className="opacity-60"
                           size={16}
                           aria-hidden="true"
                         />
-                        View
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="bg-[var(--ds-surface-raised)] border-[var(--ds-border)]"
+                      className="border-[var(--ds-border)] bg-[var(--ds-surface-raised)]"
                     >
                       <DropdownMenuLabel className="text-[var(--ds-fg)]">
                         Toggle columns
@@ -828,79 +874,86 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
               )}
 
               {isMobile ? (
-                <div
-                  className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4"
-                  style={{ touchAction: 'pan-y' }}
-                >
-                  <div className="flex items-center px-4 py-3 border-b border-[var(--ds-border)]">
-                    <span className="flex-1 text-sm font-medium text-[var(--ds-fg-muted)]">
-                      Reward
-                    </span>
-                    <span className="w-[88px] text-sm font-medium text-[var(--ds-fg-muted)]">
-                      Claimed
-                    </span>
-                    <span className="w-[100px] text-sm font-medium text-[var(--ds-fg-muted)] text-center">
-                      Status
-                    </span>
-                  </div>
+                <div className="space-y-2.5">
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => {
                       const item = row.original
-                      const showChooseGame =
+                      const showPlayGame =
                         item.type === 'free-spins' &&
                         (item.freeSpinsLeft ?? 0) > 0 &&
-                        item.status === 'AVAILABLE'
+                        item.status === 'AVAILABLE' &&
+                        Boolean(item.game)
                       return (
                         <div
                           key={row.id}
-                          className="flex items-center w-full px-4 py-4 border-b border-white/5"
-                          style={{ touchAction: 'pan-y' }}
+                          className="rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] p-3.5"
                         >
-                          <span className="flex-1 min-w-0 pr-2">
-                            <span className="block text-sm font-semibold text-[var(--ds-fg)] truncate">
-                              {item.name}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold leading-snug text-[var(--ds-fg)]">
+                                {item.name}
+                              </p>
+                              {item.game?.name ? (
+                                <p className="mt-0.5 text-[12px] text-[var(--ds-fg-muted)]">
+                                  {item.game.name}
+                                </p>
+                              ) : null}
+                              <p className="mt-1 text-[12px] text-[var(--ds-fg-subtle)]">
+                                {formatAmountCell(item)}
+                              </p>
+                            </div>
+                            <div className="shrink-0 pt-0.5">
+                              {showPlayGame ? (
+                                <PlayGameButton
+                                  onClick={() => playAssignedGame(item)}
+                                  className="h-8 px-2.5 text-[10px]"
+                                />
+                              ) : (
+                                <StatusBadge status={item.status} />
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/[0.06] pt-2.5 text-[11px] text-[var(--ds-fg-subtle)]">
+                            <span>
+                              Awarded{' '}
+                              <span className="tabular-nums text-[var(--ds-fg-muted)]">
+                                {item.dateAwarded}
+                              </span>
                             </span>
-                            <span className="block text-[11px] text-[var(--ds-fg-subtle)] mt-0.5">
-                              {formatAmountCell(item)}
+                            <span className="text-white/15" aria-hidden>
+                              ·
                             </span>
-                          </span>
-                          <span className="w-[88px] text-sm text-[var(--ds-fg-muted)] shrink-0 tabular-nums">
-                            {item.dateClaimed ?? '—'}
-                          </span>
-                          <span className="w-[100px] flex justify-center shrink-0">
-                            {showChooseGame ? (
-                              <ChooseGameButton
-                                onClick={() => goChooseGame(item.id)}
-                                className="h-7 px-2 text-[10px]"
-                              />
-                            ) : (
-                              <StatusBadge status={item.status} />
-                            )}
-                          </span>
+                            <span>
+                              Claimed{' '}
+                              <span className="tabular-nums text-[var(--ds-fg-muted)]">
+                                {item.dateClaimed ?? '—'}
+                              </span>
+                            </span>
+                          </div>
                         </div>
                       )
                     })
                   ) : (
-                    <div className="px-4 py-8 text-center text-[var(--ds-fg-subtle)] text-sm">
+                    <div className="rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] px-4 py-10 text-center text-sm text-[var(--ds-fg-subtle)]">
                       No rewards yet.
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-lg overflow-hidden mb-4">
+                <div className="mb-4 overflow-hidden rounded-lg border border-[var(--ds-border)] bg-[var(--ds-control-bg)]">
                   <div className="overflow-x-auto">
                     <Table className="table-fixed min-w-[720px]">
                       <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                           <TableRow
                             key={headerGroup.id}
-                            className="hover:bg-transparent border-[var(--ds-border)]"
+                            className="border-[var(--ds-border)] hover:bg-transparent"
                           >
                             {headerGroup.headers.map((header) => (
                               <TableHead
                                 key={header.id}
                                 style={{ width: `${header.getSize()}px` }}
-                                className="h-11 text-[var(--ds-fg-muted)] text-xs font-normal"
+                                className="h-11 text-xs font-normal text-[var(--ds-fg-muted)]"
                               >
                                 {header.isPlaceholder ? null : header.column.getCanSort() ? (
                                   <div
@@ -931,14 +984,14 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
                                     {{
                                       asc: (
                                         <ChevronUpIcon
-                                          className="shrink-0 opacity-60 text-[var(--ds-fg)]"
+                                          className="shrink-0 text-[var(--ds-fg)] opacity-60"
                                           size={16}
                                           aria-hidden="true"
                                         />
                                       ),
                                       desc: (
                                         <ChevronDownIcon
-                                          className="shrink-0 opacity-60 text-[var(--ds-fg)]"
+                                          className="shrink-0 text-[var(--ds-fg)] opacity-60"
                                           size={16}
                                           aria-hidden="true"
                                         />
@@ -994,16 +1047,6 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
           )}
         </div>
       </div>
-
-      <FreeSpinsGamePicker
-        open={gamePickerOpen}
-        onOpenChange={(open) => {
-          setGamePickerOpen(open)
-          if (!open) setPickerRewardId(null)
-        }}
-        spinsLeft={pickerSpinsLeft}
-        onSelect={handleGameSelect}
-      />
     </SidebarInset>
   )
 }
