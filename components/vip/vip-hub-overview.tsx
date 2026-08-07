@@ -748,7 +748,7 @@ function BenefitRow({
             </TooltipProvider>
           ) : null}
         </div>
-        {isPlayGame && (isLoggedIn || row.kind === 'login') ? (
+        {isPlayGame && isLoggedIn ? (
           <div className="mt-0.5 min-w-0 space-y-0.5 text-[11px]">
             {assignedGame ? (
               <p className="truncate text-[var(--ds-fg-muted)]">

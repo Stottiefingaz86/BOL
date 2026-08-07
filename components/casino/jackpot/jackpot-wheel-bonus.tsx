@@ -37,6 +37,10 @@ import {
 } from '@/lib/sounds'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { DownloadIcon, FileTextIcon } from 'lucide-react'
+
+const JACKPOT_SOUND_PACK_ZIP = '/deliverables/jackpot-wheel-sounds.zip'
+const JACKPOT_SOUND_PACK_MD = '/deliverables/jackpot-wheel-sounds.md'
 
 const SEGMENTS_PER_TIER = 2
 const SEGMENT_COUNT = JACKPOT_TICKER_TIERS.length * SEGMENTS_PER_TIER
@@ -1197,6 +1201,27 @@ export function JackpotWheelBonus({
     >
       <FanDuelBackground phase={phase} isMobile={isMobile} />
       <IntroConfetti active={phase === 'intro'} />
+
+      {phase === 'intro' ? (
+        <div className="pointer-events-auto absolute right-3 top-3 z-[40] flex flex-col gap-1.5 sm:right-4 sm:top-4 sm:flex-row">
+          <a
+            href={JACKPOT_SOUND_PACK_ZIP}
+            download="jackpot-wheel-sounds.zip"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/15 bg-black/55 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur-md transition-colors hover:border-white/30 hover:bg-black/70 hover:text-white"
+          >
+            <DownloadIcon className="size-3.5 opacity-80" aria-hidden />
+            Sound pack
+          </a>
+          <a
+            href={JACKPOT_SOUND_PACK_MD}
+            download="jackpot-wheel-sounds.md"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/15 bg-black/55 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur-md transition-colors hover:border-white/30 hover:bg-black/70 hover:text-white"
+          >
+            <FileTextIcon className="size-3.5 opacity-80" aria-hidden />
+            Cue sheet
+          </a>
+        </div>
+      ) : null}
 
       {/* Gold flash — 3 pulses on the winner before handoff */}
       <AnimatePresence>
