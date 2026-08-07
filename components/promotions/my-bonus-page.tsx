@@ -550,7 +550,10 @@ export function MyBonusPage({ setShowVipRewards }: MyBonusPageProps) {
     })
   }
 
-  const launchFreeSpinGame = (item: RewardItem, game: FreeSpinGameOption) => {
+  const launchFreeSpinGame = (
+    item: RewardItem,
+    game: Pick<FreeSpinGameOption, 'name' | 'image' | 'provider'>
+  ) => {
     setShowVipRewards?.(false)
     setPickerItem(null)
     launchCasinoGame({
