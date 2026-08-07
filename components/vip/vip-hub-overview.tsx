@@ -32,6 +32,7 @@ import { rewardAccentStyle } from '@/components/vip/reward-accent'
 import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import {
   FREE_SPIN_GAME_OPTIONS,
+  FreeSpinsGamePicker,
   type FreeSpinGameOption,
 } from '@/components/vip/free-spins-game-picker'
 import { launchCasinoGame } from '@/lib/casino/launch-game'
@@ -72,14 +73,20 @@ type HubRow =
       subtitle?: string
       /** On-demand rows disappear after claim (except multi-release Special Reload) */
       removeOnClaim?: boolean
-      /** Override default Claim / Claim $X button label */
+      /** Post-activation free-spins CTA: Play or Choose Game */
       ctaLabel?: string
-      /** Remaining free spins (Play Game flow) */
+      /** Remaining free spins (Claim → Play / Choose Game flow) */
       spinsLeft?: number
-      /** Ops-assigned game for free-spins (single title) */
+      /** Original free-spin grant (for left/total display) */
+      spinsTotal?: number
+      /** Ops-assigned game for single-title free spins */
       assignedGame?: FreeSpinGameOption
       /** Stake value applied per free spin (shown in info) */
       stakePerSpin?: number
+      /** Expiry date shown on free-spin cards */
+      expiresAt?: string
+      /** Opens game picker so the player can choose where to play */
+      chooseGame?: boolean
     }
   | {
       id: string
@@ -254,10 +261,26 @@ function buildHubSections(
       icon: 'free-spins',
       kind: 'claim',
       subtitle: '50 spins ready',
-      ctaLabel: 'Claim',
+      ctaLabel: 'Play',
       spinsLeft: 50,
+      spinsTotal: 50,
       stakePerSpin: FREE_SPIN_STAKE_PER_SPIN,
+      expiresAt: '03/19/2026',
       assignedGame: FREE_SPIN_GAME_OPTIONS[0],
+    },
+    {
+      id: 'free-spins-choice',
+      name: 'Free Spins',
+      info: `$${FREE_SPIN_STAKE_PER_SPIN} per spin. Pick any eligible game to play your free spins.`,
+      icon: 'free-spins',
+      kind: 'claim',
+      subtitle: '25 spins ready',
+      ctaLabel: 'Choose Game',
+      spinsLeft: 25,
+      spinsTotal: 50,
+      stakePerSpin: FREE_SPIN_STAKE_PER_SPIN,
+      expiresAt: '03/26/2026',
+      chooseGame: true,
     },
   ]
 
@@ -408,7 +431,7 @@ function ClaimStyleButton({
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
   className?: string
-  /** Soft outline CTA (e.g. free spins Claim) instead of solid primary fill */
+  /** Soft outline CTA (e.g. free spins Play) instead of solid primary fill */
   subtle?: boolean
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -466,14 +489,29 @@ function BenefitRow({
   const [spinsLeft, setSpinsLeft] = useState(() =>
     row.kind === 'claim' && typeof row.spinsLeft === 'number' ? row.spinsLeft : 0
   )
-
-  const isPlayGame = row.kind === 'claim' && Boolean(row.ctaLabel)
+  const spinsTotal =
+    row.kind === 'claim' && typeof row.spinsTotal === 'number'
+      ? row.spinsTotal
+      : spinsLeft
+  const [pickerOpen, setPickerOpen] = useState(false)
+  /** Free spins start as Claim; after activation CTA becomes Play / Choose Game */
+  const isFreeSpins =
+    row.kind === 'claim' && typeof row.spinsLeft === 'number'
+  const [activated, setActivated] = useState(false)
+  const playCtaLabel =
+    row.kind === 'claim' ? row.ctaLabel ?? (row.chooseGame ? 'Choose Game' : 'Play') : undefined
+  const chooseGame = isFreeSpins && row.kind === 'claim' && row.chooseGame === true
   const assignedGame =
-    row.kind === 'claim' ? row.assignedGame ?? FREE_SPIN_GAME_OPTIONS[0] : undefined
-  const freeSpinsExhausted = isPlayGame && spinsLeft <= 0
+    isFreeSpins && !chooseGame
+      ? row.kind === 'claim'
+        ? row.assignedGame ?? FREE_SPIN_GAME_OPTIONS[0]
+        : undefined
+      : undefined
+  const expiresAt = row.kind === 'claim' ? row.expiresAt : undefined
+  const freeSpinsExhausted = isFreeSpins && activated && spinsLeft <= 0
   const nothingToClaim =
     row.kind === 'claim' &&
-    !isPlayGame &&
+    !isFreeSpins &&
     typeof row.amount === 'number' &&
     row.amount <= 0
   const isClaimDisabled = claimInactive || nothingToClaim
@@ -483,7 +521,7 @@ function BenefitRow({
     row.kind === 'claim' ? row.amount : undefined
   )
   useEffect(() => {
-    if (row.kind !== 'claim' || isPlayGame) return
+    if (row.kind !== 'claim' || isFreeSpins) return
     const amount = row.amount
     const prev = prevAmountRef.current
     prevAmountRef.current = amount
@@ -499,16 +537,20 @@ function BenefitRow({
     ) {
       setClaimInactive(false)
     }
-  }, [isPlayGame, row])
+  }, [isFreeSpins, row])
 
   useEffect(() => {
     if (!showClaimedFlash) return
     const t = window.setTimeout(() => {
       setShowClaimedFlash(false)
-      setClaimInactive(true)
+      if (isFreeSpins) {
+        setActivated(true)
+      } else {
+        setClaimInactive(true)
+      }
     }, CLAIMED_FLASH_MS)
     return () => window.clearTimeout(t)
-  }, [showClaimedFlash])
+  }, [isFreeSpins, showClaimedFlash])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const el = rowRef.current
@@ -528,6 +570,7 @@ function BenefitRow({
       game?: FreeSpinGameOption
       buttonEl?: HTMLButtonElement | null
       spinsUsed?: number
+      activatingFreeSpins?: boolean
     }) => {
       if (row.kind !== 'claim') return
       playSound('redeem')
@@ -540,7 +583,17 @@ function BenefitRow({
 
       window.setTimeout(() => {
         playSound('button-click')
-        if (opts?.game) {
+        if (opts?.activatingFreeSpins) {
+          toast.success('Free spins claimed', {
+            description:
+              chooseGame
+                ? `${spinsLeft} free spins ready — choose a game to play.`
+                : assignedGame
+                  ? `${spinsLeft} free spins ready on ${assignedGame.name}.`
+                  : `${spinsLeft} free spins ready to play.`,
+            duration: 3500,
+          })
+        } else if (opts?.game) {
           toast.success(`Playing ${opts.game.name}`, {
             description:
               remainingAfter > 0
@@ -570,12 +623,35 @@ function BenefitRow({
       if (opts?.spinsUsed != null) {
         setSpinsLeft(remainingAfter)
       } else {
-        // Claimed flash → then inactive grey Claim (no timer)
+        // Claimed flash → free spins activate to Play; cash claims go inactive
         setShowClaimedFlash(true)
-        onClaimed?.(row.id, Boolean(row.removeOnClaim))
+        if (!opts?.activatingFreeSpins) {
+          onClaimed?.(row.id, Boolean(row.removeOnClaim))
+        }
       }
     },
-    [onClaimed, row, spinsLeft]
+    [assignedGame, chooseGame, onClaimed, row, spinsLeft]
+  )
+
+  const playFreeSpinsOnGame = useCallback(
+    (game: FreeSpinGameOption) => {
+      const spinsUsed = Math.min(10, spinsLeft)
+      launchCasinoGame({
+        title: game.name,
+        image: game.image,
+        provider: game.provider,
+        features: [`${spinsUsed} free spins applied`],
+      })
+      setClaiming(true)
+      window.setTimeout(() => {
+        completeClaim({
+          game,
+          buttonEl: buttonRef.current,
+          spinsUsed,
+        })
+      }, 400)
+    },
+    [completeClaim, spinsLeft]
   )
 
   const handleClaim = useCallback(
@@ -591,23 +667,26 @@ function BenefitRow({
         return
       buttonRef.current = e.currentTarget
 
-      if (isPlayGame) {
-        if (!assignedGame) return
-        const spinsUsed = Math.min(10, spinsLeft)
-        launchCasinoGame({
-          title: assignedGame.name,
-          image: assignedGame.image,
-          provider: assignedGame.provider,
-          features: [`${spinsUsed} free spins applied`],
-        })
+      // Free spins: Claim first to activate, then Play / Choose Game
+      if (isFreeSpins && !activated) {
         setClaiming(true)
+        const delayMs = 900 + Math.floor(Math.random() * 400)
         window.setTimeout(() => {
           completeClaim({
-            game: assignedGame,
             buttonEl: buttonRef.current,
-            spinsUsed,
+            activatingFreeSpins: true,
           })
-        }, 400)
+        }, delayMs)
+        return
+      }
+
+      if (isFreeSpins && activated) {
+        if (chooseGame) {
+          setPickerOpen(true)
+          return
+        }
+        if (!assignedGame) return
+        playFreeSpinsOnGame(assignedGame)
         return
       }
 
@@ -618,16 +697,26 @@ function BenefitRow({
       }, delayMs)
     },
     [
+      activated,
       assignedGame,
+      chooseGame,
       claiming,
       completeClaim,
       freeSpinsExhausted,
-      isPlayGame,
+      isFreeSpins,
       isClaimDisabled,
+      playFreeSpinsOnGame,
       row.kind,
       showClaimedFlash,
-      spinsLeft,
     ]
+  )
+
+  const handlePickerSelect = useCallback(
+    (game: FreeSpinGameOption) => {
+      setPickerOpen(false)
+      playFreeSpinsOnGame(game)
+    },
+    [playFreeSpinsOnGame]
   )
 
   const handleLogin = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -646,13 +735,13 @@ function BenefitRow({
       !freeSpinsExhausted)
 
   const claimLabel =
-    row.kind === 'claim' && row.ctaLabel
-      ? row.ctaLabel
+    isFreeSpins && activated && playCtaLabel
+      ? playCtaLabel
       : row.kind === 'claim' && row.amount != null && row.amount > 0
         ? `Claim $${row.amount.toFixed(2)}`
         : 'Claim'
 
-  const rowSubtitle = isPlayGame
+  const rowSubtitle = isFreeSpins
     ? null
     : 'subtitle' in row
       ? row.subtitle
@@ -690,7 +779,7 @@ function BenefitRow({
         }}
       />
 
-      {isPlayGame && assignedGame ? (
+      {isFreeSpins && assignedGame && !chooseGame ? (
         <div className="relative z-10 size-10 shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10">
           <Image
             src={assignedGame.image}
@@ -748,24 +837,43 @@ function BenefitRow({
             </TooltipProvider>
           ) : null}
         </div>
-        {isPlayGame && isLoggedIn ? (
+        {isFreeSpins && isLoggedIn ? (
           <div className="mt-0.5 min-w-0 space-y-0.5 text-[11px]">
-            {assignedGame ? (
-              <p className="truncate text-[var(--ds-fg-muted)]">
-                {assignedGame.name}
-              </p>
-            ) : null}
-            {spinsLeft > 0 ? (
+            {activated ? (
+              spinsLeft > 0 ? (
+                <p className="leading-none text-[var(--ds-fg-subtle)]">
+                  <span className="text-[13px] font-bold tabular-nums tracking-tight text-[var(--ds-fg)]">
+                    {spinsLeft}/{spinsTotal}
+                  </span>
+                  {' '}
+                  free spins
+                </p>
+              ) : (
+                <p className="text-[var(--ds-fg-subtle)]">
+                  <span className="tabular-nums text-[var(--ds-fg-muted)]">
+                    0/{spinsTotal}
+                  </span>
+                  {' '}
+                  free spins
+                </p>
+              )
+            ) : (
               <p className="leading-none text-[var(--ds-fg-subtle)]">
                 <span className="text-[13px] font-bold tabular-nums tracking-tight text-[var(--ds-fg)]">
-                  {spinsLeft}
+                  {spinsTotal}
                 </span>
                 {' '}
-                free spin{spinsLeft === 1 ? '' : 's'} left
+                Free Spin{spinsTotal === 1 ? '' : 's'}
               </p>
-            ) : (
-              <p className="text-[var(--ds-fg-subtle)]">All spins used</p>
             )}
+            {activated && expiresAt ? (
+              <p className="text-[var(--ds-fg-subtle)]">
+                Exp:{' '}
+                <span className="tabular-nums text-[var(--ds-fg-muted)]">
+                  {expiresAt}
+                </span>
+              </p>
+            ) : null}
           </div>
         ) : rowSubtitle && (isLoggedIn || row.kind === 'login') ? (
           <p className="mt-0.5 text-[11px] text-[var(--ds-fg-subtle)]">
@@ -806,14 +914,20 @@ function BenefitRow({
         ) : (
           <ClaimStyleButton
             disabled={claiming}
-            className={isPlayGame ? 'min-w-[5.5rem]' : 'min-w-[7.5rem]'}
+            className={
+              activated && chooseGame
+                ? 'min-w-[7.5rem]'
+                : activated && isFreeSpins
+                  ? 'min-w-[5.5rem]'
+                  : 'min-w-[7.5rem]'
+            }
             onClick={handleClaim}
             aria-busy={claiming}
           >
             {claiming ? (
               <span className="inline-flex items-center gap-1.5">
                 <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
-                {isPlayGame ? 'Opening' : 'Claiming'}
+                {activated && isFreeSpins ? 'Opening' : 'Claiming'}
               </span>
             ) : (
               claimLabel
@@ -821,6 +935,15 @@ function BenefitRow({
           </ClaimStyleButton>
         )}
       </div>
+
+      {chooseGame && activated ? (
+        <FreeSpinsGamePicker
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          spinsLeft={spinsLeft}
+          onSelect={handlePickerSelect}
+        />
+      ) : null}
     </div>
   )
 }
