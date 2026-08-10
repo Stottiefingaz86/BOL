@@ -41,6 +41,8 @@ import { DownloadIcon, FileTextIcon } from 'lucide-react'
 
 const JACKPOT_SOUND_PACK_ZIP = '/deliverables/jackpot-wheel-sounds.zip'
 const JACKPOT_SOUND_PACK_MD = '/deliverables/jackpot-wheel-sounds.md'
+const JACKPOT_ANIMATION_PACK_ZIP = '/deliverables/jackpot-wheel-animation.zip'
+const JACKPOT_ANIMATION_PACK_MD = '/deliverables/jackpot-wheel-animation.md'
 
 const SEGMENTS_PER_TIER = 2
 const SEGMENT_COUNT = JACKPOT_TICKER_TIERS.length * SEGMENTS_PER_TIER
@@ -1203,7 +1205,7 @@ export function JackpotWheelBonus({
       <IntroConfetti active={phase === 'intro'} />
 
       {phase === 'intro' ? (
-        <div className="pointer-events-auto absolute right-3 top-3 z-[40] flex flex-col gap-1.5 sm:right-4 sm:top-4 sm:flex-row">
+        <div className="pointer-events-auto absolute right-3 top-3 z-[40] flex max-w-[min(100%-1.5rem,22rem)] flex-wrap justify-end gap-1.5 sm:right-4 sm:top-4">
           <a
             href={JACKPOT_SOUND_PACK_ZIP}
             download="jackpot-wheel-sounds.zip"
@@ -1219,6 +1221,22 @@ export function JackpotWheelBonus({
           >
             <FileTextIcon className="size-3.5 opacity-80" aria-hidden />
             Cue sheet
+          </a>
+          <a
+            href={JACKPOT_ANIMATION_PACK_ZIP}
+            download="jackpot-wheel-animation.zip"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/15 bg-black/55 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur-md transition-colors hover:border-white/30 hover:bg-black/70 hover:text-white"
+          >
+            <DownloadIcon className="size-3.5 opacity-80" aria-hidden />
+            Anim pack
+          </a>
+          <a
+            href={JACKPOT_ANIMATION_PACK_MD}
+            download="jackpot-wheel-animation.md"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/15 bg-black/55 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur-md transition-colors hover:border-white/30 hover:bg-black/70 hover:text-white"
+          >
+            <FileTextIcon className="size-3.5 opacity-80" aria-hidden />
+            Anim guide
           </a>
         </div>
       ) : null}
