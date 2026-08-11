@@ -361,9 +361,10 @@ export function HomeHero({
             <h1 className="block text-[44px] font-bold leading-[0.95] tracking-tight text-white sm:text-[52px] md:text-[56px] lg:text-[64px]">
               Bet On.
             </h1>
-            <p className="max-w-[34ch] text-[15px] leading-snug text-white/70 sm:text-base md:max-w-none">
-              2,500+ games. Instant withdrawals. Zero wagering requirements. Real
-              human support.
+            <p className="max-w-[22rem] text-[15px] leading-snug text-white/70 sm:text-base md:max-w-none">
+              Cash Rewards. Instant Withdrawals.
+              <br />
+              Real Human Support.
             </p>
           </div>
 
