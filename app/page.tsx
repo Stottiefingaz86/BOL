@@ -212,6 +212,26 @@ const squareTileImages = [
   '/games/square/game21.png',
 ]
 
+const TRENDING_SPORTS = [
+  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl', image: '/banners/contests/card-01.png' },
+  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba', image: '/banners/contests/card-02.png' },
+  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb' },
+  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl', image: '/banners/contests/nhl-playoffs.png' },
+  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer', image: '/banners/contests/fifa-world-cup.png' },
+  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis' },
+  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
+  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football' },
+  { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
+  { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports/rugby' },
+  { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports/football' },
+  { name: 'Volleyball', icon: '/sports_icons/volley.svg', href: '/sports/volleyball' },
+  { name: 'Lacrosse', icon: '/sports_icons/lacrosse.svg', href: '/sports/lacrosse' },
+  { name: 'Pool', icon: '/sports_icons/pool.svg', href: '/sports/pool' },
+  { name: 'Table Tennis', icon: '/sports_icons/table_tennis.svg', href: '/sports/table-tennis' },
+  { name: 'Horse Racing', icon: '/sports_icons/Horse-Racing-101.svg', href: '/sports/football' },
+  { name: 'All Sports', icon: '/sports_icons/all sports.svg', href: '/sports' },
+]
+
 // Originals tile images (tall rectangles)
 const originalsTileImages = [
   '/games/originals/plink.png',
@@ -942,9 +962,9 @@ function HomePageContent() {
   const [originalsCarouselApi, setOriginalsCarouselApi] = useState<CarouselApi>()
   const [originalsCanScrollPrev, setOriginalsCanScrollPrev] = useState(false)
   const [originalsCanScrollNext, setOriginalsCanScrollNext] = useState(false)
-  const [topLeaguesCarouselApi, setTopLeaguesCarouselApi] = useState<CarouselApi>()
-  const [topLeaguesCanScrollPrev, setTopLeaguesCanScrollPrev] = useState(false)
-  const [topLeaguesCanScrollNext, setTopLeaguesCanScrollNext] = useState(false)
+  const [trendingSportsCarouselApi, setTrendingSportsCarouselApi] = useState<CarouselApi>()
+  const [trendingSportsCanScrollPrev, setTrendingSportsCanScrollPrev] = useState(false)
+  const [trendingSportsCanScrollNext, setTrendingSportsCanScrollNext] = useState(false)
   const [vendorsCarouselApi, setVendorsCarouselApi] = useState<CarouselApi>()
   
   // Top Events scores state
@@ -1126,14 +1146,14 @@ function HomePageContent() {
   }, [originalsCarouselApi])
 
   useEffect(() => {
-    if (!topLeaguesCarouselApi) return
-    setTopLeaguesCanScrollPrev(topLeaguesCarouselApi.canScrollPrev())
-    setTopLeaguesCanScrollNext(topLeaguesCarouselApi.canScrollNext())
-    topLeaguesCarouselApi.on('select', () => {
-      setTopLeaguesCanScrollPrev(topLeaguesCarouselApi.canScrollPrev())
-      setTopLeaguesCanScrollNext(topLeaguesCarouselApi.canScrollNext())
+    if (!trendingSportsCarouselApi) return
+    setTrendingSportsCanScrollPrev(trendingSportsCarouselApi.canScrollPrev())
+    setTrendingSportsCanScrollNext(trendingSportsCarouselApi.canScrollNext())
+    trendingSportsCarouselApi.on('select', () => {
+      setTrendingSportsCanScrollPrev(trendingSportsCarouselApi.canScrollPrev())
+      setTrendingSportsCanScrollNext(trendingSportsCarouselApi.canScrollNext())
     })
-  }, [topLeaguesCarouselApi])
+  }, [trendingSportsCarouselApi])
 
   // Mobile: Quick links scroll handler
   useEffect(() => {
@@ -1923,12 +1943,12 @@ function HomePageContent() {
                     size="icon"
                     className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
-                      if (topLeaguesCarouselApi) {
-                        const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
-                        topLeaguesCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
+                      if (trendingSportsCarouselApi) {
+                        const currentIndex = trendingSportsCarouselApi.selectedScrollSnap()
+                        trendingSportsCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
                       }
                     }}
-                    disabled={!topLeaguesCarouselApi || !topLeaguesCanScrollPrev}
+                    disabled={!trendingSportsCarouselApi || !trendingSportsCanScrollPrev}
                   >
                     <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
                   </Button>
@@ -1937,13 +1957,13 @@ function HomePageContent() {
                     size="icon"
                     className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={() => {
-                      if (topLeaguesCarouselApi) {
-                        const currentIndex = topLeaguesCarouselApi.selectedScrollSnap()
-                        const slideCount = topLeaguesCarouselApi.scrollSnapList().length
-                        topLeaguesCarouselApi.scrollTo(Math.min(slideCount - 1, currentIndex + 2))
+                      if (trendingSportsCarouselApi) {
+                        const currentIndex = trendingSportsCarouselApi.selectedScrollSnap()
+                        const slideCount = trendingSportsCarouselApi.scrollSnapList().length
+                        trendingSportsCarouselApi.scrollTo(Math.min(slideCount - 1, currentIndex + 2))
                       }
                     }}
-                    disabled={!topLeaguesCarouselApi || !topLeaguesCanScrollNext}
+                    disabled={!trendingSportsCarouselApi || !trendingSportsCanScrollNext}
                   >
                     <IconChevronRight className="h-4 w-4" strokeWidth={2} />
                   </Button>
@@ -1953,54 +1973,67 @@ function HomePageContent() {
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel
-              setApi={setTopLeaguesCarouselApi}
+              setApi={setTrendingSportsCarouselApi}
               className="w-full relative"
               opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
             >
               <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
-                {[
-                  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl' },
-                  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba' },
-                  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb' },
-                  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl' },
-                  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer' },
-                  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis' },
-                  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
-                  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football' },
-                  { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
-                  { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports/rugby' },
-                  { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports/football' },
-                  { name: 'Volleyball', icon: '/sports_icons/volley.svg', href: '/sports/volleyball' },
-                  { name: 'Lacrosse', icon: '/sports_icons/lacrosse.svg', href: '/sports/lacrosse' },
-                  { name: 'Pool', icon: '/sports_icons/pool.svg', href: '/sports/pool' },
-                  { name: 'Table Tennis', icon: '/sports_icons/table_tennis.svg', href: '/sports/table-tennis' },
-                  { name: 'Horse Racing', icon: '/sports_icons/Horse-Racing-101.svg', href: '/sports/football' },
-                  { name: 'All Sports', icon: '/sports_icons/all sports.svg', href: '/sports' },
-                ].map((sport, index) => (
+                {TRENDING_SPORTS.map((sport, index) => (
                   <CarouselItem
-                    key={sport.name}
+                    key={`contest-${sport.name}`}
                     className={cn(
                       "pr-0 basis-auto flex-shrink-0",
-                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-3"
+                      index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
                     )}
                   >
                     <button
                       type="button"
                       onClick={() => router.push(sport.href)}
-                      className="group flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl bg-white/[0.04] transition-colors duration-200 hover:bg-white/[0.09] md:h-[100px] md:w-[100px]"
+                      className="group relative flex h-[160px] w-[260px] flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] text-left transition-[border-color,transform] duration-300 hover:border-white/20 hover:-translate-y-0.5"
                       aria-label={sport.name}
                     >
-                      <Image
-                        src={sport.icon}
-                        alt=""
-                        width={44}
-                        height={44}
-                        className="h-10 w-10 object-contain transition-transform duration-200 group-hover:scale-[1.06] md:h-11 md:w-11"
-                        unoptimized
-                      />
-                      <span className="max-w-[90%] truncate text-[10px] font-medium text-[var(--ds-fg-muted)] transition-colors duration-200 group-hover:text-white/85">
-                        {sport.name}
-                      </span>
+                      <div className="tile-shimmer pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 pr-[46%]">
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
+                          <Image
+                            src={sport.icon}
+                            alt=""
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        </div>
+                        <h3 className="truncate text-[15px] font-semibold leading-snug text-white">
+                          {sport.name}
+                        </h3>
+                      </div>
+
+                      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[48%] overflow-hidden">
+                        {sport.image ? (
+                          <Image
+                            src={sport.image}
+                            alt=""
+                            fill
+                            className="scale-105 object-cover object-[70%_center] transition-transform duration-500 group-hover:scale-110"
+                            sizes="130px"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-white/[0.03]">
+                            <Image
+                              src={sport.icon}
+                              alt=""
+                              width={56}
+                              height={56}
+                              className="h-14 w-14 object-contain opacity-80"
+                              unoptimized
+                            />
+                          </div>
+                        )}
+                        <div className="contest-card-art-fade absolute inset-0" aria-hidden />
+                      </div>
                     </button>
                   </CarouselItem>
                 ))}
