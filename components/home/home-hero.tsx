@@ -358,8 +358,8 @@ export function HomeHero({
       <div className="relative z-10 flex flex-col gap-8 px-4 py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:py-10 lg:gap-10 lg:px-10">
         <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[400px] md:items-start md:text-left">
           <div className="flex flex-col gap-3">
-            <h1 className="block text-[44px] font-bold leading-[0.95] tracking-tight text-white sm:text-[52px] md:text-[56px] lg:text-[64px]">
-              Bet On.
+            <h1 className="block text-[36px] font-bold leading-[1.05] tracking-tight text-white sm:text-[44px] md:text-[48px] lg:text-[56px]">
+              Trusted for Over 25+ Years
             </h1>
             <p className="max-w-[22rem] text-[15px] leading-snug text-white/70 sm:text-base md:max-w-none">
               Cash Rewards. Instant Withdrawals.
