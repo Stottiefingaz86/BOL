@@ -1987,8 +1987,7 @@ function HomePageContent() {
                     <button
                       type="button"
                       onClick={() => router.push(sport.href)}
-                      className="flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl transition-colors hover:bg-white/[0.06] md:h-[100px] md:w-[100px]"
-                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
+                      className="group flex h-[88px] w-[88px] flex-shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl bg-white/[0.04] transition-colors duration-200 hover:bg-white/[0.09] md:h-[100px] md:w-[100px]"
                       aria-label={sport.name}
                     >
                       <Image
@@ -1996,10 +1995,10 @@ function HomePageContent() {
                         alt=""
                         width={44}
                         height={44}
-                        className="h-10 w-10 object-contain md:h-11 md:w-11"
+                        className="h-10 w-10 object-contain transition-transform duration-200 group-hover:scale-[1.06] md:h-11 md:w-11"
                         unoptimized
                       />
-                      <span className="max-w-[90%] truncate text-[10px] font-medium text-[var(--ds-fg-muted)]">
+                      <span className="max-w-[90%] truncate text-[10px] font-medium text-[var(--ds-fg-muted)] transition-colors duration-200 group-hover:text-white/85">
                         {sport.name}
                       </span>
                     </button>
