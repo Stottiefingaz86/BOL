@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { IconChevronLeft, IconChevronRight, IconInfoCircle, IconUser } from '@tabler/icons-react'
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconInfoCircle,
+  IconRosetteFilled,
+  IconUser,
+} from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import {
   Carousel,
@@ -17,26 +23,54 @@ import { cn } from '@/lib/utils'
 
 type LiveGameType = 'blackjack' | 'roulette' | 'baccarat'
 
-const VIP_GAMES: Array<{
+type LiveGame = {
   title: string
   type: LiveGameType
   limit: string
   seats?: { occupied: number; total: number }
-}> = [
-  { title: 'VIP Blackjack Elite', type: 'blackjack', limit: '$500 - $10,000', seats: { occupied: 3, total: 7 } },
-  { title: 'VIP Roulette', type: 'roulette', limit: '$350 - $5,000' },
-  { title: 'VIP Baccarat', type: 'baccarat', limit: '$1,000 - $25,000' },
-  { title: 'VIP Speed BJ', type: 'blackjack', limit: '$250 - $5,000', seats: { occupied: 6, total: 7 } },
-  { title: 'VIP Lightning', type: 'roulette', limit: '$500 - $15,000' },
-  { title: 'VIP Unlimited BJ', type: 'blackjack', limit: '$100 - $5,000', seats: { occupied: 4, total: 7 } },
-  { title: 'VIP Auto Roulette', type: 'roulette', limit: '$500 - $10,000' },
-  { title: 'VIP Dragon Tiger', type: 'baccarat', limit: '$250 - $7,500' },
-  { title: 'VIP Squeeze', type: 'blackjack', limit: '$1,000 - $20,000', seats: { occupied: 2, total: 7 } },
-  { title: 'VIP Gold BJ', type: 'roulette', limit: '$350 - $5,000' },
+}
+
+type CasinoGame = {
+  title: string
+  image: string
+  provider: string
+}
+
+const EXCLUSIVE_GAMES: CasinoGame[] = [
+  { title: 'Gold Nugget Rush', image: '/games/square/goldNuggetRush.png', provider: 'BetSoft' },
+  { title: 'Mega Crush', image: '/games/square/megacrush.png', provider: 'Nucleus' },
+  { title: 'Gold Nugget Rush 2', image: '/games/square/goldNuggetRush2.png', provider: 'BetSoft' },
+  { title: 'Mr Mammoth', image: '/games/square/mrMammoth.png', provider: 'KA Gaming' },
+  { title: 'Cocktail Wheel', image: '/games/square/cocktailWheel.png', provider: 'Onlyplay' },
+  { title: 'Take The Bank', image: '/games/square/takeTheBank.png', provider: 'Popiplay' },
+  { title: 'Hooked On Fishing', image: '/games/square/hookedOnFishing.png', provider: 'Mascot Gaming' },
+  { title: 'Royal Roulette', image: '/games/square/roulette.png', provider: 'VIG' },
+  { title: 'Classic Blackjack', image: '/games/square/blackjack.png', provider: 'Fresh Deck' },
+  { title: 'Baccarat Pro', image: '/games/square/baccarat.png', provider: 'VIG' },
+  { title: 'Lucky Strike', image: '/games/square/game8.png', provider: 'Rival' },
+  { title: 'Fortune Spins', image: '/games/square/game17.png', provider: 'Blaze' },
+  { title: 'Diamond Rush', image: '/games/square/game18.png', provider: 'Spinthron' },
+  { title: 'Jackpot Frenzy', image: '/games/square/game20.png', provider: 'Revolver Gaming' },
+  { title: 'Wild Cascade', image: '/games/square/game21.png', provider: 'Arrow\'s Edge' },
+]
+
+const LIVE_CASINO_GAMES: LiveGame[] = [
+  { title: 'Classic Blackjack', type: 'blackjack', limit: '$25 - $500', seats: { occupied: 2, total: 7 } },
+  { title: 'Lightning Roulette', type: 'roulette', limit: '$1 - $500' },
+  { title: 'Speed Baccarat', type: 'baccarat', limit: '$10 - $5,000' },
+  { title: 'Speed Blackjack', type: 'blackjack', limit: '$100 - $1,000', seats: { occupied: 5, total: 7 } },
+  { title: 'Auto Roulette', type: 'roulette', limit: '$0.50 - $250' },
+  { title: 'Baccarat Lounge', type: 'baccarat', limit: '$25 - $10,000' },
+  { title: 'Infinite Blackjack', type: 'blackjack', limit: '$10 - $500', seats: { occupied: 1, total: 7 } },
+  { title: 'Immersive Roulette', type: 'roulette', limit: '$1 - $1,000' },
+  { title: 'Dragon Tiger', type: 'baccarat', limit: '$5 - $2,500' },
+  { title: 'Blackjack Party', type: 'blackjack', limit: '$50 - $250', seats: { occupied: 3, total: 6 } },
+  { title: 'XXXtreme Lightning', type: 'roulette', limit: '$0.20 - $100' },
+  { title: 'No Commission Baccarat', type: 'baccarat', limit: '$25 - $5,000' },
 ]
 
 const LIVE_IMAGES: Record<LiveGameType, string> = {
-  blackjack: '/games/BLACKJACK RECTANGLE.png',
+  blackjack: '/games/BLACKJACK_SQAURE.png',
   roulette: '/games/roulette_square.png',
   baccarat: '/games/baccartae_rectangle.png',
 }
@@ -153,12 +187,40 @@ function BlackjackSeats({ occupied, total }: { occupied: number; total: number }
   )
 }
 
-function VipLiveTile({
+function ExclusiveCasinoTile({
+  game,
+  onClick,
+}: {
+  game: CasinoGame
+  onClick?: () => void
+}) {
+  return (
+    <div
+      className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
+      onClick={onClick}
+    >
+      <Image
+        src={game.image}
+        alt={game.title}
+        fill
+        className="object-cover transition-transform duration-300 group-hover:scale-105"
+        sizes="160px"
+      />
+      <div className="absolute left-1.5 top-1.5 z-10 flex items-center gap-0.5 rounded-full border border-indigo-400/60 bg-indigo-950/80 px-1.5 py-[3px] backdrop-blur-sm">
+        <IconRosetteFilled className="h-3 w-3 text-indigo-300" />
+        <span className="text-[9px] font-semibold leading-none text-white">Exclusive</span>
+      </div>
+      <div className="tile-shimmer absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+    </div>
+  )
+}
+
+function LiveTile({
   game,
   index,
   onClick,
 }: {
-  game: (typeof VIP_GAMES)[number]
+  game: LiveGame
   index: number
   onClick?: () => void
 }) {
@@ -167,7 +229,7 @@ function VipLiveTile({
 
   return (
     <div
-      className="group relative h-[160px] w-[240px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
+      className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
       onClick={onClick}
     >
       <Image
@@ -175,27 +237,25 @@ function VipLiveTile({
         alt={game.title}
         fill
         className="object-cover transition-transform duration-300 group-hover:scale-105"
-        sizes="300px"
+        sizes="160px"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
 
-      <div className="absolute left-2 top-2 z-10 flex items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2 py-0.5 backdrop-blur-md">
+      <div className="absolute left-1.5 top-1.5 z-10 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 backdrop-blur-md">
         <div className="relative h-1.5 w-1.5 flex-shrink-0">
           <div className="absolute inset-0 animate-ping rounded-full bg-red-500 opacity-75" />
           <div className="relative h-1.5 w-1.5 rounded-full bg-red-500" />
         </div>
-        <span className="text-[10px] font-medium text-white">{game.limit}</span>
+        <span className="truncate text-[9px] font-medium text-white">{game.limit}</span>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-2.5">
-        <div className="mb-1.5">
-          <div className="mb-0.5 text-[10px] font-medium uppercase tracking-wider text-white/60">
-            VIP Live
-          </div>
-          <div className="text-sm font-bold leading-tight text-white">{game.title}</div>
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-2">
+        <div className="mb-1">
+          <div className="mb-0.5 text-[9px] font-medium uppercase tracking-wider text-white/60">Live</div>
+          <div className="line-clamp-2 text-[12px] font-bold leading-tight text-white">{game.title}</div>
         </div>
 
-        <div className="mb-2">
+        <div className="mb-1.5">
           {game.type === 'roulette' && <RouletteHistory results={getRouletteResults(index)} />}
           {game.type === 'baccarat' && <BaccaratHistory results={getBaccaratResults(index)} />}
           {game.type === 'blackjack' && game.seats && (
@@ -204,21 +264,21 @@ function VipLiveTile({
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="flex h-4 w-4 items-center justify-center overflow-hidden rounded-sm">
+          <div className="flex min-w-0 items-center gap-1">
+            <div className="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center overflow-hidden rounded-sm">
               <Image
                 src={vendor.logo}
                 alt={vendor.name}
-                width={14}
-                height={14}
+                width={12}
+                height={12}
                 className="object-contain"
                 unoptimized
               />
             </div>
-            <span className="text-[10px] font-medium text-white/50">{vendor.name}</span>
+            <span className="truncate text-[9px] font-medium text-white/50">{vendor.name}</span>
           </div>
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10">
-            <IconInfoCircle className="h-3.5 w-3.5 text-white/60" strokeWidth={2} />
+          <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-white/10">
+            <IconInfoCircle className="h-3 w-3 text-white/60" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -228,19 +288,71 @@ function VipLiveTile({
   )
 }
 
-export interface VipTablesSectionProps {
-  onSelectGame?: (game: {
-    title: string
-    image: string
-    provider?: string
-    features?: string[]
-  }) => void
-  className?: string
+function SectionHeader({
+  title,
+  count,
+  onAllGames,
+  api,
+  canScrollPrev,
+  canScrollNext,
+}: {
+  title: string
+  count: number
+  onAllGames: () => void
+  api?: CarouselApi
+  canScrollPrev: boolean
+  canScrollNext: boolean
+}) {
+  const isMobile = useIsMobile()
+
+  return (
+    <div className={cn('mb-4 flex items-center justify-between', isMobile ? 'px-3' : 'px-6')}>
+      <h2 className="text-lg font-semibold text-white">
+        {title} ({count})
+      </h2>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          className="h-auto rounded-small border border-white/20 px-3 py-1.5 text-xs text-white/70 hover:bg-white/5 hover:text-white"
+          onClick={onAllGames}
+        >
+          All Games
+        </Button>
+        {!isMobile && (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-small border border-white/20 bg-[#1a1a1a]/90 text-white backdrop-blur-sm hover:border-white/30 hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => {
+                if (!api) return
+                api.scrollTo(Math.max(0, api.selectedScrollSnap() - 2))
+              }}
+              disabled={!api || !canScrollPrev}
+            >
+              <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-small border border-white/20 bg-[#1a1a1a]/90 text-white backdrop-blur-sm hover:border-white/30 hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => {
+                if (!api) return
+                const slides = api.scrollSnapList().length
+                api.scrollTo(Math.min(slides - 1, api.selectedScrollSnap() + 2))
+              }}
+              disabled={!api || !canScrollNext}
+            >
+              <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
-export function VipTablesSection({ onSelectGame, className }: VipTablesSectionProps) {
-  const router = useRouter()
-  const isMobile = useIsMobile()
+function useCarouselNav() {
   const [api, setApi] = useState<CarouselApi>()
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
@@ -260,60 +372,44 @@ export function VipTablesSection({ onSelectGame, className }: VipTablesSectionPr
     }
   }, [api])
 
-  return (
-    <div className={cn('mb-6', className)}>
-      <div className={cn('mb-4 flex items-center justify-between', isMobile ? 'px-3' : 'px-6')}>
-        <h2 className="text-lg font-semibold text-white">VIP Tables (18)</h2>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            className="h-auto rounded-small border border-white/20 px-3 py-1.5 text-xs text-white/70 hover:bg-white/5 hover:text-white"
-            onClick={() => router.push('/casino?tab=live')}
-          >
-            All Games
-          </Button>
-          {!isMobile && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-small border border-white/20 bg-[#1a1a1a]/90 text-white backdrop-blur-sm hover:border-white/30 hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => {
-                  if (!api) return
-                  api.scrollTo(Math.max(0, api.selectedScrollSnap() - 2))
-                }}
-                disabled={!api || !canScrollPrev}
-              >
-                <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-small border border-white/20 bg-[#1a1a1a]/90 text-white backdrop-blur-sm hover:border-white/30 hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => {
-                  if (!api) return
-                  const slides = api.scrollSnapList().length
-                  api.scrollTo(Math.min(slides - 1, api.selectedScrollSnap() + 2))
-                }}
-                disabled={!api || !canScrollNext}
-              >
-                <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+  return { api, setApi, canScrollPrev, canScrollNext }
+}
 
-      <div className={cn('relative', isMobile ? '-mx-3' : '-mx-6')}>
-        <Carousel
-          setApi={setApi}
-          className="relative w-full"
-          opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
-        >
-          <CarouselContent className={cn(isMobile ? 'ml-3 mr-0' : 'ml-6 mr-0')}>
-            {VIP_GAMES.map((game, index) => {
-              const vendor = LIVE_VENDORS[index % LIVE_VENDORS.length]
-              return (
+export interface VipTablesSectionProps {
+  onSelectGame?: (game: {
+    title: string
+    image: string
+    provider?: string
+    features?: string[]
+  }) => void
+  className?: string
+}
+
+export function VipTablesSection({ onSelectGame, className }: VipTablesSectionProps) {
+  const router = useRouter()
+  const isMobile = useIsMobile()
+  const exclusives = useCarouselNav()
+  const live = useCarouselNav()
+
+  return (
+    <div className={className}>
+      <div className="mb-6">
+        <SectionHeader
+          title="Exclusives"
+          count={18}
+          onAllGames={() => router.push('/casino')}
+          api={exclusives.api}
+          canScrollPrev={exclusives.canScrollPrev}
+          canScrollNext={exclusives.canScrollNext}
+        />
+        <div className={cn('relative', isMobile ? '-mx-3' : '-mx-6')}>
+          <Carousel
+            setApi={exclusives.setApi}
+            className="relative w-full"
+            opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
+          >
+            <CarouselContent className={cn(isMobile ? 'ml-3 mr-0' : 'ml-6 mr-0')}>
+              {EXCLUSIVE_GAMES.map((game, index) => (
                 <CarouselItem
                   key={game.title}
                   className={cn(
@@ -321,23 +417,72 @@ export function VipTablesSection({ onSelectGame, className }: VipTablesSectionPr
                     index === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-3'
                   )}
                 >
-                  <VipLiveTile
+                  <ExclusiveCasinoTile
                     game={game}
-                    index={index}
                     onClick={() =>
                       onSelectGame?.({
                         title: game.title,
-                        image: LIVE_IMAGES[game.type],
-                        provider: vendor.name,
-                        features: ['VIP Experience', 'High Stakes', 'Exclusive Tables'],
+                        image: game.image,
+                        provider: game.provider,
+                        features: ['Exclusive Title', 'High RTP', 'Bonus Features'],
                       })
                     }
                   />
                 </CarouselItem>
-              )
-            })}
-          </CarouselContent>
-        </Carousel>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <SectionHeader
+          title="Live Casino"
+          count={24}
+          onAllGames={() => router.push('/casino?tab=live')}
+          api={live.api}
+          canScrollPrev={live.canScrollPrev}
+          canScrollNext={live.canScrollNext}
+        />
+        <div className={cn('relative', isMobile ? '-mx-3' : '-mx-6')}>
+          <Carousel
+            setApi={live.setApi}
+            className="relative w-full"
+            opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
+          >
+            <CarouselContent className={cn(isMobile ? 'ml-3 mr-0' : 'ml-6 mr-0')}>
+              {LIVE_CASINO_GAMES.map((game, index) => {
+                const vendor = LIVE_VENDORS[index % LIVE_VENDORS.length]
+                return (
+                  <CarouselItem
+                    key={game.title}
+                    className={cn(
+                      'basis-auto flex-shrink-0 pr-0',
+                      index === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-3'
+                    )}
+                  >
+                    <LiveTile
+                      game={game}
+                      index={index}
+                      onClick={() =>
+                        onSelectGame?.({
+                          title: game.title,
+                          image: LIVE_IMAGES[game.type],
+                          provider: vendor.name,
+                          features: [
+                            'Live Dealer Experience',
+                            'Real-Time Gameplay',
+                            'Professional Dealers',
+                          ],
+                        })
+                      }
+                    />
+                  </CarouselItem>
+                )
+              })}
+            </CarouselContent>
+          </Carousel>
+        </div>
       </div>
     </div>
   )

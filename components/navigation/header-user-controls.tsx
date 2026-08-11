@@ -272,11 +272,11 @@ export function HeaderUserControls({
               variant="ghost"
               onClick={onRegister}
               className={cn(
-                'h-9 rounded-lg border border-[#8fd790] bg-[#8fd790] font-semibold text-[#0a0a0a] hover:border-[#7fc780] hover:bg-[#7fc780]',
+                'h-9 rounded-lg border-0 bg-[#ee3536] font-semibold text-white hover:bg-[#d42f30]',
                 isMobile ? 'px-2.5 text-[11px]' : 'px-3 text-xs'
               )}
             >
-              Create Account
+              Join
             </Button>
           </div>
           {CHAT_ENABLED && !isMobile && (

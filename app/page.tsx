@@ -1899,101 +1899,14 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* Originals Carousel Section */}
-        <div className="mb-6">
-          <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
-            <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Originals (26)</h2>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
-                onClick={() => router.push('/casino')}
-              >
-                All Games
-              </Button>
-              {!isMobile && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => {
-                      if (originalsCarouselApi) {
-                        const currentIndex = originalsCarouselApi.selectedScrollSnap()
-                        originalsCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
-                      }
-                    }}
-                    disabled={!originalsCarouselApi || !originalsCanScrollPrev}
-                  >
-                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => {
-                      if (originalsCarouselApi) {
-                        const currentIndex = originalsCarouselApi.selectedScrollSnap()
-                        const slideCount = originalsCarouselApi.scrollSnapList().length
-                        originalsCarouselApi.scrollTo(Math.min(slideCount - 1, currentIndex + 2))
-                      }
-                    }}
-                    disabled={!originalsCarouselApi || !originalsCanScrollNext}
-                  >
-                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-          <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
-            <Carousel setApi={setOriginalsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
-                {originalsTileImages.map((imageSrc, index) => {
-                  const gameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
-                  return (
-                    <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
-                      <div 
-                        className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                        onClick={() => {
-                          const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
-                          setSelectedGame({
-                            title: originalGameNames[index] || `Originals Game ${index + 1}`,
-                            image: imageSrc,
-                            provider: 'BetOnline',
-                            features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
-                          })
-                        }}
-                      >
-                        <Image
-                          src={imageSrc}
-                          alt={gameNames[index] || `Originals Game ${index + 1}`}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="160px"
-                        />
-                        <GameTagBadge tag="Original" vendor="Originals" />
-                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
-                        </div>
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                      </div>
-                    </CarouselItem>
-                  )
-                })}
-              </CarouselContent>
-            </Carousel>
-          </div>
-        </div>
-
-        {/* Top Sports */}
+        {/* Trending Sports */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2
               className="text-lg font-semibold text-[var(--ds-fg)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors"
               onClick={() => router.push('/sports/football')}
             >
-              Top Sports
+              Trending Sports
             </h2>
             <div className="flex items-center gap-2">
               <Button
@@ -2097,11 +2010,95 @@ function HomePageContent() {
           </div>
         </div>
 
+        {/* Originals Carousel Section */}
+        <div className="mb-6">
+          <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
+            <h2 className="text-lg font-semibold text-[var(--ds-fg)]">Originals (26)</h2>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
+                onClick={() => router.push('/casino')}
+              >
+                All Games
+              </Button>
+              {!isMobile && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (originalsCarouselApi) {
+                        const currentIndex = originalsCarouselApi.selectedScrollSnap()
+                        originalsCarouselApi.scrollTo(Math.max(0, currentIndex - 2))
+                      }
+                    }}
+                    disabled={!originalsCarouselApi || !originalsCanScrollPrev}
+                  >
+                    <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-small bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      if (originalsCarouselApi) {
+                        const currentIndex = originalsCarouselApi.selectedScrollSnap()
+                        const slideCount = originalsCarouselApi.scrollSnapList().length
+                        originalsCarouselApi.scrollTo(Math.min(slideCount - 1, currentIndex + 2))
+                      }
+                    }}
+                    disabled={!originalsCarouselApi || !originalsCanScrollNext}
+                  >
+                    <IconChevronRight className="h-4 w-4" strokeWidth={2} />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
+            <Carousel setApi={setOriginalsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+                {originalsTileImages.map((imageSrc, index) => {
+                  const gameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
+                  return (
+                    <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
+                      <div 
+                        className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
+                        onClick={() => {
+                          const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
+                          setSelectedGame({
+                            title: originalGameNames[index] || `Originals Game ${index + 1}`,
+                            image: imageSrc,
+                            provider: 'BetOnline',
+                            features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
+                          })
+                        }}
+                      >
+                        <Image
+                          src={imageSrc}
+                          alt={gameNames[index] || `Originals Game ${index + 1}`}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="160px"
+                        />
+                        <GameTagBadge tag="Original" vendor="Originals" />
+                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
+                        </div>
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                      </div>
+                    </CarouselItem>
+                  )
+                })}
+              </CarouselContent>
+            </Carousel>
+          </div>
+        </div>
+
         {/* VIP Tables — Live high-limit tables */}
         <VipTablesSection onSelectGame={setSelectedGame} />
-
-        {/* VIP Rewards promo — opens VIP Hub */}
-        <VipRewardsPromo onExplore={openVipDrawer} />
 
         {/* Vendors Carousel Section */}
         <div className="mb-6">
@@ -2164,6 +2161,9 @@ function HomePageContent() {
             </Carousel>
           </div>
         </div>
+
+        {/* VIP Rewards promo — opens VIP Hub */}
+        <VipRewardsPromo onExplore={openVipDrawer} />
 
         {/* Why BetOnline — hidden while simplifying homepage; set SHOW_WHY_BETONLINE = true to restore */}
         {SHOW_WHY_BETONLINE && (

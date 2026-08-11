@@ -199,7 +199,7 @@ function DestinationCard({
           router.push(href)
         }
       }}
-      className="group relative isolate flex min-h-[200px] flex-1 cursor-pointer flex-col overflow-clip rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 md:min-h-[240px]"
+      className="group relative isolate flex min-h-[168px] flex-1 cursor-pointer flex-col overflow-clip rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 sm:min-h-[200px] md:min-h-[240px]"
       style={{
         clipPath: 'inset(0 round 1rem)',
         backgroundColor: 'rgba(20, 20, 20, 0.85)',
@@ -216,10 +216,10 @@ function DestinationCard({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={spotlightSurfaceStyle}
-        className="relative z-[2] mt-auto flex items-center justify-between overflow-hidden border-t border-white/[0.06] bg-[#141414] px-4 py-3"
+        className="relative z-[2] mt-auto flex items-center justify-between overflow-hidden border-t border-white/[0.06] bg-[#141414] px-3 py-2.5 sm:px-4 sm:py-3"
       >
         <SpotlightOverlay radiusPx={120} mixPercent={16} />
-        <span className="relative z-[1] flex items-center gap-2 text-sm font-semibold text-white md:text-[15px]">
+        <span className="relative z-[1] flex items-center gap-1.5 text-[13px] font-semibold text-white sm:gap-2 sm:text-sm md:text-[15px]">
           {icon}
           {title}
         </span>
@@ -396,7 +396,7 @@ export function HomeHero({
           )}
         </div>
 
-        <div className="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:w-[min(100%,520px)] md:ml-auto md:w-[520px] lg:w-[560px]">
+        <div className="flex w-full shrink-0 flex-row gap-2 sm:gap-3 sm:w-[min(100%,520px)] md:ml-auto md:w-[520px] lg:w-[560px]">
           <DestinationCard
             href="/casino"
             title="Casino"
@@ -407,7 +407,7 @@ export function HomeHero({
 
           <DestinationCard
             href="/sports/football"
-            title="Sportsbook"
+            title="Sports"
             icon={<IconBallFootball className="h-4 w-4" strokeWidth={2} />}
           >
             <SportsBentoShelf />
