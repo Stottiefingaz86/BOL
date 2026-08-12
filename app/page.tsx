@@ -1518,6 +1518,7 @@ function HomePageContent() {
           boxShadow: '0 -200px 0 0 var(--ds-nav-bg, #2D2E2C)',
         }}
       >
+        <div className="mx-auto flex h-full w-full min-w-0 items-center justify-between 2xl:max-w-[1600px] min-[1920px]:max-w-[1720px] min-[2200px]:max-w-[1840px]">
         <div className="flex items-center gap-6">
           <div 
             className="relative h-8 w-[120px] flex items-center cursor-pointer"
@@ -1619,10 +1620,13 @@ function HomePageContent() {
             requestRegister()
           }}
         />
+        </div>
       </motion.header>
 
-      {/* Main Content - No Sidebar */}
-      <div className="bg-[var(--ds-page-bg)] text-[var(--ds-fg)]" style={{ width: '100%', minWidth: 0, maxWidth: 'none' }}>
+      {/* Main Content - No Sidebar; constrain width on ultra-wide screens */}
+      <div
+        className="mx-auto w-full min-w-0 bg-[var(--ds-page-bg)] text-[var(--ds-fg)] 2xl:max-w-[1600px] min-[1920px]:max-w-[1720px] min-[2200px]:max-w-[1840px]"
+      >
         {/* Spacer for fixed header */}
         <motion.div 
           initial={false}
@@ -2929,9 +2933,6 @@ function HomePageContent() {
           </DrawerContent>
         </Drawer>
 
-        {/* Footer - Same as casino page */}
-        <SiteFooter />
-
         {/* Account Details Drawer */}
         <Drawer 
           open={accountDrawerOpen} 
@@ -3364,6 +3365,9 @@ function HomePageContent() {
         />
       )}
       </div>
+
+      {/* Full-bleed footer — sits outside the ultra-wide content max-width */}
+      <SiteFooter />
     </div>
   )
 }

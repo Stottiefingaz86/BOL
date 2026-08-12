@@ -114,12 +114,20 @@ const SPORTS_BENTO = [
 function SportsBentoShelf() {
   return (
     <div className="absolute inset-0 overflow-clip rounded-[inherit]" aria-hidden>
+      {/* Soft field tint so the tile doesn’t read as black-on-black */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse at 70% 30%, rgba(34,120,70,0.22) 0%, transparent 55%), linear-gradient(160deg, #243028 0%, #1a1f1c 45%, #151815 100%)',
+        }}
+      />
       <div className="absolute inset-0 grid grid-cols-4 grid-rows-2 gap-2 p-3 pb-3.5">
         {SPORTS_BENTO.map((tile) => (
           <div
             key={tile.label}
             className={cn(
-              'relative flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#1c1c1c] to-[#121212]',
+              'relative flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-gradient-to-br from-white/[0.12] to-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]',
               tile.span === 'lg' && 'col-span-2'
             )}
           >
@@ -129,7 +137,7 @@ function SportsBentoShelf() {
               width={80}
               height={80}
               className={cn(
-                'object-contain',
+                'object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]',
                 tile.span === 'lg' ? 'h-[58%] w-[58%] max-h-[4.5rem] max-w-[4.5rem]' : 'h-[52%] w-[52%] max-h-10 max-w-10'
               )}
               unoptimized
@@ -137,7 +145,7 @@ function SportsBentoShelf() {
           </div>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#141414] via-[#141414]/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-[#1a4a32] via-[#1a4a32]/70 to-transparent" />
     </div>
   )
 }
@@ -168,7 +176,7 @@ function CasinoOriginalsShelf() {
           </div>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#141414] via-[#141414]/85 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#1a3a5c] via-[#1a3a5c]/75 to-transparent" />
     </div>
   )
 }
@@ -177,16 +185,25 @@ function DestinationCard({
   href,
   title,
   icon,
+  band = 'neutral',
   children,
 }: {
   href: string
   title: string
   icon: React.ReactNode
+  band?: 'neutral' | 'casino' | 'sports'
   children: React.ReactNode
 }) {
   const router = useRouter()
   const { ref, handleMouseMove, handleMouseLeave, spotlightSurfaceStyle } =
     useCursorSpotlight()
+
+  const bandClass =
+    band === 'casino'
+      ? 'border-t border-blue-400/25 bg-[#1a3a5c]'
+      : band === 'sports'
+        ? 'border-t border-emerald-400/25 bg-[#1a4a32]'
+        : 'border-t border-white/[0.06] bg-[#141414]'
 
   return (
     <div
@@ -216,7 +233,10 @@ function DestinationCard({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={spotlightSurfaceStyle}
-        className="relative z-[2] mt-auto flex items-center justify-between overflow-hidden border-t border-white/[0.06] bg-[#141414] px-3 py-2.5 sm:px-4 sm:py-3"
+        className={cn(
+          'relative z-[2] mt-auto flex items-center justify-between overflow-hidden px-3 py-2.5 sm:px-4 sm:py-3',
+          bandClass
+        )}
       >
         <SpotlightOverlay radiusPx={120} mixPercent={16} />
         <span className="relative z-[1] flex items-center gap-1.5 text-[13px] font-semibold text-white sm:gap-2 sm:text-sm md:text-[15px]">
@@ -401,6 +421,7 @@ export function HomeHero({
           <DestinationCard
             href="/casino"
             title="Casino"
+            band="casino"
             icon={<IconCherry className="h-4 w-4" strokeWidth={2} />}
           >
             <CasinoOriginalsShelf />
@@ -409,6 +430,7 @@ export function HomeHero({
           <DestinationCard
             href="/sports/football"
             title="Sports"
+            band="sports"
             icon={<IconBallFootball className="h-4 w-4" strokeWidth={2} />}
           >
             <SportsBentoShelf />

@@ -230,17 +230,20 @@ export function SiteFooter({
   return (
     <div className={cn('relative z-0 mt-10 w-full', className)}>
       {showSeo ? (
-        <SeoPageContent
-          brandName={brandName}
-          brandUrl={brandUrl}
-          {...seo}
-          appearance={seo?.appearance ?? seoAppearance}
-        />
+        <div className="mx-auto w-full 2xl:max-w-[1600px] min-[1920px]:max-w-[1720px] min-[2200px]:max-w-[1840px]">
+          <SeoPageContent
+            brandName={brandName}
+            brandUrl={brandUrl}
+            {...seo}
+            appearance={seo?.appearance ?? seoAppearance}
+          />
+        </div>
       ) : null}
     <footer
       className="w-full bg-[#2c2c2c] text-white"
     >
-      <div className="flex w-full flex-col gap-8 px-6 py-12">
+      {/* Full-bleed color; content matches page max-width */}
+      <div className="mx-auto flex w-full max-w-none flex-col gap-8 px-6 py-12 2xl:max-w-[1600px] min-[1920px]:max-w-[1720px] min-[2200px]:max-w-[1840px]">
         {/* Link directory — 7 equal columns */}
         <div className="flex w-full flex-wrap gap-6 lg:flex-nowrap lg:gap-6">
           {FOOTER_COLUMNS.map((col) => (
@@ -262,9 +265,9 @@ export function SiteFooter({
           ))}
         </div>
 
-        {/* Need Help + Trust + Partners | Social */}
+        {/* Need Help + Trust | Social */}
         <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex w-full max-w-[593px] flex-col gap-8">
+          <div className="flex w-full max-w-[593px] shrink-0 flex-col gap-8">
             <button
               type="button"
               className="inline-flex h-9 w-full max-w-[215px] items-center justify-center gap-1.5 rounded-lg bg-[#ee3536] px-2 text-sm font-medium text-white transition-colors hover:brightness-110"
@@ -293,25 +296,6 @@ export function SiteFooter({
                 over 25+ years.
               </p>
             </div>
-
-            <div className="flex flex-wrap items-center gap-3 py-2">
-              <span className="text-xs font-semibold leading-4 text-white/87">Official Partners</span>
-              <span className="hidden h-5 w-px shrink-0 bg-white/87 opacity-25 sm:block" aria-hidden />
-              <div className="flex flex-wrap items-center gap-3">
-                {PARTNERS.map((partner) => (
-                  <Image
-                    key={partner.alt}
-                    src={partner.src}
-                    alt={partner.alt}
-                    width={partner.width}
-                    height={partner.height}
-                    className="h-[30px] w-auto shrink-0"
-                    style={{ width: partner.width, height: partner.height }}
-                    unoptimized
-                  />
-                ))}
-              </div>
-            </div>
           </div>
 
           <div className="flex items-center justify-start gap-4 lg:justify-end lg:gap-5">
@@ -333,9 +317,26 @@ export function SiteFooter({
           </div>
         </div>
 
+        {/* Official Partners — tight left cluster, never stretch */}
+        <div className="flex w-fit max-w-full flex-wrap items-center gap-3 py-2">
+          <span className="text-xs font-semibold leading-4 text-white/87">Official Partners</span>
+          <span className="hidden h-5 w-px shrink-0 bg-white/87 opacity-25 sm:block" aria-hidden />
+          {PARTNERS.map((partner) => (
+            <Image
+              key={partner.alt}
+              src={partner.src}
+              alt={partner.alt}
+              width={partner.width}
+              height={partner.height}
+              className="h-[30px] w-auto shrink-0"
+              unoptimized
+            />
+          ))}
+        </div>
+
         {/* Payments + legal */}
         <div className="flex w-full flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-[43px]">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-fit max-w-full flex-wrap items-center gap-3">
             {PAYMENTS.map((item) =>
               item.kind === 'tile' ? (
                 <div
