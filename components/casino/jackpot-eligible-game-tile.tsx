@@ -76,7 +76,10 @@ export function JackpotEligibleGameTile({
         <JackpotTileJackpotChip tier={tier} size="carousel" />
       </div>
 
-      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
+      <GameTilePlayOverlay
+        favoriteTitle={title}
+        onLaunch={() => onClick?.()}
+      />
     </div>
   )
 }

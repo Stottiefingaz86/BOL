@@ -2080,6 +2080,51 @@ button[data-active="true"][class*="SidebarMenuButton"],
   }
 }
 
+/* ─── Twitter favourite heart (official sprite — ring + particles) ─── */
+/* Sheet: 29 frames × 100px = 2900×100. Pixel steps match CodePen PbvJjy. */
+/* Center heart masked out so only ring/particles show — icon size stays fixed. */
+/* Hue-shifted so the fill matches nav pink-500, not Twitter red. */
+.twitter-heart-sprite {
+  background-image: url('/animations/twitter-heart-sprite.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 2900px 100px;
+  image-rendering: auto;
+  /* Punch out the growing sprite heart; keep outer ring + dots */
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    transparent 0 20px,
+    #000 22px
+  );
+  mask-image: radial-gradient(circle at center, transparent 0 20px, #000 22px);
+  filter:
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55))
+    hue-rotate(-22deg)
+    saturate(1.2)
+    brightness(1.05);
+}
+
+.twitter-heart-sprite.is-animating {
+  animation: twitter-heart-burst 0.8s steps(28) forwards;
+}
+
+@keyframes twitter-heart-burst {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    /* 28 steps × 100px = last frame (frame 29) */
+    background-position: -2800px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .twitter-heart-sprite.is-animating {
+    animation: none;
+    background-position: -2800px 0;
+  }
+}
+
 /* ─── STATSCORE Widget SDK — allow full rendering ─── */
 .statscore-widget-root {
   overflow: visible;

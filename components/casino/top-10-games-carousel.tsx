@@ -250,6 +250,7 @@ export function Top10GamesCarousel({
                         sizes={`${TILE}px`}
                       />
                       <GameTilePlayOverlay
+                        favoriteTitle={game.title}
                         onLaunch={() =>
                           onSelectGame?.({
                             title: game.title,

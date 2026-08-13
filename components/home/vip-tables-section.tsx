@@ -212,7 +212,7 @@ function ExclusiveCasinoTile({
         <span className="text-[9px] font-semibold leading-none text-white">Exclusive</span>
       </div>
       <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
-      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
+      <GameTilePlayOverlay favoriteTitle={game.title} onLaunch={() => onClick?.()} />
     </div>
   )
 }
@@ -285,7 +285,7 @@ function LiveTile({
       </div>
 
       <div className="pointer-events-none tile-shimmer absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
+      <GameTilePlayOverlay favoriteTitle={game.title} onLaunch={() => onClick?.()} />
     </div>
   )
 }

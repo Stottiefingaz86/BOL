@@ -33,6 +33,8 @@ import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoPromoBanner } from '@/components/casino/casino-promo-banner'
+import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
+import { GameTileFavoriteButton } from '@/components/casino/game-tile-favorite-button'
 import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
 import { promoPathForSection } from '@/lib/promotions-routes'
 import {
@@ -632,6 +634,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
             </div>
           )}
           <GameTilePlayOverlay
+            favoriteTitle={gameTitle}
             onLaunch={() => {
               onTileClick?.({
                 title: gameTitle,
@@ -677,6 +680,7 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
             </div>
           )}
           <GameTilePlayOverlay
+            favoriteTitle={gameTitle}
             onLaunch={() => {
               onTileClick?.({
                 title: gameTitle,
@@ -1185,7 +1189,7 @@ function LiveCasinoTile({
         </div>
       </div>
       
-      <GameTilePlayOverlay className="z-30" onLaunch={() => onClick?.()} />
+      <GameTilePlayOverlay className="z-30" favoriteTitle={title} onLaunch={() => onClick?.()} />
     </div>
   )
 }
@@ -6948,7 +6952,11 @@ function NavTestPageContent() {
 
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [favoritedGames, setFavoritedGames] = useState<Set<number>>(new Set())
+  const {
+    favoritedGames,
+    toggle: toggleGameFavorite,
+    hashTitle: hashGameTitle,
+  } = useCasinoFavorites()
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false)
   const [advNewestGames, setAdvNewestGames] = useState(false)
   const [advMostPopular, setAdvMostPopular] = useState(false)
@@ -7114,16 +7122,7 @@ function NavTestPageContent() {
     }
   }, [isMobile])
   
-  // Helper function to hash game title to a number for favoritedGames Set
-  const hashGameTitle = (title: string): number => {
-    let hash = 0
-    for (let i = 0; i < title.length; i++) {
-      const char = title.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash // Convert to 32bit integer
-    }
-    return Math.abs(hash)
-  }
+  // Helper lives in casino-favorites context
   const [selectedBrand, setSelectedBrand] = useState<'betonline' | 'wildcasino' | 'superslots'>('betonline')
   
   // Close menu when game launcher closes and reset image loaded state
@@ -10073,7 +10072,7 @@ function NavTestPageContent() {
                                       {title}
                                     </div>
                                   </div>
-                                  <GameTilePlayOverlay onLaunch={openGame} />
+                                  <GameTilePlayOverlay favoriteTitle={title} onLaunch={openGame} />
                                 </div>
                               )
                             }
@@ -10761,6 +10760,7 @@ function NavTestPageContent() {
                                         )}
                                         <GameTagBadge tag={slotTag} vendor={slotVendor} />
                                                                                 <GameTilePlayOverlay
+                                          favoriteTitle={slotNames[index % slotNames.length]}
                                           onLaunch={() => {
                                           setSelectedGame({
                                             title: slotNames[index % slotNames.length],
@@ -10865,6 +10865,7 @@ function NavTestPageContent() {
                                           <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
                                         </div>
                                         <GameTilePlayOverlay
+                                          favoriteTitle={['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker'][index] || `Originals Game ${index + 1}`}
                                           onLaunch={() => {
                                             const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                                             setSelectedGame({
@@ -11143,6 +11144,7 @@ function NavTestPageContent() {
                                         />
                                         <GameTagBadge tag={tag} vendor={vendor} />
                                         <GameTilePlayOverlay
+                                          favoriteTitle={game.title}
                                           onLaunch={() =>
                                             setSelectedGame({
                                               title: game.title,
@@ -11274,6 +11276,7 @@ function NavTestPageContent() {
                                         )}
                                         <GameTagBadge tag={popularTag} vendor={popularVendor} />
                                                                                 <GameTilePlayOverlay
+                                          favoriteTitle={popularNames[index % popularNames.length]}
                                           onLaunch={() => {
                                           setSelectedGame({
                                             title: popularNames[index % popularNames.length],
@@ -11441,6 +11444,7 @@ function NavTestPageContent() {
                                         )}
                                         <GameTagBadge tag="Exclusive" vendor={exclusiveVendor} />
                                                                                 <GameTilePlayOverlay
+                                          favoriteTitle={exclusiveNames[index % exclusiveNames.length]}
                                           onLaunch={() => {
                                           setSelectedGame({
                                             title: exclusiveNames[index % exclusiveNames.length],
@@ -11647,6 +11651,7 @@ function NavTestPageContent() {
                                         )}
                                         <GameTagBadge tag={crashTag} vendor={crashVendor} />
                                                                                 <GameTilePlayOverlay
+                                          favoriteTitle={crashNames[index % crashNames.length]}
                                           onLaunch={() => {
                                           setSelectedGame({
                                             title: crashNames[index % crashNames.length],
@@ -11834,6 +11839,7 @@ function NavTestPageContent() {
                                         )}
                                         <GameTagBadge tag={instantTag} vendor={instantVendor} />
                                                                                 <GameTilePlayOverlay
+                                          favoriteTitle={instantNames[index % instantNames.length]}
                                           onLaunch={() => {
                                           setSelectedGame({
                                             title: instantNames[index % instantNames.length],
@@ -12358,6 +12364,7 @@ function NavTestPageContent() {
                                 <GameTagBadge tag={game.tag} vendor={game.provider} />
                                 <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
                                 <GameTilePlayOverlay
+                                  favoriteTitle={game.title}
                                   onLaunch={() => {
                                     setSelectedGame({
                                       title: game.title,
@@ -12522,32 +12529,23 @@ function NavTestPageContent() {
                               >
                             <div className="py-2">
                               {isMobile && (
-                                <button
-                                  onClick={() => {
-                                    const gameId = hashGameTitle(selectedGame.title)
-                                    const newFavorited = new Set(favoritedGames)
-                                    if (newFavorited.has(gameId)) {
-                                      newFavorited.delete(gameId)
-                                    } else {
-                                      newFavorited.add(gameId)
-                                    }
-                                    setFavoritedGames(newFavorited)
-                                    setGameLauncherMenuOpen(false)
+                                <GameTileFavoriteButton
+                                  variant="menu"
+                                  favorited={favoritedGames.has(
+                                    hashGameTitle(selectedGame.title)
+                                  )}
+                                  onToggle={() => {
+                                    const wasFav = favoritedGames.has(
+                                      hashGameTitle(selectedGame.title)
+                                    )
+                                    toggleGameFavorite(selectedGame.title)
+                                    // Let the like burst play before closing the menu
+                                    window.setTimeout(
+                                      () => setGameLauncherMenuOpen(false),
+                                      wasFav ? 0 : 850
+                                    )
                                   }}
-                                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm flex items-center gap-2.5"
-                                >
-                                  <IconHeart
-                                    className={cn(
-                                      'w-4 h-4 shrink-0',
-                                      favoritedGames.has(hashGameTitle(selectedGame.title))
-                                        ? 'text-pink-500 fill-pink-500'
-                                        : 'text-white/60'
-                                    )}
-                                  />
-                                  {favoritedGames.has(hashGameTitle(selectedGame.title))
-                                    ? 'Remove from Favourites'
-                                    : 'Add to Favourites'}
-                                </button>
+                                />
                               )}
                               <button
                                 onClick={() => {
@@ -12646,28 +12644,13 @@ function NavTestPageContent() {
                         </button>
                       )}
                       {!isMobile && (
-                      <button 
-                        onClick={() => {
-                          const gameId = hashGameTitle(selectedGame.title)
-                          const newFavorited = new Set(favoritedGames)
-                          if (newFavorited.has(gameId)) {
-                            newFavorited.delete(gameId)
-                          } else {
-                            newFavorited.add(gameId)
-                          }
-                          setFavoritedGames(newFavorited)
-                        }}
-                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
-                      >
-                        <IconHeart 
-                          className={cn(
-                            "w-4 h-4 transition-colors",
-                            favoritedGames.has(hashGameTitle(selectedGame.title))
-                              ? "text-pink-500 fill-pink-500"
-                              : "text-[var(--ds-fg-muted)]"
-                          )}
-                        />
-                      </button>
+                      <GameTileFavoriteButton
+                        variant="toolbar"
+                        favorited={favoritedGames.has(
+                          hashGameTitle(selectedGame.title)
+                        )}
+                        onToggle={() => toggleGameFavorite(selectedGame.title)}
+                      />
                       )}
                       <button
                         onClick={() => {
@@ -12911,6 +12894,7 @@ function NavTestPageContent() {
                       )}
                       
                       <GameTilePlayOverlay
+                        favoriteTitle={gameName}
                         onLaunch={() => {
                         setSelectedGame({
                           title: gameName,
@@ -13339,8 +13323,10 @@ function NavTestPageContent() {
 
 export default function CasinoPage() {
   return (
-    <SidebarProvider defaultOpen={false}>
-      <NavTestPageContent />
-    </SidebarProvider>
+    <CasinoFavoritesProvider>
+      <SidebarProvider defaultOpen={false}>
+        <NavTestPageContent />
+      </SidebarProvider>
+    </CasinoFavoritesProvider>
   )
 }

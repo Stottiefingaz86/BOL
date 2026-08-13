@@ -27,6 +27,8 @@ import { VipRewardsPromo } from '@/components/home/vip-rewards-promo'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
+import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
+import { GameTileFavoriteButton } from '@/components/casino/game-tile-favorite-button'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -905,7 +907,11 @@ function HomePageContent() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
   const [similarGamesDrawerOpen, setSimilarGamesDrawerOpen] = useState(false)
-  const [favoritedGames, setFavoritedGames] = useState<Set<number>>(new Set())
+  const {
+    favoritedGames,
+    toggle: toggleGameFavorite,
+    hashTitle: hashGameTitle,
+  } = useCasinoFavorites()
   const [showJackpot, setShowJackpot] = useState(false)
   const [showJackpotWheel, setShowJackpotWheel] = useState(false)
   const [jackpotWinTier, setJackpotWinTier] = useState<'mini' | 'minor' | 'major' | 'mega'>('mega')
@@ -950,16 +956,6 @@ function HomePageContent() {
     }
   }, [openVipDrawer])
   
-  // Helper function to hash game title to a number for favoritedGames Set
-  const hashGameTitle = (title: string): number => {
-    let hash = 0
-    for (let i = 0; i < title.length; i++) {
-      const char = title.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash // Convert to 32bit integer
-    }
-    return Math.abs(hash)
-  }
   
   // Carousel API states
   const [topEventsCarouselApi, setTopEventsCarouselApi] = useState<CarouselApi>()
@@ -1937,6 +1933,7 @@ function HomePageContent() {
                         <GameTagBadge tag={getMetaTag(index + 20)} vendor={slotVendor} />
                         <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                         <GameTilePlayOverlay
+                          favoriteTitle={slotNames[index % slotNames.length]}
                           onLaunch={() => {
                             setSelectedGame({
                               title: slotNames[index % slotNames.length],
@@ -2145,6 +2142,7 @@ function HomePageContent() {
                         <GameTagBadge tag="Original" vendor="Originals" />
                         <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                         <GameTilePlayOverlay
+                          favoriteTitle={['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker'][index] || `Originals Game ${index + 1}`}
                           onLaunch={() => {
                             const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                             setSelectedGame({
@@ -2421,29 +2419,23 @@ function HomePageContent() {
                           >
                             <div className="py-2">
                               {isMobile && (
-                                <button
-                                  onClick={() => {
-                                    const gameId = hashGameTitle(selectedGame.title)
-                                    const next = new Set(favoritedGames)
-                                    if (next.has(gameId)) next.delete(gameId)
-                                    else next.add(gameId)
-                                    setFavoritedGames(next)
-                                    setGameLauncherMenuOpen(false)
+                                <GameTileFavoriteButton
+                                  variant="menu"
+                                  favorited={favoritedGames.has(
+                                    hashGameTitle(selectedGame.title)
+                                  )}
+                                  onToggle={() => {
+                                    const wasFav = favoritedGames.has(
+                                      hashGameTitle(selectedGame.title)
+                                    )
+                                    toggleGameFavorite(selectedGame.title)
+                                    // Let the like burst play before closing the menu
+                                    window.setTimeout(
+                                      () => setGameLauncherMenuOpen(false),
+                                      wasFav ? 0 : 850
+                                    )
                                   }}
-                                  className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
-                                >
-                                  <IconHeart
-                                    className={cn(
-                                      'h-4 w-4 shrink-0',
-                                      favoritedGames.has(hashGameTitle(selectedGame.title))
-                                        ? 'fill-pink-500 text-pink-500'
-                                        : 'text-white/60'
-                                    )}
-                                  />
-                                  {favoritedGames.has(hashGameTitle(selectedGame.title))
-                                    ? 'Remove from Favourites'
-                                    : 'Add to Favourites'}
-                                </button>
+                                />
                               )}
                               <button
                                 onClick={() => {
@@ -2532,25 +2524,13 @@ function HomePageContent() {
                         </button>
                       )}
                       {!isMobile && (
-                        <button
-                          onClick={() => {
-                            const gameId = hashGameTitle(selectedGame.title)
-                            const next = new Set(favoritedGames)
-                            if (next.has(gameId)) next.delete(gameId)
-                            else next.add(gameId)
-                            setFavoritedGames(next)
-                          }}
-                          className="rounded-full p-1.5 transition-colors hover:bg-[var(--ds-control-hover)]"
-                        >
-                          <IconHeart
-                            className={cn(
-                              'h-4 w-4 transition-colors',
-                              favoritedGames.has(hashGameTitle(selectedGame.title))
-                                ? 'fill-pink-500 text-pink-500'
-                                : 'text-[var(--ds-fg-muted)]'
-                            )}
-                          />
-                        </button>
+                        <GameTileFavoriteButton
+                          variant="toolbar"
+                          favorited={favoritedGames.has(
+                            hashGameTitle(selectedGame.title)
+                          )}
+                          onToggle={() => toggleGameFavorite(selectedGame.title)}
+                        />
                       )}
                       <button
                         onClick={() => {
@@ -2764,6 +2744,7 @@ function HomePageContent() {
                       <GameTagBadge tag={getMetaTag(index)} vendor={tileVendor} />
                       <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
                       <GameTilePlayOverlay
+                        favoriteTitle={gameName}
                         onLaunch={() => {
                           setSelectedGame({
                             title: gameName,
@@ -3223,8 +3204,10 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <SidebarProvider>
-      <HomePageContent />
-    </SidebarProvider>
+    <CasinoFavoritesProvider>
+      <SidebarProvider>
+        <HomePageContent />
+      </SidebarProvider>
+    </CasinoFavoritesProvider>
   )
 }
