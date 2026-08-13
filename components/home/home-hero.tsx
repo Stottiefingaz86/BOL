@@ -251,14 +251,10 @@ function DestinationCard({
 
 function HeroAtmosphere() {
   const embers = [
-    { left: '14%', delay: '0s', duration: '7s', size: 2, drift: '-12px' },
-    { left: '28%', delay: '1.4s', duration: '7.8s', size: 2.5, drift: '10px' },
-    { left: '42%', delay: '2.6s', duration: '6.8s', size: 2, drift: '-8px' },
-    { left: '56%', delay: '0.8s', duration: '8.2s', size: 2.5, drift: '14px' },
-    { left: '68%', delay: '3.2s', duration: '7.2s', size: 2, drift: '-10px' },
-    { left: '80%', delay: '1.8s', duration: '7.6s', size: 2.5, drift: '8px' },
-    { left: '22%', delay: '4s', duration: '8s', size: 2, drift: '6px' },
-    { left: '74%', delay: '4.6s', duration: '6.9s', size: 2, drift: '-14px' },
+    { left: '10%', delay: '0s', duration: '8s', size: 2, drift: '-10px' },
+    { left: '22%', delay: '1.8s', duration: '9s', size: 2, drift: '8px' },
+    { left: '36%', delay: '3.2s', duration: '7.5s', size: 1.5, drift: '-6px' },
+    { left: '16%', delay: '4.4s', duration: '8.5s', size: 2, drift: '10px' },
   ]
 
   return (
@@ -266,39 +262,25 @@ function HeroAtmosphere() {
       className="pointer-events-none absolute inset-0 z-[2] overflow-clip"
       aria-hidden
     >
-      {/* Soft smoke wisps — kept quiet */}
+      {/* Quiet brand wash — parked low-left so it doesn't sit under the headline */}
       <div
-        className="hero-smoke absolute -left-[12%] bottom-[-25%] h-[70%] w-[50%] rounded-full blur-[52px]"
+        className="absolute -left-[10%] bottom-[-20%] h-[70%] w-[55%]"
         style={{
           background:
-            'radial-gradient(ellipse at center, rgba(238,53,54,0.18) 0%, rgba(238,53,54,0.05) 40%, transparent 70%)',
-          animation: 'hero-smoke-drift 18s ease-in-out infinite alternate',
-          opacity: 0.45,
+            'radial-gradient(ellipse at 40% 60%, rgba(238,53,54,0.22) 0%, rgba(238,53,54,0.08) 40%, transparent 70%)',
+          filter: 'blur(28px)',
         }}
       />
       <div
-        className="hero-smoke absolute left-[25%] bottom-[-28%] h-[60%] w-[48%] rounded-full blur-[56px]"
+        className="absolute left-0 top-0 h-full w-[45%]"
         style={{
           background:
-            'radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, rgba(180,50,50,0.07) 42%, transparent 68%)',
-          animation: 'hero-smoke-drift 22s ease-in-out infinite alternate-reverse',
-          animationDelay: '-4s',
-          opacity: 0.4,
-        }}
-      />
-      <div
-        className="hero-smoke absolute right-[-10%] bottom-[-20%] h-[65%] w-[45%] rounded-full blur-[54px]"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, rgba(238,53,54,0.14) 0%, rgba(60,60,60,0.06) 45%, transparent 72%)',
-          animation: 'hero-smoke-drift 20s ease-in-out infinite alternate',
-          animationDelay: '-8s',
-          opacity: 0.4,
+            'linear-gradient(105deg, rgba(238,53,54,0.1) 0%, transparent 55%)',
         }}
       />
 
-      {/* Rising red embers */}
-      <div className="absolute inset-x-0 bottom-0 top-[35%]">
+      {/* Soft rising embers */}
+      <div className="absolute inset-x-0 bottom-0 top-[45%] max-w-[50%]">
         {embers.map((ember, i) => (
           <span
             key={i}
@@ -307,8 +289,8 @@ function HeroAtmosphere() {
               left: ember.left,
               width: ember.size,
               height: ember.size,
-              background: 'rgba(238, 53, 54, 0.75)',
-              boxShadow: `0 0 ${ember.size * 2.5}px rgba(238,53,54,0.4)`,
+              background: 'rgba(255, 100, 100, 0.55)',
+              boxShadow: `0 0 ${ember.size * 2}px rgba(238,53,54,0.35)`,
               ['--ember-drift' as string]: ember.drift,
               animation: `hero-ember-rise ${ember.duration} linear infinite`,
               animationDelay: ember.delay,
@@ -342,14 +324,14 @@ export function HomeHero({
         className
       )}
     >
-      <div className="absolute inset-0 bg-[#1a1a1a]" />
+      <div className="absolute inset-0 bg-[#121212]" />
       <div className="pointer-events-none absolute inset-0 overflow-clip">
         <Image
           src="/banners/new_home.png"
           alt=""
           fill
           priority
-          className="scale-110 object-cover object-[center_82%] blur-[2.5px] opacity-75"
+          className="scale-110 object-cover object-[center_82%] blur-[3px] opacity-55"
           sizes="100vw"
           unoptimized
         />
@@ -358,13 +340,14 @@ export function HomeHero({
         className="pointer-events-none absolute inset-0"
         style={{
           background: `
-            linear-gradient(90deg, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.35) 40%, rgba(26,26,26,0.25) 60%, rgba(26,26,26,0.5) 100%),
-            linear-gradient(180deg, rgba(26,26,26,0.35) 0%, transparent 28%, transparent 72%, rgba(26,26,26,0.45) 100%)
+            radial-gradient(ellipse 50% 70% at 12% 70%, rgba(238,53,54,0.12) 0%, transparent 65%),
+            linear-gradient(90deg, rgba(18,18,18,0.65) 0%, rgba(18,18,18,0.4) 42%, rgba(18,18,18,0.55) 100%),
+            linear-gradient(180deg, rgba(18,18,18,0.45) 0%, transparent 28%, transparent 72%, rgba(18,18,18,0.55) 100%)
           `,
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.28] mix-blend-overlay"
+        className="pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-overlay"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -376,10 +359,25 @@ export function HomeHero({
       <HeroAtmosphere />
 
       <div className="relative z-10 flex flex-col gap-8 px-4 py-8 md:flex-row md:items-center md:justify-between md:gap-8 md:px-8 md:py-10 lg:gap-10 lg:px-10">
-        <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[400px] md:items-start md:text-left">
+        <div className="flex w-full shrink-0 flex-col items-center gap-5 text-center md:w-auto md:max-w-[460px] md:items-start md:text-left lg:max-w-[520px]">
           <div className="flex flex-col gap-3">
-            <h1 className="block text-[36px] font-bold leading-[1.05] tracking-tight text-white sm:text-[44px] md:text-[48px] lg:text-[56px]">
-              Trusted for Over 25+ Years
+            <h1
+              className="block text-[48px] font-black uppercase leading-[0.9] tracking-[-0.03em] text-white sm:text-[56px] md:text-[64px] lg:text-[76px]"
+              style={{
+                fontFamily:
+                  'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Black", sans-serif',
+              }}
+            >
+              Built for{' '}
+              <span
+                className="text-[#ee3536]"
+                style={{
+                  textShadow:
+                    '0 1px 0 rgba(0,0,0,0.55), 0 2px 12px rgba(0,0,0,0.45)',
+                }}
+              >
+                Winners.
+              </span>
             </h1>
             <p className="max-w-[22rem] text-[15px] leading-snug text-white/70 sm:text-base md:max-w-none">
               Cash Rewards. Instant Withdrawals.

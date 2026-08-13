@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -18,6 +18,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from '@/components/ui/carousel'
+import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
@@ -37,21 +38,24 @@ type CasinoGame = {
 }
 
 const EXCLUSIVE_GAMES: CasinoGame[] = [
-  { title: 'Gold Nugget Rush', image: '/games/square/goldNuggetRush.png', provider: 'BetSoft' },
-  { title: 'Mega Crush', image: '/games/square/megacrush.png', provider: 'Nucleus' },
-  { title: 'Gold Nugget Rush 2', image: '/games/square/goldNuggetRush2.png', provider: 'BetSoft' },
-  { title: 'Mr Mammoth', image: '/games/square/mrMammoth.png', provider: 'KA Gaming' },
-  { title: 'Cocktail Wheel', image: '/games/square/cocktailWheel.png', provider: 'Onlyplay' },
-  { title: 'Take The Bank', image: '/games/square/takeTheBank.png', provider: 'Popiplay' },
-  { title: 'Hooked On Fishing', image: '/games/square/hookedOnFishing.png', provider: 'Mascot Gaming' },
-  { title: 'Royal Roulette', image: '/games/square/roulette.png', provider: 'VIG' },
-  { title: 'Classic Blackjack', image: '/games/square/blackjack.png', provider: 'Fresh Deck' },
-  { title: 'Baccarat Pro', image: '/games/square/baccarat.png', provider: 'VIG' },
-  { title: 'Lucky Strike', image: '/games/square/game8.png', provider: 'Rival' },
-  { title: 'Fortune Spins', image: '/games/square/game17.png', provider: 'Blaze' },
-  { title: 'Diamond Rush', image: '/games/square/game18.png', provider: 'Spinthron' },
-  { title: 'Jackpot Frenzy', image: '/games/square/game20.png', provider: 'Revolver Gaming' },
-  { title: 'Wild Cascade', image: '/games/square/game21.png', provider: 'Arrow\'s Edge' },
+  { title: 'Gemhalla Xtreme', image: '/casino_slots_tiles/slot-39.png', provider: 'BetSoft' },
+  { title: 'Alien Fruits 2', image: '/casino_slots_tiles/slot-40.png', provider: 'BetSoft' },
+  { title: 'Recycle Riches', image: '/casino_slots_tiles/slot-41.png', provider: 'Nucleus' },
+  { title: 'Merge Up 2', image: '/casino_slots_tiles/slot-42.png', provider: 'KA Gaming' },
+  { title: 'Zeus Goes Wild', image: '/casino_slots_tiles/slot-43.png', provider: 'Onlyplay' },
+  { title: 'Multi Rush', image: '/casino_slots_tiles/slot-44.png', provider: 'Popiplay' },
+  { title: 'Sweet Samurai', image: '/casino_slots_tiles/slot-45.png', provider: 'Mascot Gaming' },
+  { title: 'Heart of Tiki', image: '/casino_slots_tiles/slot-46.png', provider: 'BetSoft' },
+  { title: 'Temple of Power', image: '/casino_slots_tiles/slot-47.png', provider: 'Rival' },
+  { title: 'Fortune Trio', image: '/casino_slots_tiles/slot-48.png', provider: 'Blaze' },
+  { title: 'Money Maker', image: '/casino_slots_tiles/slot-49.png', provider: 'Spinthron' },
+  { title: 'Hot Chilli Bells 100', image: '/casino_slots_tiles/slot-50.png', provider: 'Revolver Gaming' },
+  { title: 'Fiesta Clusters', image: '/casino_slots_tiles/slot-51.png', provider: "Arrow's Edge" },
+  { title: 'Gemhalla Xtreme', image: '/casino_slots_tiles/slot-39.png', provider: 'BetSoft' },
+  { title: 'Alien Fruits 2', image: '/casino_slots_tiles/slot-40.png', provider: 'BetSoft' },
+  { title: 'Recycle Riches', image: '/casino_slots_tiles/slot-41.png', provider: 'Nucleus' },
+  { title: 'Merge Up 2', image: '/casino_slots_tiles/slot-42.png', provider: 'KA Gaming' },
+  { title: 'Zeus Goes Wild', image: '/casino_slots_tiles/slot-43.png', provider: 'Onlyplay' },
 ]
 
 const LIVE_CASINO_GAMES: LiveGame[] = [
@@ -70,7 +74,7 @@ const LIVE_CASINO_GAMES: LiveGame[] = [
 ]
 
 const LIVE_IMAGES: Record<LiveGameType, string> = {
-  blackjack: '/games/BLACKJACK_SQAURE.png',
+  blackjack: '/games/BLACKJACK RECTANGLE.png',
   roulette: '/games/roulette_square.png',
   baccarat: '/games/baccartae_rectangle.png',
 }
@@ -195,10 +199,7 @@ function ExclusiveCasinoTile({
   onClick?: () => void
 }) {
   return (
-    <div
-      className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
-      onClick={onClick}
-    >
+    <div className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10">
       <Image
         src={game.image}
         alt={game.title}
@@ -206,11 +207,12 @@ function ExclusiveCasinoTile({
         className="object-cover transition-transform duration-300 group-hover:scale-105"
         sizes="160px"
       />
-      <div className="absolute left-1.5 top-1.5 z-10 flex items-center gap-0.5 rounded-full border border-indigo-400/60 bg-indigo-950/80 px-1.5 py-[3px] backdrop-blur-sm">
+      <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 flex items-center gap-0.5 rounded-full border border-indigo-400/60 bg-indigo-950/80 px-1.5 py-[3px] backdrop-blur-sm">
         <IconRosetteFilled className="h-3 w-3 text-indigo-300" />
         <span className="text-[9px] font-semibold leading-none text-white">Exclusive</span>
       </div>
-      <div className="tile-shimmer absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
+      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
     </div>
   )
 }
@@ -229,7 +231,7 @@ function LiveTile({
 
   return (
     <div
-      className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
+      className="group relative h-[160px] w-[240px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
       onClick={onClick}
     >
       <Image
@@ -237,7 +239,7 @@ function LiveTile({
         alt={game.title}
         fill
         className="object-cover transition-transform duration-300 group-hover:scale-105"
-        sizes="160px"
+        sizes="240px"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
 
@@ -249,10 +251,10 @@ function LiveTile({
         <span className="truncate text-[9px] font-medium text-white">{game.limit}</span>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-2">
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-2.5">
         <div className="mb-1">
           <div className="mb-0.5 text-[9px] font-medium uppercase tracking-wider text-white/60">Live</div>
-          <div className="line-clamp-2 text-[12px] font-bold leading-tight text-white">{game.title}</div>
+          <div className="line-clamp-1 text-sm font-bold leading-tight text-white">{game.title}</div>
         </div>
 
         <div className="mb-1.5">
@@ -264,7 +266,7 @@ function LiveTile({
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex min-w-0 items-center gap-1">
+          <div className="flex min-w-0 items-center gap-1.5">
             <div className="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center overflow-hidden rounded-sm">
               <Image
                 src={vendor.logo}
@@ -382,10 +384,16 @@ export interface VipTablesSectionProps {
     provider?: string
     features?: string[]
   }) => void
+  /** Rendered between Exclusives and Live Casino (e.g. Activity feed) */
+  betweenSections?: ReactNode
   className?: string
 }
 
-export function VipTablesSection({ onSelectGame, className }: VipTablesSectionProps) {
+export function VipTablesSection({
+  onSelectGame,
+  betweenSections,
+  className,
+}: VipTablesSectionProps) {
   const router = useRouter()
   const isMobile = useIsMobile()
   const exclusives = useCarouselNav()
@@ -411,7 +419,7 @@ export function VipTablesSection({ onSelectGame, className }: VipTablesSectionPr
             <CarouselContent className={cn(isMobile ? 'ml-3 mr-0' : 'ml-6 mr-0')}>
               {EXCLUSIVE_GAMES.map((game, index) => (
                 <CarouselItem
-                  key={game.title}
+                  key={`${game.title}-${index}`}
                   className={cn(
                     'basis-auto flex-shrink-0 pr-0',
                     index === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-3'
@@ -434,6 +442,8 @@ export function VipTablesSection({ onSelectGame, className }: VipTablesSectionPr
           </Carousel>
         </div>
       </div>
+
+      {betweenSections}
 
       <div className="mb-6">
         <SectionHeader

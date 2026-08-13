@@ -72,24 +72,39 @@ const BENEFITS = [
   },
 ] as const
 
-const TILE_W = 104
-const TILE_GAP = 12
-const STEP = TILE_W + TILE_GAP
 /** Idle crawl speed — matches VIP Hub Level Up reel feel */
 const IDLE_MS_PER_TILE = 900
 
-function TierTile({ tier }: { tier: TierName }) {
+function TierTile({
+  tier,
+  width,
+  compact,
+}: {
+  tier: TierName
+  width: number
+  compact?: boolean
+}) {
   return (
     <div
-      className="flex shrink-0 flex-col items-center justify-center gap-2 rounded-lg bg-white/[0.06] py-4"
-      style={{ width: TILE_W }}
+      className={cn(
+        'flex shrink-0 flex-col items-center justify-center rounded-lg bg-white/[0.06]',
+        compact ? 'gap-1.5 px-1 py-3' : 'gap-2 py-4'
+      )}
+      style={{ width }}
     >
       <IconCrown
-        className="h-9 w-9"
+        className={compact ? 'h-7 w-7' : 'h-9 w-9'}
         strokeWidth={1.8}
         style={{ color: TIER_ACCENT[tier] }}
       />
-      <span className="text-xs font-medium text-white/70">{tier}</span>
+      <span
+        className={cn(
+          'font-medium text-white/70',
+          compact ? 'text-[10px] leading-none' : 'text-xs'
+        )}
+      >
+        {tier}
+      </span>
     </div>
   )
 }
@@ -97,11 +112,16 @@ function TierTile({ tier }: { tier: TierName }) {
 /**
  * Continuous idle crown reel — same pattern as VIP Hub Level Up spinner crawl.
  * Duplicated strip + translateX loop, no jump cuts.
+ * Must stay inside overflow-hidden + min-w-0 ancestors or the strip blows out mobile width.
  */
-function CrownSlotReel() {
+function CrownSlotReel({ compact }: { compact?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
   const strip = [...TIERS, ...TIERS]
-  const loopWidth = TIERS.length * STEP
+  const tileW = compact ? 76 : 104
+  const tileGap = compact ? 8 : 12
+  const step = tileW + tileGap
+  const loopWidth = TIERS.length * step
+  const focusW = tileW + 4
 
   useEffect(() => {
     const el = trackRef.current
@@ -123,29 +143,34 @@ function CrownSlotReel() {
   }, [loopWidth])
 
   return (
-    <div className="relative w-full max-w-[380px]">
-      {/* Center focus — hub primary ring */}
+    <div className="relative w-full min-w-0 max-w-full overflow-hidden">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-1 left-1/2 z-10 w-[108px] -translate-x-1/2 rounded-lg border border-[var(--ds-primary,#ee3536)]/40"
+        className="pointer-events-none absolute inset-y-0.5 left-1/2 z-10 -translate-x-1/2 rounded-lg border border-[var(--ds-primary,#ee3536)]/40"
+        style={{ width: focusW }}
       />
 
       <div
-        className="overflow-hidden py-1"
+        className="w-full min-w-0 overflow-hidden py-1"
         style={{
           maskImage:
-            'linear-gradient(to right, transparent, black 14%, black 86%, transparent)',
+            'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
           WebkitMaskImage:
-            'linear-gradient(to right, transparent, black 14%, black 86%, transparent)',
+            'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
         }}
       >
         <div
           ref={trackRef}
-          className="flex will-change-transform"
-          style={{ gap: TILE_GAP, width: 'max-content' }}
+          className="flex w-max max-w-none will-change-transform"
+          style={{ gap: tileGap }}
         >
           {strip.map((tier, i) => (
-            <TierTile key={`${tier}-${i}`} tier={tier} />
+            <TierTile
+              key={`${tier}-${i}`}
+              tier={tier}
+              width={tileW}
+              compact={compact}
+            />
           ))}
         </div>
       </div>
@@ -162,56 +187,108 @@ export function VipRewardsPromo({ onExplore, className }: VipRewardsPromoProps) 
   const isMobile = useIsMobile()
 
   return (
-    <div className={cn(isMobile ? 'px-3' : 'px-6', 'mb-6', className)}>
+    <div
+      className={cn(
+        'mb-6 w-full max-w-full min-w-0',
+        isMobile ? 'px-3' : 'px-6',
+        className
+      )}
+    >
       <div
-        className="rounded-xl border border-white/10"
+        className="w-full max-w-full min-w-0 overflow-hidden rounded-xl border border-white/10"
         style={{ backgroundColor: 'rgba(20, 20, 20, 0.85)' }}
       >
-        <div className="grid items-center gap-6 p-4 md:grid-cols-2 md:gap-8 md:p-6">
-          {/* Left — hub benefit tile surface */}
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div
+          className={cn(
+            'grid w-full min-w-0 items-center p-4',
+            isMobile ? 'gap-5' : 'gap-6 md:grid-cols-2 md:gap-8 md:p-6'
+          )}
+        >
+          {/* Benefits — 2×2; min-w-0 so grid tracks can shrink on narrow screens */}
+          <div
+            className={cn(
+              'grid w-full min-w-0 grid-cols-2 gap-2',
+              isMobile ? 'order-2' : 'order-1 md:gap-2.5'
+            )}
+          >
             {BENEFITS.map((benefit) => {
               const Icon = benefit.icon
               return (
                 <div
                   key={benefit.id}
-                  className="rounded-xl p-3"
-                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
+                  className={cn(
+                    'min-w-0 overflow-hidden rounded-xl bg-white/[0.04]',
+                    isMobile ? 'p-2.5' : 'p-3'
+                  )}
                 >
                   <div
-                    className="mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl text-white/95"
+                    className={cn(
+                      'mb-2 flex items-center justify-center rounded-xl text-white/95',
+                      isMobile ? 'h-9 w-9' : 'mb-2.5 h-12 w-12'
+                    )}
                     style={rewardAccentStyle(benefit.id)}
                   >
-                    <Icon className="h-6 w-6" strokeWidth={1.6} />
+                    <Icon
+                      className={isMobile ? 'h-[18px] w-[18px]' : 'h-6 w-6'}
+                      strokeWidth={1.6}
+                    />
                   </div>
-                  <div className="mb-1 text-[13px] font-semibold leading-snug text-white">
+                  <div
+                    className={cn(
+                      'break-words font-semibold leading-snug text-white',
+                      isMobile ? 'mb-0.5 text-[12px]' : 'mb-1 text-[13px]'
+                    )}
+                  >
                     {benefit.title}
                   </div>
-                  <p className="text-xs leading-snug text-white/45">{benefit.description}</p>
+                  <p
+                    className={cn(
+                      'break-words leading-snug text-white/45',
+                      isMobile ? 'line-clamp-2 text-[10px]' : 'text-xs'
+                    )}
+                  >
+                    {benefit.description}
+                  </p>
                 </div>
               )
             })}
           </div>
 
-          {/* Right — slot reel of crowns */}
-          <div className="flex flex-col items-center justify-center gap-5 text-center">
-            <h3 className="max-w-[320px] text-base font-semibold leading-snug text-white md:text-lg">
+          {/* CTA + crown reel — first on mobile; w-full min-w-0 contains the reel */}
+          <div
+            className={cn(
+              'flex w-full min-w-0 flex-col items-center justify-center text-center',
+              isMobile ? 'order-1 gap-4' : 'order-2 gap-5'
+            )}
+          >
+            <h3
+              className={cn(
+                'w-full max-w-[320px] font-semibold leading-snug text-white',
+                isMobile ? 'text-[15px]' : 'text-base md:text-lg'
+              )}
+            >
               Become a VIP the moment
               <br />
               you place your first bet.
             </h3>
 
-            <CrownSlotReel />
+            <CrownSlotReel compact={isMobile} />
 
-            <p className="max-w-[300px] text-sm text-white/50">
-              Climb every VIP rank from Bronze to Obsidian and unlock bigger rewards along the way.
-            </p>
+            {!isMobile && (
+              <p className="max-w-[300px] text-sm text-white/50">
+                Climb every VIP rank from Bronze to Obsidian and unlock bigger
+                rewards along the way.
+              </p>
+            )}
 
             <button
               type="button"
               onClick={onExplore}
               style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-              className="h-10 w-full max-w-[240px] rounded-md text-xs font-bold uppercase tracking-wider text-white transition-[filter] duration-150 hover:brightness-110"
+              className={cn(
+                'h-10 w-full rounded-md font-bold uppercase tracking-wider text-white transition-[filter] duration-150 hover:brightness-110',
+                isMobile ? 'text-[11px]' : 'max-w-[240px] text-xs'
+              )}
             >
               Explore VIP Rewards
             </button>

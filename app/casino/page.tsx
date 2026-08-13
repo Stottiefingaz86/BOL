@@ -1194,6 +1194,56 @@ function LiveCasinoTile({
   )
 }
 
+/** Transparent square CTA — muted until hover; spinner stays centered on click */
+function PlayRandomTile({ onLaunch }: { onLaunch: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  const handleClick = () => {
+    if (loading) return
+    setLoading(true)
+    timerRef.current = setTimeout(() => {
+      onLaunch()
+      timerRef.current = setTimeout(() => setLoading(false), 400)
+    }, 850)
+  }
+
+  return (
+    <button
+      type="button"
+      data-content-item
+      aria-label={loading ? 'Loading random game' : 'Play Random'}
+      aria-busy={loading}
+      disabled={loading}
+      className={cn(
+        'group relative flex h-[160px] w-[160px] flex-shrink-0 cursor-pointer flex-col items-center overflow-hidden rounded-small border bg-transparent px-2 pb-3 pt-4 transition-colors duration-200 disabled:cursor-wait',
+        'border-white/15 text-[var(--ds-fg-muted)]',
+        'hover:border-white/40 hover:text-[var(--ds-fg)]',
+        loading && 'border-white/40 text-[var(--ds-fg)]'
+      )}
+      onClick={handleClick}
+    >
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
+      <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center">
+        {loading ? (
+          <IconLoader2 className="h-10 w-10 animate-spin" strokeWidth={1.5} />
+        ) : (
+          <IconArrowsShuffle className="h-10 w-10" strokeWidth={1.5} />
+        )}
+      </div>
+      <span className="relative z-10 shrink-0 text-xs font-semibold">
+        {loading ? 'Loading…' : 'Play Random'}
+      </span>
+    </button>
+  )
+}
+
 // Levels Carousel Component with Timeline
 function LevelsCarousel() {
   const isMobile = useIsMobile()
@@ -6756,9 +6806,11 @@ function NavTestPageContent() {
     type: 'casino'
     event: string
     user: string
-    time: string
+    vipLevel: string
     betAmount: string
-    winAmount?: string
+    multiplier: string
+    payout: string
+    isWin: boolean
     gameImage?: string
   }>>([])
 
@@ -6786,17 +6838,34 @@ function NavTestPageContent() {
     return () => clearInterval(interval)
   }, [])
 
+  const activityVipLevels = [
+    'Bronze',
+    'Silver',
+    'Gold',
+    'Platinum I',
+    'Platinum II',
+    'Platinum III',
+    'Diamond',
+    'Elite I',
+    'Elite II',
+    'Elite III',
+    'Black I',
+    'Black II',
+    'Black III',
+    'Obsidian',
+  ] as const
+
   const casinoRaceLeaderboardData = [
-    { rank: 1, nickname: 'Hidden', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
-    { rank: 2, nickname: 'Player_5130165', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
-    { rank: 3, nickname: 'Hidden', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
-    { rank: 4, nickname: 'Hidden', wagered: '$6,000.00', prize: '12%' },
-    { rank: 5, nickname: 'Hidden', wagered: '$5,865.00', prize: '10%' },
-    { rank: 6, nickname: 'Hidden', wagered: '$4,986.34', prize: '8%' },
-    { rank: 7, nickname: 'Hidden', wagered: '$4,503.05', prize: '5%' },
-    { rank: 8, nickname: 'Hidden', wagered: '$4,163.80', prize: '3%' },
-    { rank: 9, nickname: 'Hidden', wagered: '$3,123.05', prize: '2%' },
-    { rank: 10, nickname: 'Hidden', wagered: '$2,305.07', prize: '1%' },
+    { rank: 1, nickname: 'Hidden', vipLevel: 'Obsidian', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
+    { rank: 2, nickname: 'Hidden', vipLevel: 'Black II', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
+    { rank: 3, nickname: 'Hidden', vipLevel: 'Elite III', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
+    { rank: 4, nickname: 'Hidden', vipLevel: 'Elite I', wagered: '$6,000.00', prize: '12%' },
+    { rank: 5, nickname: 'Hidden', vipLevel: 'Platinum III', wagered: '$5,865.00', prize: '10%' },
+    { rank: 6, nickname: 'Hidden', vipLevel: 'Platinum I', wagered: '$4,986.34', prize: '8%' },
+    { rank: 7, nickname: 'Hidden', vipLevel: 'Gold', wagered: '$4,503.05', prize: '5%' },
+    { rank: 8, nickname: 'Hidden', vipLevel: 'Silver', wagered: '$4,163.80', prize: '3%' },
+    { rank: 9, nickname: 'Hidden', vipLevel: 'Bronze', wagered: '$3,123.05', prize: '2%' },
+    { rank: 10, nickname: 'Hidden', vipLevel: 'Black I', wagered: '$2,305.07', prize: '1%' },
   ]
 
   const casinoUserRacePosition = {
@@ -6807,20 +6876,19 @@ function NavTestPageContent() {
   }
 
   const casinoJackpotWinnersData = [
-    { id: 'jp1', user: 'LuckyBet', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
-    { id: 'jp2', user: 'Hidden', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
-    { id: 'jp3', user: 'CasinoKing', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp4', user: 'Hidden', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp5', user: 'GamerX', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
-    { id: 'jp6', user: 'Hidden', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
-    { id: 'jp7', user: 'HighRoller', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
-    { id: 'jp8', user: 'Hidden', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
-    { id: 'jp9', user: 'Player1', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
-    { id: 'jp10', user: 'Hidden', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
+    { id: 'jp1', user: 'Hidden', vipLevel: 'Elite II', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
+    { id: 'jp2', user: 'Hidden', vipLevel: 'Black III', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
+    { id: 'jp3', user: 'Hidden', vipLevel: 'Obsidian', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp4', user: 'Hidden', vipLevel: 'Platinum II', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp5', user: 'Hidden', vipLevel: 'Gold', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
+    { id: 'jp6', user: 'Hidden', vipLevel: 'Elite I', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
+    { id: 'jp7', user: 'Hidden', vipLevel: 'Black I', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
+    { id: 'jp8', user: 'Hidden', vipLevel: 'Diamond', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
+    { id: 'jp9', user: 'Hidden', vipLevel: 'Silver', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
+    { id: 'jp10', user: 'Hidden', vipLevel: 'Bronze', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
   ]
 
   const generateCasinoActivity = useCallback(() => {
-    const users = ['Gurvinderdeo', 'Eruyarr4545', 'JadrankaB', 'VUDEMMADHU', 'Dzikiti123', 'Player1', 'GamerX', 'LuckyBet', 'HighRoller', 'CasinoKing']
     const casinoGames = [
       { name: 'Starburst', image: squareTileImages[0] },
       { name: 'Book of Dead', image: squareTileImages[1] },
@@ -6832,31 +6900,39 @@ function NavTestPageContent() {
       { name: 'Sweet Bonanza', image: squareTileImages[7] },
     ]
 
-    const now = new Date()
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
-
     const eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
-    const user = users[Math.floor(Math.random() * users.length)]
-    const isHidden = Math.random() < 0.6
-    const displayUser = isHidden ? 'Hidden' : user
+    const vipLevel = activityVipLevels[Math.floor(Math.random() * activityVipLevels.length)]
 
-    const betAmount = casinoActivityTab === 'High Rollers'
-      ? (Math.random() * 15000 + 1000).toFixed(2)
-      : (Math.random() * 5000 + 10).toFixed(2)
+    const betNum =
+      casinoActivityTab === 'High Rollers'
+        ? Math.random() * 15000 + 1000
+        : Math.random() * 5000 + 10
 
-    const winAmount = Math.random() > 0.4
-      ? (parseFloat(betAmount) * (Math.random() * 5 + 1)).toFixed(2)
-      : undefined
+    const isWin = Math.random() > 0.35
+    const multiplierNum = isWin
+      ? Math.random() * 8 + 0.5
+      : Math.random() * 0.95
+    const payoutNum = isWin
+      ? betNum * multiplierNum
+      : -betNum
+
+    const formatMoney = (n: number) =>
+      `$${Math.abs(n).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`
 
     return {
       id: `casino-${Date.now()}-${Math.random()}`,
       type: 'casino' as const,
       event: eventData.name,
-      user: displayUser,
-      time: timeStr,
-      betAmount: `$${parseFloat(betAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      winAmount: winAmount ? `$${parseFloat(winAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined,
-      gameImage: eventData.image
+      user: 'Hidden',
+      vipLevel,
+      betAmount: formatMoney(betNum),
+      multiplier: `${multiplierNum.toFixed(2)}x`,
+      payout: isWin ? formatMoney(payoutNum) : `-${formatMoney(payoutNum)}`,
+      isWin,
+      gameImage: eventData.image,
     }
   }, [casinoActivityTab])
 
@@ -10958,6 +11034,145 @@ function NavTestPageContent() {
                             </div>
                           </div>
                         )}
+
+                        {/* Recently Played — below vendors */}
+                        <div>
+                          <div
+                            className={cn(
+                              'mb-6 flex items-center justify-between relative z-10',
+                              isMobile ? 'px-3' : 'px-6'
+                            )}
+                          >
+                            <h2 className="min-w-0 flex-1 truncate text-lg font-semibold text-black transition-colors duration-300 dark:text-[var(--ds-fg)]">
+                              Recently Played (4)
+                            </h2>
+                          </div>
+                          <div
+                            className="relative"
+                            style={{
+                              overflow: 'visible',
+                              position: 'relative',
+                              width: '100%',
+                              maxWidth: '100%',
+                              boxSizing: 'border-box',
+                              minWidth: 0,
+                            }}
+                          >
+                            <Carousel
+                              className="relative w-full"
+                              style={{
+                                overflow: 'visible',
+                                position: 'relative',
+                                width: '100%',
+                                maxWidth: '100%',
+                                minWidth: 0,
+                              }}
+                              opts={{
+                                dragFree: true,
+                                containScroll: 'trimSnaps',
+                                duration: 15,
+                              }}
+                            >
+                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                {[
+                                  {
+                                    title: 'Gemhalla Xtreme',
+                                    image: squareTileImages[0],
+                                  },
+                                  {
+                                    title: 'Money Maker',
+                                    image: squareTileImages[10],
+                                  },
+                                  {
+                                    title: 'Heart of Tiki',
+                                    image: squareTileImages[7],
+                                  },
+                                  {
+                                    title: 'Fiesta Clusters',
+                                    image: squareTileImages[12],
+                                  },
+                                ].map((game, index) => {
+                                  const tag = getMetaTag(index + 30)
+                                  const vendor = getTileVendor(index + 30)
+                                  return (
+                                    <CarouselItem
+                                      key={`recently-played-${index}`}
+                                      className={cn(
+                                        'basis-auto flex-shrink-0 pr-0',
+                                        index === 0
+                                          ? isMobile
+                                            ? 'pl-3'
+                                            : 'pl-6'
+                                          : 'pl-2 md:pl-4'
+                                      )}
+                                    >
+                                      <div
+                                        data-content-item
+                                        className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-[var(--ds-control-bg)] transition-all duration-300 hover:bg-[var(--ds-control-hover)]"
+                                      >
+                                        <Image
+                                          src={game.image}
+                                          alt={game.title}
+                                          fill
+                                          className={slotTileImgClass}
+                                          sizes="160px"
+                                        />
+                                        <GameTagBadge tag={tag} vendor={vendor} />
+                                        <GameTilePlayOverlay
+                                          onLaunch={() =>
+                                            setSelectedGame({
+                                              title: game.title,
+                                              image: game.image,
+                                              provider: vendor,
+                                              features: [
+                                                'Recently Played',
+                                                'Quick Resume',
+                                                'Continue Where You Left Off',
+                                              ],
+                                            })
+                                          }
+                                        />
+                                      </div>
+                                    </CarouselItem>
+                                  )
+                                })}
+                                <CarouselItem
+                                  key="recently-played-random"
+                                  className="basis-auto flex-shrink-0 pr-0 pl-2 md:pl-4"
+                                >
+                                  <PlayRandomTile
+                                    onLaunch={() => {
+                                      const randomIndex = Math.floor(
+                                        Math.random() * squareTileImages.length
+                                      )
+                                      const gameNames = [
+                                        'Gold Nugget Rush',
+                                        'Mega Fortune',
+                                        'Starburst',
+                                        'Book of Dead',
+                                        "Gonzo's Quest",
+                                        'Dead or Alive',
+                                        'Immortal Romance',
+                                        'Thunderstruck',
+                                        'Avalon',
+                                        'Blood Suckers',
+                                      ]
+                                      setSelectedGame({
+                                        title: gameNames[randomIndex % gameNames.length],
+                                        image: squareTileImages[randomIndex],
+                                        provider: 'Evolution Gaming',
+                                        features: [
+                                          'Random Pick!',
+                                          'Surprise Game Feature',
+                                        ],
+                                      })
+                                    }}
+                                  />
+                                </CarouselItem>
+                              </CarouselContent>
+                            </Carousel>
+                          </div>
+                        </div>
 
                         {/* Activity Section */}
                         <CasinoActivityPanel

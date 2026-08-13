@@ -25,6 +25,7 @@ import { HomeHero } from '@/components/home/home-hero'
 import { VipTablesSection } from '@/components/home/vip-tables-section'
 import { VipRewardsPromo } from '@/components/home/vip-rewards-promo'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
+import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -972,35 +973,50 @@ function HomePageContent() {
   // Homepage section toggles — set true to restore without deleting markup
   const SHOW_TOP_SPORTS = false
   const SHOW_WHY_BETONLINE = false
-  const SHOW_ACTIVITY = false
 
   // Activity Leaderboard state
   const [activityTab, setActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
+  const activityVipLevels = [
+    'Bronze',
+    'Silver',
+    'Gold',
+    'Platinum I',
+    'Platinum II',
+    'Platinum III',
+    'Diamond',
+    'Elite I',
+    'Elite II',
+    'Elite III',
+    'Black I',
+    'Black II',
+    'Black III',
+    'Obsidian',
+  ] as const
   const [activityFeed, setActivityFeed] = useState<Array<{
     id: string
-    type: 'sports' | 'casino'
+    type: 'casino'
     event: string
     user: string
-    time: string
-    odds?: string
+    vipLevel: string
     betAmount: string
-    winAmount?: string
-    icon: 'football' | 'basketball' | 'tennis' | 'esports' | 'casino'
+    multiplier: string
+    payout: string
+    isWin: boolean
     gameImage?: string
   }>>([])
   
   // Race Leaderboard data
   const raceLeaderboardData = [
-    { rank: 1, nickname: 'Hidden', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
-    { rank: 2, nickname: 'Player_5130165', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
-    { rank: 3, nickname: 'Hidden', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
-    { rank: 4, nickname: 'Hidden', wagered: '$6,000.00', prize: '12%' },
-    { rank: 5, nickname: 'Hidden', wagered: '$5,865.00', prize: '10%' },
-    { rank: 6, nickname: 'Hidden', wagered: '$4,986.34', prize: '8%' },
-    { rank: 7, nickname: 'Hidden', wagered: '$4,503.05', prize: '5%' },
-    { rank: 8, nickname: 'Hidden', wagered: '$4,163.80', prize: '3%' },
-    { rank: 9, nickname: 'Hidden', wagered: '$3,123.05', prize: '2%' },
-    { rank: 10, nickname: 'Hidden', wagered: '$2,305.07', prize: '1%' },
+    { rank: 1, nickname: 'Hidden', vipLevel: 'Obsidian', wagered: '$100,005.00', prize: '25%', medal: 'gold' as const },
+    { rank: 2, nickname: 'Hidden', vipLevel: 'Black II', wagered: '$12,000.00', prize: '18%', medal: 'silver' as const },
+    { rank: 3, nickname: 'Hidden', vipLevel: 'Elite III', wagered: '$8,000.00', prize: '16%', medal: 'bronze' as const },
+    { rank: 4, nickname: 'Hidden', vipLevel: 'Elite I', wagered: '$6,000.00', prize: '12%' },
+    { rank: 5, nickname: 'Hidden', vipLevel: 'Platinum III', wagered: '$5,865.00', prize: '10%' },
+    { rank: 6, nickname: 'Hidden', vipLevel: 'Platinum I', wagered: '$4,986.34', prize: '8%' },
+    { rank: 7, nickname: 'Hidden', vipLevel: 'Gold', wagered: '$4,503.05', prize: '5%' },
+    { rank: 8, nickname: 'Hidden', vipLevel: 'Silver', wagered: '$4,163.80', prize: '3%' },
+    { rank: 9, nickname: 'Hidden', vipLevel: 'Bronze', wagered: '$3,123.05', prize: '2%' },
+    { rank: 10, nickname: 'Hidden', vipLevel: 'Black I', wagered: '$2,305.07', prize: '1%' },
   ]
   
   const userRacePosition = {
@@ -1012,16 +1028,16 @@ function HomePageContent() {
   
   // Jackpot Winners data
   const jackpotWinnersData = [
-    { id: 'jp1', user: 'LuckyBet', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
-    { id: 'jp2', user: 'Hidden', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
-    { id: 'jp3', user: 'CasinoKing', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp4', user: 'Hidden', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp5', user: 'GamerX', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
-    { id: 'jp6', user: 'Hidden', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
-    { id: 'jp7', user: 'HighRoller', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
-    { id: 'jp8', user: 'Hidden', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
-    { id: 'jp9', user: 'Player1', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
-    { id: 'jp10', user: 'Hidden', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
+    { id: 'jp1', user: 'Hidden', vipLevel: 'Elite II', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
+    { id: 'jp2', user: 'Hidden', vipLevel: 'Black III', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
+    { id: 'jp3', user: 'Hidden', vipLevel: 'Obsidian', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp4', user: 'Hidden', vipLevel: 'Platinum II', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
+    { id: 'jp5', user: 'Hidden', vipLevel: 'Gold', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
+    { id: 'jp6', user: 'Hidden', vipLevel: 'Elite I', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
+    { id: 'jp7', user: 'Hidden', vipLevel: 'Black I', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
+    { id: 'jp8', user: 'Hidden', vipLevel: 'Diamond', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
+    { id: 'jp9', user: 'Hidden', vipLevel: 'Silver', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
+    { id: 'jp10', user: 'Hidden', vipLevel: 'Bronze', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
   ]
 
   // Daily Race countdown timer state
@@ -1051,64 +1067,62 @@ function HomePageContent() {
   
   // Generate mock activity data - casino only
   const generateActivity = useCallback(() => {
-    const users = ['Gurvinderdeo', 'Eruyarr4545', 'JadrankaB', 'VUDEMMADHU', 'Dzikiti123', 'Player1', 'GamerX', 'LuckyBet', 'HighRoller', 'CasinoKing']
     const casinoGames = [
-      { name: 'Starburst', icon: 'casino' as const, image: squareTileImages[0] },
-      { name: 'Book of Dead', icon: 'casino' as const, image: squareTileImages[1] },
-      { name: 'Gonzo\'s Quest', icon: 'casino' as const, image: squareTileImages[2] },
-      { name: 'Mega Moolah', icon: 'casino' as const, image: squareTileImages[3] },
-      { name: 'Dead or Alive', icon: 'casino' as const, image: squareTileImages[4] },
-      { name: 'Razor Shark', icon: 'casino' as const, image: squareTileImages[5] },
-      { name: 'Big Bass Bonanza', icon: 'casino' as const, image: squareTileImages[6] },
-      { name: 'Sweet Bonanza', icon: 'casino' as const, image: squareTileImages[7] },
+      { name: 'Starburst', image: squareTileImages[0] },
+      { name: 'Book of Dead', image: squareTileImages[1] },
+      { name: "Gonzo's Quest", image: squareTileImages[2] },
+      { name: 'Mega Moolah', image: squareTileImages[3] },
+      { name: 'Dead or Alive', image: squareTileImages[4] },
+      { name: 'Razor Shark', image: squareTileImages[5] },
+      { name: 'Big Bass Bonanza', image: squareTileImages[6] },
+      { name: 'Sweet Bonanza', image: squareTileImages[7] },
     ]
-    
-    const now = new Date()
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
-    
+
     const eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
-    
-    const user = users[Math.floor(Math.random() * users.length)]
-    const isHidden = Math.random() < 0.6 // 60% chance of being hidden
-    const displayUser = isHidden ? 'Hidden' : user
-    
-    const betAmount = activityTab === 'High Rollers' 
-      ? (Math.random() * 15000 + 1000).toFixed(2)
-      : (Math.random() * 5000 + 10).toFixed(2)
-    
-    // For casino games, calculate win amount (60% chance of winning)
-    const winAmount = Math.random() > 0.4
-      ? (parseFloat(betAmount) * (Math.random() * 5 + 1)).toFixed(2)
-      : undefined
-    
+    const vipLevel = activityVipLevels[Math.floor(Math.random() * activityVipLevels.length)]
+
+    const betNum =
+      activityTab === 'High Rollers'
+        ? Math.random() * 15000 + 1000
+        : Math.random() * 5000 + 10
+
+    const isWin = Math.random() > 0.35
+    const multiplierNum = isWin
+      ? Math.random() * 8 + 0.5
+      : Math.random() * 0.95
+    const payoutNum = isWin ? betNum * multiplierNum : -betNum
+
+    const formatMoney = (n: number) =>
+      `$${Math.abs(n).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`
+
     return {
       id: `casino-${Date.now()}-${Math.random()}`,
       type: 'casino' as const,
       event: eventData.name,
-      user: displayUser,
-      time: timeStr,
-      odds: undefined,
-      betAmount: `$${parseFloat(betAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      winAmount: winAmount ? `$${parseFloat(winAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined,
-      icon: eventData.icon,
-      gameImage: eventData.image
+      user: 'Hidden',
+      vipLevel,
+      betAmount: formatMoney(betNum),
+      multiplier: `${multiplierNum.toFixed(2)}x`,
+      payout: isWin ? formatMoney(payoutNum) : `-${formatMoney(payoutNum)}`,
+      isWin,
+      gameImage: eventData.image,
     }
   }, [activityTab])
   
   // Initialize and update activity feed
   useEffect(() => {
-    if (!SHOW_ACTIVITY) return
-    // Initialize with 6 items
     const initialFeed = Array.from({ length: 6 }, () => generateActivity())
     setActivityFeed(initialFeed)
     
-    // Add new activity every 3-5 seconds, keep only 6 visible
     const interval = setInterval(() => {
       setActivityFeed(prev => {
         const newActivity = generateActivity()
-        return [newActivity, ...prev.slice(0, 5)] // Keep max 6 items
+        return [newActivity, ...prev.slice(0, 5)]
       })
-    }, Math.random() * 2000 + 3000) // 3-5 seconds
+    }, Math.random() * 2000 + 3000)
     
     return () => clearInterval(interval)
   }, [activityTab, generateActivity])
@@ -2132,8 +2146,27 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* VIP Tables — Live high-limit tables */}
-        <VipTablesSection onSelectGame={setSelectedGame} />
+        {/* Exclusives → Activity → Live Casino */}
+        <VipTablesSection
+          onSelectGame={setSelectedGame}
+          betweenSections={
+            <CasinoActivityPanel
+              isMobile={isMobile}
+              heading="Activity"
+              tabLayoutId="homeActivityTab"
+              casinoActivityTab={activityTab}
+              onCasinoActivityTabChange={setActivityTab}
+              casinoRaceHours={raceHours}
+              casinoRaceMinutes={raceMinutes}
+              casinoRaceSeconds={raceSeconds}
+              casinoRaceLeaderboardData={raceLeaderboardData}
+              casinoUserRacePosition={userRacePosition}
+              casinoJackpotWinnersData={jackpotWinnersData}
+              casinoActivityFeed={activityFeed}
+              onSelectGame={(g) => setSelectedGame(g)}
+            />
+          }
+        />
 
         {/* Vendors Carousel Section */}
         <div className="mb-6">
@@ -2302,272 +2335,6 @@ function HomePageContent() {
             </Card>
           </div>
           
-        </div>
-        )}
-
-        {/* Activity — hidden while simplifying homepage; set SHOW_ACTIVITY = true to restore */}
-        {SHOW_ACTIVITY && (
-        <div className={cn("mb-6", isMobile ? "px-3" : "px-6")}>
-          <Separator className="mb-6 bg-[var(--ds-control-hover)]" />
-          <h2 className="text-lg font-semibold text-[var(--ds-fg)] mb-4">Activity</h2>
-          
-          {/* Tabs - Sub Nav Style */}
-          <div className="mb-4 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <div className="bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] p-0.5 h-auto gap-1 rounded-3xl border-0 backdrop-blur-xl inline-flex w-max">
-              {['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActivityTab(tab as 'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race')}
-                  className={cn(
-                    "relative px-4 py-1 h-9 text-xs font-medium rounded-2xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
-                    activityTab === tab
-                      ? "text-white"
-                      : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] bg-transparent"
-                  )}
-                >
-                  {activityTab === tab && (
-                    <motion.div
-                      layoutId="activityTab"
-                      className="absolute inset-0 rounded-2xl -z-10"
-                      style={{ backgroundColor: '#ee3536' }}
-                      initial={false}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 40
-                      }}
-                    />
-                  )}
-                  <span className="relative z-10 whitespace-nowrap">{tab}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Activity Feed Table or Race Leaderboard */}
-          <Card className="bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] backdrop-blur-sm border-[var(--ds-promo-card-border)] rounded-small overflow-hidden">
-            <CardContent className="p-0">
-              <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
-                {activityTab === 'Daily Race' ? (
-                  // Daily Race Table
-                  <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] border border-white/10 dark:border-white/10 rounded-lg overflow-hidden">
-                    {/* Ends in countdown */}
-                    <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                      <span className="text-white/70 text-xs">Ends in</span>
-                      <div className="text-sm font-bold text-white flex items-center gap-1 tabular-nums">
-                        <NumberFlow value={raceHours} />
-                        <span className="mx-1">:</span>
-                        <NumberFlow value={raceMinutes} />
-                        <span className="mx-1">:</span>
-                        <NumberFlow value={raceSeconds} />
-                      </div>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-white/10">
-                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Rank</th>
-                            <th className="text-left py-3 px-4 text-xs font-medium text-white/70">Nickname</th>
-                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Wagered</th>
-                            <th className="text-right py-3 px-4 text-xs font-medium text-white/70">Prize</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {raceLeaderboardData.map((entry) => (
-                            <tr key={entry.rank} className="border-b border-white/10 hover:bg-white/10 transition-colors">
-                              <td className="py-3 px-4">
-                                <div className="flex items-center gap-2">
-                                  {entry.medal === 'gold' && <IconTrophy className="w-5 h-5 text-yellow-400" />}
-                                  {entry.medal === 'silver' && <IconTrophy className="w-5 h-5 text-gray-400" />}
-                                  {entry.medal === 'bronze' && <IconTrophy className="w-5 h-5 text-orange-400" />}
-                                  {!entry.medal && <span className="text-white/70 text-sm">{entry.rank}th</span>}
-                                </div>
-                              </td>
-                              <td className="py-3 px-4 text-white text-sm">{entry.nickname}</td>
-                              <td className="py-3 px-4 text-right text-white text-sm">{entry.wagered}</td>
-                              <td className="py-3 px-4 text-right text-white text-sm font-semibold">{entry.prize}</td>
-                            </tr>
-                          ))}
-                          {/* User's Position Row */}
-                          <tr className="border-t-2 border-white/20 bg-white/5">
-                            <td className="py-3 px-4">
-                              <span className="text-white text-sm font-semibold">{userRacePosition.rank}th</span>
-                            </td>
-                            <td className="py-3 px-4 text-white text-sm font-semibold">{userRacePosition.nickname}</td>
-                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{userRacePosition.wagered}</td>
-                            <td className="py-3 px-4 text-right text-white text-sm font-semibold">{userRacePosition.prize}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : activityTab === 'Jackpot Winners' ? (
-                  // Jackpot Winners Table
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Jackpot Won</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {jackpotWinnersData.map((winner, index) => (
-                        <TableRow
-                          key={winner.id}
-                          className={cn(
-                            "border-b border-white/10 hover:bg-white/5 transition-colors",
-                            index === 0 && "bg-amber-500/5"
-                          )}
-                        >
-                          <TableCell className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              {winner.gameImage ? (
-                                <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
-                                  <Image
-                                    src={winner.gameImage}
-                                    alt={winner.game}
-                                    width={40}
-                                    height={40}
-                                    className="w-full h-full object-cover"
-                                    quality={75}
-                                    unoptimized
-                                  />
-                                </div>
-                              ) : (
-                                <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                              )}
-                              <span
-                                className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/70 transition-colors"
-                                onClick={() => {
-                                  if (winner.gameImage) {
-                                    setSelectedGame({
-                                      title: winner.game,
-                                      image: winner.gameImage
-                                    })
-                                  }
-                                }}
-                              >
-                                {winner.game}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3 px-4">
-                            <span className={cn(
-                              "text-sm",
-                              winner.user === 'Hidden' ? "text-[var(--ds-fg-subtle)]" : "text-white"
-                            )}>
-                              {winner.user}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-4">
-                            <span className="text-white/70 text-sm">{winner.time}</span>
-                          </TableCell>
-                          <TableCell className="py-3 px-4">
-                            <div className="flex items-center gap-1.5">
-                              <IconTrophy className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="text-amber-400 text-sm font-semibold">{winner.amount}</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  // Activity Feed Table
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-white/70 font-medium text-xs">Game</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">User</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Time</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Bet Amount</TableHead>
-                        <TableHead className="text-white/70 font-medium text-xs">Win Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    <AnimatePresence mode="popLayout">
-                      {activityFeed.map((activity, index) => {
-                        return (
-                          <motion.tr
-                            key={activity.id}
-                            layout
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2, ease: "easeOut" }}
-                            className={cn(
-                              "border-b border-white/10 hover:bg-white/5 transition-colors",
-                              index === 0 && "bg-white/5"
-                            )}
-                          >
-                            <TableCell className="py-3 px-4">
-                              <div className="flex items-center gap-2">
-                                {activity.gameImage ? (
-                                  <div className="flex-shrink-0 w-10 h-10 rounded-small overflow-hidden">
-                                    <Image
-                                      src={activity.gameImage}
-                                      alt={activity.event}
-                                      width={40}
-                                      height={40}
-                                      className="w-full h-full object-cover"
-                                      quality={75}
-                                      unoptimized
-                                    />
-                                  </div>
-                                ) : (
-                                  <IconDeviceGamepad2 className="w-4 h-4 text-white/70" />
-                                )}
-                                <span 
-                                  className="text-white text-sm truncate max-w-[200px] cursor-pointer hover:text-white/70 transition-colors"
-                                  onClick={() => {
-                                    if (activity.gameImage) {
-                                      setSelectedGame({
-                                        title: activity.event,
-                                        image: activity.gameImage
-                                      })
-                                    }
-                                  }}
-                                >
-                                  {activity.event}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-3 px-4">
-                              <span className={cn(
-                                "text-sm",
-                                activity.user === 'Hidden' ? "text-[var(--ds-fg-subtle)]" : "text-white"
-                              )}>
-                                {activity.user}
-                              </span>
-                            </TableCell>
-                            <TableCell className="py-3 px-4">
-                              <span className="text-white/70 text-sm">{activity.time}</span>
-                            </TableCell>
-                            <TableCell className="py-3 px-4">
-                              <div className="flex items-center gap-1.5">
-                                <IconCoins className="w-3.5 h-3.5 text-green-400" />
-                                <span className="text-white text-sm font-medium">{activity.betAmount}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-3 px-4">
-                              {activity.winAmount ? (
-                                <span className="text-green-400 text-sm font-medium">{activity.winAmount}</span>
-                              ) : (
-                                <span className="text-white/30 text-sm">-</span>
-                              )}
-                            </TableCell>
-                          </motion.tr>
-                        )
-                      })}
-                    </AnimatePresence>
-                  </TableBody>
-                </Table>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </div>
         )}
 
