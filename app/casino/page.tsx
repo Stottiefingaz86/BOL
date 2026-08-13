@@ -32,6 +32,7 @@ import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
+import { CasinoPromoBanner } from '@/components/casino/casino-promo-banner'
 import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
 import { promoPathForSection } from '@/lib/promotions-routes'
 import {
@@ -9240,72 +9241,27 @@ function NavTestPageContent() {
                       
                       {/* Casino Banner 1 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                          <Image
-                            src="/banners/casino/casino_banner1.svg"
-                            alt="Casino Banner"
-                            width={340}
-                            height={164}
-                            className="object-cover w-full h-full"
-                            unoptimized
-                          />
-                        </Card>
+                        <CasinoPromoBanner src="/banners/casino/casino_banner1.svg" />
                       </CarouselItem>
                       
                       {/* Casino Banner 2 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                          <Image
-                            src="/banners/casino/casino_banner2.svg"
-                            alt="Casino Banner"
-                            width={340}
-                            height={164}
-                            className="object-cover w-full h-full"
-                            unoptimized
-                          />
-                        </Card>
+                        <CasinoPromoBanner src="/banners/casino/casino_banner2.svg" />
                       </CarouselItem>
                       
                       {/* Casino Banner 3 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                          <Image
-                            src="/banners/casino/casino_banner 3.svg"
-                            alt="Casino Banner"
-                            width={340}
-                            height={164}
-                            className="object-cover w-full h-full"
-                            unoptimized
-                          />
-                        </Card>
+                        <CasinoPromoBanner src="/banners/casino/casino_banner 3.svg" />
                       </CarouselItem>
                       
                       {/* Casino Banner 4 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                          <Image
-                            src="/banners/casino/casino_banner4.svg"
-                            alt="Casino Banner"
-                            width={340}
-                            height={164}
-                            className="object-cover w-full h-full"
-                            unoptimized
-                          />
-                          </Card>
-                        </CarouselItem>
+                        <CasinoPromoBanner src="/banners/casino/casino_banner4.svg" />
+                      </CarouselItem>
                       
                       {/* Casino Banner 5 */}
                       <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
-                        <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
-                          <Image
-                            src="/banners/casino/casino_Banner5.svg"
-                            alt="Casino Banner"
-                            width={340}
-                            height={164}
-                            className="object-cover w-full h-full"
-                            unoptimized
-                          />
-                        </Card>
+                        <CasinoPromoBanner src="/banners/casino/casino_Banner5.svg" />
                       </CarouselItem>
                     </CarouselContent>
                   </Carousel>
