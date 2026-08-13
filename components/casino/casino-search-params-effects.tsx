@@ -155,7 +155,7 @@ export function CasinoSearchParamsEffects({
     setShowAllGames(false)
     setSelectedCategory('')
     setSelectedVendor('')
-    setActiveSubNav('For You')
+    setActiveSubNav('Lobby')
 
     router.replace('/casino', { scroll: false })
 

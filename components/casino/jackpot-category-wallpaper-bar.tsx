@@ -12,7 +12,7 @@ export type JackpotCategoryWallpaperBarProps = {
 }
 
 /**
- * Jackpots wallpaper masthead — tier strip + title row (matches For You / Megaways section headers).
+ * Jackpots wallpaper masthead — tier strip + title row (matches Lobby / Megaways section headers).
  */
 export function JackpotCategoryWallpaperBar({
   isMobile,

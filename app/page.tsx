@@ -194,22 +194,21 @@ const getVendorIconPath = (vendorName: string): string => {
 }
 
 // Available square tile images
+/** New square slot art only — carousels cycle these (no legacy /games/square) */
 const squareTileImages = [
-  '/games/square/goldNuggetRush.png',
-  '/games/square/megacrush.png',
-  '/games/square/goldNuggetRush2.png',
-  '/games/square/mrMammoth.png',
-  '/games/square/cocktailWheel.png',
-  '/games/square/takeTheBank.png',
-  '/games/square/hookedOnFishing.png',
-  '/games/square/roulette.png',
-  '/games/square/blackjack.png',
-  '/games/square/baccarat.png',
-  '/games/square/game8.png',
-  '/games/square/game17.png',
-  '/games/square/game18.png',
-  '/games/square/game20.png',
-  '/games/square/game21.png',
+  '/casino_slots_tiles/slot-39.png',
+  '/casino_slots_tiles/slot-40.png',
+  '/casino_slots_tiles/slot-41.png',
+  '/casino_slots_tiles/slot-42.png',
+  '/casino_slots_tiles/slot-43.png',
+  '/casino_slots_tiles/slot-44.png',
+  '/casino_slots_tiles/slot-45.png',
+  '/casino_slots_tiles/slot-46.png',
+  '/casino_slots_tiles/slot-47.png',
+  '/casino_slots_tiles/slot-48.png',
+  '/casino_slots_tiles/slot-49.png',
+  '/casino_slots_tiles/slot-50.png',
+  '/casino_slots_tiles/slot-51.png',
 ]
 
 const TRENDING_SPORTS = [

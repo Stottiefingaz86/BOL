@@ -6,6 +6,7 @@ import { IconClock, IconFlame, IconRosetteDiscountCheck, IconSparkles } from '@t
 import { cn } from '@/lib/utils'
 import type { JackpotTierConfig } from '@/components/casino/jackpot-tiers'
 import { JackpotTileJackpotChip } from '@/components/casino/jackpot-tile-jackpot-chip'
+import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 
 export type TopTagKind = 'exclusive' | 'new' | 'hot' | 'early'
 
@@ -42,18 +43,9 @@ export function JackpotEligibleGameTile({
 }: JackpotEligibleGameTileProps) {
   return (
     <div
-      role="button"
-      tabIndex={0}
       data-content-item
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.()
-        }
-      }}
       className={cn(
-        'group relative h-[160px] w-[160px] shrink-0 cursor-pointer overflow-hidden rounded-small',
+        'group relative h-[160px] w-[160px] shrink-0 overflow-hidden rounded-small',
         'bg-white/5 transition-all duration-300 hover:bg-white/10',
         className
       )}
@@ -71,7 +63,7 @@ export function JackpotEligibleGameTile({
       {topTag && (
         <div
           className={cn(
-            'absolute left-1.5 top-1.5 z-20 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full px-1.5 py-[2px] text-[9px] font-semibold uppercase tracking-wide',
+            'pointer-events-none absolute left-1.5 top-1.5 z-30 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full px-1.5 py-[2px] text-[9px] font-semibold uppercase tracking-wide',
             TOP_TAG_STYLES[topTag.kind]
           )}
         >
@@ -80,7 +72,11 @@ export function JackpotEligibleGameTile({
         </div>
       )}
 
-      <JackpotTileJackpotChip tier={tier} size="carousel" />
+      <div className="pointer-events-none">
+        <JackpotTileJackpotChip tier={tier} size="carousel" />
+      </div>
+
+      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
     </div>
   )
 }

@@ -30,6 +30,8 @@ import { SidebarPromos } from '@/components/sidebar-promos'
 import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
+import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
+import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
 import { promoPathForSection } from '@/lib/promotions-routes'
 import {
@@ -364,23 +366,26 @@ const getVendorIconPath = (vendorName: string): string => {
 }
 
 // Available square tile images
+/** New square slot art only — carousels cycle these (no legacy /games/square) */
 const squareTileImages = [
-  '/games/square/goldNuggetRush.png',
-  '/games/square/megacrush.png',
-  '/games/square/goldNuggetRush2.png',
-  '/games/square/mrMammoth.png',
-  '/games/square/cocktailWheel.png',
-  '/games/square/takeTheBank.png',
-  '/games/square/hookedOnFishing.png',
-  '/games/square/roulette.png',
-  '/games/square/blackjack.png',
-  '/games/square/baccarat.png',
-  '/games/square/game8.png',
-  '/games/square/game17.png',
-  '/games/square/game18.png',
-  '/games/square/game20.png',
-  '/games/square/game21.png',
+  '/casino_slots_tiles/slot-39.png',
+  '/casino_slots_tiles/slot-40.png',
+  '/casino_slots_tiles/slot-41.png',
+  '/casino_slots_tiles/slot-42.png',
+  '/casino_slots_tiles/slot-43.png',
+  '/casino_slots_tiles/slot-44.png',
+  '/casino_slots_tiles/slot-45.png',
+  '/casino_slots_tiles/slot-46.png',
+  '/casino_slots_tiles/slot-47.png',
+  '/casino_slots_tiles/slot-48.png',
+  '/casino_slots_tiles/slot-49.png',
+  '/casino_slots_tiles/slot-50.png',
+  '/casino_slots_tiles/slot-51.png',
 ]
+
+/** Square 1:1 slot art — gentle zoom on hover like other game carousels */
+const slotTileImgClass =
+  'object-cover object-center transition-transform duration-300 group-hover:scale-105'
 
 // Originals tile images (tall rectangles)
 const originalsTileImages = [
@@ -442,7 +447,7 @@ function GameTile({ game }: { game: typeof mostPlayedGames[0] }) {
           src={game.image}
           alt={game.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className={slotTileImgClass}
           sizes="160px"
         />
         <GameTagBadge tag={metaTag} vendor={getTileVendor(game.id)} />
@@ -613,33 +618,33 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
       <div className="w-full aspect-square">
         <div 
           className="w-full h-full rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
-          onClick={() => {
-            if (onTileClick) {
-              onTileClick({
-                title: gameTitle,
-                image: imageSrc,
-                provider,
-                features: gameFeatures
-              })
-            }
-          }}
         >
           {imageSrc && (
             <Image
               src={imageSrc}
               alt={`Game ${index + 1}`}
               fill
-              className="object-cover"
+              className={slotTileImgClass}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
               priority={index < 12} // Only prioritize first row
             />
           )}
           <GameTagBadge tag={tag} vendor={tileVendor} />
           {jackpotTier && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+            <div className="pointer-events-none absolute bottom-2 left-1/2 z-30 -translate-x-1/2">
               <JackpotNetworkBadge tier={jackpotTier} />
             </div>
           )}
+          <GameTilePlayOverlay
+            onLaunch={() => {
+              onTileClick?.({
+                title: gameTitle,
+                image: imageSrc,
+                provider,
+                features: gameFeatures,
+              })
+            }}
+          />
         </div>
       </div>
     )
@@ -659,33 +664,32 @@ function LazyGameTile({ index, columnIndex, rowIndex, onTileClick, isMobile = fa
       {isVisible ? (
         <div 
           className="w-full h-full rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
-          onClick={() => {
-            if (onTileClick) {
-              onTileClick({
-                title: gameTitle,
-                image: imageSrc,
-                provider,
-                features: gameFeatures
-              })
-            }
-          }}
         >
           {imageSrc && (
             <Image
               src={imageSrc}
               alt={`Game ${index + 1}`}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className={slotTileImgClass}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 20vw, 16vw"
             />
           )}
           <GameTagBadge tag={tag} vendor={tileVendor} />
           {jackpotTier && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+            <div className="pointer-events-none absolute bottom-2 left-1/2 z-30 -translate-x-1/2">
               <JackpotNetworkBadge tier={jackpotTier} />
             </div>
           )}
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+          <GameTilePlayOverlay
+            onLaunch={() => {
+              onTileClick?.({
+                title: gameTitle,
+                image: imageSrc,
+                provider,
+                features: gameFeatures,
+              })
+            }}
+          />
         </div>
       ) : (
         <div className="w-full h-full rounded-small bg-[var(--ds-control-bg)] animate-pulse" />
@@ -854,7 +858,7 @@ function GameTagBadge({ tag, vendor }: { tag: MetaTag; vendor: string }) {
   const config = getTagConfig(tag)
   
   return (
-    <div className="absolute top-1.5 left-1.5 flex items-center gap-1 z-10">
+    <div className="pointer-events-none absolute top-1.5 left-1.5 z-30 flex items-center gap-1">
       <VendorBadge vendor={vendor} />
       <div className={cn(
         "flex items-center gap-0.5 px-1.5 py-[3px] rounded-full border backdrop-blur-sm",
@@ -1053,6 +1057,9 @@ function getLiveImage(gameType: LiveGameType, shape: LiveTileShape, index: numbe
       if (shape === 'square') return liveBaccaratSquareImages[index % liveBaccaratSquareImages.length]
       return liveBaccaratRectImages[index % liveBaccaratRectImages.length]
     case 'poker':
+      // Same tall live art as blackjack — poker tables shouldn’t be square either
+      if (shape === 'tall') return liveBlackjackTallImages[index % liveBlackjackTallImages.length]
+      if (shape === 'rectangle') return liveBlackjackRectImages[index % liveBlackjackRectImages.length]
       return liveBlackjackImages[index % liveBlackjackImages.length]
     default:
       return liveBlackjackImages[0]
@@ -1071,7 +1078,7 @@ function getLiveVendor(index: number) {
 // Main Live Casino Tile Component
 function LiveCasinoTile({ 
   gameType, 
-  shape = 'rectangle',
+  shape = 'tall',
   title, 
   subtitle,
   bettingRange, 
@@ -1096,16 +1103,23 @@ function LiveCasinoTile({
 }) {
   const imageSrc = getLiveImage(gameType, shape, index)
   const vendor = getLiveVendor(index)
+  const sizeClass =
+    shape === 'rectangle'
+      ? 'w-[240px] h-[160px]'
+      : shape === 'square'
+        ? 'w-[160px] h-[160px]'
+        : 'w-[160px] h-[280px]'
+  const imageSizes = shape === 'rectangle' ? '240px' : '160px'
   
   return (
     <div 
       data-content-item 
       className={cn(
-        "rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0",
+        'rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0',
+        sizeClass,
         className
       )}
       style={style}
-      onClick={onClick}
     >
       {/* Background Image */}
       <Image
@@ -1113,14 +1127,14 @@ function LiveCasinoTile({
         alt={title}
         fill
         className="object-cover group-hover:scale-105 transition-transform duration-300"
-        sizes={shape === 'tall' ? '200px' : shape === 'rectangle' ? '300px' : '200px'}
+        sizes={imageSizes}
       />
       
       {/* Dark gradient overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
       
       {/* Limit Tag - glass pill with record dot */}
-      <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[var(--ds-control-hover)] backdrop-blur-md rounded-full px-2 py-0.5 border border-white/15">
+      <div className="pointer-events-none absolute top-2 left-2 z-[2] flex items-center gap-1 bg-[var(--ds-control-hover)] backdrop-blur-md rounded-full px-2 py-0.5 border border-white/15">
         <div className="relative w-1.5 h-1.5 flex-shrink-0">
           <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
           <div className="relative w-1.5 h-1.5 rounded-full bg-red-500" />
@@ -1128,8 +1142,8 @@ function LiveCasinoTile({
         <span className="text-[var(--ds-fg)] text-[10px] font-medium">{bettingRange}</span>
       </div>
       
-      {/* Content at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-2.5 z-10">
+      {/* Content at bottom — under play overlay so hover scrim covers title */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2] p-2.5">
         {/* Game Title */}
         <div className="mb-1.5">
           {subtitle && (
@@ -1138,7 +1152,7 @@ function LiveCasinoTile({
           <div className="text-[var(--ds-fg)] font-bold text-sm leading-tight">{title}</div>
         </div>
         
-        {/* History Tracker / Seats */}
+        {/* History Tracker / Seats — under title, as before */}
         <div className="mb-2">
           {gameType === 'roulette' && (
             <RouletteHistory results={getRouletteResults(index)} />
@@ -1175,8 +1189,7 @@ function LiveCasinoTile({
         </div>
       </div>
       
-      {/* Hover shimmer */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+      <GameTilePlayOverlay className="z-30" onLaunch={() => onClick?.()} />
     </div>
   )
 }
@@ -6235,8 +6248,8 @@ function NavTestPageContent() {
   const jackpotFeedInsertAt = useJackpotPreviewGameCount(isMobile)
   const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
   const { trackNav, trackClick, trackAction, trackSidebar, trackPageView } = useTracking('casino')
-  const [activeFilter, setActiveFilter] = useState('For You')
-  const [activeSubNav, _setActiveSubNav] = useState('For You')
+  const [activeFilter, setActiveFilter] = useState('Lobby')
+  const [activeSubNav, _setActiveSubNav] = useState('Lobby')
   // Wrapper: fire page_view for sub-nav so journey map shows Casino → Slots → Live etc.
   const setActiveSubNav = useCallback((val: string) => {
     _setActiveSubNav((prev: string) => {
@@ -6514,7 +6527,7 @@ function NavTestPageContent() {
   const [vipCanScrollPrev, setVipCanScrollPrev] = useState(false)
   const [vipCanScrollNext, setVipCanScrollNext] = useState(false)
   
-  // For You tab carousels
+  // Lobby tab carousels
   const [forYouBlackjackCarouselApi, setForYouBlackjackCarouselApi] = useState<CarouselApi>()
   const [forYouBlackjackCanScrollPrev, setForYouBlackjackCanScrollPrev] = useState(false)
   const [forYouBlackjackCanScrollNext, setForYouBlackjackCanScrollNext] = useState(false)
@@ -7441,7 +7454,7 @@ function NavTestPageContent() {
     { icon: IconTrophy, label: 'Tournaments' },
   ]
 
-  const gameFilters = ['For You', 'Bonus Buys', 'Megaways', 'Slots', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'New', 'Exclusive']
+  const gameFilters = ['Lobby', 'Bonus Buys', 'Megaways', 'Slots', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'New', 'Exclusive']
 
   return (
     <div 
@@ -7504,7 +7517,7 @@ function NavTestPageContent() {
                 {[
                   { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setOpenMobile(false); router.push('/'); setQuickLinksOpen(false); } },
                   { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
-                  { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
+                  { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
@@ -7707,7 +7720,7 @@ function NavTestPageContent() {
                         setShowSports(false)
                         setShowVipRewards(false)
                         setShowPoker(false)
-                        setActiveSubNav('For You')
+                        setActiveSubNav('Lobby')
                         setShowAllGames(false)
                         setSelectedCategory('')
                         setSelectedVendor('')
@@ -8078,7 +8091,7 @@ function NavTestPageContent() {
                             setShowSports(false)
                             setShowVipRewards(false)
                             setShowPoker(false)
-                            setActiveSubNav('For You')
+                            setActiveSubNav('Lobby')
                             setShowAllGames(false)
                             setSelectedCategory('')
                             setSelectedVendor('')
@@ -8417,7 +8430,7 @@ function NavTestPageContent() {
                                     if (isMobile) setOpenMobile(false)
                                     setActiveIconTab('search')
                                     if (item.label === 'My Favorites') {
-                                      setActiveSubNav('For You')
+                                      setActiveSubNav('Lobby')
                                       setSelectedCategory('Favorites')
                                       setSelectedVendor('')
                                       setShowAllGames(true)
@@ -8527,13 +8540,13 @@ function NavTestPageContent() {
                                       
                                       setActiveIconTab('search')
                                       if (item.label === 'My Favorites') {
-                                        setActiveSubNav('For You')
+                                        setActiveSubNav('Lobby')
                                         setSelectedCategory('Favorites')
                                         setSelectedVendor('')
                                         setShowAllGames(true)
                                         setShowSports(false)
                                       } else if (item.label === 'Popular Games') {
-                                        setActiveSubNav('For You')
+                                        setActiveSubNav('Lobby')
                                         setSelectedCategory('Popular')
                                         setSelectedVendor('')
                                         setShowAllGames(true)
@@ -8557,12 +8570,12 @@ function NavTestPageContent() {
                                         setShowAllGames(true)
                                         setShowSports(false)
                                       } else if (item.label === 'Specialty Games') {
-                                        setActiveSubNav('For You')
+                                        setActiveSubNav('Lobby')
                                         setSelectedCategory('Specialty')
                                         setShowAllGames(true)
                                         setShowSports(false)
                                       } else if (item.label === 'Table Games') {
-                                        setActiveSubNav('For You')
+                                        setActiveSubNav('Lobby')
                                         setSelectedCategory('Table Games')
                                         setShowAllGames(true)
                                         setShowSports(false)
@@ -8573,7 +8586,7 @@ function NavTestPageContent() {
                                         setSelectedVendor('')
                                         setShowSports(false)
                                       } else if (item.label === 'Tournaments') {
-                                        setActiveSubNav('For You')
+                                        setActiveSubNav('Lobby')
                                         setSelectedCategory('Tournaments')
                                         setSelectedVendor('')
                                         setShowAllGames(true)
@@ -8737,7 +8750,7 @@ function NavTestPageContent() {
                     {/* Text Tabs - Full Width */}
                     <AnimateTabs value={(() => {
                       // Don't highlight any tab if viewing vendor or category not in sub nav menu
-                      const subNavItems = ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
+                      const subNavItems = ['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
                       if (selectedVendor) return ''
                       if (selectedCategory && !subNavItems.includes(selectedCategory)) return ''
                       return activeSubNav
@@ -8745,7 +8758,7 @@ function NavTestPageContent() {
                       trackClick('casino-category', `${value}`, { section: 'sub-nav', from: activeSubNav, to: value })
                       setActiveSubNav(value)
                       setActiveIconTab('search') // Reset icon tab when navigating to other pages
-                      if (value === 'For You' || value === 'Live') {
+                      if (value === 'Lobby' || value === 'Live') {
                         setShowAllGames(false)
                         setSelectedCategory('')
                         setSelectedVendor('')
@@ -8758,7 +8771,7 @@ function NavTestPageContent() {
                       
                       // Scroll the clicked tab into view on mobile
                       if (isMobile && subNavScrollRef.current) {
-                        const tabIndex = ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].indexOf(value)
+                        const tabIndex = ['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].indexOf(value)
                         if (tabIndex !== -1) {
                           const tabs = subNavScrollRef.current.querySelectorAll('[data-tab-item]')
                           const targetTab = tabs[tabIndex] as HTMLElement
@@ -8787,7 +8800,7 @@ function NavTestPageContent() {
                         paddingRight: 0
                       } : {}}
                       >
-                        {['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].map((tab, index) => (
+                        {['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].map((tab, index) => (
                           <TabsTab 
                             key={tab}
                             value={tab}
@@ -8795,12 +8808,12 @@ function NavTestPageContent() {
                             className={cn(
                               "relative z-10 text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] text-gray-900 dark:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] dark:hover:text-[var(--ds-fg)] hover:text-black dark:hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white dark:data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none flex items-center gap-1.5 flex-shrink-0",
                               isMobile && index === 0 && "scroll-snap-start",
-                              isMobile && index === ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].length - 1 && "scroll-snap-end mr-12"
+                              isMobile && index === ['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New'].length - 1 && "scroll-snap-end mr-12"
                             )}
                           >
                             {(() => {
                               // Don't highlight if viewing vendor or category not in sub nav menu
-                              const subNavItems = ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
+                              const subNavItems = ['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
                               if (selectedVendor) return false
                               if (selectedCategory && !subNavItems.includes(selectedCategory)) return false
                               return activeSubNav === tab
@@ -8896,7 +8909,7 @@ function NavTestPageContent() {
                         return
                       }
                       startMobileProductSwitch()
-                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); }
+                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); }
                       else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); }
                       else if (page === 'vipRewards') { setShowPoker(false); setShowSports(false); setShowVipRewards(true); }
@@ -8936,7 +8949,7 @@ function NavTestPageContent() {
                         return
                       }
                       startMobileProductSwitch()
-                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('For You'); window.scrollTo(0, 0); }
+                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); window.scrollTo(0, 0); }
                       else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); window.scrollTo(0, 0); }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); window.scrollTo(0, 0); }
                       else if (page === 'vipRewards') {
@@ -8978,8 +8991,8 @@ function NavTestPageContent() {
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                   className="relative min-h-[50vh]"
                 >
-            {/* Banner Carousel - Static, below tabs, only show on "For You" page */}
-            {activeSubNav === 'For You' && !showAllGames && (
+            {/* Banner Carousel - Static, below tabs, only show on "Lobby" page */}
+            {activeSubNav === 'Lobby' && !showAllGames && (
               <div 
                 ref={bannerRef} 
                 data-content-item 
@@ -9160,7 +9173,7 @@ function NavTestPageContent() {
                 ref={contentRef}
                 className={cn(
                   'relative z-0',
-                  isMobile && activeSubNav === 'For You' && !showAllGames
+                  isMobile && activeSubNav === 'Lobby' && !showAllGames
                     ? 'mt-2'
                     : isMobile
                       ? '-mt-2'
@@ -9196,7 +9209,7 @@ function NavTestPageContent() {
                           <div className="flex items-center gap-3">
                             {/* Back button - show when viewing vendor, category not in sub nav menu, or favorites page */}
                             {(() => {
-                              const subNavItems = ['For You', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
+                              const subNavItems = ['Lobby', 'Slots', 'Bonus Buys', 'Megaways', 'Originals', 'Blackjack', 'Live', 'Jackpots', 'Early', 'Staff Picks', 'Exclusive', 'New']
                               const isVendorPage = !!selectedVendor
                               const isCategoryNotInMenu = selectedCategory && !subNavItems.includes(selectedCategory)
                               const isFavoritesPage = activeIconTab === 'favorite' || selectedCategory === 'Favorites'
@@ -9208,7 +9221,7 @@ function NavTestPageContent() {
                                     setSelectedVendor('')
                                     setSelectedCategory('')
                                     setShowAllGames(false)
-                                    setActiveSubNav('For You')
+                                    setActiveSubNav('Lobby')
                                     setActiveIconTab('search')
                                   }}
                                   className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--ds-control-bg)] dark:hover:bg-[var(--ds-control-bg)] hover:bg-gray-200 dark:hover:bg-[var(--ds-control-bg)] transition-colors duration-300 text-gray-800 dark:text-[var(--ds-fg-muted)] hover:text-black dark:hover:text-[var(--ds-fg)]"
@@ -9233,7 +9246,7 @@ function NavTestPageContent() {
                         </motion.h2>
                             
                             {/* Show selected filter */}
-                            {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && gameSortFilter !== 'popular' && (
+                            {(selectedVendor || selectedCategory || activeSubNav) !== 'Lobby' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && gameSortFilter !== 'popular' && (
                               <span className="text-sm text-[var(--ds-fg-muted)] dark:text-[var(--ds-fg-muted)] px-3 py-1 rounded-lg bg-[var(--ds-control-bg)] dark:bg-[var(--ds-control-bg)] border border-[var(--ds-border)] dark:border-[var(--ds-border)]">
                                 {gameSortFilter === 'hot' ? 'Hot' : 
                                  gameSortFilter === 'latest' ? 'Latest' : 
@@ -9244,8 +9257,8 @@ function NavTestPageContent() {
                             )}
                           </div>
                           
-                          {/* Filter Icon - Only show on sub pages (not For You, Live, or Tournaments) */}
-                          {(selectedVendor || selectedCategory || activeSubNav) !== 'For You' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && selectedCategory !== 'Tournaments' && (
+                          {/* Filter Icon - Only show on sub pages (not Lobby, Live, or Tournaments) */}
+                          {(selectedVendor || selectedCategory || activeSubNav) !== 'Lobby' && (selectedVendor || selectedCategory || activeSubNav) !== 'Live' && selectedCategory !== 'Tournaments' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button
@@ -9822,6 +9835,171 @@ function NavTestPageContent() {
                             )
                           }
 
+                          if (selectedCategory === 'Table Games') {
+                            const tableSections: { id: string; title: string; names: string[]; offset: number }[] = [
+                              {
+                                id: 'blackjack',
+                                title: 'Blackjack',
+                                offset: 40,
+                                names: [
+                                  'Blackjack Classic',
+                                  'VIP Blackjack',
+                                  'European Blackjack',
+                                  'American Blackjack',
+                                  'Perfect Pairs',
+                                  '21+3 Blackjack',
+                                  'Blackjack Surrender',
+                                  'Blackjack Switch',
+                                  'Double Exposure',
+                                  'Blackjack Pro',
+                                  'Speed Blackjack',
+                                  'Infinite Blackjack',
+                                ],
+                              },
+                              {
+                                id: 'roulette',
+                                title: 'Roulette',
+                                offset: 52,
+                                names: [
+                                  'European Roulette',
+                                  'American Roulette',
+                                  'French Roulette',
+                                  'Speed Roulette',
+                                  'Multi-Wheel Roulette',
+                                  'VIP Roulette',
+                                  'Mini Roulette',
+                                  'Double Ball Roulette',
+                                  'Auto Roulette',
+                                  'Mega Roulette',
+                                  'Lightning Roulette',
+                                  'Premium Roulette',
+                                ],
+                              },
+                              {
+                                id: 'other',
+                                title: 'Other Table Games',
+                                offset: 64,
+                                names: [
+                                  'Craps',
+                                  'Sic Bo',
+                                  'Keno',
+                                  'Bingo',
+                                  'War',
+                                  'Red Dog',
+                                  'Casino War',
+                                  'Fan Tan',
+                                  'Andar Bahar',
+                                  'Teen Patti',
+                                  'Hi-Lo',
+                                  'Dice Duel',
+                                ],
+                              },
+                              {
+                                id: 'baccarat',
+                                title: 'Baccarat',
+                                offset: 76,
+                                names: [
+                                  'VIP Baccarat',
+                                  'Speed Baccarat',
+                                  'Baccarat Squeeze',
+                                  'No Commission Baccarat',
+                                  'Dragon Tiger',
+                                  'Golden Baccarat',
+                                  'Punto Banco',
+                                  'Control Squeeze',
+                                  'Mini Baccarat',
+                                  'Baccarat Pro',
+                                ],
+                              },
+                              {
+                                id: 'poker',
+                                title: 'Casino Poker',
+                                offset: 86,
+                                names: [
+                                  "Texas Hold'em",
+                                  'Caribbean Stud',
+                                  'Three Card Poker',
+                                  "Casino Hold'em",
+                                  'Ultimate Texas',
+                                  'Pai Gow Poker',
+                                  'Let It Ride',
+                                  'Mississippi Stud',
+                                  'Oasis Poker',
+                                  'Side Bet City',
+                                ],
+                              },
+                            ]
+
+                            const renderTableSlotTile = (
+                              title: string,
+                              index: number,
+                              key: string
+                            ) => {
+                              const imageSrc =
+                                squareTileImages[index % squareTileImages.length]
+                              const provider = getTileVendor(index)
+                              const features = [
+                                'Classic Table Game',
+                                'Multiple Betting Options',
+                                'Fast Play',
+                              ]
+                              const openGame = () =>
+                                setSelectedGame({
+                                  title,
+                                  image: imageSrc,
+                                  provider,
+                                  features,
+                                })
+
+                              return (
+                                <div
+                                  key={key}
+                                  className="group relative aspect-square w-full cursor-pointer overflow-hidden rounded-small bg-[var(--ds-control-bg)] transition-all duration-300 hover:bg-[var(--ds-control-hover)]"
+                                  onClick={openGame}
+                                >
+                                  <Image
+                                    src={imageSrc}
+                                    alt={title}
+                                    fill
+                                    className={slotTileImgClass}
+                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 12vw"
+                                  />
+                                  <GameTagBadge
+                                    tag={getMetaTag(index)}
+                                    vendor={provider}
+                                  />
+                                  <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
+                                    <div className="truncate text-xs font-bold leading-tight text-[var(--ds-fg)]">
+                                      {title}
+                                    </div>
+                                  </div>
+                                  <GameTilePlayOverlay onLaunch={openGame} />
+                                </div>
+                              )
+                            }
+
+                            return (
+                              <div className="flex w-full flex-col gap-10 pb-8">
+                                {tableSections.map((section) => (
+                                  <section key={section.id}>
+                                    <h2 className="mb-4 px-6 text-lg font-semibold text-black dark:text-[var(--ds-fg)]">
+                                      {section.title} ({section.names.length})
+                                    </h2>
+                                    <div className={cn(gridClassName)}>
+                                      {section.names.map((title, index) =>
+                                        renderTableSlotTile(
+                                          title,
+                                          section.offset + index,
+                                          `tg-${section.id}-${index}`
+                                        )
+                                      )}
+                                    </div>
+                                  </section>
+                                ))}
+                              </div>
+                            )
+                          }
+
                           if (isJackpotsGrid) {
                             const insertAt = Math.min(
                               jackpotFeedInsertAt,
@@ -9977,18 +10155,17 @@ function NavTestPageContent() {
                                     )}>
                                       <LiveCasinoTile
                                         gameType="blackjack"
-                                        shape="square"
+                                        shape="rectangle"
                                         title={bjNames[index % bjNames.length]}
                                         subtitle="Live BetOnline"
                                         bettingRange={bjLimits[index % bjLimits.length]}
                                         index={index}
                                         brandPrimary={brandPrimary}
                                         seats={{ occupied: bjSeats[index % bjSeats.length].o, total: bjSeats[index % bjSeats.length].t }}
-                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: bjNames[index % bjNames.length],
-                                            image: getLiveImage('blackjack', 'square', index),
+                                            image: getLiveImage('blackjack', 'rectangle', index),
                                             provider: getLiveVendor(index).name,
                                             features: ['Live Dealer Experience', 'High Stakes Betting', 'Multiple Table Options']
                                           })
@@ -10078,7 +10255,6 @@ function NavTestPageContent() {
                                         bettingRange={rouletteLimits[index % rouletteLimits.length]}
                                         index={index}
                                         brandPrimary={brandPrimary}
-                                        className="w-[160px] h-[280px]"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: rouletteNames[index % rouletteNames.length],
@@ -10172,15 +10348,14 @@ function NavTestPageContent() {
                                         bettingRange={baccaratLimits[index % baccaratLimits.length]}
                                         index={index}
                                         brandPrimary={brandPrimary}
-                                        className="w-[240px] h-[160px]"
-                                      onClick={() => {
-                                        setSelectedGame({
+                                        onClick={() => {
+                                          setSelectedGame({
                                             title: baccaratNames[index % baccaratNames.length],
                                             image: getLiveImage('baccarat', 'rectangle', index),
-                                          provider: getLiveVendor(index).name,
-                                          features: ['Live Dealer Experience', 'High Stakes Betting', 'Multiple Table Options']
-                                        })
-                                      }}
+                                            provider: getLiveVendor(index).name,
+                                            features: ['Live Dealer Experience', 'High Stakes Betting', 'Multiple Table Options']
+                                          })
+                                        }}
                                       />
                                     </CarouselItem>
                                   )
@@ -10190,7 +10365,7 @@ function NavTestPageContent() {
                                   </div>
                                     </div>
                         
-                        {/* VIP Tables Section - Rectangle Tiles */}
+                        {/* VIP Tables Section - Tall tiles (match Originals) */}
                         <div>
                           <div className={cn(
                             "flex items-center justify-between mb-6 relative z-10",
@@ -10262,18 +10437,17 @@ function NavTestPageContent() {
                                     )}>
                                       <LiveCasinoTile
                                         gameType={type}
-                                        shape="rectangle"
+                                        shape="tall"
                                         title={vipNames[index % vipNames.length]}
                                         subtitle="VIP Live"
                                         bettingRange={vipLimits[index % vipLimits.length]}
                                         index={index + 30}
                                         brandPrimary={brandPrimary}
                                         seats={type === 'blackjack' || type === 'poker' ? { occupied: 3 + (index % 4), total: 7 } : undefined}
-                                        className="w-[240px] h-[160px]"
-                                      onClick={() => {
-                                        setSelectedGame({
+                                        onClick={() => {
+                                          setSelectedGame({
                                             title: vipNames[index % vipNames.length],
-                                            image: getLiveImage(type, 'rectangle', index + 30),
+                                            image: getLiveImage(type, 'tall', index + 30),
                                             provider: getLiveVendor(index + 30).name,
                                             features: ['VIP Experience', 'High Stakes', 'Exclusive Tables']
                                           })
@@ -10358,18 +10532,17 @@ function NavTestPageContent() {
                                     )}>
                                       <LiveCasinoTile
                                         gameType="poker"
-                                        shape="square"
+                                        shape="tall"
                                         title={pokerNames[index % pokerNames.length]}
                                         subtitle="Live BetOnline"
                                         bettingRange={pokerLimits[index % pokerLimits.length]}
                                         index={index}
                                         brandPrimary={brandPrimary}
                                         seats={{ occupied: pokerSeats[index % pokerSeats.length].o, total: pokerSeats[index % pokerSeats.length].t }}
-                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: pokerNames[index % pokerNames.length],
-                                            image: getLiveImage('poker', 'square', index),
+                                            image: getLiveImage('poker', 'tall', index),
                                             provider: getLiveVendor(index).name,
                                             features: ['Live Poker Tables', 'Tournament Play', 'Cash Game Options']
                                           })
@@ -10475,7 +10648,20 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
+                                        
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={`Game ${index + 1}`}
+                                            fill
+                                            className={slotTileImgClass}
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={slotTag} vendor={slotVendor} />
+                                                                                <GameTilePlayOverlay
+                                          onLaunch={() => {
                                           setSelectedGame({
                                             title: slotNames[index % slotNames.length],
                                             image: imageSrc,
@@ -10483,18 +10669,7 @@ function NavTestPageContent() {
                                             features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`Game ${index + 1}`}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <GameTagBadge tag={slotTag} vendor={slotVendor} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -10574,15 +10749,6 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
-                                          const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
-                                          setSelectedGame({
-                                            title: originalGameNames[index] || `Originals Game ${index + 1}`,
-                                            image: imageSrc,
-                                            provider: 'BetOnline',
-                                            features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
-                                          })
-                                        }}
                                       >
                                         <Image
                                           src={imageSrc}
@@ -10595,10 +10761,20 @@ function NavTestPageContent() {
                                           }}
                                         />
                                         <GameTagBadge tag="Original" vendor="Originals" />
-                                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="pointer-events-none absolute bottom-2 right-2 z-30 opacity-0 transition-opacity group-hover:opacity-100">
                                           <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
                                         </div>
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        <GameTilePlayOverlay
+                                          onLaunch={() => {
+                                            const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
+                                            setSelectedGame({
+                                              title: originalGameNames[index] || `Originals Game ${index + 1}`,
+                                              image: imageSrc,
+                                              provider: 'BetOnline',
+                                              features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
+                                            })
+                                          }}
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -10607,6 +10783,11 @@ function NavTestPageContent() {
                             </Carousel>
                           </div>
                         </div>
+
+                        {/* Top 10 This Week — above Blackjack */}
+                        <Top10GamesCarousel
+                          onSelectGame={(g) => setSelectedGame(g)}
+                        />
 
                         {/* BlackJack Section - Square Tiles */}
                         <div>
@@ -10623,7 +10804,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                 setSelectedCategory('BlackJack')
                                   setShowAllGames(true)
-                                setActiveSubNav('For You')
+                                setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -10679,18 +10860,17 @@ function NavTestPageContent() {
                                     )}>
                                       <LiveCasinoTile
                                         gameType="blackjack"
-                                        shape="square"
+                                        shape="rectangle"
                                         title={gameNames[index % gameNames.length]}
                                         subtitle="Live BetOnline"
                                         bettingRange={bjLimits[index % bjLimits.length]}
                                         index={index + 10}
                                         brandPrimary={brandPrimary}
                                         seats={{ occupied: bjSeats[index % bjSeats.length].o, total: bjSeats[index % bjSeats.length].t }}
-                                        className="w-[160px] h-[160px]"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: gameNames[index % gameNames.length],
-                                            image: getLiveImage('blackjack', 'square', index + 10),
+                                            image: getLiveImage('blackjack', 'rectangle', index + 10),
                                             provider: getLiveVendor(index).name,
                                             features: ['Classic Card Game', 'Multiple Betting Options', 'Live Dealer Available']
                                           })
@@ -10705,7 +10885,7 @@ function NavTestPageContent() {
                         </div>
 
                         {/* Vendors Carousel */}
-                        {activeSubNav === 'For You' && !showAllGames && (
+                        {activeSubNav === 'Lobby' && !showAllGames && (
                           <div 
                             className="relative w-full mt-6 mb-10 overflow-visible"
                             style={{ overflow: 'visible' }}
@@ -10813,7 +10993,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Popular')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -10842,7 +11022,20 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
+                                        
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={popularNames[index % popularNames.length]}
+                                            fill
+                                            className={slotTileImgClass}
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={popularTag} vendor={popularVendor} />
+                                                                                <GameTilePlayOverlay
+                                          onLaunch={() => {
                                           setSelectedGame({
                                             title: popularNames[index % popularNames.length],
                                             image: imageSrc,
@@ -10850,18 +11043,7 @@ function NavTestPageContent() {
                                             features: ['Top Rated', 'High RTP', 'Fan Favorite']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={popularNames[index % popularNames.length]}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <GameTagBadge tag={popularTag} vendor={popularVendor} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -10886,7 +11068,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Baccarat')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -10947,7 +11129,6 @@ function NavTestPageContent() {
                                         bettingRange={baccaratLimits[index % baccaratLimits.length]}
                                         index={index + 20}
                                         brandPrimary={brandPrimary}
-                                        className="w-[240px] h-[160px]"
                                         onClick={() => {
                                           setSelectedGame({
                                             title: baccaratNames[index % baccaratNames.length],
@@ -10980,7 +11161,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Exclusives')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -11008,7 +11189,20 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
+                                        
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={exclusiveNames[index % exclusiveNames.length]}
+                                            fill
+                                            className={slotTileImgClass}
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag="Exclusive" vendor={exclusiveVendor} />
+                                                                                <GameTilePlayOverlay
+                                          onLaunch={() => {
                                           setSelectedGame({
                                             title: exclusiveNames[index % exclusiveNames.length],
                                             image: imageSrc,
@@ -11016,18 +11210,7 @@ function NavTestPageContent() {
                                             features: ['Exclusive to BetOnline', 'Unique Features', 'Special Bonuses']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={exclusiveNames[index % exclusiveNames.length]}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <GameTagBadge tag="Exclusive" vendor={exclusiveVendor} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -11073,7 +11256,7 @@ function NavTestPageContent() {
                                   onClick={() => {
                                     setSelectedCategory('Halloween')
                                     setShowAllGames(true)
-                                    setActiveSubNav('For You')
+                                    setActiveSubNav('Lobby')
                                   }}
                                 >
                                   <IconGhost className="w-4 h-4" />
@@ -11129,7 +11312,7 @@ function NavTestPageContent() {
                                         )}>
                                       <div 
                                         data-content-item 
-                                        className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20"
+                                        className="w-[240px] h-[160px] rounded-small bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20 flex-shrink-0"
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.backgroundColor = `${getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'}33`
                                         }}
@@ -11151,8 +11334,8 @@ function NavTestPageContent() {
                                             src={imageSrc}
                                             alt={`Halloween Game ${index + 1}`}
                                             fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
+                                            className={slotTileImgClass}
+                                            sizes="240px"
                                           />
                                         )}
                                             <GameTagBadge tag={getMetaTag(index + 80)} vendor={getTileVendor(index + 80)} />
@@ -11183,7 +11366,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Crash')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -11212,7 +11395,20 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
+                                        
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={crashNames[index % crashNames.length]}
+                                            fill
+                                            className={slotTileImgClass}
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={crashTag} vendor={crashVendor} />
+                                                                                <GameTilePlayOverlay
+                                          onLaunch={() => {
                                           setSelectedGame({
                                             title: crashNames[index % crashNames.length],
                                             image: imageSrc,
@@ -11220,18 +11416,7 @@ function NavTestPageContent() {
                                             features: ['Crash Gameplay', 'Multiplier Rewards', 'Fast-Paced Action']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={crashNames[index % crashNames.length]}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <GameTagBadge tag={crashTag} vendor={crashVendor} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -11256,7 +11441,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Tournaments')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 View All
@@ -11368,7 +11553,7 @@ function NavTestPageContent() {
                                 onClick={() => {
                                   setSelectedCategory('Instant Wins')
                                   setShowAllGames(true)
-                                  setActiveSubNav('For You')
+                                  setActiveSubNav('Lobby')
                                 }}
                               >
                                 All Games
@@ -11397,7 +11582,20 @@ function NavTestPageContent() {
                                       <div 
                                         data-content-item 
                                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                                        onClick={() => {
+                                        
+                                      >
+                                        {imageSrc && (
+                                          <Image
+                                            src={imageSrc}
+                                            alt={instantNames[index % instantNames.length]}
+                                            fill
+                                            className={slotTileImgClass}
+                                            sizes="160px"
+                                          />
+                                        )}
+                                        <GameTagBadge tag={instantTag} vendor={instantVendor} />
+                                                                                <GameTilePlayOverlay
+                                          onLaunch={() => {
                                           setSelectedGame({
                                             title: instantNames[index % instantNames.length],
                                             image: imageSrc,
@@ -11405,18 +11603,7 @@ function NavTestPageContent() {
                                             features: ['Instant Results', 'Quick Gameplay', 'Guaranteed Prizes']
                                           })
                                         }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={instantNames[index % instantNames.length]}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="160px"
-                                          />
-                                        )}
-                                        <GameTagBadge tag={instantTag} vendor={instantVendor} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                                        />
                                       </div>
                                     </CarouselItem>
                                   )
@@ -11747,7 +11934,7 @@ function NavTestPageContent() {
                 if (e.target === e.currentTarget) {
                   setSearchOverlayOpen(false)
                   setSearchQuery('')
-                  setActiveSubNav('For You')
+                  setActiveSubNav('Lobby')
                   setShowAllGames(false)
                   setSelectedCategory('')
                   setSelectedGame(null)
@@ -11772,7 +11959,7 @@ function NavTestPageContent() {
                           e.stopPropagation()
                           setSearchOverlayOpen(false)
                           setSearchQuery('')
-                          setActiveSubNav('For You')
+                          setActiveSubNav('Lobby')
                           setShowAllGames(false)
                           setSelectedCategory('')
                           setSelectedVendor('')
@@ -11959,7 +12146,7 @@ function NavTestPageContent() {
                                   alt={`Game ${index + 1}`}
                                   fill
                                   className={cn(
-                                    "object-cover group-hover:scale-105 transition-transform duration-300",
+                                    slotTileImgClass,
                                     viewMode === 'list' && "rounded-small",
                                     viewMode === 'card' && "rounded-small",
                                     viewMode === 'pack' && "rounded-lg"
@@ -12616,7 +12803,19 @@ function NavTestPageContent() {
                     <div
                       key={index}
                       className="w-full aspect-square rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group"
-                      onClick={() => {
+                    >
+                      {imageSrc && (
+                        <Image
+                          src={imageSrc}
+                          alt={gameName}
+                          fill
+                          className={slotTileImgClass}
+                          sizes="(max-width: 640px) 50vw, 50vw"
+                        />
+                      )}
+                      
+                      <GameTilePlayOverlay
+                        onLaunch={() => {
                         setSelectedGame({
                           title: gameName,
                           image: imageSrc,
@@ -12624,18 +12823,8 @@ function NavTestPageContent() {
                           features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
                         })
                         setSimilarGamesDrawerOpen(false)
-                      }}
-                    >
-                      {imageSrc && (
-                        <Image
-                          src={imageSrc}
-                          alt={gameName}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 640px) 50vw, 50vw"
-                        />
-                      )}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                        }}
+                      />
                     </div>
                   )
                 })}
@@ -12766,7 +12955,7 @@ function NavTestPageContent() {
           onSearchClick={() => setSearchOverlayOpen(true)}
           onFavoriteClick={() => {
             setActiveIconTab('favorite')
-            setActiveSubNav('For You')
+            setActiveSubNav('Lobby')
             setSelectedCategory('Favorites')
             setSelectedVendor('')
             setShowAllGames(true)
