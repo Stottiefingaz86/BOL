@@ -26,6 +26,7 @@ import { VipTablesSection } from '@/components/home/vip-tables-section'
 import { VipRewardsPromo } from '@/components/home/vip-rewards-promo'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
+import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -48,7 +49,6 @@ import {
   IconBrandX,
   IconBrandYoutube,
   IconBrandTiktok,
-  IconInfoCircle,
   IconWallet,
   IconUser,
   IconCrown,
@@ -144,6 +144,11 @@ import ChatNavToggle from '@/components/chat/chat-nav-toggle'
 import DynamicIsland from '@/components/dynamic-island'
 import { JackpotOverlay } from '@/components/casino/jackpot-overlay'
 import { JackpotWheelBonus } from '@/components/casino/jackpot/jackpot-wheel-bonus'
+import {
+  GameLauncherJackpotRow,
+  JackpotLauncherDropdown,
+  useJackpotTicker,
+} from '@/components/casino/jackpot'
 import { fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { NotificationHub } from '@/components/account/notification-hub'
@@ -895,6 +900,7 @@ function HomePageContent() {
   // Game launcher states
   const [selectedGame, setSelectedGame] = useState<{ title: string; image: string; provider?: string; features?: string[] } | null>(null)
   const [gameLauncherMenuOpen, setGameLauncherMenuOpen] = useState(false)
+  const [gameLauncherJackpotsVisible, setGameLauncherJackpotsVisible] = useState(true)
   const [gameImageLoaded, setGameImageLoaded] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLandscape, setIsLandscape] = useState(false)
@@ -906,6 +912,9 @@ function HomePageContent() {
   const jackpotTimerRef = useRef<NodeJS.Timeout | null>(null)
   const gameLauncherMenuRef = useRef<HTMLDivElement>(null)
   const gameImageRef = useRef<HTMLDivElement>(null)
+  const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
+
+  useJackpotTicker()
 
   useEffect(() => {
     const onOpenVipBenefits = () => {
@@ -1270,25 +1279,31 @@ function HomePageContent() {
 
   // Preload jackpot bed while the game loads — ready before the wheel appears.
   useEffect(() => {
-    if (!gameImageLoaded || !selectedGame) return
+    if (!gameImageLoaded || !selectedGame || !jackpotOptedIn) return
     preloadJackpotWheelAudio(0.42)
     preloadJackpotWinHandoffAudio()
-  }, [gameImageLoaded, selectedGame])
+  }, [gameImageLoaded, selectedGame, jackpotOptedIn])
 
-  // Jackpot overlay — show 5 seconds after game image loads
+  // Jackpot overlay — show 5 seconds after game image loads (only when opted in)
   useEffect(() => {
-    if (gameImageLoaded && selectedGame) {
-      jackpotTimerRef.current = setTimeout(() => {
-        setShowJackpotWheel(true)
-      }, 5000)
-    }
+    if (!gameImageLoaded || !selectedGame || !jackpotOptedIn) return
+    jackpotTimerRef.current = setTimeout(() => {
+      setShowJackpotWheel(true)
+    }, 5000)
     return () => {
       if (jackpotTimerRef.current) {
         clearTimeout(jackpotTimerRef.current)
         jackpotTimerRef.current = null
       }
     }
-  }, [gameImageLoaded, selectedGame])
+  }, [gameImageLoaded, selectedGame, jackpotOptedIn])
+
+  useEffect(() => {
+    if (!jackpotOptedIn) {
+      setShowJackpot(false)
+      setShowJackpotWheel(false)
+    }
+  }, [jackpotOptedIn])
 
   // Handle fullscreen change events
   useEffect(() => {
@@ -1415,7 +1430,7 @@ function HomePageContent() {
     >
       <AuthLoginBridge onRequestLogin={openAccountLogin} />
       {/* Mobile: Quick Links - Above main menu */}
-      {isMobile && (
+      {isMobile && !selectedGame && (
         <motion.div
           initial={false}
           animate={{
@@ -1505,7 +1520,8 @@ function HomePageContent() {
         </motion.div>
       )}
 
-      {/* Global Header - Same as casino page */}
+      {/* Global Header - Same as casino page (hidden while game launcher is open) */}
+      {!selectedGame && (
       <motion.header 
         data-nav-header
         className={cn(
@@ -1635,6 +1651,7 @@ function HomePageContent() {
         />
         </div>
       </motion.header>
+      )}
 
       {/* Main Content - No Sidebar; constrain width on ultra-wide screens */}
       <div
@@ -1907,14 +1924,6 @@ function HomePageContent() {
                     <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div 
                         className="w-[160px] h-[160px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                        onClick={() => {
-                          setSelectedGame({
-                            title: slotNames[index % slotNames.length],
-                            image: imageSrc,
-                            provider: slotVendor,
-                            features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
-                          })
-                        }}
                       >
                         {imageSrc && (
                           <Image
@@ -1926,7 +1935,17 @@ function HomePageContent() {
                           />
                         )}
                         <GameTagBadge tag={getMetaTag(index + 20)} vendor={slotVendor} />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                        <GameTilePlayOverlay
+                          onLaunch={() => {
+                            setSelectedGame({
+                              title: slotNames[index % slotNames.length],
+                              image: imageSrc,
+                              provider: slotVendor,
+                              features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
+                            })
+                          }}
+                        />
                       </div>
                     </CarouselItem>
                   )
@@ -2115,15 +2134,6 @@ function HomePageContent() {
                     <CarouselItem key={index} className={cn("pr-0 basis-auto flex-shrink-0", index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4")}>
                       <div 
                         className="w-[160px] h-[280px] rounded-small bg-[var(--ds-control-bg)] hover:bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group flex-shrink-0"
-                        onClick={() => {
-                          const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
-                          setSelectedGame({
-                            title: originalGameNames[index] || `Originals Game ${index + 1}`,
-                            image: imageSrc,
-                            provider: 'BetOnline',
-                            features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
-                          })
-                        }}
                       >
                         <Image
                           src={imageSrc}
@@ -2133,10 +2143,18 @@ function HomePageContent() {
                           sizes="160px"
                         />
                         <GameTagBadge tag="Original" vendor="Originals" />
-                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <IconInfoCircle className="w-4 h-4 text-[var(--ds-fg)] drop-shadow-lg" strokeWidth={2} />
-                        </div>
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                        <GameTilePlayOverlay
+                          onLaunch={() => {
+                            const originalGameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
+                            setSelectedGame({
+                              title: originalGameNames[index] || `Originals Game ${index + 1}`,
+                              image: imageSrc,
+                              provider: 'BetOnline',
+                              features: ['Original Game', 'Unique Gameplay', 'Exclusive to BetOnline']
+                            })
+                          }}
+                        />
                       </div>
                     </CarouselItem>
                   )
@@ -2346,32 +2364,39 @@ function HomePageContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[200] bg-[var(--ds-page-bg)]"
+              className="fixed inset-0 z-[100010] flex flex-col bg-[var(--ds-page-bg)]"
             >
-              {/* Rounded Glass Top Bar - Hidden in mobile landscape */}
-              {!(isMobile && isLandscape) && (
+              {/* Top chrome — matches casino launcher (jackpot toggle + ticker) */}
+              {!isFullscreen && !(isMobile && isLandscape) && (
                 <motion.div
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   className={cn(
-                    "fixed top-4 left-4 right-4 z-50 rounded-2xl backdrop-blur-xl border border-white/10",
-                    isMobile ? "h-10" : "h-12"
+                    'relative z-[100020] shrink-0 overflow-visible rounded-2xl border border-[var(--ds-border)] backdrop-blur-xl',
+                    isMobile ? 'mx-3 mt-3' : 'mx-4 mt-4'
                   )}
                   style={{
                     backgroundColor: 'rgba(26, 26, 26, 0.6)',
                   }}
                 >
-                  <div className="flex items-center justify-between h-full px-3 relative">
-                    {/* Hamburger Menu - Left */}
-                    <div className="relative" ref={gameLauncherMenuRef}>
+                  <div
+                    className={cn(
+                      'relative h-10 w-full min-w-0 overflow-visible px-2',
+                      gameLauncherJackpotsVisible && 'border-b border-[var(--ds-border)]',
+                      isMobile
+                        ? 'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-1'
+                        : 'flex items-center gap-1.5 md:gap-2 md:px-2.5'
+                    )}
+                  >
+                    <div className="relative z-[100030] shrink-0" ref={gameLauncherMenuRef}>
                       <button
                         onClick={() => setGameLauncherMenuOpen(!gameLauncherMenuOpen)}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
                       >
                         <svg
-                          className="w-4 h-4 text-white"
+                          className="w-4 h-4 text-[var(--ds-fg)]"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -2384,8 +2409,7 @@ function HomePageContent() {
                           <line x1="4" y1="17" x2="18" y2="17" />
                         </svg>
                       </button>
-                      
-                      {/* Dropdown Menu */}
+
                       <AnimatePresence>
                         {gameLauncherMenuOpen && (
                           <motion.div
@@ -2393,15 +2417,40 @@ function HomePageContent() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -10, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 mt-2 w-56 bg-[#2d2d2d]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50"
+                            className="absolute top-full left-0 mt-2 z-[100060] w-56 overflow-hidden rounded-xl border border-white/10 bg-[#2d2d2d] shadow-2xl"
                           >
                             <div className="py-2">
+                              {isMobile && (
+                                <button
+                                  onClick={() => {
+                                    const gameId = hashGameTitle(selectedGame.title)
+                                    const next = new Set(favoritedGames)
+                                    if (next.has(gameId)) next.delete(gameId)
+                                    else next.add(gameId)
+                                    setFavoritedGames(next)
+                                    setGameLauncherMenuOpen(false)
+                                  }}
+                                  className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
+                                >
+                                  <IconHeart
+                                    className={cn(
+                                      'h-4 w-4 shrink-0',
+                                      favoritedGames.has(hashGameTitle(selectedGame.title))
+                                        ? 'fill-pink-500 text-pink-500'
+                                        : 'text-white/60'
+                                    )}
+                                  />
+                                  {favoritedGames.has(hashGameTitle(selectedGame.title))
+                                    ? 'Remove from Favourites'
+                                    : 'Add to Favourites'}
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   setGameLauncherMenuOpen(false)
                                   openDepositDrawer()
                                 }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
                               >
                                 Quick Deposit
                               </button>
@@ -2410,15 +2459,13 @@ function HomePageContent() {
                                   setSimilarGamesDrawerOpen(true)
                                   setGameLauncherMenuOpen(false)
                                 }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
+                                className="w-full px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
                               >
                                 More Games Like This
                               </button>
                             </div>
-                            
-                            {/* VIP Progress Bar */}
-                            <div className="px-4 py-3 border-t border-white/10 bg-white/5">
-                              <div className="text-xs text-white/70 mb-2">Gold To Platinum I</div>
+                            <div className="border-t border-white/10 bg-white/[0.04] px-4 py-3">
+                              <div className="mb-2 text-xs text-white/60">Gold To Platinum I</div>
                               <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
                             </div>
                           </motion.div>
@@ -2426,80 +2473,109 @@ function HomePageContent() {
                       </AnimatePresence>
                     </div>
 
-                    {/* Game Name - Center */}
-                    <h2 className="absolute left-1/2 -translate-x-1/2 text-sm font-semibold text-white max-w-[50%] truncate px-2">
-                      {selectedGame.title}
-                    </h2>
+                    {isMobile ? (
+                      <h2
+                        className="min-w-0 overflow-hidden truncate px-1 text-left text-xs font-semibold text-[var(--ds-fg)]"
+                        title={selectedGame.title}
+                      >
+                        {selectedGame.title}
+                      </h2>
+                    ) : (
+                      <h2
+                        className="pointer-events-none absolute left-1/2 top-1/2 z-0 max-w-[calc(100%-14rem)] -translate-x-1/2 -translate-y-1/2 truncate text-center text-sm font-semibold text-[var(--ds-fg)]"
+                        title={selectedGame.title}
+                      >
+                        {selectedGame.title}
+                      </h2>
+                    )}
 
-                    {/* Right Icons - Fullscreen, Favorite and Close */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => {
-                          if (!gameImageRef.current) return
-                          
-                          if (!isFullscreen) {
-                            if (gameImageRef.current.requestFullscreen) {
-                              gameImageRef.current.requestFullscreen()
-                            } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
-                              (gameImageRef.current as any).webkitRequestFullscreen()
-                            } else if ((gameImageRef.current as any).msRequestFullscreen) {
-                              (gameImageRef.current as any).msRequestFullscreen()
+                    <div
+                      className={cn(
+                        'relative z-10 flex shrink-0 items-center gap-1',
+                        !isMobile && 'ml-auto'
+                      )}
+                    >
+                      <JackpotLauncherDropdown
+                        layout="header"
+                        tickerVisible={gameLauncherJackpotsVisible}
+                        onTickerToggle={() =>
+                          setGameLauncherJackpotsVisible((v) => !v)
+                        }
+                      />
+                      {!isMobile && (
+                        <button
+                          onClick={() => {
+                            if (!gameImageRef.current) return
+                            if (!isFullscreen) {
+                              if (gameImageRef.current.requestFullscreen) {
+                                gameImageRef.current.requestFullscreen()
+                              } else if ((gameImageRef.current as any).webkitRequestFullscreen) {
+                                ;(gameImageRef.current as any).webkitRequestFullscreen()
+                              } else if ((gameImageRef.current as any).msRequestFullscreen) {
+                                ;(gameImageRef.current as any).msRequestFullscreen()
+                              }
+                              setIsFullscreen(true)
+                            } else {
+                              if (document.exitFullscreen) {
+                                document.exitFullscreen()
+                              } else if ((document as any).webkitExitFullscreen) {
+                                ;(document as any).webkitExitFullscreen()
+                              } else if ((document as any).msExitFullscreen) {
+                                ;(document as any).msExitFullscreen()
+                              }
+                              setIsFullscreen(false)
                             }
-                            setIsFullscreen(true)
-                          } else {
-                            if (document.exitFullscreen) {
-                              document.exitFullscreen()
-                            } else if ((document as any).webkitExitFullscreen) {
-                              (document as any).webkitExitFullscreen()
-                            } else if ((document as any).msExitFullscreen) {
-                              (document as any).msExitFullscreen()
-                            }
-                            setIsFullscreen(false)
-                          }
-                        }}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                      >
-                        <IconMaximize className="w-4 h-4 text-white/70 hover:text-white" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          const gameId = hashGameTitle(selectedGame.title)
-                          const newFavorited = new Set(favoritedGames)
-                          if (newFavorited.has(gameId)) {
-                            newFavorited.delete(gameId)
-                          } else {
-                            newFavorited.add(gameId)
-                          }
-                          setFavoritedGames(newFavorited)
-                        }}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                      >
-                        <IconHeart 
-                          className={cn(
-                            "w-4 h-4 transition-colors",
-                            favoritedGames.has(hashGameTitle(selectedGame.title))
-                              ? "text-pink-500 fill-pink-500"
-                              : "text-white/70"
-                          )}
-                        />
-                      </button>
+                          }}
+                          className="rounded-full p-1.5 transition-colors hover:bg-[var(--ds-control-hover)]"
+                        >
+                          <IconMaximize className="h-4 w-4 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
+                        </button>
+                      )}
+                      {!isMobile && (
+                        <button
+                          onClick={() => {
+                            const gameId = hashGameTitle(selectedGame.title)
+                            const next = new Set(favoritedGames)
+                            if (next.has(gameId)) next.delete(gameId)
+                            else next.add(gameId)
+                            setFavoritedGames(next)
+                          }}
+                          className="rounded-full p-1.5 transition-colors hover:bg-[var(--ds-control-hover)]"
+                        >
+                          <IconHeart
+                            className={cn(
+                              'h-4 w-4 transition-colors',
+                              favoritedGames.has(hashGameTitle(selectedGame.title))
+                                ? 'fill-pink-500 text-pink-500'
+                                : 'text-[var(--ds-fg-muted)]'
+                            )}
+                          />
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setSelectedGame(null)
                           setGameLauncherMenuOpen(false)
                           setIsFullscreen(false)
                         }}
-                        className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                        className="rounded-full p-1.5 transition-colors hover:bg-[var(--ds-control-hover)]"
                       >
-                        <IconX className="w-4 h-4 text-white/70 hover:text-white" />
+                        <IconX className="h-4 w-4 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                       </button>
                     </div>
                   </div>
+                  <GameLauncherJackpotRow visible={gameLauncherJackpotsVisible} />
                 </motion.div>
               )}
 
               {/* Content Area - Loading then Game Image */}
-              <div className={cn("h-full flex items-center justify-center", isMobile ? "pt-20" : "pt-24")} style={{ zIndex: 1 }}>
+              <div
+                className={cn(
+                  'relative min-h-0 flex-1',
+                  !isFullscreen && (isMobile ? 'mx-3 mb-3 mt-2' : 'mx-4 mb-4 mt-2')
+                )}
+                style={{ zIndex: 1 }}
+              >
                 <AnimatePresence mode="wait">
                   {!gameImageLoaded ? (
                     <motion.div
@@ -2508,7 +2584,7 @@ function HomePageContent() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="flex flex-col items-center gap-4"
+                      className="flex h-full flex-col items-center justify-center gap-4"
                     >
                       <motion.div
                         animate={{ rotate: 360 }}
@@ -2519,7 +2595,7 @@ function HomePageContent() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-white/70 text-sm"
+                        className="text-[var(--ds-fg-muted)] text-sm"
                       >
                         Loading game...
                       </motion.p>
@@ -2543,16 +2619,9 @@ function HomePageContent() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
                       className={cn(
-                        "fixed rounded-2xl overflow-hidden",
-                        isFullscreen || (isMobile && isLandscape) 
-                          ? "inset-0 rounded-none" 
-                          : "top-4 left-4 right-4"
+                        'absolute inset-0 overflow-hidden',
+                        isFullscreen ? 'rounded-none' : 'rounded-2xl'
                       )}
-                      style={isFullscreen || (isMobile && isLandscape) ? {} : { 
-                        top: isMobile ? '68px' : '80px',
-                        height: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 100px)',
-                        maxHeight: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 100px)'
-                      }}
                     >
                       {selectedGame.image && (
                         <Image
@@ -2583,9 +2652,21 @@ function HomePageContent() {
                     />
                   </div>
                 )}
+
+                {showJackpotWheel && gameImageLoaded && !isMobile && (
+                  <JackpotWheelBonus
+                    onWipeStart={(tier) => {
+                      setJackpotWinTier(tier)
+                      setShowJackpot(true)
+                    }}
+                    onComplete={() => {
+                      setShowJackpotWheel(false)
+                    }}
+                  />
+                )}
               </div>
 
-              {showJackpotWheel && gameImageLoaded && (
+              {showJackpotWheel && gameImageLoaded && isMobile && (
                 <JackpotWheelBonus
                   onWipeStart={(tier) => {
                     setJackpotWinTier(tier)
@@ -2670,15 +2751,6 @@ function HomePageContent() {
                     <div
                       key={index}
                       className="w-full aspect-square rounded-small bg-white/5 hover:bg-white/10 cursor-pointer transition-all duration-300 relative overflow-hidden group"
-                      onClick={() => {
-                        setSelectedGame({
-                          title: gameName,
-                          image: imageSrc,
-                          provider: tileVendor,
-                          features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
-                        })
-                        setSimilarGamesDrawerOpen(false)
-                      }}
                     >
                       {imageSrc && (
                         <Image
@@ -2690,7 +2762,18 @@ function HomePageContent() {
                         />
                       )}
                       <GameTagBadge tag={getMetaTag(index)} vendor={tileVendor} />
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                      <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
+                      <GameTilePlayOverlay
+                        onLaunch={() => {
+                          setSelectedGame({
+                            title: gameName,
+                            image: imageSrc,
+                            provider: tileVendor,
+                            features: ['High RTP', 'Free Spins Feature', 'Bonus Rounds Available']
+                          })
+                          setSimilarGamesDrawerOpen(false)
+                        }}
+                      />
                     </div>
                   )
                 })}

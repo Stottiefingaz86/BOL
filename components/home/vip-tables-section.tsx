@@ -232,7 +232,6 @@ function LiveTile({
   return (
     <div
       className="group relative h-[160px] w-[240px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10"
-      onClick={onClick}
     >
       <Image
         src={imageSrc}
@@ -241,9 +240,9 @@ function LiveTile({
         className="object-cover transition-transform duration-300 group-hover:scale-105"
         sizes="240px"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
 
-      <div className="absolute left-1.5 top-1.5 z-10 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 backdrop-blur-md">
+      <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 flex max-w-[calc(100%-12px)] items-center gap-1 rounded-full border border-white/15 bg-white/10 px-1.5 py-0.5 backdrop-blur-md">
         <div className="relative h-1.5 w-1.5 flex-shrink-0">
           <div className="absolute inset-0 animate-ping rounded-full bg-red-500 opacity-75" />
           <div className="relative h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -251,7 +250,7 @@ function LiveTile({
         <span className="truncate text-[9px] font-medium text-white">{game.limit}</span>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-2.5">
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 p-2.5">
         <div className="mb-1">
           <div className="mb-0.5 text-[9px] font-medium uppercase tracking-wider text-white/60">Live</div>
           <div className="line-clamp-1 text-sm font-bold leading-tight text-white">{game.title}</div>
@@ -285,7 +284,8 @@ function LiveTile({
         </div>
       </div>
 
-      <div className="tile-shimmer absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none tile-shimmer absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <GameTilePlayOverlay onLaunch={() => onClick?.()} />
     </div>
   )
 }
