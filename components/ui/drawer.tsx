@@ -36,7 +36,7 @@ const DrawerClose = DrawerPrimitive.Close
 const DrawerOverlay = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay> & { nonInteractive?: boolean }
->(({ className, onClick, nonInteractive = false, ...props }, ref) => (
+>(({ className, onClick, nonInteractive = false, style, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
     className={cn("fixed inset-0 z-[9998] bg-black/60 backdrop-blur-xl transition-opacity duration-300 ease-in-out", className)}
@@ -44,7 +44,7 @@ const DrawerOverlay = React.forwardRef<
       pointerEvents: nonInteractive ? 'none' : 'auto',
       visibility: 'visible',
       zIndex: 9998,
-      ...props.style,
+      ...style,
     } as React.CSSProperties}
     onClick={(e) => {
       if (nonInteractive) {
@@ -52,8 +52,6 @@ const DrawerOverlay = React.forwardRef<
         e.stopPropagation()
         return
       }
-      console.log('DrawerOverlay clicked')
-      // Don't prevent default - let vaul handle it
       if (onClick) {
         onClick(e)
       }
@@ -98,12 +96,23 @@ function isDrawerToggleTarget(target: EventTarget | null) {
 
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & { noOverlay?: boolean; showOverlay?: boolean; overlayClassName?: string; onOverlayClick?: () => void; noDrag?: boolean }
->(({ className, children, noOverlay = false, showOverlay = false, overlayClassName, onOverlayClick, noDrag = false, style, onPointerDownOutside, onInteractOutside, onFocusOutside, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
+    noOverlay?: boolean
+    showOverlay?: boolean
+    overlayClassName?: string
+    overlayStyle?: React.CSSProperties
+    onOverlayClick?: () => void
+    noDrag?: boolean
+  }
+>(({ className, children, noOverlay = false, showOverlay = false, overlayClassName, overlayStyle, onOverlayClick, noDrag = false, style, onPointerDownOutside, onInteractOutside, onFocusOutside, ...props }, ref) => {
   return (
     <DrawerPortal>
       {showOverlay && (
-        <DrawerOverlay className={overlayClassName} onClick={onOverlayClick ? (e) => { e.stopPropagation(); onOverlayClick(); } : undefined} />
+        <DrawerOverlay
+          className={overlayClassName}
+          style={overlayStyle}
+          onClick={onOverlayClick ? (e) => { e.stopPropagation(); onOverlayClick(); } : undefined}
+        />
       )}
       <DrawerPrimitive.Content
         ref={ref}

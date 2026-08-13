@@ -89,7 +89,7 @@ import {
   PlusIcon,
   TrashIcon
 } from "lucide-react"
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { 
   IconFileText, 
@@ -121,7 +121,6 @@ import {
   IconInfoCircle,
   IconLiveView,
   IconSearch,
-  IconPlayerPlay as IconPlay,
   IconX,
   IconMenu2,
   IconBrandFacebook,
@@ -150,11 +149,7 @@ import {
   IconGolf,
   IconHorse,
   IconFlag2,
-  IconList,
-  IconLayoutGrid,
-  IconStack,
   IconSearch as IconSearchNew,
-  IconArrowRight,
   IconCheck,
   IconLoader2,
   IconFilter,
@@ -6952,9 +6947,82 @@ function NavTestPageContent() {
 
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<'list' | 'card' | 'pack'>('card')
   const [favoritedGames, setFavoritedGames] = useState<Set<number>>(new Set())
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false)
+  const [advNewestGames, setAdvNewestGames] = useState(false)
+  const [advMostPopular, setAdvMostPopular] = useState(false)
+  const [advGameTypes, setAdvGameTypes] = useState<Set<string>>(new Set())
+  const [advProviders, setAdvProviders] = useState<Set<string>>(new Set())
+  const [advSortBy, setAdvSortBy] = useState('a-z')
+  const [advGameTypeOpen, setAdvGameTypeOpen] = useState(true)
+  const [advProviderOpen, setAdvProviderOpen] = useState(false)
+  const ADV_SORT_OPTIONS = [
+    { value: 'a-z', label: 'A-Z (Ascending)' },
+    { value: 'z-a', label: 'Z-A (Descending)' },
+    { value: 'popular', label: 'Most Popular' },
+    { value: 'latest', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
+    { value: 'hot', label: 'Hot' },
+  ] as const
+  const ADV_GAME_TYPES = [
+    'Keno',
+    'Scratch',
+    'Slots',
+    'Table',
+    'Tournament',
+    'Video Poker',
+    'Casual',
+    'Virtual Sports',
+    'Lottery',
+  ] as const
+  const ADV_PROVIDERS = [
+    '5 Clover',
+    '777Jacks',
+    "Arrow's Edge",
+    'BetSoft',
+    'Blaze',
+    'DGS Casino Solutions',
+    'Dragon Gaming',
+    'Emerald Gate',
+    'FDRL',
+    'Felix',
+    'KA Gaming',
+    'Lucky',
+    'Mascot Gaming',
+    'Nucleus',
+    'Onlyplay',
+    'Popiplay',
+    'Qora',
+    'Red Sparrow',
+    'Revolver Gaming',
+    'Rival',
+    'Twain',
+    'VIG',
+    'Wingo',
+  ] as const
+  const advFilterCount =
+    (advNewestGames ? 1 : 0) +
+    (advMostPopular ? 1 : 0) +
+    advGameTypes.size +
+    advProviders.size
+  const toggleAdvSet = (
+    setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+    value: string
+  ) => {
+    setter((prev) => {
+      const next = new Set(prev)
+      if (next.has(value)) next.delete(value)
+      else next.add(value)
+      return next
+    })
+  }
+  const clearAdvancedFilters = () => {
+    setAdvNewestGames(false)
+    setAdvMostPopular(false)
+    setAdvGameTypes(new Set())
+    setAdvProviders(new Set())
+    setAdvSortBy('a-z')
+  }
   const [selectedGame, setSelectedGame] = useState<{ title: string; image: string; provider?: string; features?: string[] } | null>(null)
   useEffect(() => {
     if (selectedGame) {
@@ -12164,341 +12232,198 @@ function NavTestPageContent() {
                 className="min-h-screen bg-[var(--ds-page-bg)] text-[var(--ds-fg)]"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Search Header */}
-                <div className="sticky top-0 bg-[var(--ds-page-bg)]/60 backdrop-blur-xl border-b border-[var(--ds-border)] z-10 px-6 py-4">
-                  <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center justify-end mb-4">
+                {/* Search Header — fully opaque, no glass */}
+                <div className="sticky top-0 z-50 isolate border-b border-[var(--ds-border)] bg-[var(--ds-page-bg)] px-4 py-4 md:px-6">
+                  <div className="mx-auto max-w-7xl">
+                    <div className="flex items-center gap-3">
+                      <div className="relative min-w-0 flex-1">
+                        <IconSearchNew className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--ds-fg-subtle)]" />
+                        <input
+                          type="text"
+                          placeholder="Search games"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="h-11 w-full rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] pl-11 pr-10 text-sm text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] focus:border-white/20 focus:outline-none"
+                          autoFocus
+                        />
+                        {searchQuery ? (
+                          <button
+                            type="button"
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--ds-fg-subtle)] transition-colors hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]"
+                            aria-label="Clear search"
+                          >
+                            <IconX className="h-4 w-4" />
+                          </button>
+                        ) : null}
+                      </div>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
                           setSearchOverlayOpen(false)
                           setSearchQuery('')
+                          setAdvancedSearchOpen(false)
                           setActiveSubNav('Lobby')
                           setShowAllGames(false)
                           setSelectedCategory('')
                           setSelectedVendor('')
                           setSelectedGame(null)
-                          // Force focus back to main content
                           setTimeout(() => {
                             const mainContent = document.querySelector('[data-content-item]')
                             if (mainContent) {
-                              (mainContent as HTMLElement).focus()
+                              ;(mainContent as HTMLElement).focus()
                             }
                           }, 100)
                         }}
-                        className="p-2 hover:bg-[var(--ds-control-hover)] rounded-small transition-colors"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)] text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]"
+                        aria-label="Close search"
                       >
-                        <IconX className="w-6 h-6 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
+                        <IconX className="h-5 w-5" />
                       </button>
                     </div>
-                    
-                    {/* Search Bar */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 relative">
-                          <IconSearchNew className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--ds-fg-subtle)]" />
-                          <input
-                            type="text"
-                            placeholder="Search"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && searchQuery) {
-                                // Handle search
-                                console.log('Searching for:', searchQuery)
-                              }
-                            }}
-                            className="w-full pl-11 pr-12 py-3 bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded-small text-[var(--ds-fg)] placeholder:text-[var(--ds-fg-subtle)] focus:outline-none focus:border-white/20"
-                            autoFocus
-                          />
-                          {searchQuery ? (
-                            <button
-                              onClick={() => {
-                                // Handle search
-                                console.log('Searching for:', searchQuery)
-                              }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-[var(--ds-control-hover)] rounded transition-colors"
-                              title="Search"
-                            >
-                              <IconArrowRight className="w-5 h-5 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
-                            </button>
-                          ) : (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <kbd className="px-2 py-1 text-xs font-semibold text-[var(--ds-fg-subtle)] bg-[var(--ds-control-bg)] border border-[var(--ds-border)] rounded">↵</kbd>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => setAdvancedSearchOpen(true)}
-                          className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] flex items-center gap-1 text-sm"
-                        >
-                          <IconChevronDown className="w-4 h-4" />
-                          ADVANCED SEARCH
-                        </button>
-                        <span className="text-sm text-[var(--ds-fg-subtle)]">No filters applied</span>
-                      </div>
-                    </div>
 
-                    {/* View Switcher */}
-                    <div className="flex items-center gap-2 mt-4">
-                      <div className="flex p-1 bg-[var(--ds-control-bg)] rounded-full w-fit border border-[var(--ds-border)]">
-                        <ViewTab
-                          active={viewMode === 'list'}
-                          onClick={() => setViewMode('list')}
-                          icon={IconList}
-                          label="List"
-                          brandPrimary={brandPrimary}
-                        />
-                        <ViewTab
-                          active={viewMode === 'card'}
-                          onClick={() => setViewMode('card')}
-                          icon={IconLayoutGrid}
-                          label="Card"
-                          brandPrimary={brandPrimary}
-                        />
-                      </div>
+                    <div className="mt-3 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setAdvancedSearchOpen(true)
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[var(--ds-control-bg)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--ds-fg)] transition-colors hover:bg-[var(--ds-control-hover)]"
+                      >
+                        <IconFilter className="h-3.5 w-3.5 text-[var(--ds-fg-muted)]" />
+                        Advanced search
+                        <IconChevronDown className="h-3.5 w-3.5 text-[var(--ds-fg-muted)]" />
+                      </button>
+                      <span className="text-xs text-[var(--ds-fg-subtle)]">
+                        {advFilterCount === 0
+                          ? 'No filters applied'
+                          : `${advFilterCount} filter${advFilterCount === 1 ? '' : 's'} applied`}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Search Results */}
-                <div className="max-w-7xl mx-auto px-6 py-6">
-                  <h3 className="text-lg font-semibold text-[var(--ds-fg)] mb-6">Recommended games</h3>
-                  <LayoutGroup>
-                    <motion.div
-                      layout
-                      transition={{
-                        type: "spring",
-                        stiffness: 350,
-                        damping: 30,
-                        mass: 1
-                      }}
-                      className={cn(
-                        "w-full relative",
-                        viewMode === 'list' && "flex flex-col gap-4",
-                        viewMode === 'card' && "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4",
-                        viewMode === 'pack' && "h-64 flex items-center justify-center mt-8"
-                      )}
-                    >
-                      {Array.from({ length: 22 }).map((_, index) => {
-                        const imageSrc = squareTileImages[index % squareTileImages.length]
-                        // Mix of different game types
-                        const gameType = index % 3
-                        const isGoldNugget = gameType === 0
-                        const isPlinko = gameType === 1
-                        const isSubtitle = gameType === 2
-                        
-                        return (
-                          <motion.div
-                            key={index}
-                            layout
-                            className={cn(
-                              "relative flex items-center z-10 group cursor-pointer",
-                              viewMode === 'list' && "flex-row gap-4 w-full",
-                              viewMode === 'card' && "flex-col gap-3 w-full items-start",
-                              viewMode === 'pack' && "absolute w-56 h-56 items-center justify-center"
-                            )}
-                            style={{
-                              zIndex: viewMode === 'pack' ? 22 - index : 1,
-                            }}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ 
-                              opacity: 1, 
-                              ...(viewMode === 'pack' ? {
-                                rotate: index === 0 ? -12 : index === 1 ? 6 : -6,
-                                x: index === 0 ? -25 : index === 1 ? 25 : 0,
-                                y: index === 0 ? -5 : index === 1 ? 5 : 0,
-                              } : {
-                                rotate: 0,
-                                x: 0,
-                                y: 0,
-                              })
-                            }}
-                            transition={{ 
-                              type: "spring",
-                              stiffness: 350,
-                              damping: 30,
-                              mass: 1,
-                              delay: index * 0.02
-                            }}
-                            onClick={() => {
-                              const gameTitle = isGoldNugget ? 'Gold Nugget Rush' : isPlinko ? 'Original Plinko' : 'Subtitle Title'
-                              const provider = isPlinko ? 'BETONLINE' : 'Dragon Gaming'
-                              const features = isGoldNugget 
-                                ? ['Exploding Wilds Every 10 Spins!', 'Free Spins with Up to 10 Wilds on Every Spin!']
-                                : isPlinko
-                                ? ['Classic Plinko Action', 'Multiple Betting Ranges']
-                                : ['Live Casino Experience', 'Real-Time Gameplay']
-                              setSelectedGame({
-                                title: gameTitle,
-                                image: imageSrc,
-                                provider,
-                                features
-                              })
-                            }}
-                          >
-                            <motion.div
-                              layout
-                              transition={{
-                                type: "spring",
-                                stiffness: 350,
-                                damping: 30,
-                                mass: 1
-                              }}
-                              className={cn(
-                                "relative overflow-hidden shrink-0 bg-[var(--ds-control-bg)] border border-[var(--ds-border)]",
-                                viewMode === 'list' && "w-16 h-16 rounded-small",
-                                viewMode === 'card' && "w-full aspect-square rounded-small",
-                                viewMode === 'pack' && "w-full h-full rounded-lg"
-                              )}
-                            >
-                              {imageSrc && (
-                                <Image
-                                  src={imageSrc}
-                                  alt={`Game ${index + 1}`}
-                                  fill
-                                  className={cn(
-                                    slotTileImgClass,
-                                    viewMode === 'list' && "rounded-small",
-                                    viewMode === 'card' && "rounded-small",
-                                    viewMode === 'pack' && "rounded-lg"
-                                  )}
-                                  sizes={viewMode === 'list' ? "64px" : viewMode === 'card' ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" : "224px"}
-                                />
-                              )}
-                              
-                              {/* Top Left Tags */}
-                              {viewMode !== 'list' && (
-                                <>
-                                  {isGoldNugget && (
-                                    <div className="absolute top-2 left-2 bg-orange-500 text-[var(--ds-fg)] text-[10px] font-semibold px-2 py-0.5 rounded">
-                                      HOT
-                                    </div>
-                                  )}
-                                  {(isPlinko || isSubtitle) && (
-                                    <div className="absolute top-2 left-2 text-white text-[10px] font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}>
-                                      $25-$100
-                                    </div>
-                                  )}
-                                  {isPlinko && (
-                                    <div className="absolute top-2 left-12 bg-blue-500 text-[var(--ds-fg)] text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center">
-                                      B
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                              
-                              {/* Game Title Overlay - Only for card and pack views */}
-                              {viewMode !== 'list' && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-3">
-                                  {isGoldNugget && (
-                                    <>
-                                      <div className="text-[var(--ds-fg)] font-semibold text-sm mb-1">Gold Nugget Rush</div>
-                                      {/* Bottom Icons */}
-                                      <div className="flex items-center gap-2 text-[var(--ds-fg-muted)] text-xs">
-                                        <IconUser className="w-3 h-3" />
-                                        <IconPlay className="w-3 h-3" />
-                                        <IconStar className="w-3 h-3" />
-                                        <IconCurrencyDollar className="w-3 h-3" />
-                                      </div>
-                                    </>
-                                  )}
-                                  {isPlinko && (
-                                    <>
-                                      <div className="text-[var(--ds-fg)] font-semibold text-xs mb-1">ORIGINAL PLINKO</div>
-                                      <div className="text-[var(--ds-fg-muted)] text-[10px]">BETONLINE</div>
-                                    </>
-                                  )}
-                                  {isSubtitle && (
-                                    <>
-                                      <div className="text-[var(--ds-fg)] font-semibold text-xs mb-1">SUBTITLE TITLE</div>
-                                      <div className="flex items-center gap-1 text-[var(--ds-fg-muted)] text-[10px]">
-                                        <IconUser className="w-3 h-3" />
-                                        <span>8</span>
-                                        <span>20</span>
-                                        <span>13</span>
-                                        <span>0</span>
-                                        <span>11</span>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              )}
-                              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 tile-shimmer" />
-                            </motion.div>
-
-                            {/* List View Info */}
-                            <AnimatePresence mode="popLayout" initial={false}>
-                              {viewMode === 'list' && (
-                                <motion.div
-                                  key={`${index}-info`}
-                                  layout
-                                  initial={{
-                                    opacity: 0,
-                                    scale: 0.9,
-                                    filter: "blur(4px)",
-                                  }}
-                                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                  exit={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
-                                  transition={{ duration: 0.1, ease: "linear" }}
-                                  className="flex flex-1 justify-between items-center min-w-0"
-                                >
-                                  <div className="flex flex-col gap-0.5 min-w-0">
-                                    <h3 className="font-medium text-[15px] text-[var(--ds-fg)] leading-tight truncate">
-                                      {isGoldNugget ? 'Gold Nugget Rush' : isPlinko ? 'Original Plinko' : 'Subtitle Title'}
-                                    </h3>
-                                    <div className="text-[var(--ds-fg-muted)] font-medium text-xs flex items-center gap-1.5">
-                                      <span className="truncate">
-                                        {isGoldNugget ? 'Slots' : isPlinko ? 'Originals' : 'Live Casino'}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      setFavoritedGames(prev => {
-                                        const newSet = new Set(prev)
-                                        if (newSet.has(index)) {
-                                          newSet.delete(index)
-                                        } else {
-                                          newSet.add(index)
-                                        }
-                                        return newSet
-                                      })
-                                    }}
-                                    className="flex items-center justify-center p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors shrink-0 ml-2"
-                                  >
-                                    <IconHeart 
-                                      className={cn(
-                                        "w-4 h-4 transition-colors",
-                                        favoritedGames.has(index) 
-                                          ? "text-pink-500 fill-pink-500" 
-                                          : "text-[var(--ds-fg-muted)]"
-                                      )}
-                                    />
-                                  </button>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-
-                            {viewMode === 'list' && (
-                              <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="absolute -bottom-2 left-20 right-0 h-px bg-[var(--ds-control-hover)]"
-                              />
-                            )}
-                          </motion.div>
+                <div className="relative z-0 mx-auto max-w-7xl px-4 py-6 md:px-6">
+                  {(() => {
+                    const searchGames = Array.from({ length: 24 }).map((_, index) => {
+                      const titles = [
+                        'Starburst',
+                        'Book of Dead',
+                        "Gonzo's Quest",
+                        'Dead or Alive',
+                        'Immortal Romance',
+                        'Thunderstruck',
+                        'Avalon',
+                        'Blood Suckers',
+                        'Mega Moolah',
+                        'Bonanza',
+                        'Razor Shark',
+                        'Sweet Bonanza',
+                        'Gates of Olympus',
+                        'Big Bass Bonanza',
+                        'The Dog House',
+                        'Wolf Gold',
+                        'Fire Strike',
+                        'Chilli Heat',
+                        'Reactoonz',
+                        'Jammin Jars',
+                        'Fruit Shop',
+                        'Legacy of Dead',
+                        'Money Train 2',
+                        'Wanted Dead or a Wild',
+                      ]
+                      const title = titles[index % titles.length]
+                      const provider = getTileVendor(index + 40)
+                      return {
+                        id: index,
+                        title,
+                        provider,
+                        image: squareTileImages[index % squareTileImages.length],
+                        tag: getMetaTag(index + 40),
+                      }
+                    })
+                    const q = searchQuery.trim().toLowerCase()
+                    const filtered = q
+                      ? searchGames.filter(
+                          (g) =>
+                            g.title.toLowerCase().includes(q) ||
+                            g.provider.toLowerCase().includes(q)
                         )
-                      })}
-                    </motion.div>
-                  </LayoutGroup>
+                      : searchGames
+                    const heading = q
+                      ? filtered.length
+                        ? `Results for “${searchQuery.trim()}”`
+                        : `No results for “${searchQuery.trim()}”`
+                      : 'Recommended games'
+
+                    return (
+                      <>
+                        <div className="mb-4 flex items-end justify-between gap-3">
+                          <h3 className="text-lg font-semibold text-[var(--ds-fg)]">{heading}</h3>
+                          {filtered.length > 0 && (
+                            <span className="text-xs text-[var(--ds-fg-subtle)]">
+                              {filtered.length} game{filtered.length === 1 ? '' : 's'}
+                            </span>
+                          )}
+                        </div>
+
+                        {filtered.length === 0 ? (
+                          <div className="rounded-xl border border-[var(--ds-border)] bg-[var(--ds-control-bg)]/50 px-6 py-16 text-center">
+                            <p className="text-sm text-[var(--ds-fg-muted)]">
+                              Try a different name or clear your search.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setSearchQuery('')}
+                              className="mt-4 text-sm font-medium text-[var(--ds-fg)] underline-offset-2 hover:underline"
+                            >
+                              Clear search
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4 lg:grid-cols-5 xl:grid-cols-6">
+                            {filtered.map((game) => (
+                              <div
+                                key={game.id}
+                                className="group relative aspect-square w-full cursor-pointer overflow-hidden rounded-small bg-[var(--ds-control-bg)] transition-all duration-300 hover:bg-[var(--ds-control-hover)]"
+                              >
+                                <Image
+                                  src={game.image}
+                                  alt={game.title}
+                                  fill
+                                  className={slotTileImgClass}
+                                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 12vw"
+                                />
+                                <GameTagBadge tag={game.tag} vendor={game.provider} />
+                                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
+                                <GameTilePlayOverlay
+                                  onLaunch={() => {
+                                    setSelectedGame({
+                                      title: game.title,
+                                      image: game.image,
+                                      provider: game.provider,
+                                      features: [
+                                        'High RTP',
+                                        'Free Spins Feature',
+                                        'Bonus Rounds Available',
+                                      ],
+                                    })
+                                    setSearchOverlayOpen(false)
+                                    setSearchQuery('')
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
               </motion.div>
             </motion.div>
@@ -13048,56 +12973,241 @@ function NavTestPageContent() {
           </DrawerContent>
         </Drawer>
 
-        {/* Advanced Search Side Drawer */}
-        <Drawer open={advancedSearchOpen} onOpenChange={setAdvancedSearchOpen} direction={isMobile ? "bottom" : "right"} shouldScaleBackground={false}>
-          <DrawerContent className="w-full sm:max-w-md bg-[var(--ds-surface-raised)] border-l border-[var(--ds-border)] text-[var(--ds-fg)] z-[210] relative">
-            <DrawerHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <DrawerTitle className="text-[var(--ds-fg)] text-2xl">Advanced Search</DrawerTitle>
-                  <DrawerDescription className="text-[var(--ds-fg-muted)]">
-                    Filter games by category, provider, and more
-                  </DrawerDescription>
-                </div>
-                <DrawerClose asChild>
-                  <button className="rounded-sm opacity-70 hover:opacity-100 transition-opacity">
-                    <IconX className="h-4 w-4 text-[var(--ds-fg)]" />
-                  </button>
-                </DrawerClose>
-              </div>
-            </DrawerHeader>
-            <div className="mt-6 space-y-6">
-              {/* Filter sections will go here */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-[var(--ds-fg)]">Category</h3>
-                  <div className="space-y-2">
-                    {['Slots', 'Blackjack', 'Roulette', 'Baccarat', 'Live Casino', 'Video Poker'].map((category) => (
-                      <label key={category} className="flex items-center gap-2 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-[var(--ds-control-bg)]" />
-                        <span>{category}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                
-                <Separator className="bg-[var(--ds-control-hover)]" />
-                
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 text-[var(--ds-fg)]">Provider</h3>
-                  <div className="space-y-2">
-                    {['BetOnline', 'Dragon Gaming', 'Evolution', 'Pragmatic Play'].map((provider) => (
-                      <label key={provider} className="flex items-center gap-2 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] cursor-pointer">
-                        <input type="checkbox" className="w-4 h-4 rounded border-white/20 bg-[var(--ds-control-bg)]" />
-                        <span>{provider}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DrawerContent>
-        </Drawer>
+        {/* Advanced Search — custom portal (Vaul nested dialog is blocked by search overlay) */}
+        {typeof document !== 'undefined' &&
+          createPortal(
+            <AnimatePresence>
+              {advancedSearchOpen && (
+                <motion.div
+                  key="adv-search-root"
+                  className="fixed inset-0 z-[100200]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <button
+                    type="button"
+                    aria-label="Close filters"
+                    className="absolute inset-0 bg-black/55"
+                    onClick={() => setAdvancedSearchOpen(false)}
+                  />
+                  <motion.aside
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="adv-search-title"
+                    initial={
+                      isMobile
+                        ? { y: '100%' }
+                        : { x: '100%' }
+                    }
+                    animate={isMobile ? { y: 0 } : { x: 0 }}
+                    exit={isMobile ? { y: '100%' } : { x: '100%' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+                    className={cn(
+                      'absolute flex flex-col border-[var(--ds-border)] bg-[var(--ds-page-bg)] text-[var(--ds-fg)] shadow-2xl',
+                      isMobile
+                        ? 'inset-x-0 bottom-0 max-h-[90vh] rounded-t-[12px] border-t'
+                        : 'inset-y-0 right-0 w-full max-w-md border-l'
+                    )}
+                  >
+                    {isMobile && (
+                      <div className="flex justify-center pt-2">
+                        <div className="h-1 w-10 rounded-full bg-white/20" />
+                      </div>
+                    )}
+
+                    <div className="flex shrink-0 items-center gap-2 border-b border-[var(--ds-border)] px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => setAdvancedSearchOpen(false)}
+                        className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-hover)]"
+                        aria-label="Close filters"
+                      >
+                        <IconChevronLeft className="h-5 w-5" strokeWidth={2} />
+                      </button>
+                      <div className="min-w-0 text-left">
+                        <h2
+                          id="adv-search-title"
+                          className="text-base font-semibold text-[var(--ds-fg)]"
+                        >
+                          Filter & sort by
+                        </h2>
+                        <p className="text-xs text-[var(--ds-fg-subtle)]">
+                          Narrow games by type and provider
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+                      <p className="mb-2 px-0.5 text-sm font-medium text-[var(--ds-fg-muted)]">
+                        Filter by
+                      </p>
+                      <div className="overflow-hidden rounded-xl bg-[var(--ds-overlay)]">
+                        <label className="flex cursor-pointer items-center gap-3 border-b border-[var(--ds-border)] px-3.5 py-3.5 transition-colors hover:bg-white/[0.03]">
+                          <Checkbox
+                            checked={advNewestGames}
+                            onCheckedChange={(v) => setAdvNewestGames(v === true)}
+                            className="border-white/25 data-[state=checked]:border-[var(--ds-primary,#ee3536)] data-[state=checked]:bg-[var(--ds-primary,#ee3536)]"
+                          />
+                          <span className="text-sm font-medium text-[var(--ds-fg)]">
+                            Newest Games
+                          </span>
+                        </label>
+
+                        <label className="flex cursor-pointer items-center gap-3 border-b border-[var(--ds-border)] px-3.5 py-3.5 transition-colors hover:bg-white/[0.03]">
+                          <Checkbox
+                            checked={advMostPopular}
+                            onCheckedChange={(v) => setAdvMostPopular(v === true)}
+                            className="border-white/25 data-[state=checked]:border-[var(--ds-primary,#ee3536)] data-[state=checked]:bg-[var(--ds-primary,#ee3536)]"
+                          />
+                          <span className="text-sm font-medium text-[var(--ds-fg)]">
+                            Most Popular
+                          </span>
+                        </label>
+
+                        <div className="border-b border-[var(--ds-border)]">
+                          <button
+                            type="button"
+                            onClick={() => setAdvGameTypeOpen((v) => !v)}
+                            className="flex w-full items-center justify-between px-3.5 py-3.5 text-left transition-colors hover:bg-white/[0.03]"
+                          >
+                            <span className="flex items-center gap-2 text-sm font-medium text-[var(--ds-fg)]">
+                              Game Type
+                              {advGameTypes.size > 0 && (
+                                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white/70">
+                                  {advGameTypes.size}
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-lg leading-none text-[var(--ds-fg-muted)]">
+                              {advGameTypeOpen ? '−' : '+'}
+                            </span>
+                          </button>
+                          {advGameTypeOpen && (
+                            <div className="space-y-1 px-3.5 pb-3">
+                              {ADV_GAME_TYPES.map((type) => (
+                                <label
+                                  key={type}
+                                  className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-2 transition-colors hover:bg-white/[0.03]"
+                                >
+                                  <Checkbox
+                                    checked={advGameTypes.has(type)}
+                                    onCheckedChange={() =>
+                                      toggleAdvSet(setAdvGameTypes, type)
+                                    }
+                                    className="border-white/25 data-[state=checked]:border-[var(--ds-primary,#ee3536)] data-[state=checked]:bg-[var(--ds-primary,#ee3536)]"
+                                  />
+                                  <span className="text-sm text-[var(--ds-fg-muted)]">
+                                    {type}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => setAdvProviderOpen((v) => !v)}
+                            className="flex w-full items-center justify-between px-3.5 py-3.5 text-left transition-colors hover:bg-white/[0.03]"
+                          >
+                            <span className="flex items-center gap-2 text-sm font-medium text-[var(--ds-fg)]">
+                              Game Provider
+                              {advProviders.size > 0 && (
+                                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white/70">
+                                  {advProviders.size}
+                                </span>
+                              )}
+                            </span>
+                            <span className="text-lg leading-none text-[var(--ds-fg-muted)]">
+                              {advProviderOpen ? '−' : '+'}
+                            </span>
+                          </button>
+                          {advProviderOpen && (
+                            <div className="max-h-[40vh] space-y-1 overflow-y-auto px-3.5 pb-3 pr-2">
+                              {ADV_PROVIDERS.map((provider) => (
+                                <label
+                                  key={provider}
+                                  className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-2 transition-colors hover:bg-white/[0.03]"
+                                >
+                                  <Checkbox
+                                    checked={advProviders.has(provider)}
+                                    onCheckedChange={() =>
+                                      toggleAdvSet(setAdvProviders, provider)
+                                    }
+                                    className="border-white/25 data-[state=checked]:border-[var(--ds-primary,#ee3536)] data-[state=checked]:bg-[var(--ds-primary,#ee3536)]"
+                                  />
+                                  <span className="text-sm text-[var(--ds-fg-muted)]">
+                                    {provider}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="relative mt-5">
+                        <label
+                          htmlFor="adv-sort-by"
+                          className="absolute -top-2 left-3 z-10 bg-[var(--ds-page-bg)] px-1 text-xs text-[var(--ds-fg-muted)]"
+                        >
+                          Sort by
+                        </label>
+                        <Select value={advSortBy} onValueChange={setAdvSortBy}>
+                          <SelectTrigger
+                            id="adv-sort-by"
+                            className="h-12 w-full rounded-lg border-white/15 bg-transparent text-sm text-[var(--ds-fg)] focus:ring-0 focus:ring-offset-0"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="z-[100300] border-[var(--ds-border)] bg-[var(--ds-page-bg)] text-[var(--ds-fg)]">
+                            {ADV_SORT_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                                className="focus:bg-white/10 focus:text-[var(--ds-fg)]"
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 border-t border-[var(--ds-border)] bg-[var(--ds-page-bg)] px-4 py-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={clearAdvancedFilters}
+                          className="h-11 rounded-lg border border-white/15 bg-transparent text-xs font-bold uppercase tracking-wider text-[var(--ds-fg)] transition-colors hover:bg-white/[0.04]"
+                        >
+                          Clear all
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setGameSortFilter(advSortBy)
+                            setAdvancedSearchOpen(false)
+                          }}
+                          className="h-11 rounded-lg text-xs font-bold uppercase tracking-wider text-white transition-[filter] hover:brightness-110"
+                          style={{
+                            backgroundColor: 'var(--ds-primary, #ee3536)',
+                          }}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  </motion.aside>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
 
       {!isMobile && !showSports && !showVipRewards && !showPoker && (
         <Tour
@@ -13268,59 +13378,6 @@ function NavTestPageContent() {
       )}
 
     </div>
-  )
-}
-
-// View Tab Component for Search Overlay
-function ViewTab({
-  active,
-  onClick,
-  icon: Icon,
-  label,
-  brandPrimary,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: any
-  label: string
-  brandPrimary: string
-}) {
-  const snappySpring = {
-    type: "spring" as const,
-    stiffness: 350,
-    damping: 30,
-    mass: 1
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "relative flex items-center gap-2 px-4 py-2 text-xs font-normal uppercase transition-all rounded-full outline-none",
-        active
-          ? "text-[var(--ds-fg)]"
-          : "text-[var(--ds-fg-subtle)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-      )}
-    >
-      {active && (
-        <motion.div
-          layoutId="active-view-tab"
-          className="absolute inset-0 rounded-full"
-          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-          transition={snappySpring}
-        />
-      )}
-      <span className="relative z-10 flex items-center gap-2">
-        <Icon
-          size={16}
-          className={cn(
-            "transition-transform duration-300",
-            active && "scale-110"
-          )}
-        />
-        {label}
-      </span>
-    </button>
   )
 }
 
