@@ -1541,7 +1541,7 @@ function LevelsCarousel() {
       {/* Carousel — full width like other site carousels */}
       <div className="relative w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] -mx-4 md:-mx-6 overflow-visible">
         <Carousel setApi={setApi} className="w-full relative overflow-visible" opts={{ align: 'start', loop: false, dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+          <CarouselContent className="ml-4 md:ml-6 pr-4 md:pr-6">
             {allLevels.map((level, index) => (
               <CarouselItem key={index} className="pl-0 pr-3 md:pr-4 basis-auto flex-shrink-0">
                 <Card className="bg-[var(--ds-control-bg)] border-[var(--ds-border)] relative flex-shrink-0 overflow-hidden w-[180px] md:w-[240px] min-h-[260px] md:min-h-[320px]">
@@ -2149,7 +2149,7 @@ function PromosPage({
               <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
             </>
           )}
-          <CarouselContent className="ml-3 md:ml-6 -mr-2 md:-mr-4">
+          <CarouselContent className="ml-3 md:ml-6 pr-3 md:pr-6">
             {[
               {
                 src: '/banners/casino/casino_banner1.svg',
@@ -9160,7 +9160,7 @@ function NavTestPageContent() {
                         <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                       </>
                     )}
-                    <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                    <CarouselContent className="ml-0 pr-4 md:pr-6">
                       {/* VIP Hub card — same progress block as hub drawer; fixed carousel size */}
                       <CarouselItem className={cn(
                         "pr-0 basis-auto flex-shrink-0",
@@ -9501,7 +9501,7 @@ function NavTestPageContent() {
                                     <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                                   </>
                                 )}
-                                <CarouselContent className="ml-0 -mr-2 md:-mr-4" style={{ overflow: 'visible' }}>
+                                <CarouselContent className="ml-0 pr-4 md:pr-6" style={{ overflow: 'visible' }}>
                                     {[
                                       'Dragon Gaming',
                                       'BetSoft',
@@ -10243,7 +10243,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setBlackjackCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const bjNames = ['Classic Blackjack', 'VIP Blackjack', 'Speed Blackjack', 'Blackjack Party', 'Lightning Blackjack', 'Infinite Blackjack', 'Blackjack VIP', 'Perfect Pairs', 'European Blackjack', 'Double Exposure']
                                   const bjLimits = ['$25 - $500', '$350 - $5,000', '$100 - $1,000', '$50 - $250', '$25 - $100', '$10 - $500', '$500 - $5,000', '$25 - $250', '$50 - $500', '$100 - $2,000']
@@ -10338,7 +10338,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setRouletteCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const rouletteNames = ['Live Roulette', 'Speed Roulette', 'Lightning Roulette', 'Auto Roulette', 'VIP Roulette', 'French Roulette', 'European Roulette', 'Mega Roulette', 'Double Ball', 'Immersive Roulette']
                                   const rouletteLimits = ['$25 - $100', '$10 - $500', '$50 - $1,000', '$1 - $100', '$100 - $5,000', '$25 - $250', '$5 - $500', '$50 - $2,000', '$25 - $500', '$10 - $1,000']
@@ -10431,7 +10431,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setBaccaratCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 8 }).map((_, index) => {
                                   const baccaratNames = ['VIP Baccarat', 'Auto Baccarat', 'Speed Baccarat', 'Lightning Baccarat', 'Baccarat Squeeze', 'No Commission', 'Dragon Tiger', 'Golden Baccarat']
                                   const baccaratLimits = ['$350 - $5,000', '$1 - $12,500', '$25 - $100', '$50 - $1,000', '$5 - $500', '$10 - $1,000', '$25 - $250', '$100 - $5,000']
@@ -10524,7 +10524,7 @@ function NavTestPageContent() {
                                   </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setVipCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const vipNames = ['VIP Blackjack Elite', 'VIP Roulette', 'VIP Baccarat', 'VIP Speed BJ', 'VIP Lightning', 'VIP Unlimited BJ', 'VIP Auto Roulette', 'VIP Dragon Tiger', 'VIP Squeeze', 'VIP Gold BJ']
                                   const vipLimits = ['$500 - $10,000', '$350 - $5,000', '$1,000 - $25,000', '$250 - $5,000', '$500 - $15,000', '$100 - $5,000', '$500 - $10,000', '$250 - $7,500', '$1,000 - $20,000', '$350 - $5,000']
@@ -10620,7 +10620,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setCasinoPokerCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const pokerNames = ['Texas Hold\'em', 'Caribbean Stud', 'Three Card Poker', 'Casino Hold\'em', 'Ultimate Texas', 'Pai Gow Poker', 'Let It Ride', 'Mississippi Stud', 'Oasis Poker', 'Side Bet City']
                                   const pokerLimits = ['$25 - $500', '$50 - $1,000', '$10 - $250', '$100 - $2,000', '$25 - $500', '$5 - $100', '$50 - $250', '$25 - $1,000', '$10 - $500', '$50 - $2,000']
@@ -10734,7 +10734,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setForYouSlotsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const imageSrc = squareTileImages[index % squareTileImages.length]
                                   const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
@@ -10838,7 +10838,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setOriginalsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {originalsTileImages.map((imageSrc, index) => {
                                   const gameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                                   return (
@@ -10948,7 +10948,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setForYouBlackjackCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const gameNames = ['Blackjack Classic', 'VIP Blackjack', 'European Blackjack', 'American Blackjack', 'Perfect Pairs', '21+3 Blackjack', 'Blackjack Surrender', 'Blackjack Switch', 'Double Exposure', 'Blackjack Pro']
                                   const bjLimits = ['$25 - $500', '$100 - $1,000', '$10 - $250', '$50 - $500', '$25 - $100', '$5 - $250', '$100 - $5,000', '$25 - $500', '$50 - $1,000', '$10 - $500']
@@ -10998,7 +10998,7 @@ function NavTestPageContent() {
                                     <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] text-[var(--ds-fg)] z-20" />
                                   </>
                                 )}
-                                <CarouselContent className="ml-0 -mr-2 md:-mr-4" style={{ overflow: 'visible' }}>
+                                <CarouselContent className="ml-0 pr-4 md:pr-6" style={{ overflow: 'visible' }}>
                                     {[
                                       'Dragon Gaming',
                                       'BetSoft',
@@ -11097,7 +11097,7 @@ function NavTestPageContent() {
                                 duration: 15,
                               }}
                             >
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {[
                                   {
                                     title: 'Gemhalla Xtreme',
@@ -11247,7 +11247,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setPopularCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 12 }).map((_, index) => {
                                   const imageSrc = squareTileImages[(index + 5) % squareTileImages.length]
                                   const popularNames = ['Sweet Bonanza', 'Gates of Olympus', 'Sugar Rush', 'Big Bass Splash', 'Fruit Party', 'Wolf Gold', 'The Dog House', 'Starlight Princess', 'Buffalo King', 'Gems Bonanza', 'Money Train', 'Crystal Caverns']
@@ -11351,7 +11351,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setForYouBaccaratCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 8 }).map((_, index) => {
                                   const baccaratNames = ['Baccarat Classic', 'Punto Banco', 'Baccarat Squeeze', 'Speed Baccarat', 'Lightning Baccarat', 'Baccarat Control Squeeze', 'VIP Baccarat', 'Dragon Tiger']
                                   const baccaratLimits = ['$1 - $12,500', '$25 - $100', '$5 - $500', '$10 - $1,000', '$50 - $5,000', '$1 - $250', '$100 - $10,000', '$25 - $250']
@@ -11415,7 +11415,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setExclusivesCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const imageSrc = squareTileImages[(index + 8) % squareTileImages.length]
                                   const exclusiveNames = ['Golden Dragon', 'Royal Fortune', 'Diamond Heist', 'Mystic Gems', 'Pirate\'s Bounty', 'Phoenix Rising', 'Aztec Treasure', 'Neon Nights', 'Cosmic Cash', 'Wild Safari']
@@ -11541,7 +11541,7 @@ function NavTestPageContent() {
                               {/* Game Tiles Carousel */}
                               <div className="pointer-events-auto -mx-6">
                                 <Carousel setApi={setHalloweenCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                                  <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                                  <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 15 }).map((_, index) => {
                                   const imageSrc = squareTileImages[index % squareTileImages.length]
                                   return (
@@ -11620,7 +11620,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setCrashCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const imageSrc = squareTileImages[(index + 12) % squareTileImages.length]
                                   const crashNames = ['Aviator', 'Spaceman', 'JetX', 'Cash or Crash', 'Rocket Blast', 'Sky High', 'Moon Rider', 'Turbo Crash', 'Lucky Jet', 'Cosmic Crash']
@@ -11695,7 +11695,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setTournamentCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {cashTournamentsData.map((tournament, tIdx) => (
                                   <CarouselItem key={tournament.id} className={cn(
                                     "pr-0 basis-auto flex-shrink-0",
@@ -11807,7 +11807,7 @@ function NavTestPageContent() {
                           </div>
                           <div className="relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0 }}>
                             <Carousel setApi={setInstantCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                              <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+                              <CarouselContent className="ml-0 pr-4 md:pr-6">
                                 {Array.from({ length: 10 }).map((_, index) => {
                                   const imageSrc = squareTileImages[(index + 15) % squareTileImages.length]
                                   const instantNames = ['Scratch & Win', 'Lucky Numbers', 'Gold Rush', 'Cash Spin', 'Diamond Pick', 'Fortune Wheel', 'Treasure Hunt', 'Lucky Stars', 'Instant Millions', 'Quick Hit']

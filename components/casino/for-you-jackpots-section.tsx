@@ -169,7 +169,7 @@ export function ForYouJackpotsSection({
           style={{ overflow: 'visible' }}
           opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
         >
-          <CarouselContent className="ml-0 -mr-2 md:-mr-4">
+          <CarouselContent className="ml-0 pr-4 md:pr-6">
             {tiles.map((t, index) => (
               <CarouselItem
                 key={t.key}

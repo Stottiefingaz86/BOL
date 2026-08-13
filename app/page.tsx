@@ -1741,7 +1741,7 @@ function HomePageContent() {
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+              <CarouselContent className={cn(isMobile ? "ml-3 pr-3" : "ml-6 pr-6")}>
                 {topEventsData.map((event, index) => {
                   const parseScore = (scoreStr: string) => {
                     const parts = scoreStr.split(' - ')
@@ -1915,7 +1915,7 @@ function HomePageContent() {
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel setApi={setSlotsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+              <CarouselContent className={cn(isMobile ? "ml-3 pr-3" : "ml-6 pr-6")}>
                 {Array.from({ length: 10 }).map((_, index) => {
                   const imageSrc = squareTileImages[index % squareTileImages.length]
                   const slotNames = ['Starburst', 'Book of Dead', 'Gonzo\'s Quest', 'Dead or Alive', 'Immortal Romance', 'Thunderstruck', 'Avalon', 'Blood Suckers', 'Mega Moolah', 'Bonanza']
@@ -2013,7 +2013,7 @@ function HomePageContent() {
               className="w-full relative"
               opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
             >
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+              <CarouselContent className={cn(isMobile ? "ml-3 pr-3" : "ml-6 pr-6")}>
                 {TRENDING_SPORTS.map((sport, index) => (
                   <CarouselItem
                     key={`contest-${sport.name}`}
@@ -2127,7 +2127,7 @@ function HomePageContent() {
           </div>
           <div className={cn("relative", isMobile ? "-mx-3" : "-mx-6")}>
             <Carousel setApi={setOriginalsCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+              <CarouselContent className={cn(isMobile ? "ml-3 pr-3" : "ml-6 pr-6")}>
                 {originalsTileImages.map((imageSrc, index) => {
                   const gameNames = ['Plinko', 'Blackjack', 'Dice', 'Diamonds', 'Mines', 'Keno', 'Limbo', 'Wheel', 'Hilo', 'Video Poker']
                   return (
@@ -2199,7 +2199,7 @@ function HomePageContent() {
                   <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[var(--ds-surface)] backdrop-blur-sm border border-[var(--ds-border-strong)] hover:bg-[var(--ds-surface-raised)] hover:border-[var(--ds-border-strong)] text-[var(--ds-fg)] z-20 data-carousel-nav" />
                 </>
               )}
-              <CarouselContent className={cn(isMobile ? "ml-3 mr-0" : "ml-6 mr-0")}>
+              <CarouselContent className={cn(isMobile ? "ml-3 pr-3" : "ml-6 pr-6")}>
                 {[
                   'Dragon Gaming',
                   'BetSoft',

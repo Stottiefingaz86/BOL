@@ -19,6 +19,12 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  /**
+   * Trackpad / mouse-wheel scrolling over the carousel.
+   * Axis-aware by default (horizontal carousel listens to horizontal wheel),
+   * so vertical page scroll is not trapped. Hard-clamped at ends (no rubber-band hang).
+   */
+  wheelGestures?: boolean
 }
 
 type CarouselContextProps = {
@@ -52,6 +58,7 @@ const Carousel = React.forwardRef<
       opts,
       setApi,
       plugins,
+      wheelGestures = true,
       className,
       children,
       ...props
@@ -121,6 +128,56 @@ const Carousel = React.forwardRef<
       }
     }, [api, onSelect])
 
+    // Trackpad/wheel: 1:1 like drag (duration 0) — not animated scrollTo per tick
+    React.useEffect(() => {
+      if (!api || !wheelGestures) return
+
+      const root = api.rootNode()
+      const isHorizontal = orientation !== "vertical"
+
+      const onWheel = (event: WheelEvent) => {
+        let dx = event.deltaX
+        let dy = event.deltaY
+        if (event.deltaMode === 1) {
+          dx *= 16
+          dy *= 16
+        } else if (event.deltaMode === 2) {
+          dx *= root.clientWidth
+          dy *= root.clientHeight
+        }
+
+        let delta = 0
+        if (isHorizontal) {
+          if (Math.abs(dx) >= Math.abs(dy) && Math.abs(dx) > 0) delta = dx
+          else if (event.shiftKey && Math.abs(dy) > 0) delta = dy
+          else return
+        } else {
+          if (Math.abs(dy) >= Math.abs(dx) && Math.abs(dy) > 0) delta = dy
+          else return
+        }
+
+        if (Math.abs(delta) < 0.5) return
+
+        // Claim gesture so macOS doesn't navigate history
+        event.preventDefault()
+
+        const { limit, target, location, scrollBody, animation } =
+          api.internalEngine()
+
+        // Kill any in-flight tween, then move target 1:1 with the wheel
+        scrollBody.useFriction(0).useDuration(0)
+        target.set(location.get())
+        target.set(limit.constrain(target.get() - delta))
+        animation.start()
+      }
+
+      root.addEventListener("wheel", onWheel, { passive: false })
+
+      return () => {
+        root.removeEventListener("wheel", onWheel)
+      }
+    }, [api, wheelGestures, orientation])
+
     return (
       <CarouselContext.Provider
         value={{
@@ -158,12 +215,14 @@ const CarouselContent = React.forwardRef<
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div ref={carouselRef} className="overflow-hidden overscroll-x-contain">
       <div
         ref={ref}
         className={cn(
           "flex",
-          orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
+          // -ml-4 pairs with CarouselItem pl-4; pr-* lets the last slide
+          // fully enter view instead of clipping at the viewport edge.
+          orientation === "horizontal" ? "-ml-4 pr-4 md:pr-6" : "-mt-4 flex-col",
           className
         )}
         {...props}
