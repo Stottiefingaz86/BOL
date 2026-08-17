@@ -220,14 +220,14 @@ const squareTileImages = [
 ]
 
 const TRENDING_SPORTS = [
-  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl', image: '/banners/contests/card-01.png' },
-  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba', image: '/banners/contests/card-02.png' },
-  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb' },
-  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl', image: '/banners/contests/nhl-playoffs.png' },
-  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer', image: '/banners/contests/fifa-world-cup.png' },
-  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis' },
-  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
-  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football' },
+  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl', image: '/banners/homepage_trending/football.png' },
+  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba', image: '/banners/homepage_trending/basketball.png' },
+  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb', image: '/banners/homepage_trending/baseball.png' },
+  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl', image: '/banners/homepage_trending/hocky.png' },
+  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer', image: '/banners/homepage_trending/soccer.png' },
+  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis', image: '/banners/homepage_trending/tennis.png' },
+  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma', image: '/banners/homepage_trending/mma.png' },
+  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football', image: '/banners/homepage_trending/golf.png' },
   { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
   { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports/rugby' },
   { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports/football' },
@@ -2027,30 +2027,15 @@ function HomePageContent() {
                     >
                       <div className="tile-shimmer pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 pr-[46%]">
-                        <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
-                          <Image
-                            src={sport.icon}
-                            alt=""
-                            width={16}
-                            height={16}
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <h3 className="truncate text-[15px] font-semibold leading-snug text-white">
-                          {sport.name}
-                        </h3>
-                      </div>
-
-                      <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[48%] overflow-hidden">
+                      {/* Full-bleed art — banners already have empty left space for copy */}
+                      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
                         {sport.image ? (
                           <Image
                             src={sport.image}
                             alt=""
                             fill
-                            className="scale-105 object-cover object-[70%_center] transition-transform duration-500 group-hover:scale-110"
-                            sizes="130px"
+                            className="object-cover object-right transition-transform duration-500 group-hover:scale-[1.03]"
+                            sizes="260px"
                             unoptimized
                           />
                         ) : (
@@ -2065,7 +2050,31 @@ function HomePageContent() {
                             />
                           </div>
                         )}
-                        <div className="contest-card-art-fade absolute inset-0" aria-hidden />
+                        {/* Soft left scrim for text only — not a solid panel */}
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background:
+                              'linear-gradient(to right, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.35) 38%, transparent 62%)',
+                          }}
+                          aria-hidden
+                        />
+                      </div>
+
+                      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 pr-[42%]">
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
+                          <Image
+                            src={sport.icon}
+                            alt=""
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        </div>
+                        <h3 className="truncate text-[15px] font-semibold leading-snug text-white">
+                          {sport.name}
+                        </h3>
                       </div>
                     </button>
                   </CarouselItem>
