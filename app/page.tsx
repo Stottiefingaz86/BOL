@@ -23,7 +23,7 @@ import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import { HomeHero } from '@/components/home/home-hero'
 import { VipTablesSection } from '@/components/home/vip-tables-section'
-import { VipRewardsPromo } from '@/components/home/vip-rewards-promo'
+import { VipRewardsFlipCarousel } from '@/components/home/vip-rewards-flip-carousel'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
@@ -2246,8 +2246,11 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* VIP Rewards promo — opens VIP Hub */}
-        <VipRewardsPromo onExplore={openVipDrawer} />
+        {/* Concept A VIP promo — hidden while Concept B flip cards is active */}
+        {/* <VipRewardsPromo onExplore={openVipDrawer} /> */}
+
+        {/* VIP Rewards concept B — Figma flip-card carousel */}
+        <VipRewardsFlipCarousel onExplore={openVipDrawer} />
 
         {/* Why BetOnline — hidden while simplifying homepage; set SHOW_WHY_BETONLINE = true to restore */}
         {SHOW_WHY_BETONLINE && (

@@ -114,7 +114,7 @@ function TierTile({
  * Duplicated strip + translateX loop, no jump cuts.
  * Must stay inside overflow-hidden + min-w-0 ancestors or the strip blows out mobile width.
  */
-function CrownSlotReel({ compact }: { compact?: boolean }) {
+export function CrownSlotReel({ compact }: { compact?: boolean }) {
   const trackRef = useRef<HTMLDivElement>(null)
   const strip = [...TIERS, ...TIERS]
   const tileW = compact ? 76 : 104
