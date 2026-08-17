@@ -44,7 +44,7 @@ const CARDS: FlipCard[] = [
     backTitle: 'VIP\nRewards',
     title: 'VIP\nRewards',
     description:
-      'Real VIP support when it matters, plus rewards that climb from Bronze to Black the more you play.',
+      'Become a VIP the moment you place your first bet. Climb every VIP rank from Bronze to Obsidian and unlock bigger rewards along the way.',
     heroImage: '/vip/flip-cards/crown-hero.gif',
   },
   {
