@@ -239,6 +239,119 @@ const TRENDING_SPORTS = [
   { name: 'All Sports', icon: '/sports_icons/all sports.svg', href: '/sports' },
 ]
 
+type TrendingSport = (typeof TRENDING_SPORTS)[number]
+
+/** Press → spinner overlay (same mock as casino promo banners), then navigate. */
+function TrendingSportTile({
+  sport,
+  onNavigate,
+}: {
+  sport: TrendingSport
+  onNavigate: (href: string) => void
+}) {
+  const [loading, setLoading] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  const handleClick = () => {
+    if (loading) return
+    setLoading(true)
+    timerRef.current = setTimeout(() => {
+      onNavigate(sport.href)
+      timerRef.current = setTimeout(() => setLoading(false), 400)
+    }, 1200)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label={loading ? `Loading ${sport.name}` : sport.name}
+      aria-busy={loading}
+      disabled={loading}
+      className="group relative flex h-[160px] w-[260px] flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] text-left transition-[border-color,transform] duration-300 hover:border-white/20 hover:-translate-y-0.5 disabled:pointer-events-none"
+    >
+      <div
+        className={cn(
+          'tile-shimmer pointer-events-none absolute inset-0 z-20 transition-opacity duration-300',
+          loading ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+        )}
+      />
+
+      <div
+        className={cn(
+          'pointer-events-none absolute inset-0 z-0 overflow-hidden transition-opacity duration-200',
+          loading && 'opacity-40'
+        )}
+      >
+        {sport.image ? (
+          <Image
+            src={sport.image}
+            alt=""
+            fill
+            className="object-cover object-right transition-transform duration-500 group-hover:scale-[1.03]"
+            sizes="260px"
+            unoptimized
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-white/[0.03]">
+            <Image
+              src={sport.icon}
+              alt=""
+              width={56}
+              height={56}
+              className="h-14 w-14 object-contain opacity-80"
+              unoptimized
+            />
+          </div>
+        )}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.35) 38%, transparent 62%)',
+          }}
+          aria-hidden
+        />
+      </div>
+
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 pr-[42%]">
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
+          <Image
+            src={sport.icon}
+            alt=""
+            width={16}
+            height={16}
+            className="object-contain"
+            unoptimized
+          />
+        </div>
+        <h3 className="truncate text-[15px] font-semibold leading-snug text-white">
+          {sport.name}
+        </h3>
+      </div>
+
+      <div
+        className={cn(
+          'absolute inset-0 z-30 flex items-center justify-center bg-black/55 transition-opacity duration-200',
+          loading ? 'opacity-100' : 'pointer-events-none opacity-0'
+        )}
+      >
+        {loading ? (
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-black/55 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md">
+            <IconLoader2 className="h-6 w-6 animate-spin" strokeWidth={2.25} aria-hidden />
+          </span>
+        ) : null}
+      </div>
+    </button>
+  )
+}
+
 // Originals tile images (tall rectangles)
 const originalsTileImages = [
   '/games/originals/plink.png',
@@ -2019,64 +2132,10 @@ function HomePageContent() {
                       index === 0 ? (isMobile ? "pl-3" : "pl-6") : "pl-2 md:pl-4"
                     )}
                   >
-                    <button
-                      type="button"
-                      onClick={() => router.push(sport.href)}
-                      className="group relative flex h-[160px] w-[260px] flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] text-left transition-[border-color,transform] duration-300 hover:border-white/20 hover:-translate-y-0.5"
-                      aria-label={sport.name}
-                    >
-                      <div className="tile-shimmer pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-                      {/* Full-bleed art — banners already have empty left space for copy */}
-                      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-                        {sport.image ? (
-                          <Image
-                            src={sport.image}
-                            alt=""
-                            fill
-                            className="object-cover object-right transition-transform duration-500 group-hover:scale-[1.03]"
-                            sizes="260px"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center bg-white/[0.03]">
-                            <Image
-                              src={sport.icon}
-                              alt=""
-                              width={56}
-                              height={56}
-                              className="h-14 w-14 object-contain opacity-80"
-                              unoptimized
-                            />
-                          </div>
-                        )}
-                        {/* Soft left scrim for text only — not a solid panel */}
-                        <div
-                          className="absolute inset-0"
-                          style={{
-                            background:
-                              'linear-gradient(to right, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.35) 38%, transparent 62%)',
-                          }}
-                          aria-hidden
-                        />
-                      </div>
-
-                      <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-between gap-2 p-3.5 pr-[42%]">
-                        <div className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-[4px] bg-white/5">
-                          <Image
-                            src={sport.icon}
-                            alt=""
-                            width={16}
-                            height={16}
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                        <h3 className="truncate text-[15px] font-semibold leading-snug text-white">
-                          {sport.name}
-                        </h3>
-                      </div>
-                    </button>
+                    <TrendingSportTile
+                      sport={sport}
+                      onNavigate={(href) => router.push(href)}
+                    />
                   </CarouselItem>
                 ))}
               </CarouselContent>

@@ -1,11 +1,13 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   IconArrowRight,
   IconBallFootball,
   IconCherry,
+  IconLoader2,
   IconLock,
 } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
@@ -197,6 +199,14 @@ function DestinationCard({
   const router = useRouter()
   const { ref, handleMouseMove, handleMouseLeave, spotlightSurfaceStyle } =
     useCursorSpotlight()
+  const [loading, setLoading] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
 
   const bandClass =
     band === 'casino'
@@ -205,24 +215,43 @@ function DestinationCard({
         ? 'border-t border-emerald-400/25 bg-[#1a4a32]'
         : 'border-t border-white/[0.06] bg-[#141414]'
 
+  const startNavigate = () => {
+    if (loading) return
+    setLoading(true)
+    timerRef.current = setTimeout(() => {
+      router.push(href)
+      timerRef.current = setTimeout(() => setLoading(false), 400)
+    }, 1200)
+  }
+
   return (
     <div
       role="link"
       tabIndex={0}
-      onClick={() => router.push(href)}
+      aria-label={loading ? `Loading ${title}` : title}
+      aria-busy={loading}
+      onClick={startNavigate}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          router.push(href)
+          startNavigate()
         }
       }}
-      className="group relative isolate flex min-h-[168px] flex-1 cursor-pointer flex-col overflow-clip rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 sm:min-h-[200px] md:min-h-[240px]"
+      className={cn(
+        'group relative isolate flex min-h-[168px] flex-1 cursor-pointer flex-col overflow-clip rounded-2xl border border-white/[0.08] text-left transition-colors duration-200 hover:border-white/20 sm:min-h-[200px] md:min-h-[240px]',
+        loading && 'pointer-events-none'
+      )}
       style={{
         clipPath: 'inset(0 round 1rem)',
         backgroundColor: 'rgba(20, 20, 20, 0.85)',
       }}
     >
-      <div className="absolute inset-0 overflow-clip rounded-2xl">
+      <div
+        className={cn(
+          'absolute inset-0 overflow-clip rounded-2xl transition-opacity duration-200',
+          loading && 'opacity-40'
+        )}
+      >
         <div className="absolute inset-0 origin-center transition-transform duration-500 ease-out group-hover:scale-[1.05]">
           {children}
         </div>
@@ -235,7 +264,8 @@ function DestinationCard({
         style={spotlightSurfaceStyle}
         className={cn(
           'relative z-[2] mt-auto flex items-center justify-between overflow-hidden px-3 py-2.5 sm:px-4 sm:py-3',
-          bandClass
+          bandClass,
+          loading && 'opacity-40'
         )}
       >
         <SpotlightOverlay radiusPx={120} mixPercent={16} />
@@ -244,6 +274,19 @@ function DestinationCard({
           {title}
         </span>
         <IconArrowRight className="relative z-[1] h-4 w-4 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5" />
+      </div>
+
+      <div
+        className={cn(
+          'absolute inset-0 z-30 flex items-center justify-center bg-black/55 transition-opacity duration-200',
+          loading ? 'opacity-100' : 'pointer-events-none opacity-0'
+        )}
+      >
+        {loading ? (
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-black/55 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md">
+            <IconLoader2 className="h-6 w-6 animate-spin" strokeWidth={2.25} aria-hidden />
+          </span>
+        ) : null}
       </div>
     </div>
   )

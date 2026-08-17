@@ -210,12 +210,18 @@ Carousel.displayName = "Carousel"
 
 const CarouselContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    /** Classes on the overflow viewport (e.g. pb so drop-shadows aren’t clipped). */
+    viewportClassName?: string
+  }
+>(({ className, viewportClassName, ...props }, ref) => {
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden overscroll-x-contain">
+    <div
+      ref={carouselRef}
+      className={cn('overflow-hidden overscroll-x-contain', viewportClassName)}
+    >
       <div
         ref={ref}
         className={cn(

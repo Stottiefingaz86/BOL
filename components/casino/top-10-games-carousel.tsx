@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from 'react'
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -49,8 +50,9 @@ const GAP = 44
 const RANK_BLEED = 14
 
 /**
- * Netflix Top 10 rank — dark fill (matches bg) + metallic stroke
- * that reads bright at the top and dies into the void at the bottom.
+ * Netflix Top 10 rank — fill matches page bg + metallic stroke
+ * that reads bright at the top and dies out at the bottom.
+ * Light mode uses an inverted palette so ranks don’t go flat/black.
  */
 function RankNumber({ rank }: { rank: number }) {
   const rawId = useId()
@@ -65,6 +67,13 @@ function RankNumber({ rank }: { rank: number }) {
   // “1” is a skinny glyph — slight nudge right so it still tucks under the tile
   const x = isOne ? 22 : 0
 
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  const isLight = mounted && resolvedTheme === 'light'
+
   const sharedText = {
     y: svgH - 2,
     fontFamily: 'Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Black", sans-serif',
@@ -73,7 +82,7 @@ function RankNumber({ rank }: { rank: number }) {
     strokeLinejoin: 'miter' as const,
     fill: `url(#${fillId})`,
     stroke: `url(#${strokeId})`,
-    strokeWidth: 3.25,
+    strokeWidth: isLight ? 3.5 : 3.25,
     paintOrder: 'stroke fill' as const,
   }
 
@@ -89,19 +98,40 @@ function RankNumber({ rank }: { rank: number }) {
       shapeRendering="geometricPrecision"
     >
       <defs>
-        <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1a1a1a" />
-          <stop offset="100%" stopColor="#0d0d0d" />
-        </linearGradient>
-        <linearGradient id={strokeId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="12%" stopColor="#e8e8e8" />
-          <stop offset="28%" stopColor="#bdbdbd" />
-          <stop offset="48%" stopColor="#7a7a7a" />
-          <stop offset="68%" stopColor="#3a3a3a" />
-          <stop offset="85%" stopColor="#1c1c1c" />
-          <stop offset="100%" stopColor="#0a0a0a" />
-        </linearGradient>
+        {isLight ? (
+          <>
+            <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f3f3f3" />
+              <stop offset="55%" stopColor="#fafafa" />
+              <stop offset="100%" stopColor="#ffffff" />
+            </linearGradient>
+            <linearGradient id={strokeId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1a1a1a" />
+              <stop offset="14%" stopColor="#3a3a3a" />
+              <stop offset="32%" stopColor="#6e6e6e" />
+              <stop offset="52%" stopColor="#a8a8a8" />
+              <stop offset="72%" stopColor="#d0d0d0" />
+              <stop offset="88%" stopColor="#e8e8e8" />
+              <stop offset="100%" stopColor="#f5f5f5" />
+            </linearGradient>
+          </>
+        ) : (
+          <>
+            <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1a1a1a" />
+              <stop offset="100%" stopColor="#0d0d0d" />
+            </linearGradient>
+            <linearGradient id={strokeId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="12%" stopColor="#e8e8e8" />
+              <stop offset="28%" stopColor="#bdbdbd" />
+              <stop offset="48%" stopColor="#7a7a7a" />
+              <stop offset="68%" stopColor="#3a3a3a" />
+              <stop offset="85%" stopColor="#1c1c1c" />
+              <stop offset="100%" stopColor="#0a0a0a" />
+            </linearGradient>
+          </>
+        )}
       </defs>
 
       {isTen ? (
@@ -211,8 +241,8 @@ export function Top10GamesCarousel({
           className="relative w-full"
           opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
         >
-          {/* Item height includes RANK_BLEED so tops aren’t sheared by overflow:hidden */}
-          <CarouselContent className="ml-0">
+          {/* Viewport pb keeps tile drop-shadows inside overflow-hidden */}
+          <CarouselContent className="ml-0" viewportClassName="pb-7 pt-1">
             {top10.map((game, index) => {
               const rank = index + 1
               const isTen = rank === 10
@@ -226,7 +256,7 @@ export function Top10GamesCarousel({
               return (
                 <CarouselItem
                   key={`${rank}-${game.title}`}
-                  className="basis-auto pl-0"
+                  className="basis-auto overflow-visible pl-0"
                   style={{
                     marginLeft: index === 0 ? firstPad : GAP,
                     marginRight: index === top10.length - 1 ? edgePad : 0,
@@ -239,7 +269,7 @@ export function Top10GamesCarousel({
                     <RankNumber rank={rank} />
 
                     <div
-                      className="group absolute bottom-0 right-0 z-10 overflow-hidden rounded-md bg-[var(--ds-control-bg)] shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
+                      className="group absolute bottom-0 right-0 z-10 overflow-hidden rounded-md bg-[var(--ds-control-bg)] shadow-[0_10px_28px_rgba(0,0,0,0.28)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
                       style={{ width: TILE, height: TILE }}
                     >
                       <Image
