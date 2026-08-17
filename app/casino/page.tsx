@@ -31,6 +31,7 @@ import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
+import { SeasonalEventGamesBlock } from '@/components/casino/seasonal-event-games-block'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoPromoBanner } from '@/components/casino/casino-promo-banner'
 import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
@@ -137,7 +138,6 @@ import {
   IconVideo,
   IconBroadcast,
   IconSparkles,
-  IconGhost,
   IconHome,
   IconBolt,
   IconRocket,
@@ -283,7 +283,6 @@ import {
   DrawerHandle,
 } from '@/components/ui/drawer'
 import { InteractiveGridBackground } from '@/components/interactive-grid-background'
-import { RainBackground } from '@/components/rain-background'
 import { cn } from '@/lib/utils'
 import { MobileOtherNavLinks } from '@/components/navigation/mobile-other-nav-links'
 import { MobileSidebarMenuSkeleton } from '@/components/navigation/mobile-sidebar-menu-skeleton'
@@ -6569,10 +6568,6 @@ function NavTestPageContent() {
   const [casinoPokerCanScrollNext, setCasinoPokerCanScrollNext] = useState(false)
   const [casinoPokerCurrentIndex, setCasinoPokerCurrentIndex] = useState(0)
   
-  const [halloweenCarouselApi, setHalloweenCarouselApi] = useState<CarouselApi>()
-  const [halloweenCanScrollPrev, setHalloweenCanScrollPrev] = useState(false)
-  const [halloweenCanScrollNext, setHalloweenCanScrollNext] = useState(false)
-  
   const [vipCarouselApi, setVipCarouselApi] = useState<CarouselApi>()
   const [vipCanScrollPrev, setVipCanScrollPrev] = useState(false)
   const [vipCanScrollNext, setVipCanScrollNext] = useState(false)
@@ -6685,16 +6680,6 @@ function NavTestPageContent() {
       setCasinoPokerCurrentIndex(casinoPokerCarouselApi.selectedScrollSnap())
     })
   }, [casinoPokerCarouselApi])
-  
-  useEffect(() => {
-    if (!halloweenCarouselApi) return
-    setHalloweenCanScrollPrev(halloweenCarouselApi.canScrollPrev())
-    setHalloweenCanScrollNext(halloweenCarouselApi.canScrollNext())
-    halloweenCarouselApi.on('select', () => {
-      setHalloweenCanScrollPrev(halloweenCarouselApi.canScrollPrev())
-      setHalloweenCanScrollNext(halloweenCarouselApi.canScrollNext())
-    })
-  }, [halloweenCarouselApi])
   
   useEffect(() => {
     if (!vipCarouselApi) return
@@ -11463,136 +11448,24 @@ function NavTestPageContent() {
                           </div>
                         </div>
 
-                        {/* Feature Section - Rain Background */}
-                        <div className="relative mx-3 mb-8 max-w-full overflow-hidden rounded-lg md:-mx-6">
-                          <RainBackground 
-                            className="rounded-lg min-h-[400px]"
-                            count={150}
-                            intensity={1}
-                            angle={15}
-                            color="rgba(174, 194, 224, 0.5)"
-                            lightning={true}
-                          >
-                            <div className="relative z-10 min-w-0 max-w-full p-6 md:p-8 md:pb-8 md:pr-8 md:pl-14">
-                              {/* Tag */}
-                              <div className="mb-2">
-                                <span className="inline-block bg-orange-600/80 text-[var(--ds-fg)] text-xs font-semibold px-3 py-1 rounded-small">
-                                  Halloween
-                                </span>
-                              </div>
-                              
-                              {/* Title */}
-                              <h2 className="text-2xl font-bold text-[var(--ds-fg)] mb-3 md:text-3xl lg:text-4xl">
-                                HALLOWEEN GAMES
-                              </h2>
-                              
-                              {/* Description */}
-                              <p className="text-white/90 text-sm md:text-base max-w-2xl mb-6">
-                                Get spooky with our collection of Halloween-themed games! Spin the reels and win big with haunted slots and eerie jackpots.
-                              </p>
-                              
-                              {/* Action Button + Arrows */}
-                              <div className="flex items-center justify-between mb-6 pointer-events-auto">
-                                <Button
-                                  variant="ghost"
-                                  className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-sm px-6 py-2.5 border border-white/20 rounded-small flex items-center gap-2"
-                                  onClick={() => {
-                                    setSelectedCategory('Halloween')
-                                    setShowAllGames(true)
-                                    setActiveSubNav('Lobby')
-                                  }}
-                                >
-                                  <IconGhost className="w-4 h-4" />
-                                  All Games
-                                </Button>
-                                {!isMobile && (
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                      onClick={() => {
-                                        if (halloweenCarouselApi) {
-                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
-                                          const targetIndex = Math.max(0, currentIndex - 2)
-                                          halloweenCarouselApi.scrollTo(targetIndex)
-                                        }
-                                      }}
-                                      disabled={!halloweenCarouselApi || !halloweenCanScrollPrev}
-                                    >
-                                      <IconChevronLeft className="h-4 w-4" strokeWidth={2} />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 rounded-small bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 hover:border-white/30 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                                      onClick={() => {
-                                        if (halloweenCarouselApi) {
-                                          const currentIndex = halloweenCarouselApi.selectedScrollSnap()
-                                          const slideCount = halloweenCarouselApi.scrollSnapList().length
-                                          const targetIndex = Math.min(slideCount - 1, currentIndex + 2)
-                                          halloweenCarouselApi.scrollTo(targetIndex)
-                                        }
-                                      }}
-                                      disabled={!halloweenCarouselApi || !halloweenCanScrollNext}
-                                    >
-                                      <IconChevronRight className="h-4 w-4" strokeWidth={2} />
-                                </Button>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Game Tiles Carousel */}
-                              <div className="pointer-events-auto -mx-6">
-                                <Carousel setApi={setHalloweenCarouselApi} className="w-full relative" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                                  <CarouselContent className="ml-0 pr-4 md:pr-6">
-                                {Array.from({ length: 15 }).map((_, index) => {
-                                  const imageSrc = squareTileImages[index % squareTileImages.length]
-                                  return (
-                                        <CarouselItem key={index} className={cn(
-                                          "pr-0 basis-auto flex-shrink-0",
-                                          index === 0 ? (isMobile ? "pl-3" : "pl-8") : "pl-2 md:pl-3"
-                                        )}>
-                                      <div 
-                                        data-content-item 
-                                        className="w-[240px] h-[160px] rounded-small bg-[var(--ds-control-hover)] cursor-pointer transition-all duration-300 relative overflow-hidden group border border-white/20 flex-shrink-0"
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.backgroundColor = `${getComputedStyle(document.documentElement).getPropertyValue('--ds-primary').trim() || '#ee3536'}33`
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-                                        }}
-                                        onClick={() => {
-                                          const halloweenNames = ['Spooky Slots', 'Haunted Mansion', 'Witch\'s Brew', 'Pumpkin Jack', 'Ghostly Reels', 'Trick or Treat']
-                                          setSelectedGame({
-                                            title: halloweenNames[index % halloweenNames.length],
-                                            image: imageSrc,
-                                                provider: getTileVendor(index + 80),
-                                            features: ['Halloween Theme', 'Spooky Bonus Features', 'Special Halloween Promotions']
-                                          })
-                                        }}
-                                      >
-                                        {imageSrc && (
-                                          <Image
-                                            src={imageSrc}
-                                            alt={`Halloween Game ${index + 1}`}
-                                            fill
-                                            className={slotTileImgClass}
-                                            sizes="240px"
-                                          />
-                                        )}
-                                            <GameTagBadge tag={getMetaTag(index + 80)} vendor={getTileVendor(index + 80)} />
-                                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'color-mix(in srgb, var(--ds-primary, #ee3536) 10%, transparent)' }} />
-                                      </div>
-                                        </CarouselItem>
-                                  )
-                                })}
-                                  </CarouselContent>
-                                </Carousel>
-                              </div>
-                            </div>
-                          </RainBackground>
-                        </div>
+                        {/* Seasonal event feature — switcher for Halloween / Christmas / Superbowl / Easter */}
+                        <SeasonalEventGamesBlock
+                          tileImages={squareTileImages}
+                          onBrowseAll={(eventId) => {
+                            const category =
+                              eventId === 'halloween'
+                                ? 'Halloween'
+                                : eventId === 'christmas'
+                                  ? 'Christmas'
+                                  : eventId === 'superbowl'
+                                    ? 'Superbowl'
+                                    : 'Easter'
+                            setSelectedCategory(category)
+                            setShowAllGames(true)
+                            setActiveSubNav('Lobby')
+                          }}
+                          onSelectGame={(g) => setSelectedGame(g)}
+                        />
 
                         {/* Crash Games Section - Square Tiles */}
                         <div>
