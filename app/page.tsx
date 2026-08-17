@@ -2162,7 +2162,7 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* Exclusives → Activity → Live Casino */}
+        {/* Top 10 → Activity → Live Casino */}
         <VipTablesSection
           onSelectGame={setSelectedGame}
           betweenSections={

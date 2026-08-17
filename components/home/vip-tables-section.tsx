@@ -8,7 +8,6 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconInfoCircle,
-  IconRosetteFilled,
   IconUser,
 } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
@@ -19,6 +18,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
+import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
@@ -30,33 +30,6 @@ type LiveGame = {
   limit: string
   seats?: { occupied: number; total: number }
 }
-
-type CasinoGame = {
-  title: string
-  image: string
-  provider: string
-}
-
-const EXCLUSIVE_GAMES: CasinoGame[] = [
-  { title: 'Gemhalla Xtreme', image: '/casino_slots_tiles/slot-39.png', provider: 'BetSoft' },
-  { title: 'Alien Fruits 2', image: '/casino_slots_tiles/slot-40.png', provider: 'BetSoft' },
-  { title: 'Recycle Riches', image: '/casino_slots_tiles/slot-41.png', provider: 'Nucleus' },
-  { title: 'Merge Up 2', image: '/casino_slots_tiles/slot-42.png', provider: 'KA Gaming' },
-  { title: 'Zeus Goes Wild', image: '/casino_slots_tiles/slot-43.png', provider: 'Onlyplay' },
-  { title: 'Multi Rush', image: '/casino_slots_tiles/slot-44.png', provider: 'Popiplay' },
-  { title: 'Sweet Samurai', image: '/casino_slots_tiles/slot-45.png', provider: 'Mascot Gaming' },
-  { title: 'Heart of Tiki', image: '/casino_slots_tiles/slot-46.png', provider: 'BetSoft' },
-  { title: 'Temple of Power', image: '/casino_slots_tiles/slot-47.png', provider: 'Rival' },
-  { title: 'Fortune Trio', image: '/casino_slots_tiles/slot-48.png', provider: 'Blaze' },
-  { title: 'Money Maker', image: '/casino_slots_tiles/slot-49.png', provider: 'Spinthron' },
-  { title: 'Hot Chilli Bells 100', image: '/casino_slots_tiles/slot-50.png', provider: 'Revolver Gaming' },
-  { title: 'Fiesta Clusters', image: '/casino_slots_tiles/slot-51.png', provider: "Arrow's Edge" },
-  { title: 'Gemhalla Xtreme', image: '/casino_slots_tiles/slot-39.png', provider: 'BetSoft' },
-  { title: 'Alien Fruits 2', image: '/casino_slots_tiles/slot-40.png', provider: 'BetSoft' },
-  { title: 'Recycle Riches', image: '/casino_slots_tiles/slot-41.png', provider: 'Nucleus' },
-  { title: 'Merge Up 2', image: '/casino_slots_tiles/slot-42.png', provider: 'KA Gaming' },
-  { title: 'Zeus Goes Wild', image: '/casino_slots_tiles/slot-43.png', provider: 'Onlyplay' },
-]
 
 const LIVE_CASINO_GAMES: LiveGame[] = [
   { title: 'Classic Blackjack', type: 'blackjack', limit: '$25 - $500', seats: { occupied: 2, total: 7 } },
@@ -187,32 +160,6 @@ function BlackjackSeats({ occupied, total }: { occupied: number; total: number }
       <span className="text-[10px] font-semibold text-white">
         {occupied}/{total}
       </span>
-    </div>
-  )
-}
-
-function ExclusiveCasinoTile({
-  game,
-  onClick,
-}: {
-  game: CasinoGame
-  onClick?: () => void
-}) {
-  return (
-    <div className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-white/5 transition-all duration-300 hover:bg-white/10">
-      <Image
-        src={game.image}
-        alt={game.title}
-        fill
-        className="object-cover transition-transform duration-300 group-hover:scale-105"
-        sizes="160px"
-      />
-      <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 flex items-center gap-0.5 rounded-full border border-indigo-400/60 bg-indigo-950/80 px-1.5 py-[3px] backdrop-blur-sm">
-        <IconRosetteFilled className="h-3 w-3 text-indigo-300" />
-        <span className="text-[9px] font-semibold leading-none text-white">Exclusive</span>
-      </div>
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
-      <GameTilePlayOverlay favoriteTitle={game.title} onLaunch={() => onClick?.()} />
     </div>
   )
 }
@@ -384,7 +331,7 @@ export interface VipTablesSectionProps {
     provider?: string
     features?: string[]
   }) => void
-  /** Rendered between Exclusives and Live Casino (e.g. Activity feed) */
+  /** Rendered between Top 10 and Live Casino (e.g. Activity feed) */
   betweenSections?: ReactNode
   className?: string
 }
@@ -396,52 +343,11 @@ export function VipTablesSection({
 }: VipTablesSectionProps) {
   const router = useRouter()
   const isMobile = useIsMobile()
-  const exclusives = useCarouselNav()
   const live = useCarouselNav()
 
   return (
     <div className={className}>
-      <div className="mb-6">
-        <SectionHeader
-          title="Exclusives"
-          count={18}
-          onAllGames={() => router.push('/casino')}
-          api={exclusives.api}
-          canScrollPrev={exclusives.canScrollPrev}
-          canScrollNext={exclusives.canScrollNext}
-        />
-        <div className={cn('relative', isMobile ? '-mx-3' : '-mx-6')}>
-          <Carousel
-            setApi={exclusives.setApi}
-            className="relative w-full"
-            opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}
-          >
-            <CarouselContent className={cn(isMobile ? 'ml-3 mr-0' : 'ml-6 mr-0')}>
-              {EXCLUSIVE_GAMES.map((game, index) => (
-                <CarouselItem
-                  key={`${game.title}-${index}`}
-                  className={cn(
-                    'basis-auto flex-shrink-0 pr-0',
-                    index === 0 ? (isMobile ? 'pl-3' : 'pl-6') : 'pl-2 md:pl-3'
-                  )}
-                >
-                  <ExclusiveCasinoTile
-                    game={game}
-                    onClick={() =>
-                      onSelectGame?.({
-                        title: game.title,
-                        image: game.image,
-                        provider: game.provider,
-                        features: ['Exclusive Title', 'High RTP', 'Bonus Features'],
-                      })
-                    }
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        </div>
-      </div>
+      <Top10GamesCarousel onSelectGame={onSelectGame} />
 
       {betweenSections}
 
