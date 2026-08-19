@@ -1093,7 +1093,7 @@ function HomePageContent() {
   const SHOW_WHY_BETONLINE = false
 
   // Activity Leaderboard state
-  const [activityTab, setActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'>('All Bets')
+  const [activityTab, setActivityTab] = useState<'All Bets' | 'Jackpot Winners' | 'Daily Race'>('All Bets')
   const activityVipLevels = [
     'Bronze',
     'Silver',
@@ -1146,16 +1146,16 @@ function HomePageContent() {
   
   // Jackpot Winners data
   const jackpotWinnersData = [
-    { id: 'jp1', user: 'Hidden', vipLevel: 'Elite II', game: 'Mega Moolah', amount: '$250,000.00', time: '2 hrs ago', gameImage: squareTileImages[3] },
-    { id: 'jp2', user: 'Hidden', vipLevel: 'Black III', game: 'Sweet Bonanza', amount: '$87,432.50', time: '5 hrs ago', gameImage: squareTileImages[7] },
-    { id: 'jp3', user: 'Hidden', vipLevel: 'Obsidian', game: 'Gates of Olympus', amount: '$45,120.00', time: '8 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp4', user: 'Hidden', vipLevel: 'Platinum II', game: 'Book of Dead', amount: '$32,750.00', time: '12 hrs ago', gameImage: squareTileImages[1] },
-    { id: 'jp5', user: 'Hidden', vipLevel: 'Gold', game: 'Starburst', amount: '$28,900.75', time: '1 day ago', gameImage: squareTileImages[0] },
-    { id: 'jp6', user: 'Hidden', vipLevel: 'Elite I', game: "Gonzo's Quest", amount: '$19,450.00', time: '1 day ago', gameImage: squareTileImages[2] },
-    { id: 'jp7', user: 'Hidden', vipLevel: 'Black I', game: 'Razor Shark', amount: '$15,230.00', time: '2 days ago', gameImage: squareTileImages[5] },
-    { id: 'jp8', user: 'Hidden', vipLevel: 'Diamond', game: 'Big Bass Bonanza', amount: '$12,800.50', time: '2 days ago', gameImage: squareTileImages[6] },
-    { id: 'jp9', user: 'Hidden', vipLevel: 'Silver', game: 'Dead or Alive', amount: '$9,500.00', time: '3 days ago', gameImage: squareTileImages[4] },
-    { id: 'jp10', user: 'Hidden', vipLevel: 'Bronze', game: 'Mega Moolah', amount: '$8,120.25', time: '3 days ago', gameImage: squareTileImages[3] },
+    { id: 'jp1', user: 'Hidden', vipLevel: 'Elite II', game: 'Mega Moolah', amount: '$250,000.00', date: 'Jul 18, 2026', tier: 'mega' as const, gameImage: squareTileImages[3] },
+    { id: 'jp2', user: 'Hidden', vipLevel: 'Black III', game: 'Sweet Bonanza', amount: '$87,432.50', date: 'Jul 14, 2026', tier: 'major' as const, gameImage: squareTileImages[7] },
+    { id: 'jp3', user: 'Hidden', vipLevel: 'Obsidian', game: 'Gates of Olympus', amount: '$45,120.00', date: 'Jul 9, 2026', tier: 'major' as const, gameImage: squareTileImages[1] },
+    { id: 'jp4', user: 'Hidden', vipLevel: 'Platinum II', game: 'Book of Dead', amount: '$8,420.00', date: 'Jun 28, 2026', tier: 'minor' as const, gameImage: squareTileImages[1] },
+    { id: 'jp5', user: 'Hidden', vipLevel: 'Gold', game: 'Starburst', amount: '$1,284.75', date: 'Jun 21, 2026', tier: 'mini' as const, gameImage: squareTileImages[0] },
+    { id: 'jp6', user: 'Hidden', vipLevel: 'Elite I', game: "Gonzo's Quest", amount: '$19,450.00', date: 'Jun 12, 2026', tier: 'minor' as const, gameImage: squareTileImages[2] },
+    { id: 'jp7', user: 'Hidden', vipLevel: 'Black I', game: 'Razor Shark', amount: '$612,890.00', date: 'May 30, 2026', tier: 'mega' as const, gameImage: squareTileImages[5] },
+    { id: 'jp8', user: 'Hidden', vipLevel: 'Diamond', game: 'Big Bass Bonanza', amount: '$3,105.50', date: 'May 18, 2026', tier: 'mini' as const, gameImage: squareTileImages[6] },
+    { id: 'jp9', user: 'Hidden', vipLevel: 'Silver', game: 'Dead or Alive', amount: '$72,500.00', date: 'May 4, 2026', tier: 'major' as const, gameImage: squareTileImages[4] },
+    { id: 'jp10', user: 'Hidden', vipLevel: 'Bronze', game: 'Mega Moolah', amount: '$6,880.25', date: 'Apr 22, 2026', tier: 'minor' as const, gameImage: squareTileImages[3] },
   ]
 
   // Daily Race countdown timer state
@@ -1199,10 +1199,7 @@ function HomePageContent() {
     const eventData = casinoGames[Math.floor(Math.random() * casinoGames.length)]
     const vipLevel = activityVipLevels[Math.floor(Math.random() * activityVipLevels.length)]
 
-    const betNum =
-      activityTab === 'High Rollers'
-        ? Math.random() * 15000 + 1000
-        : Math.random() * 5000 + 10
+    const betNum = Math.random() * 5000 + 10
 
     const isWin = Math.random() > 0.35
     const multiplierNum = isWin
@@ -1228,21 +1225,37 @@ function HomePageContent() {
       isWin,
       gameImage: eventData.image,
     }
-  }, [activityTab])
+  }, [])
   
+  const activityFeedPausedRef = useRef(false)
+
   // Initialize and update activity feed
   useEffect(() => {
     const initialFeed = Array.from({ length: 6 }, () => generateActivity())
     setActivityFeed(initialFeed)
-    
-    const interval = setInterval(() => {
-      setActivityFeed(prev => {
-        const newActivity = generateActivity()
-        return [newActivity, ...prev.slice(0, 5)]
-      })
-    }, Math.random() * 2000 + 3000)
-    
-    return () => clearInterval(interval)
+
+    let timeoutId: ReturnType<typeof setTimeout>
+    let cancelled = false
+
+    const scheduleNext = () => {
+      const delay = 550 + Math.random() * 550
+      timeoutId = setTimeout(() => {
+        if (cancelled) return
+        if (!activityFeedPausedRef.current) {
+          setActivityFeed((prev) => {
+            const newActivity = generateActivity()
+            return [newActivity, ...prev.slice(0, 5)]
+          })
+        }
+        scheduleNext()
+      }, delay)
+    }
+
+    scheduleNext()
+    return () => {
+      cancelled = true
+      clearTimeout(timeoutId)
+    }
   }, [activityTab, generateActivity])
   
   // Set up carousel scroll state watchers
@@ -2248,6 +2261,9 @@ function HomePageContent() {
               casinoJackpotWinnersData={jackpotWinnersData}
               casinoActivityFeed={activityFeed}
               onSelectGame={(g) => setSelectedGame(g)}
+              onLiveFeedHoverChange={(hovering) => {
+                activityFeedPausedRef.current = hovering
+              }}
             />
           }
         />

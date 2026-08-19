@@ -34,10 +34,7 @@ function generateBetRow(tab: CasinoActivityTab): CasinoActivityRow {
   const user = users[Math.floor(Math.random() * users.length)]
   const displayUser = Math.random() < 0.6 ? 'Hidden' : user
 
-  const betRaw =
-    tab === 'High Rollers'
-      ? Math.random() * 15000 + 1000
-      : Math.random() * 5000 + 10
+  const betRaw = Math.random() * 5000 + 10
 
   const betAmount = `$${betRaw.toLocaleString('en-US', {
     minimumFractionDigits: 2,
@@ -82,11 +79,23 @@ export function useCasinoActivityFeed(
     setRows(seedRowsForTab(tab, maxRows))
     if (tab === 'Jackpot Winners') return
 
-    const interval = setInterval(() => {
-      setRows((prev) => [generateBetRow(tab), ...prev.slice(0, maxRows - 1)])
-    }, 4000)
+    let timeoutId: ReturnType<typeof setTimeout>
+    let cancelled = false
 
-    return () => clearInterval(interval)
+    const scheduleNext = () => {
+      const delay = 550 + Math.random() * 550
+      timeoutId = setTimeout(() => {
+        if (cancelled) return
+        setRows((prev) => [generateBetRow(tab), ...prev.slice(0, maxRows - 1)])
+        scheduleNext()
+      }, delay)
+    }
+
+    scheduleNext()
+    return () => {
+      cancelled = true
+      clearTimeout(timeoutId)
+    }
   }, [tab, maxRows])
 
   return rows

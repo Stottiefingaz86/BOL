@@ -1,15 +1,19 @@
 export type CasinoActivityTab =
   | 'All Bets'
   | 'Jackpot Winners'
-  | 'High Rollers'
   | 'Daily Race'
 
 export const CASINO_ACTIVITY_TABS: CasinoActivityTab[] = [
   'All Bets',
   'Jackpot Winners',
-  'High Rollers',
   'Daily Race',
 ]
+
+export const CASINO_ACTIVITY_TAB_LABELS: Record<CasinoActivityTab, string> = {
+  'All Bets': 'All Bets',
+  'Jackpot Winners': 'Jackpot Winners',
+  'Daily Race': '25k Daily Race',
+}
 
 export interface CasinoActivityRow {
   id: string

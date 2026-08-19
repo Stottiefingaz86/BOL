@@ -4,22 +4,20 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import {
+  IconBroadcast,
   IconCoins,
   IconCrown,
   IconDeviceGamepad2,
   IconLoader2,
+  IconPlayerPause,
   IconTrophy,
 } from '@tabler/icons-react'
 import { NumberFlowCountdown } from '@/components/daily-races-timer'
 import { Separator } from '@/components/ui/separator'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  JACKPOT_TICKER_TIERS,
+  type JackpotTickerTierId,
+} from '@/lib/jackpot/constants'
 import { getVipLevelTagTone } from '@/lib/chat/vipLevels'
 import { cn } from '@/lib/utils'
 
@@ -32,6 +30,36 @@ const thClass =
   'h-10 px-4 text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]'
 const rowHover =
   'transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]'
+const activityRowClass = cn(
+  'grid h-14 items-center border-b bg-transparent',
+  hairline,
+  rowHover
+)
+const allBetsCols =
+  'grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,1.05fr)_minmax(0,0.8fr)_minmax(0,1fr)]'
+const jackpotCols =
+  'grid-cols-[minmax(0,0.95fr)_minmax(0,1.5fr)_minmax(0,0.95fr)_minmax(0,1.35fr)]'
+const raceCols =
+  'grid-cols-[minmax(0,1.35fr)_5.5rem_minmax(0,1.1fr)_minmax(0,1.15fr)_9.5rem]'
+const stickyHeaderClass = cn(
+  'sticky top-0 z-20 border-b backdrop-blur-md',
+  hairline,
+  softFill,
+  'bg-[var(--ds-bg)]/95 dark:bg-[#141414]/95'
+)
+const DAILY_RACE_POOL = 25_000
+
+function formatRacePrize(prizePercent: string): { cash: string; percent: string } {
+  const pct = Number.parseFloat(prizePercent.replace('%', ''))
+  const cash = Number.isFinite(pct) ? (DAILY_RACE_POOL * pct) / 100 : 0
+  return {
+    percent: prizePercent,
+    cash: `$${cash.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+  }
+}
 
 /** Map display labels (incl. Elite II / Black I) onto chat VIP tone ranks */
 function vipToneRankFromLabel(label: string): number {
@@ -158,7 +186,7 @@ function ActivityGameCell({
   )
 }
 
-export type CasinoActivityTabKey = 'All Bets' | 'Jackpot Winners' | 'High Rollers' | 'Daily Race'
+export type CasinoActivityTabKey = 'All Bets' | 'Jackpot Winners' | 'Daily Race'
 
 export type CasinoJackpotWinnerRow = {
   id: string
@@ -166,7 +194,9 @@ export type CasinoJackpotWinnerRow = {
   vipLevel?: string
   game: string
   amount: string
-  time: string
+  /** Calendar date, e.g. `Mar 12, 2026` */
+  date: string
+  tier: JackpotTickerTierId
   gameImage?: string
 }
 
@@ -216,6 +246,8 @@ export type CasinoActivityPanelProps = {
   casinoJackpotWinnersData: readonly CasinoJackpotWinnerRow[]
   casinoActivityFeed: readonly CasinoActivityFeedRow[]
   onSelectGame: (game: { title: string; image: string }) => void
+  /** Pause live feed inserts while the user is interacting with the table (click games). */
+  onLiveFeedHoverChange?: (hovering: boolean) => void
 }
 
 export function CasinoActivityPanel({
@@ -232,8 +264,27 @@ export function CasinoActivityPanel({
   casinoJackpotWinnersData,
   casinoActivityFeed,
   onSelectGame,
+  onLiveFeedHoverChange,
 }: CasinoActivityPanelProps) {
-  const tabs: CasinoActivityTabKey[] = ['All Bets', 'Jackpot Winners', 'High Rollers', 'Daily Race']
+  const tabs: { key: CasinoActivityTabKey; label: string }[] = [
+    { key: 'All Bets', label: 'All Bets' },
+    { key: 'Jackpot Winners', label: 'Jackpot Winners' },
+    { key: 'Daily Race', label: '25k Daily Race' },
+  ]
+  const [feedPaused, setFeedPaused] = useState(false)
+  const showLiveStatus = casinoActivityTab === 'All Bets'
+
+  useEffect(() => {
+    if (!showLiveStatus) {
+      setFeedPaused(false)
+      onLiveFeedHoverChange?.(false)
+    }
+  }, [showLiveStatus, onLiveFeedHoverChange])
+
+  const handleLiveFeedHoverChange = (hovering: boolean) => {
+    setFeedPaused(hovering)
+    onLiveFeedHoverChange?.(hovering)
+  }
 
   return (
     <div className={cn('mb-8', isMobile ? 'px-3' : 'px-6')}>
@@ -242,19 +293,19 @@ export function CasinoActivityPanel({
 
       <div className="scrollbar-hide mb-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="inline-flex h-auto w-max gap-1 rounded-3xl border-0 bg-[var(--ds-control-bg)] p-0.5 backdrop-blur-xl">
-          {tabs.map((tab) => (
+          {tabs.map(({ key, label }) => (
             <button
-              key={tab}
+              key={key}
               type="button"
-              onClick={() => onCasinoActivityTabChange(tab)}
+              onClick={() => onCasinoActivityTabChange(key)}
               className={cn(
                 'relative flex h-9 shrink-0 items-center whitespace-nowrap rounded-2xl px-4 py-1 text-xs font-medium transition-all duration-300',
-                casinoActivityTab === tab
+                casinoActivityTab === key
                   ? 'text-white'
                   : 'border border-transparent bg-transparent text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-hover)] hover:text-[var(--ds-fg)]'
               )}
             >
-              {casinoActivityTab === tab && (
+              {casinoActivityTab === key && (
                 <motion.div
                   layoutId={tabLayoutId}
                   className="absolute inset-0 -z-10 rounded-2xl"
@@ -267,7 +318,7 @@ export function CasinoActivityPanel({
                   }}
                 />
               )}
-              <span className="relative z-10 whitespace-nowrap">{tab}</span>
+              <span className="relative z-10 whitespace-nowrap">{label}</span>
             </button>
           ))}
         </div>
@@ -277,197 +328,253 @@ export function CasinoActivityPanel({
         <div className="scrollbar-hide max-h-[500px] overflow-y-auto">
           {casinoActivityTab === 'Daily Race' ? (
             <>
-              <div
-                className={cn(
-                  'flex items-center justify-between border-b px-4 py-3',
-                  hairline,
-                  softFill
-                )}
-              >
-                <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">
-                  Ends in
-                </span>
-                <NumberFlowCountdown
-                  hours={casinoRaceHours}
-                  minutes={casinoRaceMinutes}
-                  seconds={casinoRaceSeconds}
-                  className="text-sm font-bold text-[var(--ds-fg)]"
-                  colonClassName="text-[var(--ds-fg-muted)]"
-                />
+              <div className={cn('grid min-w-0', stickyHeaderClass, raceCols)}>
+                {(['User', 'Rank', 'Wagered', 'Prize'] as const).map((label) => (
+                  <div key={label} className={cn(thClass, 'flex items-center')}>
+                    {label}
+                  </div>
+                ))}
+                <div className="flex h-10 items-center justify-end gap-1.5 pr-3">
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--ds-fg-subtle)]">
+                    Ends in
+                  </span>
+                  <NumberFlowCountdown
+                    hours={casinoRaceHours}
+                    minutes={casinoRaceMinutes}
+                    seconds={casinoRaceSeconds}
+                    className="text-xs font-bold tabular-nums text-[var(--ds-fg)]"
+                    colonClassName="text-[var(--ds-fg-muted)]"
+                  />
+                </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left">
-                  <thead>
-                    <tr className={cn('border-b', hairline)}>
-                      <th className={cn(thClass, softFill)}>Rank</th>
-                      <th className={cn(thClass, softFill)}>Nickname</th>
-                      <th className={cn(thClass, softFill, 'text-right')}>Wagered</th>
-                      <th className={cn(thClass, softFill, 'text-right')}>Prize</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {casinoRaceLeaderboardData.map((entry, index) => (
-                      <tr
-                        key={entry.rank}
-                        className={cn(
-                          'border-b',
-                          hairline,
-                          rowHover,
-                          index % 2 === 1 ? softFill : 'bg-transparent'
-                        )}
-                      >
-                        <td className="px-4 py-2.5">
-                          <div className="flex items-center gap-2">
-                            {entry.medal === 'gold' && (
-                              <IconTrophy className="h-5 w-5 text-yellow-400" />
-                            )}
-                            {entry.medal === 'silver' && (
-                              <IconTrophy className="h-5 w-5 text-gray-400" />
-                            )}
-                            {entry.medal === 'bronze' && (
-                              <IconTrophy className="h-5 w-5 text-orange-400" />
-                            )}
-                            {!entry.medal && (
-                              <span className="text-sm text-[var(--ds-fg-muted)]">
-                                {entry.rank}th
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-2.5">
-                          <ActivityUserCell vipLevel={entry.vipLevel} />
-                        </td>
-                        <td className="px-4 py-2.5 text-right text-sm tabular-nums text-[var(--ds-fg-muted)]">
-                          {entry.wagered}
-                        </td>
-                        <td className="px-4 py-2.5 text-right text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                          {entry.prize}
-                        </td>
-                      </tr>
-                    ))}
-                    <tr className={cn('border-t-2 bg-black/[0.04] dark:bg-white/[0.05]', hairline)}>
-                      <td className="px-4 py-2.5">
-                        <span className="text-sm font-semibold text-[var(--ds-fg)]">
-                          {casinoUserRacePosition.rank}th
+
+              {casinoRaceLeaderboardData.map((entry) => {
+                const { cash, percent } = formatRacePrize(entry.prize)
+                return (
+                  <div
+                    key={entry.rank}
+                    className={cn(activityRowClass, raceCols)}
+                  >
+                    <div className="min-w-0 px-4">
+                      <ActivityUserCell vipLevel={entry.vipLevel} />
+                    </div>
+                    <div className="flex items-center gap-1.5 px-4">
+                      {entry.medal === 'gold' && (
+                        <IconTrophy className="h-4 w-4 shrink-0 text-yellow-400" />
+                      )}
+                      {entry.medal === 'silver' && (
+                        <IconTrophy className="h-4 w-4 shrink-0 text-gray-400" />
+                      )}
+                      {entry.medal === 'bronze' && (
+                        <IconTrophy className="h-4 w-4 shrink-0 text-orange-400" />
+                      )}
+                      <span className="text-sm tabular-nums text-[var(--ds-fg-muted)]">
+                        {entry.medal ? entry.rank : `${entry.rank}th`}
+                      </span>
+                    </div>
+                    <div className="min-w-0 px-4">
+                      <span className="text-sm tabular-nums text-[var(--ds-fg)]">
+                        {entry.wagered}
+                      </span>
+                    </div>
+                    <div className="min-w-0 px-4">
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                          {cash}
                         </span>
-                      </td>
-                      <td className="px-4 py-2.5 text-sm font-semibold text-[var(--ds-fg)]">
-                        {casinoUserRacePosition.nickname}
-                      </td>
-                      <td className="px-4 py-2.5 text-right text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                        {casinoUserRacePosition.wagered}
-                      </td>
-                      <td className="px-4 py-2.5 text-right text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
-                        {casinoUserRacePosition.prize}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : casinoActivityTab === 'Jackpot Winners' ? (
-            <Table>
-              <TableHeader>
-                <TableRow className={cn('border-b hover:bg-transparent', hairline)}>
-                  <TableHead className={cn(thClass, softFill)}>Game</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>User</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Time</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Jackpot Won</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {casinoJackpotWinnersData.map((winner, idx) => (
-                  <TableRow
-                    key={winner.id}
+                        <span className="text-[10px] tabular-nums text-[var(--ds-fg-subtle)]">
+                          {percent} of $25k
+                        </span>
+                      </div>
+                    </div>
+                    <div aria-hidden />
+                  </div>
+                )
+              })}
+
+              {(() => {
+                const { cash, percent } = formatRacePrize(
+                  casinoUserRacePosition.prize
+                )
+                return (
+                  <div
                     className={cn(
-                      'border-b',
-                      hairline,
-                      rowHover,
-                      idx % 2 === 1 ? softFill : 'bg-transparent'
+                      activityRowClass,
+                      raceCols,
+                      'sticky bottom-0 z-20 border-t-2 backdrop-blur-md',
+                      'bg-[var(--ds-bg)]/95 dark:bg-[#141414]/95',
+                      'border-black/[0.08] dark:border-white/[0.08]'
                     )}
                   >
-                    <TableCell className="px-4 py-2.5">
+                    <div className="min-w-0 px-4">
+                      <span className="text-sm font-semibold text-[var(--ds-fg)]">
+                        {casinoUserRacePosition.nickname}
+                      </span>
+                    </div>
+                    <div className="px-4">
+                      <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                        {casinoUserRacePosition.rank}th
+                      </span>
+                    </div>
+                    <div className="min-w-0 px-4">
+                      <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                        {casinoUserRacePosition.wagered}
+                      </span>
+                    </div>
+                    <div className="min-w-0 px-4">
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-sm font-semibold tabular-nums text-[var(--ds-fg)]">
+                          {cash}
+                        </span>
+                        <span className="text-[10px] tabular-nums text-[var(--ds-fg-subtle)]">
+                          {percent} of $25k
+                        </span>
+                      </div>
+                    </div>
+                    <div aria-hidden />
+                  </div>
+                )
+              })()}
+            </>
+          ) : casinoActivityTab === 'Jackpot Winners' ? (
+            <>
+              <div className={stickyHeaderClass}>
+                <div className={cn('grid min-w-0', jackpotCols)}>
+                  {(['User', 'Game', 'Date', 'Jackpot Won'] as const).map((label) => (
+                    <div key={label} className={cn(thClass, 'flex items-center')}>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {casinoJackpotWinnersData.map((winner) => {
+                const tierMeta =
+                  JACKPOT_TICKER_TIERS.find((t) => t.id === winner.tier) ??
+                  JACKPOT_TICKER_TIERS[0]
+
+                return (
+                  <div
+                    key={winner.id}
+                    className={cn(activityRowClass, jackpotCols)}
+                  >
+                    <div className="min-w-0 px-4">
+                      <ActivityUserCell vipLevel={winner.vipLevel} />
+                    </div>
+                    <div className="min-w-0 px-4">
                       <ActivityGameCell
                         title={winner.game}
                         image={winner.gameImage}
                         onLaunch={onSelectGame}
                       />
-                    </TableCell>
-                    <TableCell className="px-4 py-2.5">
-                      <ActivityUserCell vipLevel={winner.vipLevel} />
-                    </TableCell>
-                    <TableCell className="px-4 py-2.5">
+                    </div>
+                    <div className="min-w-0 px-4">
                       <span className="text-sm tabular-nums text-[var(--ds-fg-muted)]">
-                        {winner.time}
+                        {winner.date}
                       </span>
-                    </TableCell>
-                    <TableCell className="px-4 py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <IconTrophy className="h-3.5 w-3.5 text-amber-400" />
-                        <span className="text-sm font-semibold tabular-nums text-amber-400">
+                    </div>
+                    <div className="min-w-0 px-4">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span
+                          className="inline-flex shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                          style={{
+                            color: tierMeta.accent,
+                            backgroundColor: `${tierMeta.accent}22`,
+                          }}
+                        >
+                          {tierMeta.shortLabel}
+                        </span>
+                        <span
+                          className="truncate text-sm font-semibold tabular-nums"
+                          style={{ color: tierMeta.accent }}
+                        >
                           {winner.amount}
                         </span>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </div>
+                )
+              })}
+            </>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className={cn('border-b hover:bg-transparent', hairline)}>
-                  <TableHead className={cn(thClass, softFill)}>User</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Game</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Bet Amount</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Multiplier</TableHead>
-                  <TableHead className={cn(thClass, softFill)}>Payout</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence mode="popLayout">
-                  {casinoActivityFeed.map((activity, idx) => (
-                    <motion.tr
+            <div
+              onMouseEnter={() => handleLiveFeedHoverChange(true)}
+              onMouseLeave={() => handleLiveFeedHoverChange(false)}
+            >
+              <div className={cn(stickyHeaderClass, 'relative')}>
+                <div className={cn('grid min-w-0', allBetsCols)}>
+                  {(['User', 'Game', 'Bet Amount', 'Multiplier', 'Payout'] as const).map(
+                    (label) => (
+                      <div key={label} className={cn(thClass, 'flex items-center')}>
+                        {label}
+                      </div>
+                    )
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    'absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md',
+                    feedPaused
+                      ? 'bg-white/10 text-[var(--ds-fg-muted)]'
+                      : 'bg-red-500/15 text-red-400'
+                  )}
+                  aria-label={feedPaused ? 'Paused' : 'Live'}
+                  aria-live="polite"
+                >
+                  {feedPaused ? (
+                    <IconPlayerPause className="h-3.5 w-3.5" strokeWidth={2} />
+                  ) : (
+                    <IconBroadcast className="h-3.5 w-3.5" strokeWidth={2} />
+                  )}
+                </span>
+              </div>
+
+              <div
+                className="relative overflow-hidden"
+                style={{ height: 'calc(6 * 3.5rem)' }}
+              >
+                <AnimatePresence initial={false} mode="popLayout">
+                  {casinoActivityFeed.map((activity) => (
+                    <motion.div
                       key={activity.id}
                       layout
-                      initial={{ opacity: 0, y: -10 }}
+                      initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.2, ease: 'easeOut' }}
-                      className={cn(
-                        'border-b',
-                        hairline,
-                        rowHover,
-                        idx % 2 === 1 ? softFill : 'bg-transparent'
-                      )}
+                      exit={{ opacity: 0, y: 12, transition: { duration: 0.18 } }}
+                      transition={{
+                        duration: 0.25,
+                        ease: [0.22, 1, 0.36, 1],
+                        layout: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
+                      }}
+                      className={cn(activityRowClass, allBetsCols)}
                     >
-                      <TableCell className="px-4 py-2.5">
+                      <div className="min-w-0 px-4">
                         <ActivityUserCell vipLevel={activity.vipLevel} />
-                      </TableCell>
-                      <TableCell className="px-4 py-2.5">
+                      </div>
+                      <div className="min-w-0 px-4">
                         <ActivityGameCell
                           title={activity.event}
                           image={activity.gameImage}
                           onLaunch={onSelectGame}
                         />
-                      </TableCell>
-                      <TableCell className="px-4 py-2.5">
+                      </div>
+                      <div className="min-w-0 px-4">
                         <div className="flex items-center gap-1.5">
-                          <IconCoins className="h-3.5 w-3.5 text-green-400" />
-                          <span className="text-sm font-medium tabular-nums text-[var(--ds-fg)]">
+                          <IconCoins className="h-3.5 w-3.5 shrink-0 text-green-400" />
+                          <span className="truncate text-sm font-medium tabular-nums text-[var(--ds-fg)]">
                             {activity.betAmount}
                           </span>
                         </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-2.5">
+                      </div>
+                      <div className="min-w-0 px-4">
                         <span className="text-sm tabular-nums text-[var(--ds-fg)]">
                           {activity.multiplier}
                         </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2.5">
+                      </div>
+                      <div className="min-w-0 px-4">
                         <span
                           className={cn(
-                            'text-sm font-medium tabular-nums',
+                            'block truncate text-sm font-medium tabular-nums',
                             activity.isWin
                               ? 'text-green-400'
                               : 'text-[var(--ds-fg-muted)]'
@@ -475,12 +582,12 @@ export function CasinoActivityPanel({
                         >
                           {activity.payout}
                         </span>
-                      </TableCell>
-                    </motion.tr>
+                      </div>
+                    </motion.div>
                   ))}
                 </AnimatePresence>
-              </TableBody>
-            </Table>
+              </div>
+            </div>
           )}
         </div>
       </div>

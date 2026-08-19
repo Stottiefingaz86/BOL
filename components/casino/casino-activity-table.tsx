@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { IconCoins } from '@tabler/icons-react'
 import {
+  CASINO_ACTIVITY_TAB_LABELS,
   CASINO_ACTIVITY_TABS,
   type CasinoActivityTab,
 } from '@/lib/casino/activity'
@@ -90,7 +91,7 @@ export function CasinoActivityTable({
                     : undefined
                 }
               >
-                {t}
+                {CASINO_ACTIVITY_TAB_LABELS[t]}
               </button>
             )
           })}
