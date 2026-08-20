@@ -2153,6 +2153,79 @@ function PromosPage({
             </>
           )}
           <CarouselContent className="ml-3 md:ml-6 pr-3 md:pr-6">
+            {/* VIP Hub — same card as casino lobby carousel */}
+            <CarouselItem className="pl-0 basis-auto flex-shrink-0">
+              <Card
+                className="group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border-0 bg-[#eeeeee] shadow-none transition-colors dark:bg-white/[0.06]"
+                style={{ width: '300px', height: '164px' }}
+                onClick={() => {
+                  setVipActiveTab?.('VIP')
+                  setVipDrawerOpen?.(true)
+                }}
+              >
+                <CardContent className="relative z-10 flex h-full min-h-0 flex-col p-4">
+                  <div className="flex shrink-0 items-start justify-between gap-2">
+                    <CardTitle className="text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
+                      VIP Hub
+                    </CardTitle>
+                    <IconLogin2
+                      className="mt-0.5 h-4 w-4 shrink-0 text-black/40 dark:text-white/45"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                  </div>
+                  <div className="flex min-h-0 flex-1 flex-col justify-center">
+                    <VipTierProgressCard
+                      fromTier="Bronze"
+                      toTier="Silver"
+                      percent={25}
+                      className="border-0 bg-transparent p-0 shadow-none"
+                    />
+                  </div>
+                </CardContent>
+                <span className="pointer-events-none absolute inset-0 z-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full dark:via-white/15" />
+              </Card>
+            </CarouselItem>
+
+            {/* Daily Races — same card as casino lobby carousel */}
+            <CarouselItem className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+              <Card
+                className="group relative flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl border-0 bg-[#eeeeee] shadow-none transition-colors dark:bg-white/[0.06]"
+                style={{ width: '300px', height: '164px' }}
+                onClick={() => {
+                  setVipActiveTab?.('Daily Races')
+                  setVipDrawerOpen?.(true)
+                }}
+              >
+                <CardContent className="relative z-10 flex h-full min-h-0 flex-col justify-between p-4">
+                  <div className="flex shrink-0 items-start justify-between gap-2">
+                    <CardTitle className="mb-0 text-base font-bold leading-tight text-[#1a1a1a] dark:text-white">
+                      Daily Races
+                    </CardTitle>
+                    <DailyRacesTimer
+                      className="text-base font-bold tabular-nums text-[#1a1a1a] dark:text-white"
+                      colonClassName="text-black/40 dark:text-white/50"
+                    />
+                  </div>
+                  <div className="grid w-full grid-cols-3 gap-2">
+                    <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                      <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">3rd</div>
+                      <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Position</div>
+                    </div>
+                    <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                      <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">$80.000</div>
+                      <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Wagered</div>
+                    </div>
+                    <div className="rounded-xl bg-white px-2.5 py-2.5 dark:bg-white/[0.08]">
+                      <div className="text-sm font-bold tabular-nums text-[#1a1a1a] dark:text-white">$160.000</div>
+                      <div className="mt-0.5 text-[11px] font-medium text-black/45 dark:text-white/50">Current Prize</div>
+                    </div>
+                  </div>
+                </CardContent>
+                <span className="pointer-events-none absolute inset-0 z-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 ease-in-out group-hover:translate-x-full dark:via-white/15" />
+              </Card>
+            </CarouselItem>
+
             {[
               {
                 src: '/banners/casino/casino_banner1.svg',
@@ -2175,7 +2248,7 @@ function PromosPage({
               { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
               { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
             ].map((banner, index) => (
-              <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
+              <CarouselItem key={index} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
                 <Card
                   role={banner.target ? 'button' : undefined}
                   tabIndex={banner.target ? 0 : undefined}
