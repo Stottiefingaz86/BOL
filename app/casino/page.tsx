@@ -36,8 +36,11 @@ import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoPromoBanner } from '@/components/casino/casino-promo-banner'
 import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
 import { GameTileFavoriteButton } from '@/components/casino/game-tile-favorite-button'
-import { CasinoSearchParamsEffects } from '@/components/casino/casino-search-params-effects'
-import { promoPathForSection } from '@/lib/promotions-routes'
+import {
+  CasinoPromotionsPathEffects,
+  CasinoSearchParamsEffects,
+} from '@/components/casino/casino-search-params-effects'
+import { promoPathForSection, promoSlugToSection } from '@/lib/promotions-routes'
 import {
   JackpotActivityFeed,
   JackpotNetworkBadge,
@@ -58,7 +61,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
 import { playSound, fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import {
@@ -6378,6 +6381,7 @@ function NavTestPageContent() {
   const CASINO_FEATURE_TOUR_KEY = 'bol-casino-feature-tour-v1'
   const isMobile = useIsMobile()
   const router = useRouter()
+  const pathname = usePathname()
   useJackpotTicker()
   const jackpotFeedInsertAt = useJackpotPreviewGameCount(isMobile)
   const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
@@ -6579,7 +6583,9 @@ function NavTestPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedVendor, setSelectedVendor] = useState<string>('')
   const [showSports, setShowSports] = useState(false) // Always false for casino page
-  const [showVipRewards, _setShowVipRewards] = useState(false)
+  const [showVipRewards, _setShowVipRewards] = useState(
+    () => pathname === '/promotions' || pathname.startsWith('/promotions/')
+  )
   const [showPoker, _setShowPoker] = useState(false)
   // Wrapper setters that fire page_view events for session flow tracking
   const setShowVipRewards = useCallback((val: boolean) => {
@@ -6594,7 +6600,13 @@ function NavTestPageContent() {
   const [tournamentExpandedCard, setTournamentExpandedCard] = useState<number | null>(null)
   const [leaderboardTournament, setLeaderboardTournament] = useState<typeof cashTournamentsData[0] | null>(null)
   const [initialVipSidebarItem, setInitialVipSidebarItem] = useState<string | null>(null)
-  const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState<string>('Promos')
+  const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState<string>(() => {
+    if (pathname.startsWith('/promotions/')) {
+      const section = promoSlugToSection(pathname.split('/')[2] ?? '')
+      if (section) return section
+    }
+    return 'Promos'
+  })
   /** Promos page category sub-nav: Deposit Bonus | Sports | Casino | Poker */
   const [promosActiveTab, setPromosActiveTab] = useState('Deposit Bonus')
   
@@ -7730,6 +7742,14 @@ function NavTestPageContent() {
         '--brand-primary-hover': brandPrimaryHover,
       } as React.CSSProperties}
     >
+      <CasinoPromotionsPathEffects
+        setShowPoker={setShowPoker}
+        setShowSports={setShowSports}
+        setShowVipRewards={setShowVipRewards}
+        setVipDrawerOpen={setVipDrawerOpen}
+        setInitialVipSidebarItem={setInitialVipSidebarItem}
+        setVipActiveSidebarItem={setVipActiveSidebarItem}
+      />
       <Suspense fallback={null}>
         <CasinoSearchParamsEffects
           router={router}
@@ -7780,7 +7800,7 @@ function NavTestPageContent() {
                   { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
                   { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); if (showSports || showVipRewards || showPoker) startSidebarMenuTransition(); goToCasinoLobby(); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); if (!showPoker) startSidebarMenuTransition(); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
-                  { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); if (!showVipRewards) startSidebarMenuTransition(); setShowPoker(false); setShowSports(false); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
+                  { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); if (!showVipRewards) startSidebarMenuTransition(); setShowPoker(false); setShowSports(false); setVipActiveSidebarItem('Promos'); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
                   <button
                     key={item.label}
@@ -7793,7 +7813,7 @@ function NavTestPageContent() {
                     className={cn(
                       "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors relative",
                       (item.label === 'Casino' && !showSports && !showPoker && !showVipRewards && activeSubNav !== 'Live') ||
-                      (item.label === 'Sports' && showSports) ||
+                      (item.label === 'Sports' && showSports && !showVipRewards) ||
                       (item.label === 'Poker' && showPoker) ||
                       (item.label === 'Promotions' && showVipRewards)
                         ? "text-[var(--ds-fg)]"
@@ -7950,9 +7970,9 @@ function NavTestPageContent() {
                         handoffMobileSidebarToNextPage()
                         router.push('/sports/football')
                       }}
-                      data-active={showSports}
+                      data-active={showSports && !showVipRewards}
                     >
-                      {showSports && (
+                      {showSports && !showVipRewards && (
                         <motion.div
                           layoutId="casinoNavPill" layout="position"
                           className="absolute inset-0 rounded-small"

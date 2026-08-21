@@ -1,11 +1,74 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { promoPathForSection, promoSlugToSection } from '@/lib/promotions-routes'
 
 /** Minimal shape from `useRouter()` — only what deep-link handlers need. */
 type CasinoRouterLike = {
   replace: (href: string, options?: { scroll?: boolean }) => void
+}
+
+type PromotionsPathEffectsProps = {
+  setShowPoker: (v: boolean) => void
+  setShowSports: (v: boolean) => void
+  setShowVipRewards: (v: boolean) => void
+  setVipDrawerOpen: (v: boolean) => void
+  setInitialVipSidebarItem: (v: string | null) => void
+  setVipActiveSidebarItem: (v: string) => void
+}
+
+/**
+ * Opens Promotions when the real route is `/promotions` (no Suspense — runs before paint).
+ * Keep this outside the search-params Suspense boundary.
+ */
+export function CasinoPromotionsPathEffects({
+  setShowPoker,
+  setShowSports,
+  setShowVipRewards,
+  setVipDrawerOpen,
+  setInitialVipSidebarItem,
+  setVipActiveSidebarItem,
+}: PromotionsPathEffectsProps) {
+  const pathname = usePathname()
+  const appliedPathRef = useRef<string | null>(null)
+
+  useLayoutEffect(() => {
+    if (pathname !== '/promotions' && !pathname.startsWith('/promotions/')) {
+      appliedPathRef.current = null
+      return
+    }
+    // Only apply on route entry / section change — don't re-force after in-place Casino leave
+    if (appliedPathRef.current === pathname) return
+    appliedPathRef.current = pathname
+
+    setShowPoker(false)
+    setShowSports(false)
+    setShowVipRewards(true)
+    setVipDrawerOpen(false)
+
+    const slug = pathname.split('/')[2]
+    if (slug) {
+      const section = promoSlugToSection(slug)
+      if (section) {
+        setInitialVipSidebarItem(section)
+        setVipActiveSidebarItem(section)
+      }
+    } else {
+      setVipActiveSidebarItem('Promos')
+    }
+    window.scrollTo(0, 0)
+  }, [
+    pathname,
+    setInitialVipSidebarItem,
+    setShowPoker,
+    setShowSports,
+    setShowVipRewards,
+    setVipActiveSidebarItem,
+    setVipDrawerOpen,
+  ])
+
+  return null
 }
 
 export type CasinoSearchParamsEffectsProps = {
@@ -90,7 +153,11 @@ export function CasinoSearchParamsEffects({
         setVipDrawerOpen(false)
       }
 
-      router.replace('/casino', { scroll: false })
+      // Soft-clean the query into a promotions path — no `/casino?…` flash, no remount.
+      const nextPath = promoPathForSection(promoSectionParam || 'Promos')
+      if (`${window.location.pathname}${window.location.search}` !== nextPath) {
+        window.history.replaceState(null, '', nextPath)
+      }
 
       if (openHub) {
         const hubSection = searchParams.get('hubSection') ?? 'Overview'

@@ -5076,7 +5076,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                         }
                       } else if (item.page === 'promotions') {
-                        router.push('/casino?vipRewardsPage=true')
+                        router.push('/promotions')
                       }
                     }}
                     className={cn(
@@ -8703,7 +8703,7 @@ function NavTestPageContent() {
   const [showMyBets, setShowMyBets] = useState(false)
   const [myBetsInitialFilter, setMyBetsInitialFilter] = useState<'all' | 'cash_out' | 'in_play' | 'pending' | 'graded'>('all')
   const [initialVipSidebarItem, setInitialVipSidebarItem] = useState<string | null>(null)
-  const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState<string>('Overview')
+  const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState<string>('Promos')
   
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
@@ -8817,19 +8817,19 @@ function NavTestPageContent() {
     console.log('depositDrawerOpen state changed to:', depositDrawerOpen)
   }, [depositDrawerOpen])
 
-  // Sync URL when VIP Rewards page is shown/hidden
+  // Sync URL when Promotions page is shown/hidden
   const originalPathRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '/sports/football')
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (showVipRewards) {
       // Save current path before switching
-      if (window.location.pathname !== '/vip-rewards') {
+      if (!window.location.pathname.startsWith('/promotions') && window.location.pathname !== '/vip-rewards') {
         originalPathRef.current = window.location.pathname
       }
-      window.history.replaceState(null, '', '/vip-rewards')
+      window.history.replaceState(null, '', '/promotions')
     } else {
-      // Restore previous path when leaving VIP
-      if (window.location.pathname === '/vip-rewards') {
+      // Restore previous path when leaving Promotions
+      if (window.location.pathname.startsWith('/promotions') || window.location.pathname === '/vip-rewards') {
         window.history.replaceState(null, '', originalPathRef.current || '/sports/football')
       }
     }
@@ -9072,7 +9072,7 @@ function NavTestPageContent() {
                   { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { router.push('/casino'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
-                  { label: 'Promotions', onClick: () => { setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
+                  { label: 'Promotions', onClick: () => { router.push('/promotions'); setQuickLinksOpen(false); } },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -9085,7 +9085,7 @@ function NavTestPageContent() {
                     className={cn(
                       "flex-shrink-0 px-3 py-1.5 rounded-small text-xs font-medium transition-colors relative",
                       (item.label === 'Casino' && !showSports && !showVipRewards) ||
-                      (item.label === 'Sports' && showSports) ||
+                      (item.label === 'Sports' && showSports && !showVipRewards) ||
                       (item.label === 'Promotions' && showVipRewards)
                         ? "text-white"
                         : "text-white/70 hover:text-white"
@@ -9230,7 +9230,7 @@ function NavTestPageContent() {
                         "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
                         "hover:bg-white/5 hover:text-white transition-colors",
                         "text-white/70 cursor-pointer",
-                        showSports && "!text-white"
+                        showSports && !showVipRewards && "!text-white"
                       )}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
                       onClick={(e) => {
@@ -9240,9 +9240,9 @@ function NavTestPageContent() {
                         setShowVipRewards(false)
                         window.scrollTo(0, 0)
                       }}
-                      data-active={showSports}
+                      data-active={showSports && !showVipRewards}
                     >
-                      {showSports && (
+                      {showSports && !showVipRewards && (
                         <motion.div
                           layoutId="sportsNavPill" layout="position"
                           className="absolute inset-0 rounded-small"
@@ -9400,7 +9400,7 @@ function NavTestPageContent() {
         </motion.header>
 
         {/* Sports Sub Nav - Sticky with glass effect — hide during page transitions (e.g. sports→VIP) */}
-        {showSports && !isPageTransitioning && (
+        {showSports && !showVipRewards && !isPageTransitioning && (
           <motion.div
             data-sub-nav
             className={cn(
@@ -10089,8 +10089,7 @@ function NavTestPageContent() {
                                   if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                     window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                   } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                    setShowVipRewards(true)
-                                    window.scrollTo(0, 0)
+                                  router.push('/promotions')
                                   } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     openDepositDrawer()
                                   } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
@@ -10287,8 +10286,7 @@ function NavTestPageContent() {
                                     if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                       window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                     } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                      setShowVipRewards(true)
-                                      window.scrollTo(0, 0)
+                                  router.push('/promotions')
                                     } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                       openDepositDrawer()
                                     } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {

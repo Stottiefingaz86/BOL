@@ -5,7 +5,7 @@ export function NavNewBadge({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        'rounded-[3px] bg-white px-1 py-[2px] text-[9px] font-bold uppercase leading-none tracking-wide text-[var(--ds-primary,#ee3536)]',
+        'inline-flex shrink-0 items-center rounded-[3px] bg-white px-1 py-[2px] text-[9px] font-bold uppercase leading-none tracking-wide !text-[var(--ds-primary,#ee3536)]',
         className
       )}
     >

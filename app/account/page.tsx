@@ -3726,7 +3726,7 @@ function AccountPageContent() {
                                   if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                     openVipDrawer()
                                   } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                    router.push('/casino?vipRewardsPage=true')
+                                  router.push('/promotions')
                                   } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     setActiveSection('payments')
                                   } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
