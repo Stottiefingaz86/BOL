@@ -470,7 +470,6 @@ export function ReferAFriendPage() {
   const addPendingInvite = useReferralStore((s) => s.addPendingInvite)
 
   const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [copied, setCopied] = useState(false)
   const [page, setPage] = useState(0)
@@ -481,8 +480,7 @@ export function ReferAFriendPage() {
 
   const hasClaimable = claimableAmount > 0
   const canClaim = hasClaimable && !claiming
-  const canSendInvite =
-    firstName.trim().length > 0 && lastName.trim().length > 0 && email.trim().length > 0
+  const canSendInvite = firstName.trim().length > 0 && email.trim().length > 0
   const joinedCount = useMemo(
     () => referrals.filter((row) => row.status === 'joined').length,
     [referrals]
@@ -613,13 +611,13 @@ export function ReferAFriendPage() {
   }, [])
 
   const handleSendEmail = useCallback(() => {
-    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+    if (!firstName.trim() || !email.trim()) {
       toast.error('Add a name and email to send')
       return
     }
     const row = addPendingInvite({
       firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      lastName: '',
       email: email.trim(),
     })
     if (!row) {
@@ -628,10 +626,9 @@ export function ReferAFriendPage() {
     }
     toast.success(`Invite sent to ${email.trim()}`)
     setFirstName('')
-    setLastName('')
     setEmail('')
     setPage(0)
-  }, [addPendingInvite, email, firstName, lastName])
+  }, [addPendingInvite, email, firstName])
 
   const handleShareX = useCallback(() => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -1137,20 +1134,11 @@ export function ReferAFriendPage() {
                 </div>
                 <div className="space-y-3">
                   <label className="block space-y-1.5">
-                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">First Name</span>
+                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Name</span>
                     <Input
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="John"
-                      className={controlClass}
-                    />
-                  </label>
-                  <label className="block space-y-1.5">
-                    <span className="text-xs font-semibold text-[var(--ds-fg-muted)]">Last Name</span>
-                    <Input
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe"
                       className={controlClass}
                     />
                   </label>
