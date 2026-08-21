@@ -1905,6 +1905,17 @@ button[data-active="true"][class*="SidebarMenuButton"],
   transition: background-color 0.2s ease-in-out !important;
 }
 
+/* Plain icon nav (poker Start→Promotions): no tile when collapsed — icon only */
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"][data-plain-icon],
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"][data-plain-icon][data-active="true"],
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"][data-plain-icon]:hover,
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"][data-plain-icon]:active {
+  background-color: transparent !important;
+}
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"][data-plain-icon][data-active="true"] {
+  color: var(--ds-primary, var(--brand-primary, #ee3536)) !important;
+}
+
 /* Ensure smooth transition from default to active state - prevent black flash */
 [data-sidebar="menu-button"] {
   transition: background-color 0.2s ease-in-out !important;

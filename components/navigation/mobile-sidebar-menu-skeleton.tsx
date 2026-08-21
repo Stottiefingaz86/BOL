@@ -11,15 +11,17 @@ type SkeletonSection = {
   rows: number
   /** Two-line last row (e.g. Last Game Played) */
   tallLast?: boolean
+  /** Collapsed icon treatment — tiles only for Play Online / Download */
+  iconStyle?: 'tile' | 'plain'
 }
 
 const LAYOUTS: Record<SidebarMenuSkeletonLayout, SkeletonSection[]> = {
   // All Promotions, My Bonus, Contests, Refer A Friend
   promotions: [{ rows: 4 }],
-  // PLAY NOW (2) + nav (5)
+  // PLAY NOW (2 tiled) + nav (5 plain icons)
   poker: [
-    { showLabel: true, rows: 2 },
-    { rows: 5 },
+    { showLabel: true, rows: 2, iconStyle: 'tile' },
+    { rows: 5, iconStyle: 'plain' },
   ],
   // Top actions (3, last is two-line) + category list (8)
   casino: [
@@ -58,9 +60,8 @@ export function SidebarMenuSkeleton({
   className?: string
 }) {
   const sections = LAYOUTS[layout]
-  const totalRows = sections.reduce((n, s) => n + s.rows, 0)
 
-  // Icon-rail mode: only centered squares, matching collapsed sidebar buttons
+  // Icon-rail mode: tiles for CTA rows, plain dots for section nav
   if (collapsed) {
     return (
       <div
@@ -71,14 +72,24 @@ export function SidebarMenuSkeleton({
         aria-busy="true"
         aria-label="Loading menu"
       >
-        {Array.from({ length: totalRows }, (_, i) => (
-          <div
-            key={i}
-            className="flex h-10 w-full items-center justify-center"
-          >
-            <SkeletonBar className="size-7 rounded-md" />
-          </div>
-        ))}
+        {sections.map((section, sIdx) =>
+          Array.from({ length: section.rows }, (_, i) => {
+            const plain = section.iconStyle === 'plain'
+            return (
+              <div
+                key={`${sIdx}-${i}`}
+                className="flex h-10 w-full items-center justify-center"
+              >
+                <SkeletonBar
+                  className={cn(
+                    'rounded-md',
+                    plain ? 'size-5 rounded-full' : 'size-7'
+                  )}
+                />
+              </div>
+            )
+          })
+        )}
       </div>
     )
   }

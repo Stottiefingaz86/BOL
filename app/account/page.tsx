@@ -175,8 +175,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 } from '@/components/ui/accordion'
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 
 // ═══════════════════════════════════════════════════════════
 // My Account Page

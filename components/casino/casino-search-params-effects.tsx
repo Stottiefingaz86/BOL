@@ -115,6 +115,8 @@ export function CasinoSearchParamsEffects({
       setShowPoker(true)
       setShowSports(false)
       setShowVipRewards(false)
+      // Clear the query so it can't re-force Poker after the user leaves
+      router.replace('/casino', { scroll: false })
     }
 
     const tabParam = searchParams.get('tab')
@@ -125,6 +127,7 @@ export function CasinoSearchParamsEffects({
       setSelectedVendor('')
       setShowSports(false)
       setShowVipRewards(false)
+      setShowPoker(false)
       router.replace('/casino', { scroll: false })
     }
   }, [

@@ -5634,6 +5634,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
   const router = useRouter()
   const { state: sidebarState, toggleSidebar, setOpenMobile } = useSidebar()
   const [activeSidebarItem, setActiveSidebarItem] = useState('Start')
+  const ignorePokerScrollSpyUntilRef = useRef(0)
   const {
     ref: heroSpotlightRef,
     handleMouseMove: handleHeroMouseMove,
@@ -5658,11 +5659,14 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
 
   const scrollToSection = (sectionId: string, label: string) => {
     if (label === 'Play Online') {
+      ignorePokerScrollSpyUntilRef.current = Date.now() + 1000
       setActiveSidebarItem('Start')
       launchPokerApp()
       if (isMobile) setOpenMobile(false)
       return
     }
+    // Keep click selection stable while smooth-scroll settles (avoids scroll-spy flash)
+    ignorePokerScrollSpyUntilRef.current = Date.now() + 1400
     setActiveSidebarItem(label)
     const el = document.getElementById(sectionId)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -5683,6 +5687,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (Date.now() < ignorePokerScrollSpyUntilRef.current) return
         for (const entry of entries) {
           ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
         }
@@ -6009,13 +6014,14 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                               className={cn(
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 "data-[active=true]:text-white data-[active=true]:font-medium",
-                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                "data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
+                                "transition-colors duration-200"
                               )}
                               style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
                               <div className={cn("w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0", isActive ? "bg-white/20" : "bg-[var(--ds-control-hover)]")}>
                                 <Icon strokeWidth={1.5} className="w-4 h-4" />
-                </div>
+                              </div>
                               <span>{item.label}</span>
                             </SidebarMenuButton>
                           </TooltipTrigger>
@@ -6048,6 +6054,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                           <TooltipTrigger asChild>
                             <SidebarMenuButton
                               isActive={isActive}
+                              data-plain-icon=""
                               onClick={(e) => {
                                 e.preventDefault()
                                 e.stopPropagation()
@@ -6065,9 +6072,12 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                                 "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                 isExternal
                                   ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                                  : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                  : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
+                                "transition-colors duration-200",
+                                isActive &&
+                                  !(sidebarState === 'collapsed' && !isMobile) &&
+                                  "bg-[var(--ds-primary,#ee3536)]"
                               )}
-                              style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                             >
                               <Icon strokeWidth={1.5} className="w-5 h-5" />
                               <span className={cn(isExternal && 'flex-1 text-left')}>{item.label}</span>
@@ -7321,6 +7331,7 @@ function NavTestPageContent() {
   const isChatOpen = useChatStore(state => state.isOpen)
   const [sidebarMenuLoading, setSidebarMenuLoading] = useState(false)
   const [pokerActiveSidebarItem, setPokerActiveSidebarItem] = useState('Start')
+  const ignorePokerScrollSpyUntilRef = useRef(0)
 
   /** Skeleton left-menu titles while the product menu swaps (CMS-style load). */
   const startSidebarMenuTransition = () => {
@@ -7347,38 +7358,61 @@ function NavTestPageContent() {
     console.log('depositDrawerOpen state changed to:', depositDrawerOpen)
   }, [depositDrawerOpen])
 
-  // Sync URL when VIP Rewards / Promotions section is shown
-  const originalPathRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '/casino')
+  // Sync product URL — single source of truth (avoids /poker sticking after Casino)
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const onPromotionsPath = window.location.pathname === '/promotions' || window.location.pathname.startsWith('/promotions/')
-    if (showVipRewards) {
-      if (!onPromotionsPath) {
-        originalPathRef.current = window.location.pathname
-      }
-      const nextPath = promoPathForSection(vipActiveSidebarItem)
-      if (window.location.pathname !== nextPath) {
-        window.history.replaceState(null, '', nextPath)
-      }
-    } else if (onPromotionsPath) {
-      window.history.replaceState(null, '', originalPathRef.current || '/casino')
-    }
-  }, [showVipRewards, vipActiveSidebarItem])
+    if (showSports) return
 
-  // Sync URL when Poker page is shown/hidden
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (showPoker) {
-      if (window.location.pathname !== '/poker') {
-        originalPathRef.current = window.location.pathname
-      }
-      window.history.replaceState(null, '', '/poker')
+    let nextPath: string
+    if (showVipRewards) {
+      nextPath = promoPathForSection(vipActiveSidebarItem)
+    } else if (showPoker) {
+      nextPath = '/poker'
     } else {
-      if (window.location.pathname === '/poker') {
-        window.history.replaceState(null, '', originalPathRef.current || '/casino')
-      }
+      nextPath = '/casino'
     }
-  }, [showPoker])
+
+    if (window.location.pathname !== nextPath) {
+      window.history.replaceState(null, '', nextPath)
+    }
+  }, [showVipRewards, showPoker, showSports, vipActiveSidebarItem])
+
+  // Always land at the top when switching product pages (poker ↔ promotions ↔ casino)
+  // and when changing promotions sections (Contests, My Bonus, etc.)
+  useEffect(() => {
+    const resetScroll = () => {
+      window.scrollTo(0, 0)
+      document.documentElement.scrollTop = 0
+      document.body.scrollTop = 0
+    }
+    resetScroll()
+    // After AnimatePresence / layout swap
+    const raf = requestAnimationFrame(resetScroll)
+    const t = window.setTimeout(resetScroll, 50)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(t)
+    }
+  }, [showPoker, showVipRewards, showSports, vipActiveSidebarItem])
+
+  /** Leave Poker/Promotions for Casino and keep Next + browser URL in sync. */
+  const goToCasinoLobby = useCallback(() => {
+    setShowSports(false)
+    setShowVipRewards(false)
+    setShowPoker(false)
+    setActiveSubNav('Lobby')
+    setShowAllGames(false)
+    setSelectedCategory('')
+    setSelectedVendor('')
+    window.scrollTo(0, 0)
+    router.replace('/casino', { scroll: false })
+  }, [
+    router,
+    setShowSports,
+    setShowVipRewards,
+    setShowPoker,
+    setActiveSubNav,
+  ])
 
   const handleDepositDrawerOpenChange = React.useCallback((open: boolean) => {
     setDepositDrawerOpen(open)
@@ -7611,11 +7645,14 @@ function NavTestPageContent() {
 
   const scrollToPokerSection = (sectionId: string, label: string) => {
     if (label === 'Play Online') {
+      ignorePokerScrollSpyUntilRef.current = Date.now() + 1000
       setPokerActiveSidebarItem('Start')
       launchPokerApp()
       if (isMobile) setOpenMobile(false)
       return
     }
+    // Keep click selection stable while smooth-scroll settles (avoids scroll-spy flash)
+    ignorePokerScrollSpyUntilRef.current = Date.now() + 1400
     setPokerActiveSidebarItem(label)
     const el = document.getElementById(sectionId)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -7638,6 +7675,7 @@ function NavTestPageContent() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (Date.now() < ignorePokerScrollSpyUntilRef.current) return
         for (const entry of entries) {
           ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
         }
@@ -7742,7 +7780,7 @@ function NavTestPageContent() {
                 {[
                   { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setOpenMobile(false); router.push('/'); setQuickLinksOpen(false); } },
                   { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
-                  { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); if (showSports || showVipRewards || showPoker) startSidebarMenuTransition(); setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); setQuickLinksOpen(false); } },
+                  { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); if (showSports || showVipRewards || showPoker) startSidebarMenuTransition(); goToCasinoLobby(); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); if (!showPoker) startSidebarMenuTransition(); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); if (!showVipRewards) startSidebarMenuTransition(); setShowPoker(false); setShowSports(false); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
@@ -7948,14 +7986,7 @@ function NavTestPageContent() {
                         if (showSports || showVipRewards || showPoker || activeSubNav === 'Live') {
                           startSidebarMenuTransition()
                         }
-                        setShowSports(false)
-                        setShowVipRewards(false)
-                        setShowPoker(false)
-                        setActiveSubNav('Lobby')
-                        setShowAllGames(false)
-                        setSelectedCategory('')
-                        setSelectedVendor('')
-                        window.scrollTo(0, 0)
+                        goToCasinoLobby()
                       }}
                     >
                       {!showSports && !showVipRewards && !showPoker && activeSubNav !== 'Live' && (
@@ -8195,8 +8226,8 @@ function NavTestPageContent() {
             />
             </>
           )}
-          {/* Sidebar — full height; stay mounted while menu skeleton loads (incl. desktop Poker) */}
-          {!showSports && !(showPoker && !isMobile && !sidebarMenuLoading) && (
+          {/* Sidebar — one shared rail for Casino / Poker / Promotions (desktop + mobile) */}
+          {!showSports && (
           <Sidebar 
             collapsible="icon"
             variant="sidebar"
@@ -8327,14 +8358,7 @@ function NavTestPageContent() {
                           }
                           startSidebarMenuTransition()
                           if (item.page === 'casino') {
-                            setShowSports(false)
-                            setShowVipRewards(false)
-                            setShowPoker(false)
-                            setActiveSubNav('Lobby')
-                            setShowAllGames(false)
-                            setSelectedCategory('')
-                            setSelectedVendor('')
-                            window.scrollTo(0, 0)
+                            goToCasinoLobby()
                           } else if (item.page === 'poker') {
                             trackNav('poker', 'Poker')
                             setShowPoker(true)
@@ -8518,9 +8542,6 @@ function NavTestPageContent() {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         if (isMobile) setOpenMobile(false)
-                                        if (vipActiveSidebarItem !== itemId) {
-                                          startSidebarMenuTransition()
-                                        }
                                         setVipActiveSidebarItem(itemId)
                                       }}
                                       className={cn(
@@ -8610,12 +8631,12 @@ function NavTestPageContent() {
                                   <TooltipTrigger asChild>
                                     <SidebarMenuButton
                                       isActive={isActive}
+                                      data-plain-icon=""
                                       onClick={(e) => {
                                         e.preventDefault()
                                         e.stopPropagation()
                                         if (isExternal) {
                                           if (isMobile) setOpenMobile(false)
-                                          // Deep-link into Promotions → Poker sub-nav
                                           setVipActiveSidebarItem('Promos')
                                           setPromosActiveTab('Poker')
                                           startSidebarMenuTransition()
@@ -8632,11 +8653,14 @@ function NavTestPageContent() {
                                         "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
                                         isExternal
                                           ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
-                                          : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
+                                          : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
+                                        // Expanded: full-row active fill. Collapsed: bare icon only (no tile).
+                                        isActive &&
+                                          !(sidebarState === 'collapsed' && !isMobile) &&
+                                          "bg-[var(--ds-primary,#ee3536)]"
                                       )}
-                                      style={isActive ? { backgroundColor: 'var(--ds-primary, #ee3536)' } : undefined}
                                     >
-                                      <Icon strokeWidth={1.5} className="w-5 h-5" />
+                                      <Icon strokeWidth={1.5} className="w-5 h-5 shrink-0" />
                                       <span className={cn(isExternal && 'flex-1 text-left')}>{item.label}</span>
                                       {isExternal ? (
                                         <IconLogin2
@@ -9168,8 +9192,8 @@ function NavTestPageContent() {
                         return
                       }
                       startSidebarMenuTransition()
-                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); }
-                      else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); }
+                      if (page === 'casino') { goToCasinoLobby() }
+                      else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); router.replace('/casino', { scroll: false }) }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); }
                       else if (page === 'vipRewards') { setShowPoker(false); setShowSports(false); setShowVipRewards(true); }
                     }}
@@ -9200,7 +9224,7 @@ function NavTestPageContent() {
                     brandPrimary={brandPrimary || '#ee3536'}
                     quickLinksOpen={quickLinksOpen}
                     menuLoading={sidebarMenuLoading}
-                    hideSidebar={isMobile || sidebarMenuLoading}
+                    hideSidebar
                     onNavigate={(page, options) => {
                       if (page === 'home') {
                         setOpenMobile(false)
@@ -9208,8 +9232,8 @@ function NavTestPageContent() {
                         return
                       }
                       startSidebarMenuTransition()
-                      if (page === 'casino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Lobby'); window.scrollTo(0, 0); }
-                      else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); window.scrollTo(0, 0); }
+                      if (page === 'casino') { goToCasinoLobby() }
+                      else if (page === 'liveCasino') { setShowSports(false); setShowVipRewards(false); setShowPoker(false); setActiveSubNav('Live'); window.scrollTo(0, 0); router.replace('/casino', { scroll: false }) }
                       else if (page === 'poker') { setShowPoker(true); setShowSports(false); setShowVipRewards(false); window.scrollTo(0, 0); }
                       else if (page === 'vipRewards') {
                         setShowPoker(false)

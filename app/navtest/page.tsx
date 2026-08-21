@@ -255,8 +255,8 @@ import {
   FamilyDrawerViewContent,
   useFamilyDrawer,
   type ViewsRegistry,
-import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 } from '@/components/ui/family-drawer'
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 
 // Available square tile images
 const squareTileImages = [
