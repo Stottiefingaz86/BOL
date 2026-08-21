@@ -443,7 +443,7 @@ function ClaimStyleButton({
           : { backgroundColor: 'var(--ds-primary, #ee3536)' }
       }
       className={cn(
-        'relative h-9 shrink-0 overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider transition-[filter,colors] duration-150 disabled:cursor-not-allowed disabled:opacity-80',
+        'relative inline-flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-lg px-3 text-[11px] font-bold uppercase tracking-wider transition-[filter,colors] duration-150 disabled:cursor-not-allowed disabled:opacity-80',
         subtle
           ? 'border border-[var(--ds-primary,#ee3536)]/45 bg-[var(--ds-primary,#ee3536)]/10 text-[var(--ds-fg)] hover:bg-[var(--ds-primary,#ee3536)]/18 hover:border-[var(--ds-primary,#ee3536)]/70'
           : 'text-white hover:brightness-110',
@@ -459,7 +459,7 @@ function ClaimStyleButton({
           className="pointer-events-none absolute inset-0 animate-wallet-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent"
         />
       ) : null}
-      <span className="relative">{children}</span>
+      <span className="relative inline-flex items-center justify-center">{children}</span>
     </button>
   )
 }
@@ -925,10 +925,7 @@ function BenefitRow({
             aria-busy={claiming}
           >
             {claiming ? (
-              <span className="inline-flex items-center gap-1.5">
-                <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
-                {activated && isFreeSpins ? 'Opening' : 'Claiming'}
-              </span>
+              <IconLoader2 className="size-3.5 animate-spin" aria-hidden />
             ) : (
               claimLabel
             )}
