@@ -5073,8 +5073,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                         }
                       } else if (item.page === 'promotions') {
-                        setShowVipRewards(true)
-                        window.scrollTo(0, 0)
+                        router.push('/casino?vipRewardsPage=true')
                       }
                     }}
                     className={cn(

@@ -5680,8 +5680,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       } else if (item.page === 'vipRewards') {
                         router.push('/casino?vipRewards=true')
                       } else if (item.page === 'promotions') {
-                        setShowVipRewards(true)
-                        window.scrollTo(0, 0)
+                        router.push('/casino?vipRewardsPage=true')
                       }
                     }}
                     className={cn(
@@ -6079,8 +6078,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                                 if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                   window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                 } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                  setShowVipRewards(true)
-                                  window.scrollTo(0, 0)
+                                  router.push('/casino?vipRewardsPage=true')
                                 } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                   window.dispatchEvent(new CustomEvent('deposit:open-drawer'))
                                 } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
