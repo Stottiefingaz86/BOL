@@ -255,6 +255,7 @@ import {
   FamilyDrawerViewContent,
   useFamilyDrawer,
   type ViewsRegistry,
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 } from '@/components/ui/family-drawer'
 
 // Available square tile images
@@ -3804,7 +3805,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                         }
                       } else if (item.page === 'promotions') {
-                        router.push('/promotions')
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
                       }
                     }}
                     className={cn(
@@ -6293,7 +6295,7 @@ function NavTestPageContent() {
                   { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { setShowSports(false); setShowVipRewards(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { window.location.href = '/casino?poker=true'; setQuickLinksOpen(false); } },
-                  { label: 'Promotions', onClick: () => { router.push('/promotions'); setQuickLinksOpen(false); } },
+                  { label: 'Promotions', onClick: () => { setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -6452,7 +6454,8 @@ function NavTestPageContent() {
                         e.preventDefault()
                         e.stopPropagation()
                         setVipDrawerOpen(false)
-                        router.push('/promotions')
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
                       }}
                       data-active={showVipRewards}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -6466,7 +6469,10 @@ function NavTestPageContent() {
                           transition={{ type: "spring", stiffness: 400, damping: 40 }}
                         />
                       )}
-                      <span className="relative z-10">Promotions</span>
+                      <span className="relative z-10 inline-flex items-center gap-1.5">
+                        Promotions
+                        <NavNewBadge />
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
@@ -6969,7 +6975,8 @@ function NavTestPageContent() {
                                   if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                     window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                   } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                    router.push('/promotions')
+                                    setShowVipRewards(true)
+                                    window.scrollTo(0, 0)
                                   } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     openDepositDrawer()
                                   } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
@@ -7166,7 +7173,8 @@ function NavTestPageContent() {
                                     if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                       window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                     } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                      router.push('/promotions')
+                                      setShowVipRewards(true)
+                                      window.scrollTo(0, 0)
                                     } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                       openDepositDrawer()
                                     } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {

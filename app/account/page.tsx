@@ -175,6 +175,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 } from '@/components/ui/accordion'
 
 // ═══════════════════════════════════════════════════════════
@@ -3229,7 +3230,7 @@ function AccountPageContent() {
               ...(visibleProducts.casino ? [{ label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino') } }] : []),
               ...(visibleProducts.liveCasino ? [{ label: 'Live Casino', onClick: () => { trackNav('casino', 'Live Casino'); router.push('/casino') } }] : []),
               ...(visibleProducts.poker ? [{ label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true') } }] : []),
-              ...(visibleProducts.casino ? [{ label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions') } }] : []),
+              ...(visibleProducts.casino ? [{ label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/casino?vipRewardsPage=true') } }] : []),
             ].map((item) => (
               <button
                 key={item.label}
@@ -3393,10 +3394,13 @@ function AccountPageContent() {
                       e.stopPropagation()
                       trackNav('promotions', 'Promotions')
                       setVipDrawerOpen(false)
-                      router.push('/promotions')
+                      router.push('/casino?vipRewardsPage=true')
                     }}
                   >
-                    <span className="relative z-10">Promotions</span>
+                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                        Promotions
+                        <NavNewBadge />
+                      </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 )}
@@ -3594,7 +3598,7 @@ function AccountPageContent() {
                         router.push('/casino?poker=true')
                       } else if (item.page === 'promotions') {
                         setVipDrawerOpen(false)
-                        router.push('/promotions')
+                        router.push('/casino?vipRewardsPage=true')
                       }
                     }}
                     className={cn(
@@ -3722,7 +3726,7 @@ function AccountPageContent() {
                                   if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                     openVipDrawer()
                                   } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                    router.push('/promotions')
+                                    router.push('/casino?vipRewardsPage=true')
                                   } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     setActiveSection('payments')
                                   } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {

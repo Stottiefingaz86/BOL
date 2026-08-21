@@ -144,6 +144,27 @@ interface SidebarPromosProps {
 
 const COLLAPSE_STORAGE_KEY = 'sidebar-promos-open'
 
+/** Survives remounts when the left menu swaps products / routes. */
+let cachedOpen: boolean | null = null
+
+function readStoredOpen(): boolean {
+  if (typeof window === 'undefined') return true
+  try {
+    const stored = window.localStorage.getItem(COLLAPSE_STORAGE_KEY)
+    if (stored !== null) return stored === 'true'
+  } catch {
+    /* ignore — localStorage may be unavailable */
+  }
+  return true
+}
+
+function getInitialOpen(): boolean {
+  if (cachedOpen !== null) return cachedOpen
+  const next = readStoredOpen()
+  cachedOpen = next
+  return next
+}
+
 export function SidebarPromos({
   collapsed = false,
   items,
@@ -151,7 +172,8 @@ export function SidebarPromos({
 }: SidebarPromosProps) {
   const router = useRouter()
   const [data] = useState(() => items ?? buildPromoData())
-  const [isOpen, setIsOpen] = useState(true)
+  // Sync init — never default open then snap shut from localStorage (that flash).
+  const [isOpen, setIsOpen] = useState(getInitialOpen)
 
   const handleItemClick = (item: PromoItem) => {
     if (item.onClick) {
@@ -162,19 +184,10 @@ export function SidebarPromos({
     onItemClick?.(item)
   }
 
-  // Restore the user's last open/closed preference once on mount.
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(COLLAPSE_STORAGE_KEY)
-      if (stored !== null) setIsOpen(stored === 'true')
-    } catch {
-      /* ignore — localStorage may be unavailable */
-    }
-  }, [])
-
   const toggle = () => {
     setIsOpen((curr) => {
       const next = !curr
+      cachedOpen = next
       try {
         window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(next))
       } catch {
@@ -239,7 +252,7 @@ export function SidebarPromos({
                 <button
                   type="button"
                   onClick={() =>
-                    router.push('/promotions')
+                    router.push('/casino?vipRewardsPage=true')
                   }
                   className="mt-1 mx-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] font-medium text-white/50 hover:text-white hover:bg-white/[0.04] transition-colors"
                 >

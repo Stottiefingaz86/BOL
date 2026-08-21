@@ -283,6 +283,7 @@ import { BetslipNumberPad } from '@/components/betslip/number-pad'
 import { NotificationHub } from '@/components/account/notification-hub'
 import { AccountDrawerIdentity } from '@/components/account/account-drawer-identity'
 import { AccountDrawerHeaderActions } from '@/components/account/account-drawer-header-actions'
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 
 // Available square tile images
 const squareTileImages = [
@@ -5556,8 +5557,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                           window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                         }
                       } else if (item.page === 'promotions') {
-                        handoffMobileSidebarToNextPage()
-                        router.push('/promotions')
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
                       }
                     }}
                     className={cn(
@@ -9753,7 +9754,7 @@ function NavTestPageContent() {
                   { label: 'Esports', onClick: () => { trackNav('esports', 'Esports'); trackPageView('esports', 'Esports'); setShowSports(true); setShowVipRewards(false); router.push('/esports'); setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); handoffMobileSidebarToNextPage(); router.push('/casino'); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); trackPageView('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
-                  { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); trackPageView('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
+                  { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); trackPageView('promotions', 'Promotions'); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].map((item) => (
                   <button
                     key={item.label}
@@ -10010,7 +10011,8 @@ function NavTestPageContent() {
                         trackNav('promotions', 'Promotions')
                         trackPageView('promotions', 'Promotions')
                         setVipDrawerOpen(false)
-                        router.push('/promotions')
+                        setShowVipRewards(true)
+                        window.scrollTo(0, 0)
                       }}
                       data-active={showVipRewards}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -10024,7 +10026,10 @@ function NavTestPageContent() {
                           transition={{ type: "spring", stiffness: 400, damping: 40 }}
                         />
                       )}
-                      <span className="relative z-10">Promotions</span>
+                      <span className="relative z-10 inline-flex items-center gap-1.5">
+                        Promotions
+                        <NavNewBadge />
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
@@ -10795,7 +10800,8 @@ function NavTestPageContent() {
                                   if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                     window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                   } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                    router.push('/promotions')
+                                    setShowVipRewards(true)
+                                    window.scrollTo(0, 0)
                                   } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                     openDepositDrawer()
                                   } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {
@@ -10992,7 +10998,8 @@ function NavTestPageContent() {
                                     if (item.label === SIDEBAR_FOOTER_VIP_HUB) {
                                       window.dispatchEvent(new CustomEvent('vip:open-drawer'))
                                     } else if (item.label === SIDEBAR_FOOTER_PROMOTIONS) {
-                                      router.push('/promotions')
+                                      setShowVipRewards(true)
+                                      window.scrollTo(0, 0)
                                     } else if (item.label === SIDEBAR_FOOTER_WALLET) {
                                       openDepositDrawer()
                                     } else if (item.label === SIDEBAR_FOOTER_NEED_HELP) {

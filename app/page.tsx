@@ -25,6 +25,7 @@ import { HomeHero } from '@/components/home/home-hero'
 import { VipTablesSection } from '@/components/home/vip-tables-section'
 import { VipRewardsFlipCarousel } from '@/components/home/vip-rewards-flip-carousel'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
+import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
@@ -1579,7 +1580,7 @@ function HomePageContent() {
               { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
               { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
-              { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/promotions'); setQuickLinksOpen(false); } },
+              { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/casino?vipRewardsPage=true'); setQuickLinksOpen(false); } },
             ].map((item) => (
               <button
                 key={item.label}
@@ -1596,7 +1597,10 @@ function HomePageContent() {
                     : "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]"
                 )}
               >
-                <span className={cn("transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>{item.label}</span>
+                <span className={cn("inline-flex items-center gap-1 transition-opacity duration-150", loadingQuickLink === item.label ? "opacity-0" : "opacity-100")}>
+                  {item.label}
+                  {item.label === 'Promotions' && <NavNewBadge />}
+                </span>
                 {loadingQuickLink === item.label && (
                   <span className="absolute inset-0 flex items-center justify-center">
                     <IconLoader2 className="w-3.5 h-3.5 text-[var(--ds-fg)] animate-spin" />
@@ -1711,9 +1715,12 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[100px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
-                    onClick={() => { trackNav('promotions', 'Promotions'); router.push('/promotions') }}
+                    onClick={() => { trackNav('promotions', 'Promotions'); router.push('/casino?vipRewardsPage=true') }}
                   >
-                    Promotions
+                    <span className="inline-flex items-center gap-1.5">
+                      Promotions
+                      <NavNewBadge />
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
