@@ -6074,9 +6074,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                                   ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                   : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
                                 "transition-colors duration-200",
-                                isActive &&
-                                  !(sidebarState === 'collapsed' && !isMobile) &&
-                                  "bg-[var(--ds-primary,#ee3536)]"
+                                isActive && "bg-[var(--ds-primary,#ee3536)]"
                               )}
                             >
                               <Icon strokeWidth={1.5} className="w-5 h-5" />
@@ -8654,10 +8652,7 @@ function NavTestPageContent() {
                                         isExternal
                                           ? "text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]"
                                           : "data-[active=true]:text-white data-[active=true]:font-medium data-[active=false]:text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)]",
-                                        // Expanded: full-row active fill. Collapsed: bare icon only (no tile).
-                                        isActive &&
-                                          !(sidebarState === 'collapsed' && !isMobile) &&
-                                          "bg-[var(--ds-primary,#ee3536)]"
+                                        isActive && "bg-[var(--ds-primary,#ee3536)]"
                                       )}
                                     >
                                       <Icon strokeWidth={1.5} className="w-5 h-5 shrink-0" />
