@@ -11,7 +11,7 @@ import {
 import { fireConfetti } from '@/lib/confetti'
 import { cn } from '@/lib/utils'
 import { playSound, stopSound } from '@/lib/sounds'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { useAuthSession } from '@/hooks/use-auth-session'
 import { VipLoggedOutCta } from '@/components/vip/vip-logged-out-cta'
 

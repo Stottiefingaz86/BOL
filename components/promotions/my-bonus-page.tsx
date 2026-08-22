@@ -62,7 +62,7 @@ import {
   type FreeSpinGameOption,
 } from '@/components/vip/free-spins-game-picker'
 import { playSound } from '@/lib/sounds'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { launchCasinoGame } from '@/lib/casino/launch-game'
 import { motion } from 'framer-motion'
 import {

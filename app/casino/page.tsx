@@ -62,7 +62,7 @@ import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
 import { useRouter, usePathname } from 'next/navigation'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { playSound, fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import {
   ColumnDef,

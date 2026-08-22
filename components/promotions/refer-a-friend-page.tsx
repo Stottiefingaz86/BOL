@@ -19,7 +19,7 @@ import {
   ListFilterIcon,
 } from 'lucide-react'
 import Image from 'next/image'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'

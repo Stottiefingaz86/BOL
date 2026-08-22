@@ -46,10 +46,32 @@
   --ds-primary: #ee3536;
   --ds-on-primary: #ffffff;
   --ds-vip-gold: #e39e3d;
+  --ds-nav-height: 64px;
+  --ds-toast-gap-below-nav: 12px;
   --ds-promo-card-bg: #1a1a1a;
   --ds-promo-card-fg: #ffffff;
   --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
   --ds-promo-card-border: rgba(255, 255, 255, 0.06);
+
+  /* Lumen Sonnar / Refer-A-Friend toast tokens (Figma Promo26) */
+  --ds-toast-success: #16a34a;
+  --ds-toast-success-bg: rgba(22, 163, 74, 0.1);
+  --ds-toast-success-border: rgba(22, 163, 74, 0.5);
+  --ds-toast-destructive: #dc2626;
+  --ds-toast-destructive-bg: rgba(224, 52, 52, 0.1);
+  --ds-toast-destructive-border: rgba(224, 52, 52, 0.5);
+  --ds-toast-warning: #ca8a04;
+  --ds-toast-warning-bg: rgba(234, 179, 8, 0.1);
+  --ds-toast-warning-border: rgba(234, 179, 8, 0.5);
+  --ds-toast-info: #2563eb;
+  --ds-toast-info-bg: rgba(59, 130, 246, 0.1);
+  --ds-toast-info-border: rgba(59, 130, 246, 0.5);
+  --ds-toast-neutral-bg: rgba(0, 0, 0, 0.04);
+  --ds-toast-neutral-border: rgba(0, 0, 0, 0.12);
+  --ds-toast-track: rgba(0, 0, 0, 0.1);
+  --ds-toast-fg: rgba(0, 0, 0, 0.87);
+  --ds-toast-fg-muted: rgba(0, 0, 0, 0.6);
+  --ds-toast-radius: 10px;
 }
 
 .dark {
@@ -93,10 +115,19 @@
   --ds-primary: #ee3536;
   --ds-on-primary: #ffffff;
   --ds-vip-gold: #e39e3d;
+  --ds-nav-height: 64px;
+  --ds-toast-gap-below-nav: 12px;
   --ds-promo-card-bg: #1a1a1a;
   --ds-promo-card-fg: #ffffff;
   --ds-promo-card-muted: rgba(255, 255, 255, 0.65);
   --ds-promo-card-border: rgba(255, 255, 255, 0.06);
+
+  /* Sonnar — dark app: same accent hues, light text on tinted shells */
+  --ds-toast-track: rgba(255, 255, 255, 0.1);
+  --ds-toast-fg: #ffffff;
+  --ds-toast-fg-muted: rgba(255, 255, 255, 0.6);
+  --ds-toast-neutral-bg: rgba(255, 255, 255, 0.04);
+  --ds-toast-neutral-border: rgba(255, 255, 255, 0.12);
 }
 
 * {
@@ -235,6 +266,54 @@ img, video {
 }
 
 /* Shimmer animation for skeleton loaders */
+@keyframes toast-countdown {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* App toasts: slide in from left at full opacity — no fade */
+[data-sonner-toaster][data-x-position='left'] [data-sonner-toast] {
+  opacity: 1 !important;
+  transform: translateX(calc(-100% - 12px)) !important;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+[data-sonner-toaster][data-x-position='left'] [data-sonner-toast][data-mounted='true']:not([data-removed='true']) {
+  transform: translateX(0) !important;
+}
+
+[data-sonner-toaster][data-x-position='left'] [data-sonner-toast][data-removed='true'] {
+  transform: translateX(calc(-100% - 12px)) !important;
+  opacity: 1 !important;
+  transition: transform 220ms cubic-bezier(0.4, 0, 1, 1) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] > * {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+/* Custom toasts render description inside AppToast — hide sonner's duplicate slot */
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sonner-toaster][data-x-position='left'] [data-sonner-toast] {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  [style*='toast-countdown'] {
+    animation: none !important;
+    width: 100% !important;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;

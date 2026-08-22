@@ -14,7 +14,7 @@ import {
 } from '@tabler/icons-react'
 import { fireConfetti } from '@/lib/confetti'
 import { playSound } from '@/lib/sounds'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { useAuthSession } from '@/hooks/use-auth-session'
 import { requestLogin } from '@/lib/auth-session'
 import {

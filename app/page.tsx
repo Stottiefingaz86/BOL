@@ -38,7 +38,7 @@ import { useBetslipStore } from '@/lib/store/betslipStore'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { 

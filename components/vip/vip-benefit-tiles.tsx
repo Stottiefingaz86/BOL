@@ -2,7 +2,7 @@
 
 import React, { useCallback, useRef, useState } from 'react'
 import { fireConfetti } from '@/lib/confetti'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { playSound } from '@/lib/sounds'
 import {
   IconArrowUp,

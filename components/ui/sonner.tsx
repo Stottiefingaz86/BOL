@@ -1,94 +1,92 @@
-"use client"
+'use client'
 
-import {
-  CircleCheck,
-  Info,
-  LoaderCircle,
-  OctagonX,
-  TriangleAlert,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+import type { ExternalToast } from 'sonner'
+import { Toaster as Sonner, toast as sonnerToast } from 'sonner'
+import { useTheme } from 'next-themes'
+import { AppToast, type AppToastVariant } from '@/components/ui/app-toast'
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+export const DEFAULT_TOAST_DURATION = 5000
+
+function showAppToast(
+  variant: AppToastVariant,
+  message: React.ReactNode,
+  data?: ExternalToast
+) {
+  const duration = data?.duration ?? DEFAULT_TOAST_DURATION
+  const { description, ...sonnerData } = data ?? {}
+
+  return sonnerToast.custom(
+    (id) => (
+      <AppToast
+        id={id}
+        variant={variant}
+        message={message}
+        description={description}
+        duration={duration}
+      />
+    ),
+    // description is rendered inside AppToast — omit from sonner or it duplicates below
+    { ...sonnerData, duration, description: undefined }
+  )
+}
+
+type ToastFn = ((
+  message: React.ReactNode,
+  data?: ExternalToast
+) => string | number) & {
+  success: (message: React.ReactNode, data?: ExternalToast) => string | number
+  error: (message: React.ReactNode, data?: ExternalToast) => string | number
+  info: (message: React.ReactNode, data?: ExternalToast) => string | number
+  warning: (message: React.ReactNode, data?: ExternalToast) => string | number
+  message: (message: React.ReactNode, data?: ExternalToast) => string | number
+  loading: typeof sonnerToast.loading
+  promise: typeof sonnerToast.promise
+  custom: typeof sonnerToast.custom
+  dismiss: typeof sonnerToast.dismiss
+}
+
+/** App toasts — Promo26 Lumen sonner with countdown progress bar. */
+export const toast: ToastFn = Object.assign(
+  (message: React.ReactNode, data?: ExternalToast) =>
+    showAppToast('message', message, data),
+  {
+    success: (message: React.ReactNode, data?: ExternalToast) =>
+      showAppToast('success', message, data),
+    error: (message: React.ReactNode, data?: ExternalToast) =>
+      showAppToast('error', message, data),
+    info: (message: React.ReactNode, data?: ExternalToast) =>
+      showAppToast('info', message, data),
+    warning: (message: React.ReactNode, data?: ExternalToast) =>
+      showAppToast('warning', message, data),
+    message: (message: React.ReactNode, data?: ExternalToast) =>
+      showAppToast('message', message, data),
+    loading: sonnerToast.loading,
+    promise: sonnerToast.promise,
+    custom: sonnerToast.custom,
+    dismiss: sonnerToast.dismiss,
+  }
+)
+
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = 'system' } = useTheme()
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={theme as ToasterProps['theme']}
       className="toaster group"
-      closeButton
-      offset={20}
-      gap={12}
-      icons={{
-        success: <CircleCheck className="h-[18px] w-[18px]" strokeWidth={2.25} />,
-        info: <Info className="h-[18px] w-[18px]" strokeWidth={2.25} />,
-        warning: <TriangleAlert className="h-[18px] w-[18px]" strokeWidth={2.25} />,
-        error: <OctagonX className="h-[18px] w-[18px]" strokeWidth={2.25} />,
-        loading: <LoaderCircle className="h-[18px] w-[18px] animate-spin" strokeWidth={2.25} />,
+      closeButton={false}
+      duration={DEFAULT_TOAST_DURATION}
+      offset={{
+        top: 'calc(var(--ds-nav-height, 64px) + var(--ds-toast-gap-below-nav, 12px))',
+        left: 20,
       }}
+      gap={12}
       toastOptions={{
+        unstyled: true,
         classNames: {
-          toast: [
-            "group toast",
-            // base card
-            "!bg-[#0e0e11]/95 !backdrop-blur-xl",
-            "!border !border-white/10",
-            "!rounded-xl !shadow-[0_18px_40px_-12px_rgba(0,0,0,0.6),0_4px_12px_rgba(0,0,0,0.35)]",
-            // layout: full-width action row; close pinned top-right (not beside CTA)
-            "!relative !flex !flex-wrap !items-start !gap-x-3 !gap-y-0 !pb-2",
-            "!w-[360px] !p-4 !pl-4",
-            "!text-white !font-medium",
-            "!shadow-[inset_3px_0_0_0_var(--toast-accent,rgba(255,255,255,0.25)),0_18px_40px_-12px_rgba(0,0,0,0.6),0_4px_12px_rgba(0,0,0,0.35)]",
-            "data-[mounted=true]:!animate-in data-[mounted=true]:fade-in-0 data-[mounted=true]:slide-in-from-left-2",
-            "[&_[data-content]]:!min-w-0 [&_[data-content]]:!flex-1 [&_[data-content]]:!pr-11",
-            "[&_[data-button]]:!mt-3 [&_[data-button]]:!h-9 [&_[data-button]]:!basis-full [&_[data-button]]:!grow-0 [&_[data-button]]:!shrink-0 [&_[data-button]]:!justify-center [&_[data-button]]:!ml-0 [&_[data-button]]:!mr-0",
-            "[&_[data-cancel]]:!mt-3 [&_[data-cancel]]:!h-9 [&_[data-cancel]]:!basis-full [&_[data-cancel]]:!grow-0 [&_[data-cancel]]:!shrink-0 [&_[data-cancel]]:!justify-center [&_[data-cancel]]:!ml-0 [&_[data-cancel]]:!mr-0",
-          ].join(" "),
-          title: "!text-white !font-semibold !text-[14px] !leading-tight !tracking-tight",
-          description: "!text-white/60 !text-[12.5px] !leading-snug !mt-0.5",
-          icon: "!h-[28px] !w-[28px] !rounded-lg !flex !items-center !justify-center !shrink-0 !mr-1",
-          // type-specific accents — sets the left bar colour and tints the icon chip
-          success: [
-            "[--toast-accent:#34d399]",
-            "[&_[data-icon]]:!bg-emerald-400/12 [&_[data-icon]]:!text-emerald-400",
-          ].join(" "),
-          error: [
-            "[--toast-accent:var(--ds-primary,#ee3536)]",
-            "[&_[data-icon]]:!bg-[color-mix(in_srgb,var(--ds-primary,#ee3536)_15%,transparent)] [&_[data-icon]]:!text-[var(--ds-primary,#ee3536)]",
-          ].join(" "),
-          warning: [
-            "[--toast-accent:#fbbf24]",
-            "[&_[data-icon]]:!bg-amber-400/12 [&_[data-icon]]:!text-amber-400",
-          ].join(" "),
-          info: [
-            "[--toast-accent:#38bdf8]",
-            "[&_[data-icon]]:!bg-sky-400/12 [&_[data-icon]]:!text-sky-400",
-          ].join(" "),
-          loading: [
-            "[--toast-accent:rgba(255,255,255,0.4)]",
-            "[&_[data-icon]]:!bg-white/[0.06] [&_[data-icon]]:!text-white/70",
-          ].join(" "),
-          actionButton: [
-            "!h-8 !px-3 !rounded-md !text-[12px] !font-semibold",
-            "!bg-transparent !text-white !shadow-none",
-            "!border !border-white/20",
-            "hover:!bg-white/[0.06] hover:!text-white hover:!border-white/30",
-            "transition-colors duration-150",
-          ].join(" "),
-          cancelButton: [
-            "!h-8 !px-3 !rounded-md !text-[12px] !font-medium",
-            "!bg-white/[0.06] !text-white/70 !border !border-white/10",
-            "hover:!bg-white/[0.12] hover:!text-white",
-          ].join(" "),
-          closeButton: [
-            "!absolute !left-auto !right-3 !top-3 !translate-x-0 !translate-y-0",
-            "!h-8 !w-8 !rounded-md",
-            "!bg-white/[0.06] !border !border-white/10 !text-white/55",
-            "hover:!bg-white/[0.12] hover:!text-white",
-          ].join(" "),
+          toast: '!p-0 !bg-transparent !border-0 !shadow-none !w-auto',
         },
       }}
       {...props}
