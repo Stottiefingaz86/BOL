@@ -16,6 +16,8 @@ function showAppToast(
 ) {
   const duration = data?.duration ?? DEFAULT_TOAST_DURATION
   const { description, ...sonnerData } = data ?? {}
+  const resolvedDescription =
+    typeof description === 'function' ? description() : description
 
   return sonnerToast.custom(
     (id) => (
@@ -23,7 +25,7 @@ function showAppToast(
         id={id}
         variant={variant}
         message={message}
-        description={description}
+        description={resolvedDescription}
         duration={duration}
       />
     ),
