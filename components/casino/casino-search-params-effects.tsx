@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { promoPathForSection, promoSlugToSection } from '@/lib/promotions-routes'
+import { getPromoOfferSlugFromPath } from '@/lib/promo-offers'
 
 /** Minimal shape from `useRouter()` — only what deep-link handlers need. */
 type CasinoRouterLike = {
@@ -46,6 +47,15 @@ export function CasinoPromotionsPathEffects({
     setShowSports(false)
     setShowVipRewards(true)
     setVipDrawerOpen(false)
+
+    // CMS offer detail: `/promotions/:slug` — keep Promos shell active
+    const offerSlug = getPromoOfferSlugFromPath(pathname)
+    if (offerSlug) {
+      setInitialVipSidebarItem('Promos')
+      setVipActiveSidebarItem('Promos')
+      window.scrollTo(0, 0)
+      return
+    }
 
     const slug = pathname.split('/')[2]
     if (slug) {

@@ -1,7 +1,8 @@
 'use client'
 
 /**
- * `/promotions/:section` deep links share the casino Promotions shell.
- * Section is applied from the pathname (see CasinoSearchParamsEffects).
+ * `/promotions/:section` — shell sections (my-bonus, contests, …)
+ * or CMS promo detail pages (`/promotions/100-percent-deposit-match`).
+ * Section / offer is applied from the pathname (see CasinoPromotionsPathEffects).
  */
 export { default } from '../../casino/page'

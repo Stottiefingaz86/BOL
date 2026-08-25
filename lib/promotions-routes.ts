@@ -43,4 +43,6 @@ export const PROMO_SECTION_PATHS = {
   myBonus: '/promotions/my-bonus',
   contests: '/promotions/contests',
   referAFriend: '/promotions/refer-a-friend',
+  /** CMS promo detail: `/promotions/:slug` */
+  offer: (slug: string) => `/promotions/${slug}`,
 } as const

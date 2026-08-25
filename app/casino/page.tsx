@@ -22,6 +22,8 @@ import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { ReferAFriendPage } from '@/components/promotions/refer-a-friend-page'
 import { ContestsPage } from '@/components/promotions/contests-page'
 import { MyBonusPage } from '@/components/promotions/my-bonus-page'
+import { PromoDetailPage } from '@/components/promotions/promo-detail-page'
+import { ALL_PROMO_OFFERS, promoOfferPath, getPromoOfferSlugFromPath } from '@/lib/promo-offers'
 import { SiteFooter } from '@/components/site-footer'
 import { requestLogin } from '@/lib/auth-session'
 import { launchPokerApp } from '@/lib/poker-app/launch'
@@ -62,6 +64,7 @@ import { createPortal } from 'react-dom'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useTracking } from '@/hooks/use-tracking'
 import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { toast } from '@/components/ui/sonner'
 import { playSound, fadeOutSound, preloadJackpotWheelAudio, preloadJackpotWinHandoffAudio } from '@/lib/sounds'
 import {
@@ -2011,111 +2014,6 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
 
 // Promos Page Component
 const PROMO_TABS = ['Deposit Bonus', 'Sports', 'Casino', 'Poker'] as const
-type PromoTab = (typeof PROMO_TABS)[number]
-
-const ALL_PROMOS: Array<{
-  id: string
-  title: string
-  description: string
-  category: PromoTab
-}> = [
-  {
-    id: 'dep-1',
-    title: '100% Deposit Match',
-    description: 'Double your first deposit up to $1,000. Bonus funds credited instantly after deposit.',
-    category: 'Deposit Bonus',
-  },
-  {
-    id: 'dep-2',
-    title: 'Reload Bonus 50%',
-    description: 'Get 50% back on your next deposit this week. Available once every 7 days.',
-    category: 'Deposit Bonus',
-  },
-  {
-    id: 'dep-3',
-    title: 'Weekend Deposit Boost',
-    description: 'Extra 25% on deposits Saturday–Sunday. Minimum deposit $25.',
-    category: 'Deposit Bonus',
-  },
-  {
-    id: 'dep-4',
-    title: 'High Roller Match',
-    description: 'Deposit $500+ and unlock an enhanced match rate with faster unlock terms.',
-    category: 'Deposit Bonus',
-  },
-  {
-    id: 'sp-1',
-    title: 'Risk-Free Bet $50',
-    description: 'Place a sports wager — if it loses, get a free bet back up to $50.',
-    category: 'Sports',
-  },
-  {
-    id: 'sp-2',
-    title: 'Odds Boost Daily',
-    description: 'Boosted odds on featured games every day. Look for the boost badge.',
-    category: 'Sports',
-  },
-  {
-    id: 'sp-3',
-    title: 'Parlay Insurance',
-    description: 'Miss one leg on a 4+ team parlay and still get a free bet consolation.',
-    category: 'Sports',
-  },
-  {
-    id: 'sp-4',
-    title: 'Same Game Parlay Bonus',
-    description: 'Extra profit boost when you build same-game parlays on NFL and NBA.',
-    category: 'Sports',
-  },
-  {
-    id: 'cas-1',
-    title: '50 Free Spins',
-    description: 'Free spins on selected slots. Wagering applies to winnings only.',
-    category: 'Casino',
-  },
-  {
-    id: 'cas-2',
-    title: 'Casino Cashback 10%',
-    description: 'Weekly cashback on net casino losses. Credited every Monday.',
-    category: 'Casino',
-  },
-  {
-    id: 'cas-3',
-    title: 'Live Dealer Reload',
-    description: 'Bonus for live blackjack and roulette play this weekend.',
-    category: 'Casino',
-  },
-  {
-    id: 'cas-4',
-    title: 'Slots Tournament Entry',
-    description: 'Free entry into this week’s slots race with a $2,500 prize pool.',
-    category: 'Casino',
-  },
-  {
-    id: 'pok-1',
-    title: 'Poker Freeroll Ticket',
-    description: 'Claim a freeroll seat and play for cash prizes with no buy-in.',
-    category: 'Poker',
-  },
-  {
-    id: 'pok-2',
-    title: 'Rakeback Boost',
-    description: 'Extra rakeback for 7 days when you opt into this poker promo.',
-    category: 'Poker',
-  },
-  {
-    id: 'pok-3',
-    title: 'Sit & Go Ticket Pack',
-    description: 'Three Sit & Go tickets to get you into the action quickly.',
-    category: 'Poker',
-  },
-  {
-    id: 'pok-4',
-    title: 'Poker Deposit Match',
-    description: 'Match bonus for poker play — transferable to cash games and tournaments.',
-    category: 'Poker',
-  },
-]
 
 function PromosPage({
   brandPrimary,
@@ -2141,7 +2039,7 @@ function PromosPage({
   const setActiveTab = onActiveTabChange ?? setUncontrolledActiveTab
 
   const filteredPromos = useMemo(
-    () => ALL_PROMOS.filter((promo) => promo.category === activeTab),
+    () => ALL_PROMO_OFFERS.filter((promo) => promo.category === activeTab),
     [activeTab]
   )
 
@@ -2355,23 +2253,22 @@ function PromosPage({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: index * 0.04, ease: 'easeOut' }}
                   >
-                    <Card className="h-full overflow-hidden border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)]">
-                      <div className="relative h-48 w-full overflow-hidden bg-white/5">
-                        <div className="tile-shimmer absolute inset-0" />
-                      </div>
-                      <CardContent className="p-4">
-                        <CardTitle className="mb-2 text-lg font-semibold text-white">
-                          {promo.title}
-                        </CardTitle>
-                        <p className="mb-4 line-clamp-3 text-sm text-white/65">{promo.description}</p>
-                        <Button
-                          variant="ghost"
-                          className="w-full rounded-md border border-white/20 bg-transparent text-white shadow-none hover:border-white/30 hover:bg-white/10 hover:text-white"
-                        >
-                          MORE INFO
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    <Link
+                      href={promoOfferPath(promo.slug)}
+                      className="block h-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-primary,#ee3536)]"
+                    >
+                      <Card className="h-full cursor-pointer overflow-hidden border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] transition-opacity hover:opacity-95">
+                        <div className="relative h-48 w-full overflow-hidden bg-white/5">
+                          <div className="tile-shimmer absolute inset-0" />
+                        </div>
+                        <CardContent className="p-4">
+                          <CardTitle className="mb-2 text-lg font-semibold text-white">
+                            {promo.title}
+                          </CardTitle>
+                          <p className="line-clamp-3 text-sm text-white/65">{promo.description}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
                   </motion.div>
                 ))
               )}
@@ -2409,15 +2306,20 @@ function VipSectionWireframe({ title }: { title: string }) {
 // VIP Rewards Page Component
 function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowVipRewards, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav, quickLinksOpen, onNavigate, vipActiveSidebarItem, setVipActiveSidebarItem, promosActiveTab, setPromosActiveTab }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowVipRewards: (show: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void; quickLinksOpen?: boolean; onNavigate?: (page: 'home' | 'sports' | 'casino' | 'liveCasino' | 'poker' | 'vipRewards') => void; vipActiveSidebarItem?: string; setVipActiveSidebarItem?: (item: string) => void; promosActiveTab?: string; setPromosActiveTab?: (tab: string) => void }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const promoOfferSlug =
+    vipActiveSidebarItem === 'Promos' ? getPromoOfferSlugFromPath(pathname) : null
   // vipActiveSidebarItem and setVipActiveSidebarItem come from props
 
   
   return (
-    <div className="min-h-screen bg-[var(--ds-page-bg)]">
+    <div className="min-h-screen min-w-0 max-w-full overflow-x-hidden bg-[var(--ds-page-bg)]">
       
       {/* Mobile VIP section tabs removed — navigate via sidebar / promo banners */}
       
-      {vipActiveSidebarItem === 'My Bonus' ? (
+      {promoOfferSlug ? (
+        <PromoDetailPage slug={promoOfferSlug} />
+      ) : vipActiveSidebarItem === 'My Bonus' ? (
         <MyBonusPage brandPrimary={brandPrimary} setShowVipRewards={setShowVipRewards} />
       ) : vipActiveSidebarItem === 'Promos' ? (
         <PromosPage 
@@ -7375,6 +7277,13 @@ function NavTestPageContent() {
 
     let nextPath: string
     if (showVipRewards) {
+      // Preserve CMS offer detail URLs while Promos section is active
+      if (
+        vipActiveSidebarItem === 'Promos' &&
+        getPromoOfferSlugFromPath(window.location.pathname)
+      ) {
+        return
+      }
       nextPath = promoPathForSection(vipActiveSidebarItem)
     } else if (showPoker) {
       nextPath = '/poker'
@@ -8561,6 +8470,12 @@ function NavTestPageContent() {
                                         e.stopPropagation()
                                         if (isMobile) setOpenMobile(false)
                                         setVipActiveSidebarItem(itemId)
+                                        if (
+                                          itemId === 'Promos' &&
+                                          getPromoOfferSlugFromPath(pathname)
+                                        ) {
+                                          router.replace('/promotions')
+                                        }
                                       }}
                                       className={cn(
                                         "w-full justify-start rounded-small h-auto py-2.5 px-3 text-sm font-medium cursor-pointer",
@@ -13285,6 +13200,9 @@ function NavTestPageContent() {
                     active: vipActiveSidebarItem === 'Promos',
                     onClick: () => {
                       setVipActiveSidebarItem('Promos')
+                      if (getPromoOfferSlugFromPath(pathname)) {
+                        router.replace('/promotions')
+                      }
                       window.scrollTo(0, 0)
                     },
                   },
