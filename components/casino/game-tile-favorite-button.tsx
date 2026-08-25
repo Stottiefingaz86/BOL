@@ -109,7 +109,7 @@ export function GameTileFavoriteButton({
     burstOrigin &&
     createPortal(
       <span
-        className="twitter-heart-sprite is-animating pointer-events-none fixed z-[99999]"
+        className="twitter-heart-sprite is-animating pointer-events-none fixed z-[100200]"
         style={{
           left: burstOrigin.x,
           top: burstOrigin.y,
