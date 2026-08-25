@@ -7101,23 +7101,42 @@ function NavTestPageContent() {
     }
   }, [openVipDrawer])
   
-  // Detect landscape orientation on mobile
+  // Detect landscape orientation on mobile — landscape auto-immerses the game
   useEffect(() => {
     if (!isMobile) return
-    
+
     const checkOrientation = () => {
       setIsLandscape(window.innerWidth > window.innerHeight)
     }
-    
+
     checkOrientation()
     window.addEventListener('resize', checkOrientation)
     window.addEventListener('orientationchange', checkOrientation)
-    
+
     return () => {
       window.removeEventListener('resize', checkOrientation)
       window.removeEventListener('orientationchange', checkOrientation)
     }
   }, [isMobile])
+
+  // Mobile: landscape → fullscreen game; portrait → restore chrome (no manual fullscreen control)
+  useEffect(() => {
+    if (!isMobile) return
+
+    if (selectedGame && isLandscape) {
+      setIsFullscreen(true)
+      return
+    }
+
+    setIsFullscreen(false)
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {})
+    } else if ((document as any).webkitFullscreenElement) {
+      ;(document as any).webkitExitFullscreen?.()
+    } else if ((document as any).msFullscreenElement) {
+      ;(document as any).msExitFullscreen?.()
+    }
+  }, [isMobile, isLandscape, selectedGame])
   
   // Helper lives in casino-favorites context
   const [selectedBrand, setSelectedBrand] = useState<'betonline' | 'wildcasino' | 'superslots'>('betonline')
@@ -12446,102 +12465,105 @@ function NavTestPageContent() {
                     )}
                   >
                     <div className="relative z-[100030] shrink-0" ref={gameLauncherMenuRef}>
-                      <button
-                        onClick={() => setGameLauncherMenuOpen(!gameLauncherMenuOpen)}
-                        className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
-                      >
-                        {/* Custom Staggered Hamburger Icon */}
-                        <svg
-                          className="w-4 h-4 text-[var(--ds-fg)]"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <line x1="4" y1="7" x2="20" y2="7" />
-                          <line x1="6" y1="12" x2="20" y2="12" />
-                          <line x1="4" y1="17" x2="18" y2="17" />
-                        </svg>
-                  </button>
-                      
-                      {/* Dropdown Menu — portaled so parent backdrop-blur can't glass it */}
-                      {typeof document !== 'undefined' &&
-                        createPortal(
-                          <AnimatePresence>
-                            {gameLauncherMenuOpen && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="fixed z-[100060] w-56 overflow-hidden rounded-xl border border-white/10 shadow-2xl"
-                                data-game-launcher-menu
-                                style={{
-                                  backgroundColor: '#2d2d2d',
-                                  top:
-                                    (gameLauncherMenuRef.current?.getBoundingClientRect().bottom ?? 64) +
-                                    8,
-                                  left:
-                                    gameLauncherMenuRef.current?.getBoundingClientRect().left ?? 16,
-                                }}
-                              >
-                            <div className="py-2">
-                              {isMobile && (
-                                <GameTileFavoriteButton
-                                  variant="menu"
-                                  favorited={favoritedGames.has(
-                                    hashGameTitle(selectedGame.title)
-                                  )}
-                                  onToggle={() => {
-                                    const wasFav = favoritedGames.has(
-                                      hashGameTitle(selectedGame.title)
-                                    )
-                                    toggleGameFavorite(selectedGame.title)
-                                    // Let the like burst play before closing the menu
-                                    window.setTimeout(
-                                      () => setGameLauncherMenuOpen(false),
-                                      wasFav ? 0 : 850
-                                    )
-                                  }}
-                                />
-                              )}
-                              <button
-                                onClick={() => {
-                                  setGameLauncherMenuOpen(false)
-                                  setAccountDrawerOpen(false)
-                                  setVipDrawerOpen(false)
-                                  useChatStore.getState().setIsOpen(false)
-                                  trackClick('deposit', 'Deposit')
-                                  trackPageView('deposit-drawer', 'Deposit Drawer')
-                                  setDepositDrawerOpen(true)
-                                }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
-                              >
-                                Quick Deposit
-                  </button>
-                              <button
-                                onClick={() => {
-                                  setGameLauncherMenuOpen(false)
-                                  setSimilarGamesDrawerOpen(true)
-                                }}
-                                className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors text-sm"
-                              >
-                                More Games Like This
-                  </button>
-                            </div>
-                            
-                            {/* VIP Progress Bar */}
-                            <div className="px-4 py-3 border-t border-white/10 bg-white/[0.04]">
-                              <div className="text-xs text-white/60 mb-2">Gold To Platinum I</div>
-                              <VipTierProgressBar value={45} variant="compact" showOriginalsNote={false} />
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>,
-                          document.body
-                        )}
+                      {isMobile ? (
+                        <GameTileFavoriteButton
+                          variant="toolbar"
+                          favorited={favoritedGames.has(
+                            hashGameTitle(selectedGame.title)
+                          )}
+                          onToggle={() => toggleGameFavorite(selectedGame.title)}
+                        />
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setGameLauncherMenuOpen(!gameLauncherMenuOpen)}
+                            className="rounded-full p-1.5 transition-colors hover:bg-[var(--ds-control-hover)]"
+                          >
+                            {/* Custom Staggered Hamburger Icon */}
+                            <svg
+                              className="h-4 w-4 text-[var(--ds-fg)]"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="4" y1="7" x2="20" y2="7" />
+                              <line x1="6" y1="12" x2="20" y2="12" />
+                              <line x1="4" y1="17" x2="18" y2="17" />
+                            </svg>
+                          </button>
+
+                          {/* Dropdown Menu — portaled so parent backdrop-blur can't glass it */}
+                          {typeof document !== 'undefined' &&
+                            createPortal(
+                              <AnimatePresence>
+                                {gameLauncherMenuOpen && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="fixed z-[100060] w-56 overflow-hidden rounded-xl border border-white/10 shadow-2xl"
+                                    data-game-launcher-menu
+                                    style={{
+                                      backgroundColor: '#2d2d2d',
+                                      top:
+                                        (gameLauncherMenuRef.current?.getBoundingClientRect()
+                                          .bottom ?? 64) + 8,
+                                      left:
+                                        gameLauncherMenuRef.current?.getBoundingClientRect()
+                                          .left ?? 16,
+                                    }}
+                                  >
+                                    <div className="py-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setGameLauncherMenuOpen(false)
+                                          setAccountDrawerOpen(false)
+                                          setVipDrawerOpen(false)
+                                          useChatStore.getState().setIsOpen(false)
+                                          trackClick('deposit', 'Deposit')
+                                          trackPageView('deposit-drawer', 'Deposit Drawer')
+                                          setDepositDrawerOpen(true)
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
+                                      >
+                                        Quick Deposit
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setGameLauncherMenuOpen(false)
+                                          setSimilarGamesDrawerOpen(true)
+                                        }}
+                                        className="w-full px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/10"
+                                      >
+                                        More Games Like This
+                                      </button>
+                                    </div>
+
+                                    {/* VIP Progress Bar */}
+                                    <div className="border-t border-white/10 bg-white/[0.04] px-4 py-3">
+                                      <div className="mb-2 text-xs text-white/60">
+                                        Gold To Platinum I
+                                      </div>
+                                      <VipTierProgressBar
+                                        value={45}
+                                        variant="compact"
+                                        showOriginalsNote={false}
+                                      />
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>,
+                              document.body
+                            )}
+                        </>
+                      )}
                     </div>
 
                     {isMobile ? (
