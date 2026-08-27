@@ -10,42 +10,42 @@
  * Extracted from Figma variables
  */
 export const colorTokenMap: { [tokenName: string]: { hex: string; description?: string } } = {
-  // BetOnline colors (primary shades)
-  'betRed': { hex: '#ee3536', description: 'BetOnline primary red (betRed/500)' },
-  'betRed/50': { hex: '#ffebee', description: 'BetOnline red lightest' },
-  'betRed/100': { hex: '#ffcdd3', description: 'BetOnline red very light' },
-  'betRed/200': { hex: '#f49a9b', description: 'BetOnline red light' },
-  'betRed/300': { hex: '#eb7274', description: 'BetOnline red medium-light' },
-  'betRed/400': { hex: '#f75151', description: 'BetOnline red medium' },
-  'betRed/500': { hex: '#ee3536', description: 'BetOnline red primary' },
-  'betRed/600': { hex: '#ee3535', description: 'BetOnline red medium-dark' },
-  'betRed/700': { hex: '#dc2a2f', description: 'BetOnline red dark' },
-  'betRed/800': { hex: '#cf2228', description: 'BetOnline red darker' },
-  'betRed/900': { hex: '#c0111b', description: 'BetOnline red darkest' },
+  // Brand A colors (primary shades)
+  'betRed': { hex: '#ee3536', description: 'Brand A primary red (betRed/500)' },
+  'betRed/50': { hex: '#ffebee', description: 'Brand A red lightest' },
+  'betRed/100': { hex: '#ffcdd3', description: 'Brand A red very light' },
+  'betRed/200': { hex: '#f49a9b', description: 'Brand A red light' },
+  'betRed/300': { hex: '#eb7274', description: 'Brand A red medium-light' },
+  'betRed/400': { hex: '#f75151', description: 'Brand A red medium' },
+  'betRed/500': { hex: '#ee3536', description: 'Brand A red primary' },
+  'betRed/600': { hex: '#ee3535', description: 'Brand A red medium-dark' },
+  'betRed/700': { hex: '#dc2a2f', description: 'Brand A red dark' },
+  'betRed/800': { hex: '#cf2228', description: 'Brand A red darker' },
+  'betRed/900': { hex: '#c0111b', description: 'Brand A red darkest' },
   
-  'betGreen': { hex: '#8fd790', description: 'BetOnline success green (betGreen/500)' },
-  'betGreen/50': { hex: '#f5fbe8', description: 'BetOnline green lightest' },
-  'betGreen/100': { hex: '#e8f6c8', description: 'BetOnline green very light' },
-  'betGreen/200': { hex: '#d4ec96', description: 'BetOnline green light' },
-  'betGreen/300': { hex: '#bede64', description: 'BetOnline green medium-light' },
-  'betGreen/400': { hex: '#abd456', description: 'BetOnline green medium' },
-  'betGreen/500': { hex: '#8fd790', description: 'BetOnline green primary' },
-  'betGreen/600': { hex: '#7fa832', description: 'BetOnline green medium-dark' },
-  'betGreen/700': { hex: '#668528', description: 'BetOnline green dark' },
-  'betGreen/800': { hex: '#4d641e', description: 'BetOnline green darker' },
-  'betGreen/900': { hex: '#2f3d12', description: 'BetOnline green darkest' },
+  'betGreen': { hex: '#8fd790', description: 'Brand A success green (betGreen/500)' },
+  'betGreen/50': { hex: '#f5fbe8', description: 'Brand A green lightest' },
+  'betGreen/100': { hex: '#e8f6c8', description: 'Brand A green very light' },
+  'betGreen/200': { hex: '#d4ec96', description: 'Brand A green light' },
+  'betGreen/300': { hex: '#bede64', description: 'Brand A green medium-light' },
+  'betGreen/400': { hex: '#abd456', description: 'Brand A green medium' },
+  'betGreen/500': { hex: '#8fd790', description: 'Brand A green primary' },
+  'betGreen/600': { hex: '#7fa832', description: 'Brand A green medium-dark' },
+  'betGreen/700': { hex: '#668528', description: 'Brand A green dark' },
+  'betGreen/800': { hex: '#4d641e', description: 'Brand A green darker' },
+  'betGreen/900': { hex: '#2f3d12', description: 'Brand A green darkest' },
   
-  'betNavy': { hex: '#2d6f88', description: 'BetOnline navy blue (betNavy/500)' },
-  'betNavy/50': { hex: '#d6f0ff', description: 'BetOnline navy lightest' },
-  'betNavy/100': { hex: '#b2d6e5', description: 'BetOnline navy very light' },
-  'betNavy/200': { hex: '#8eb8ca', description: 'BetOnline navy light' },
-  'betNavy/300': { hex: '#699aaf', description: 'BetOnline navy medium-light' },
-  'betNavy/400': { hex: '#4d849b', description: 'BetOnline navy medium' },
-  'betNavy/500': { hex: '#2d6f88', description: 'BetOnline navy primary' },
-  'betNavy/600': { hex: '#206177', description: 'BetOnline navy medium-dark' },
-  'betNavy/700': { hex: '#104e62', description: 'BetOnline navy dark' },
-  'betNavy/800': { hex: '#003b4d', description: 'BetOnline navy darker' },
-  'betNavy/900': { hex: '#002736', description: 'BetOnline navy darkest' },
+  'betNavy': { hex: '#2d6f88', description: 'Brand A navy blue (betNavy/500)' },
+  'betNavy/50': { hex: '#d6f0ff', description: 'Brand A navy lightest' },
+  'betNavy/100': { hex: '#b2d6e5', description: 'Brand A navy very light' },
+  'betNavy/200': { hex: '#8eb8ca', description: 'Brand A navy light' },
+  'betNavy/300': { hex: '#699aaf', description: 'Brand A navy medium-light' },
+  'betNavy/400': { hex: '#4d849b', description: 'Brand A navy medium' },
+  'betNavy/500': { hex: '#2d6f88', description: 'Brand A navy primary' },
+  'betNavy/600': { hex: '#206177', description: 'Brand A navy medium-dark' },
+  'betNavy/700': { hex: '#104e62', description: 'Brand A navy dark' },
+  'betNavy/800': { hex: '#003b4d', description: 'Brand A navy darker' },
+  'betNavy/900': { hex: '#002736', description: 'Brand A navy darkest' },
   
   // Tiger Gaming colors
   'TigerOrange': { hex: '#f48e1b', description: 'Tiger Gaming primary orange (TigerOrange/600)' },
@@ -261,199 +261,199 @@ export const colorTokenMap: { [tokenName: string]: { hex: string; description?: 
   
   // Utility colors
   'Utility/BetWhite': { hex: '#FFFFFF', description: 'Utility BetWhite color' },
-  'tertiary-bet-white': { hex: '#ffffff', description: 'Tertiary BetOnline white' },
+  'tertiary-bet-white': { hex: '#ffffff', description: 'Tertiary Brand A white' },
   
-  // BetOnline Brand Book - Additional tokens
-  'primary/main': { hex: '#ee3536', description: 'BetOnline primary main color' },
-  'primary/dark': { hex: '#cf2228', description: 'BetOnline primary dark variant' },
-  'primary/contrast': { hex: '#ffffff', description: 'BetOnline primary contrast color (white)' },
-  'secondary/main': { hex: '#8fd790', description: 'BetOnline secondary main color (green)' },
-  'Terciary/main': { hex: '#104e62', description: 'BetOnline tertiary main color (navy)' },
-  'Terciary/contrast': { hex: '#ffffff', description: 'BetOnline tertiary contrast color (white)' },
+  // Brand A Brand Book - Additional tokens
+  'primary/main': { hex: '#ee3536', description: 'Brand A primary main color' },
+  'primary/dark': { hex: '#cf2228', description: 'Brand A primary dark variant' },
+  'primary/contrast': { hex: '#ffffff', description: 'Brand A primary contrast color (white)' },
+  'secondary/main': { hex: '#8fd790', description: 'Brand A secondary main color (green)' },
+  'Terciary/main': { hex: '#104e62', description: 'Brand A tertiary main color (navy)' },
+  'Terciary/contrast': { hex: '#ffffff', description: 'Brand A tertiary contrast color (white)' },
   
-  // BetOnline Text Colors
-  'text/white Primary': { hex: '#ffffffde', description: 'BetOnline white text primary (87% opacity)' },
-  'text/white Secondary': { hex: '#ffffff91', description: 'BetOnline white text secondary (57% opacity)' },
-  'text/white Disabled': { hex: '#ffffff73', description: 'BetOnline white text disabled (45% opacity)' },
-  'text/white selected': { hex: '#ffffff14', description: 'BetOnline white text selected state (8% opacity)' },
+  // Brand A Text Colors
+  'text/white Primary': { hex: '#ffffffde', description: 'Brand A white text primary (87% opacity)' },
+  'text/white Secondary': { hex: '#ffffff91', description: 'Brand A white text secondary (57% opacity)' },
+  'text/white Disabled': { hex: '#ffffff73', description: 'Brand A white text disabled (45% opacity)' },
+  'text/white selected': { hex: '#ffffff14', description: 'Brand A white text selected state (8% opacity)' },
   
-  // BetOnline Background Colors
-  'background/whiteTransparent-10': { hex: '#ffffff1a', description: 'BetOnline white transparent background 10% opacity' },
-  'background/neutral-grey': { hex: '#f5f5f5', description: 'BetOnline neutral grey background' },
+  // Brand A Background Colors
+  'background/whiteTransparent-10': { hex: '#ffffff1a', description: 'Brand A white transparent background 10% opacity' },
+  'background/neutral-grey': { hex: '#f5f5f5', description: 'Brand A neutral grey background' },
   
-  // BetOnline Component Colors
-  'components/divider/dividerWhite': { hex: '#ffffff1f', description: 'BetOnline white divider component (12% opacity)' },
-  'components/divider/dividerBlack': { hex: '#0000001f', description: 'BetOnline black divider component (12% opacity)' },
+  // Brand A Component Colors
+  'components/divider/dividerWhite': { hex: '#ffffff1f', description: 'Brand A white divider component (12% opacity)' },
+  'components/divider/dividerBlack': { hex: '#0000001f', description: 'Brand A black divider component (12% opacity)' },
   
-  // BetOnline Additional Colors
-  'White/400-38p': { hex: '#ffffff61', description: 'BetOnline white at 38% opacity' },
-  'Neutral Colors/White': { hex: '#FFFFFF', description: 'BetOnline neutral white' },
-  'Neutral Colors/800': { hex: '#211F54', description: 'BetOnline neutral color 800' },
-  'grey/950': { hex: '#212121', description: 'BetOnline grey 950 (darkest)' },
+  // Brand A Additional Colors
+  'White/400-38p': { hex: '#ffffff61', description: 'Brand A white at 38% opacity' },
+  'Neutral Colors/White': { hex: '#FFFFFF', description: 'Brand A neutral white' },
+  'Neutral Colors/800': { hex: '#211F54', description: 'Brand A neutral color 800' },
+  'grey/950': { hex: '#212121', description: 'Brand A grey 950 (darkest)' },
   
-  // BetOnline Toolkit - Product-focused colors
-  'background/whiteTransparent-5': { hex: '#ffffff0d', description: 'BetOnline white transparent background 5% opacity' },
-  'components/button/inherit white/main': { hex: '#bdbdbd', description: 'BetOnline button inherit white main' },
-  'success/contrast': { hex: '#ffffff', description: 'BetOnline success contrast color' },
-  'success/main': { hex: '#2e7d32', description: 'BetOnline success main color' },
-  'error/main': { hex: '#D32F2F', description: 'BetOnline error main color' },
-  'secondary/dark': { hex: '#7fa832', description: 'BetOnline secondary dark variant' },
-  'Terciary/dark': { hex: '#003b4d', description: 'BetOnline tertiary dark variant' },
-  'action/disabled': { hex: '#9e9e9e', description: 'BetOnline action disabled color' },
-  'action/disabledBackground': { hex: '#e0e0e0', description: 'BetOnline action disabled background' },
-  'action/active': { hex: '#0000008f', description: 'BetOnline action active state' },
-  'primary/focusVisible': { hex: '#ee35364d', description: 'BetOnline primary focus visible (30% opacity)' },
-  'secondary/outlinedBorder': { hex: '#8fd79080', description: 'BetOnline secondary outlined border (50% opacity)' },
-  'Terciary/outlinedBorder': { hex: '#104e6280', description: 'BetOnline tertiary outlined border (50% opacity)' },
-  'secondary/focusVisible': { hex: '#8fd7904d', description: 'BetOnline secondary focus visible (30% opacity)' },
-  'Terciary/focusVisible': { hex: '#104e624d', description: 'BetOnline tertiary focus visible (30% opacity)' },
-  'primary/hover': { hex: '#ee35360a', description: 'BetOnline primary hover state (4% opacity)' },
-  'secondary/hover': { hex: '#8fd7900a', description: 'BetOnline secondary hover state (4% opacity)' },
-  'Terciary/hover': { hex: '#104e620a', description: 'BetOnline tertiary hover state (4% opacity)' },
-  'text/link-blue': { hex: '#2962ff', description: 'BetOnline text link blue' },
-  'text/link': { hex: '#003b4d', description: 'BetOnline text link color' },
-  'interactions-bet-red-hover': { hex: '#da2b2c', description: 'BetOnline bet red hover interaction' },
-  'Interactions/BetRed Hover': { hex: '#DA2B2C', description: 'BetOnline bet red hover interaction' },
+  // Brand A Toolkit - Product-focused colors
+  'background/whiteTransparent-5': { hex: '#ffffff0d', description: 'Brand A white transparent background 5% opacity' },
+  'components/button/inherit white/main': { hex: '#bdbdbd', description: 'Brand A button inherit white main' },
+  'success/contrast': { hex: '#ffffff', description: 'Brand A success contrast color' },
+  'success/main': { hex: '#2e7d32', description: 'Brand A success main color' },
+  'error/main': { hex: '#D32F2F', description: 'Brand A error main color' },
+  'secondary/dark': { hex: '#7fa832', description: 'Brand A secondary dark variant' },
+  'Terciary/dark': { hex: '#003b4d', description: 'Brand A tertiary dark variant' },
+  'action/disabled': { hex: '#9e9e9e', description: 'Brand A action disabled color' },
+  'action/disabledBackground': { hex: '#e0e0e0', description: 'Brand A action disabled background' },
+  'action/active': { hex: '#0000008f', description: 'Brand A action active state' },
+  'primary/focusVisible': { hex: '#ee35364d', description: 'Brand A primary focus visible (30% opacity)' },
+  'secondary/outlinedBorder': { hex: '#8fd79080', description: 'Brand A secondary outlined border (50% opacity)' },
+  'Terciary/outlinedBorder': { hex: '#104e6280', description: 'Brand A tertiary outlined border (50% opacity)' },
+  'secondary/focusVisible': { hex: '#8fd7904d', description: 'Brand A secondary focus visible (30% opacity)' },
+  'Terciary/focusVisible': { hex: '#104e624d', description: 'Brand A tertiary focus visible (30% opacity)' },
+  'primary/hover': { hex: '#ee35360a', description: 'Brand A primary hover state (4% opacity)' },
+  'secondary/hover': { hex: '#8fd7900a', description: 'Brand A secondary hover state (4% opacity)' },
+  'Terciary/hover': { hex: '#104e620a', description: 'Brand A tertiary hover state (4% opacity)' },
+  'text/link-blue': { hex: '#2962ff', description: 'Brand A text link blue' },
+  'text/link': { hex: '#003b4d', description: 'Brand A text link color' },
+  'interactions-bet-red-hover': { hex: '#da2b2c', description: 'Brand A bet red hover interaction' },
+  'Interactions/BetRed Hover': { hex: '#DA2B2C', description: 'Brand A bet red hover interaction' },
   
   // HomePage colors
-  'HomePage/earliestline text': { hex: '#ffffffde', description: 'BetOnline homepage earliest line text' },
-  'HomePage/earliestline': { hex: '#2d2e2c', description: 'BetOnline homepage earliest line background' },
-  'HomePage/text': { hex: '#000000de', description: 'BetOnline homepage text' },
-  'HomePage/cards': { hex: '#f5f5f5', description: 'BetOnline homepage cards background' },
-  'HomePage/seo/Contrast': { hex: '#ffffff', description: 'BetOnline homepage SEO contrast' },
-  'HomePage/footer/contrast': { hex: '#ffffff', description: 'BetOnline homepage footer contrast' },
-  'HomePage/footer/background-transparent': { hex: '#ffffff14', description: 'BetOnline homepage footer background transparent' },
-  'HomePage/footer/background': { hex: '#2d2e2c', description: 'BetOnline homepage footer background' },
-  'HomePage/background': { hex: '#ffffff', description: 'BetOnline homepage background' },
+  'HomePage/earliestline text': { hex: '#ffffffde', description: 'Brand A homepage earliest line text' },
+  'HomePage/earliestline': { hex: '#2d2e2c', description: 'Brand A homepage earliest line background' },
+  'HomePage/text': { hex: '#000000de', description: 'Brand A homepage text' },
+  'HomePage/cards': { hex: '#f5f5f5', description: 'Brand A homepage cards background' },
+  'HomePage/seo/Contrast': { hex: '#ffffff', description: 'Brand A homepage SEO contrast' },
+  'HomePage/footer/contrast': { hex: '#ffffff', description: 'Brand A homepage footer contrast' },
+  'HomePage/footer/background-transparent': { hex: '#ffffff14', description: 'Brand A homepage footer background transparent' },
+  'HomePage/footer/background': { hex: '#2d2e2c', description: 'Brand A homepage footer background' },
+  'HomePage/background': { hex: '#ffffff', description: 'Brand A homepage background' },
   
   // VIP/Loyalty colors
-  'vip colors/gold': { hex: '#c4af3e', description: 'BetOnline VIP gold color' },
-  'secondary-loyalty-gold': { hex: '#c5a047', description: 'BetOnline secondary loyalty gold' },
-  'Secondary/Loyalty Gold': { hex: '#C5A047', description: 'BetOnline secondary loyalty gold' },
-  'vipLoyalty/gold': { hex: '#dbc448', description: 'BetOnline VIP loyalty gold' },
-  'vip colors/bronze': { hex: '#ba701b', description: 'BetOnline VIP bronze color' },
-  'vip colors/silver': { hex: '#b4b2b2', description: 'BetOnline VIP silver color' },
-  'vip colors/platinum': { hex: '#95acce', description: 'BetOnline VIP platinum color' },
-  'vip colors/diamond': { hex: '#71beab', description: 'BetOnline VIP diamond color' },
-  'vip colors/elite': { hex: '#a15bc1', description: 'BetOnline VIP elite color' },
-  'vip colors/black': { hex: '#7b7b7b', description: 'BetOnline VIP black color' },
-  'black-vip/300': { hex: '#e5e5e5', description: 'BetOnline black VIP 300' },
-  'black-vip/700': { hex: '#676767', description: 'BetOnline black VIP 700' },
+  'vip colors/gold': { hex: '#c4af3e', description: 'Brand A VIP gold color' },
+  'secondary-loyalty-gold': { hex: '#c5a047', description: 'Brand A secondary loyalty gold' },
+  'Secondary/Loyalty Gold': { hex: '#C5A047', description: 'Brand A secondary loyalty gold' },
+  'vipLoyalty/gold': { hex: '#dbc448', description: 'Brand A VIP loyalty gold' },
+  'vip colors/bronze': { hex: '#ba701b', description: 'Brand A VIP bronze color' },
+  'vip colors/silver': { hex: '#b4b2b2', description: 'Brand A VIP silver color' },
+  'vip colors/platinum': { hex: '#95acce', description: 'Brand A VIP platinum color' },
+  'vip colors/diamond': { hex: '#71beab', description: 'Brand A VIP diamond color' },
+  'vip colors/elite': { hex: '#a15bc1', description: 'Brand A VIP elite color' },
+  'vip colors/black': { hex: '#7b7b7b', description: 'Brand A VIP black color' },
+  'black-vip/300': { hex: '#e5e5e5', description: 'Brand A black VIP 300' },
+  'black-vip/700': { hex: '#676767', description: 'Brand A black VIP 700' },
   
   // Sportsbook colors
-  'sportbook/live/main': { hex: '#e53935', description: 'BetOnline sportsbook live main' },
-  'sportsbook/live/main': { hex: '#e53935', description: 'BetOnline sportsbook live main' },
-  'live/main': { hex: '#e53935', description: 'BetOnline live main color' },
-  'sports.betonline.ag/Sunglow': { hex: '#FFD72A', description: 'BetOnline sports sunglow color' },
-  'sports.betonline.ag/Black': { hex: '#000000', description: 'BetOnline sports black' },
-  'SbBlue/600': { hex: '#0087f6', description: 'BetOnline sportsbook blue 600' },
-  'SbYellow/300': { hex: '#fcd54c', description: 'BetOnline sportsbook yellow 300' },
+  'sportbook/live/main': { hex: '#e53935', description: 'Brand A sportsbook live main' },
+  'sportsbook/live/main': { hex: '#e53935', description: 'Brand A sportsbook live main' },
+  'live/main': { hex: '#e53935', description: 'Brand A live main color' },
+  'sports.betonline.ag/Sunglow': { hex: '#FFD72A', description: 'Brand A sports sunglow color' },
+  'sports.betonline.ag/Black': { hex: '#000000', description: 'Brand A sports black' },
+  'SbBlue/600': { hex: '#0087f6', description: 'Brand A sportsbook blue 600' },
+  'SbYellow/300': { hex: '#fcd54c', description: 'Brand A sportsbook yellow 300' },
   
   // Cashier colors
-  'Cashier/method-card/enabled/bkg': { hex: '#fafafa', description: 'BetOnline cashier method card enabled background' },
-  'Cashier/method-card/enabled/border': { hex: '#eeeeee', description: 'BetOnline cashier method card enabled border' },
-  'Cashier/containers/white-border/bkg': { hex: '#ffffff', description: 'BetOnline cashier containers white border background' },
-  'Cashier/containers/white-border/border': { hex: '#eeeeee', description: 'BetOnline cashier containers white border' },
+  'Cashier/method-card/enabled/bkg': { hex: '#fafafa', description: 'Brand A cashier method card enabled background' },
+  'Cashier/method-card/enabled/border': { hex: '#eeeeee', description: 'Brand A cashier method card enabled border' },
+  'Cashier/containers/white-border/bkg': { hex: '#ffffff', description: 'Brand A cashier containers white border background' },
+  'Cashier/containers/white-border/border': { hex: '#eeeeee', description: 'Brand A cashier containers white border' },
   
   // Component-specific colors
-  'components/skeleton/contrast': { hex: '#0000000d', description: 'BetOnline skeleton component contrast' },
-  'components/skeleton/white': { hex: '#ffffff17', description: 'BetOnline skeleton component white' },
-  'components/skeleton/black': { hex: '#0000000d', description: 'BetOnline skeleton component black' },
-  'components/input/outlined/enabledBorder': { hex: '#0000003b', description: 'BetOnline input outlined enabled border' },
-  'components/table/contrast/header-bkg': { hex: '#fafafa', description: 'BetOnline table contrast header background' },
-  'components/table/contrast/row-bkg': { hex: '#ffffff', description: 'BetOnline table contrast row background' },
-  'components/table/white/header-bkg': { hex: '#fafafa', description: 'BetOnline table white header background' },
-  'components/table/white/divider': { hex: '#0000000d', description: 'BetOnline table white divider' },
-  'components/table/white/enabled/row-bkg': { hex: '#ffffff', description: 'BetOnline table white enabled row background' },
-  'components/chip/light': { hex: '#ffffff', description: 'BetOnline chip light color' },
-  'components/card/contrast-bkg': { hex: '#ffffff', description: 'BetOnline card contrast background' },
-  'components/labels/light mode/main': { hex: '#424242', description: 'BetOnline labels light mode main' },
-  'components/labels/light mode/background': { hex: '#f5f5f5', description: 'BetOnline labels light mode background' },
-  'components/labels/light mode/light': { hex: '#bdbdbd', description: 'BetOnline labels light mode light' },
-  'components/backdrop/fill': { hex: '#0000008f', description: 'BetOnline backdrop fill' },
-  'components/arrows/banners/enabled/chevron': { hex: '#ffffff', description: 'BetOnline arrows banners enabled chevron' },
-  'components/arrows/banners/enabled/bkg': { hex: '#00000099', description: 'BetOnline arrows banners enabled background' },
-  'components/button/iconMenu/forLightMode/icon-bkg': { hex: '#0000008f', description: 'BetOnline button icon menu for light mode icon background' },
-  'components/button/Inherit/main': { hex: '#000000', description: 'BetOnline button inherit main' },
-  'components/divider/dividerContest': { hex: '#0000001f', description: 'BetOnline divider contest' },
-  'Navigation/components-navigation/bkg-header': { hex: '#2d2e2c', description: 'BetOnline navigation header background' },
-  'Navigation/components-navigation/bkg-sidemenu-desktop': { hex: '#2d2e2c', description: 'BetOnline navigation side menu desktop background' },
-  'Navigation/hub/bkg-hub': { hex: '#212121', description: 'BetOnline navigation hub background' },
+  'components/skeleton/contrast': { hex: '#0000000d', description: 'Brand A skeleton component contrast' },
+  'components/skeleton/white': { hex: '#ffffff17', description: 'Brand A skeleton component white' },
+  'components/skeleton/black': { hex: '#0000000d', description: 'Brand A skeleton component black' },
+  'components/input/outlined/enabledBorder': { hex: '#0000003b', description: 'Brand A input outlined enabled border' },
+  'components/table/contrast/header-bkg': { hex: '#fafafa', description: 'Brand A table contrast header background' },
+  'components/table/contrast/row-bkg': { hex: '#ffffff', description: 'Brand A table contrast row background' },
+  'components/table/white/header-bkg': { hex: '#fafafa', description: 'Brand A table white header background' },
+  'components/table/white/divider': { hex: '#0000000d', description: 'Brand A table white divider' },
+  'components/table/white/enabled/row-bkg': { hex: '#ffffff', description: 'Brand A table white enabled row background' },
+  'components/chip/light': { hex: '#ffffff', description: 'Brand A chip light color' },
+  'components/card/contrast-bkg': { hex: '#ffffff', description: 'Brand A card contrast background' },
+  'components/labels/light mode/main': { hex: '#424242', description: 'Brand A labels light mode main' },
+  'components/labels/light mode/background': { hex: '#f5f5f5', description: 'Brand A labels light mode background' },
+  'components/labels/light mode/light': { hex: '#bdbdbd', description: 'Brand A labels light mode light' },
+  'components/backdrop/fill': { hex: '#0000008f', description: 'Brand A backdrop fill' },
+  'components/arrows/banners/enabled/chevron': { hex: '#ffffff', description: 'Brand A arrows banners enabled chevron' },
+  'components/arrows/banners/enabled/bkg': { hex: '#00000099', description: 'Brand A arrows banners enabled background' },
+  'components/button/iconMenu/forLightMode/icon-bkg': { hex: '#0000008f', description: 'Brand A button icon menu for light mode icon background' },
+  'components/button/Inherit/main': { hex: '#000000', description: 'Brand A button inherit main' },
+  'components/divider/dividerContest': { hex: '#0000001f', description: 'Brand A divider contest' },
+  'Navigation/components-navigation/bkg-header': { hex: '#2d2e2c', description: 'Brand A navigation header background' },
+  'Navigation/components-navigation/bkg-sidemenu-desktop': { hex: '#2d2e2c', description: 'Brand A navigation side menu desktop background' },
+  'Navigation/hub/bkg-hub': { hex: '#212121', description: 'Brand A navigation hub background' },
   
   // Background colors
-  'background/paperElevation1': { hex: '#ffffff', description: 'BetOnline background paper elevation 1' },
-  'background/brand': { hex: '#2d2e2c', description: 'BetOnline background brand' },
-  'background/blackTransparent-5': { hex: '#0000000d', description: 'BetOnline background black transparent 5%' },
-  'background/landing-bkg': { hex: '#f5f5f5', description: 'BetOnline background landing' },
-  'background/Page default': { hex: '#ffffff', description: 'BetOnline background page default' },
+  'background/paperElevation1': { hex: '#ffffff', description: 'Brand A background paper elevation 1' },
+  'background/brand': { hex: '#2d2e2c', description: 'Brand A background brand' },
+  'background/blackTransparent-5': { hex: '#0000000d', description: 'Brand A background black transparent 5%' },
+  'background/landing-bkg': { hex: '#f5f5f5', description: 'Brand A background landing' },
+  'background/Page default': { hex: '#ffffff', description: 'Brand A background page default' },
   
   // Text colors
-  'text/text-on-surface-primary': { hex: '#000000de', description: 'BetOnline text on surface primary' },
-  'text/text-on-surface-secondary': { hex: '#00000091', description: 'BetOnline text on surface secondary' },
-  'text/white': { hex: '#ffffff', description: 'BetOnline text white' },
-  'text/white focusVisible': { hex: '#ffffff4d', description: 'BetOnline text white focus visible' },
-  'text/footerText': { hex: '#ffffff', description: 'BetOnline text footer' },
-  'dark text': { hex: '#212529', description: 'BetOnline dark text' },
+  'text/text-on-surface-primary': { hex: '#000000de', description: 'Brand A text on surface primary' },
+  'text/text-on-surface-secondary': { hex: '#00000091', description: 'Brand A text on surface secondary' },
+  'text/white': { hex: '#ffffff', description: 'Brand A text white' },
+  'text/white focusVisible': { hex: '#ffffff4d', description: 'Brand A text white focus visible' },
+  'text/footerText': { hex: '#ffffff', description: 'Brand A text footer' },
+  'dark text': { hex: '#212529', description: 'Brand A dark text' },
   
   // Common/Utility colors
-  'common/black/main': { hex: '#000000', description: 'BetOnline common black main' },
-  'common/black/outlinedBorder': { hex: '#00000080', description: 'BetOnline common black outlined border' },
-  'common/black/disabled': { hex: '#00000073', description: 'BetOnline common black disabled' },
-  'common/black/focusVisible': { hex: '#0000004d', description: 'BetOnline common black focus visible' },
-  'common/white/selected': { hex: '#ffffff14', description: 'BetOnline common white selected' },
-  'common/white/outlinedBorder': { hex: '#ffffff80', description: 'BetOnline common white outlined border' },
-  'accents/primary-surface': { hex: '#ffffff', description: 'BetOnline accents primary surface' },
-  'color/primary': { hex: '#373742', description: 'BetOnline color primary' },
-  'loader-primary': { hex: '#373742', description: 'BetOnline loader primary' },
+  'common/black/main': { hex: '#000000', description: 'Brand A common black main' },
+  'common/black/outlinedBorder': { hex: '#00000080', description: 'Brand A common black outlined border' },
+  'common/black/disabled': { hex: '#00000073', description: 'Brand A common black disabled' },
+  'common/black/focusVisible': { hex: '#0000004d', description: 'Brand A common black focus visible' },
+  'common/white/selected': { hex: '#ffffff14', description: 'Brand A common white selected' },
+  'common/white/outlinedBorder': { hex: '#ffffff80', description: 'Brand A common white outlined border' },
+  'accents/primary-surface': { hex: '#ffffff', description: 'Brand A accents primary surface' },
+  'color/primary': { hex: '#373742', description: 'Brand A color primary' },
+  'loader-primary': { hex: '#373742', description: 'Brand A loader primary' },
   
   // Gray scale (additional)
-  'gray/10': { hex: '#F5F5F4', description: 'BetOnline gray 10' },
-  'gray/30': { hex: '#D8D8D8', description: 'BetOnline gray 30' },
-  'gray/40': { hex: '#C1C1C1', description: 'BetOnline gray 40' },
-  'gray/60': { hex: '#90918D', description: 'BetOnline gray 60' },
-  'gray/70': { hex: '#5B5B5B', description: 'BetOnline gray 70' },
-  'gray/80': { hex: '#2D2E2C', description: 'BetOnline gray 80' },
-  'gray/90': { hex: '#1C1D1C', description: 'BetOnline gray 90' },
-  'white/100%': { hex: '#FFFFFF', description: 'BetOnline white 100%' },
-  'white/80%': { hex: '#FFFFFF', description: 'BetOnline white 80%' },
-  'clear': { hex: '#FFFFFF', description: 'BetOnline clear' },
+  'gray/10': { hex: '#F5F5F4', description: 'Brand A gray 10' },
+  'gray/30': { hex: '#D8D8D8', description: 'Brand A gray 30' },
+  'gray/40': { hex: '#C1C1C1', description: 'Brand A gray 40' },
+  'gray/60': { hex: '#90918D', description: 'Brand A gray 60' },
+  'gray/70': { hex: '#5B5B5B', description: 'Brand A gray 70' },
+  'gray/80': { hex: '#2D2E2C', description: 'Brand A gray 80' },
+  'gray/90': { hex: '#1C1D1C', description: 'Brand A gray 90' },
+  'white/100%': { hex: '#FFFFFF', description: 'Brand A white 100%' },
+  'white/80%': { hex: '#FFFFFF', description: 'Brand A white 80%' },
+  'clear': { hex: '#FFFFFF', description: 'Brand A clear' },
   
   // Opacity variants
-  'White/50-5%': { hex: '#ffffff0d', description: 'BetOnline white 50 at 5% opacity' },
-  'White/500-50p': { hex: '#ffffff80', description: 'BetOnline white 500 at 50% opacity' },
-  'Black/50-5%': { hex: '#0000000d', description: 'BetOnline black 50 at 5% opacity' },
-  'Black/100-9p': { hex: '#00000017', description: 'BetOnline black 100 at 9% opacity' },
-  'Black/300-16p': { hex: '#00000029', description: 'BetOnline black 300 at 16% opacity' },
-  'Black/500-50p': { hex: '#00000080', description: 'BetOnline black 500 at 50% opacity' },
-  'Black/600-60p': { hex: '#00000099', description: 'BetOnline black 600 at 60% opacity' },
-  'White/300-16p': { hex: '#ffffff29', description: 'BetOnline white 300 at 16% opacity' },
-  'White/600-60p': { hex: '#ffffff99', description: 'BetOnline white 600 at 60% opacity' },
+  'White/50-5%': { hex: '#ffffff0d', description: 'Brand A white 50 at 5% opacity' },
+  'White/500-50p': { hex: '#ffffff80', description: 'Brand A white 500 at 50% opacity' },
+  'Black/50-5%': { hex: '#0000000d', description: 'Brand A black 50 at 5% opacity' },
+  'Black/100-9p': { hex: '#00000017', description: 'Brand A black 100 at 9% opacity' },
+  'Black/300-16p': { hex: '#00000029', description: 'Brand A black 300 at 16% opacity' },
+  'Black/500-50p': { hex: '#00000080', description: 'Brand A black 500 at 50% opacity' },
+  'Black/600-60p': { hex: '#00000099', description: 'Brand A black 600 at 60% opacity' },
+  'White/300-16p': { hex: '#ffffff29', description: 'Brand A white 300 at 16% opacity' },
+  'White/600-60p': { hex: '#ffffff99', description: 'Brand A white 600 at 60% opacity' },
   
   // Semantic colors
-  'success/bkg': { hex: '#f7fff7', description: 'BetOnline success background' },
-  'success/light': { hex: '#4caf50', description: 'BetOnline success light' },
-  'warning/dark': { hex: '#f57c00', description: 'BetOnline warning dark' },
-  'warning/bkg': { hex: '#fff8ed', description: 'BetOnline warning background' },
-  'warning/light': { hex: '#ffb74d', description: 'BetOnline warning light' },
+  'success/bkg': { hex: '#f7fff7', description: 'Brand A success background' },
+  'success/light': { hex: '#4caf50', description: 'Brand A success light' },
+  'warning/dark': { hex: '#f57c00', description: 'Brand A warning dark' },
+  'warning/bkg': { hex: '#fff8ed', description: 'Brand A warning background' },
+  'warning/light': { hex: '#ffb74d', description: 'Brand A warning light' },
   
   // Brand-specific colors
-  'www.betonline.ag/Golden Tainoi': { hex: '#FECD55', description: 'BetOnline golden tainoi' },
-  'www.betonline.ag/Tree Poppy': { hex: '#F7941E', description: 'BetOnline tree poppy' },
-  'www.betonline.ag/Pomegranate': { hex: '#EE3536', description: 'BetOnline pomegranate' },
+  'www.betonline.ag/Golden Tainoi': { hex: '#FECD55', description: 'Brand A golden tainoi' },
+  'www.betonline.ag/Tree Poppy': { hex: '#F7941E', description: 'Brand A tree poppy' },
+  'www.betonline.ag/Pomegranate': { hex: '#EE3536', description: 'Brand A pomegranate' },
   'TigerOrange/500': { hex: '#f8991d', description: 'Tiger Gaming orange 500' },
-  'Banner color 3': { hex: '#dac96d', description: 'BetOnline banner color 3' },
-  'Banner color 4': { hex: '#554906', description: 'BetOnline banner color 4' },
-  'Banner Color 2': { hex: '#c4af3e', description: 'BetOnline banner color 2' },
-  'blueGrey/200': { hex: '#b0bec5', description: 'BetOnline blue grey 200' },
-  'blueGrey/500': { hex: '#607d8b', description: 'BetOnline blue grey 500' },
-  'deepPurple/A100': { hex: '#b388ff', description: 'BetOnline deep purple A100' },
-  'yellow/600': { hex: '#fdd835', description: 'BetOnline yellow 600' },
-  'complementary/80': { hex: '#004357', description: 'BetOnline complementary 80' },
-  'secondary/50': { hex: '#8BC400', description: 'BetOnline secondary 50' },
-  'primary/50': { hex: '#EE3536', description: 'BetOnline primary 50' },
-  'Utility/Black': { hex: '#1C1D1C', description: 'BetOnline utility black' },
+  'Banner color 3': { hex: '#dac96d', description: 'Brand A banner color 3' },
+  'Banner color 4': { hex: '#554906', description: 'Brand A banner color 4' },
+  'Banner Color 2': { hex: '#c4af3e', description: 'Brand A banner color 2' },
+  'blueGrey/200': { hex: '#b0bec5', description: 'Brand A blue grey 200' },
+  'blueGrey/500': { hex: '#607d8b', description: 'Brand A blue grey 500' },
+  'deepPurple/A100': { hex: '#b388ff', description: 'Brand A deep purple A100' },
+  'yellow/600': { hex: '#fdd835', description: 'Brand A yellow 600' },
+  'complementary/80': { hex: '#004357', description: 'Brand A complementary 80' },
+  'secondary/50': { hex: '#8BC400', description: 'Brand A secondary 50' },
+  'primary/50': { hex: '#EE3536', description: 'Brand A primary 50' },
+  'Utility/Black': { hex: '#1C1D1C', description: 'Brand A utility black' },
   'stake.com/White': { hex: '#FFFFFF', description: 'Stake.com white' },
-  'black': { hex: '#000000', description: 'BetOnline black' },
+  'black': { hex: '#000000', description: 'Brand A black' },
 }
 
 export interface BrandColors {
@@ -761,7 +761,7 @@ export const designSystem: DesignSystemInfo = {
         textCase: 'none',
         description: 'Body small, regular weight',
       },
-      // BetOnline Brand Book typography tokens
+      // Brand A Brand Book typography tokens
       'Special Headings/Display 5': {
         fontFamily: 'Inter',
         fontWeight: '700',
@@ -770,7 +770,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '-3px',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline special heading display 5 - large display text',
+        description: 'Brand A special heading display 5 - large display text',
       },
       'Desktop/Heading/Bold/H1 40px': {
         fontFamily: 'Open Sans',
@@ -780,7 +780,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop heading H1, bold, 40px',
+        description: 'Brand A desktop heading H1, bold, 40px',
       },
       'Text Single/100/Regular': {
         fontFamily: 'Inter',
@@ -790,7 +790,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline text single, regular weight, 16px',
+        description: 'Brand A text single, regular weight, 16px',
       },
       'Text Single/100/Bold': {
         fontFamily: 'Inter',
@@ -800,9 +800,9 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline text single, bold weight, 16px',
+        description: 'Brand A text single, bold weight, 16px',
       },
-      // BetOnline Toolkit - Desktop Typography (Product-focused)
+      // Brand A Toolkit - Desktop Typography (Product-focused)
       'Desktop/Heading/Bold/H2 36px': {
         fontFamily: 'Open Sans',
         fontWeight: '700',
@@ -811,7 +811,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H2, bold, 36px',
+        description: 'Brand A desktop H2, bold, 36px',
       },
       'Desktop/Heading/Bold/H3 32px': {
         fontFamily: 'Open Sans',
@@ -821,7 +821,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H3, bold, 32px',
+        description: 'Brand A desktop H3, bold, 32px',
       },
       'Desktop/Heading/Bold/H4 24px': {
         fontFamily: 'Open Sans',
@@ -831,7 +831,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H4, bold, 24px',
+        description: 'Brand A desktop H4, bold, 24px',
       },
       'Desktop/Heading/Bold/H5 20px': {
         fontFamily: 'Open Sans',
@@ -841,7 +841,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H5, bold, 20px',
+        description: 'Brand A desktop H5, bold, 20px',
       },
       'Desktop/Heading/Bold/H6 18px': {
         fontFamily: 'Open Sans',
@@ -851,7 +851,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H6, bold, 18px',
+        description: 'Brand A desktop H6, bold, 18px',
       },
       'Desktop/Heading/Bold/H7 16px': {
         fontFamily: 'Open Sans',
@@ -861,7 +861,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H7, bold, 16px',
+        description: 'Brand A desktop H7, bold, 16px',
       },
       'Desktop/Heading/SemiBold/H1 40px': {
         fontFamily: 'Open Sans',
@@ -871,7 +871,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H1, semi-bold, 40px',
+        description: 'Brand A desktop H1, semi-bold, 40px',
       },
       'Desktop/Heading/SemiBold/H2 36px': {
         fontFamily: 'Open Sans',
@@ -881,7 +881,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H2, semi-bold, 36px',
+        description: 'Brand A desktop H2, semi-bold, 36px',
       },
       'Desktop/Heading/SemiBold/H3 32px': {
         fontFamily: 'Open Sans',
@@ -891,7 +891,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H3, semi-bold, 32px',
+        description: 'Brand A desktop H3, semi-bold, 32px',
       },
       'Desktop/Heading/SemiBold/H4 24px': {
         fontFamily: 'Open Sans',
@@ -901,7 +901,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H4, semi-bold, 24px',
+        description: 'Brand A desktop H4, semi-bold, 24px',
       },
       'Desktop/Heading/SemiBold/H5 20px': {
         fontFamily: 'Open Sans',
@@ -911,7 +911,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H5, semi-bold, 20px',
+        description: 'Brand A desktop H5, semi-bold, 20px',
       },
       'Desktop/Heading/SemiBold/H6 18px': {
         fontFamily: 'Open Sans',
@@ -921,7 +921,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H6, semi-bold, 18px',
+        description: 'Brand A desktop H6, semi-bold, 18px',
       },
       'Desktop/Heading/SemiBold/H7 16px': {
         fontFamily: 'Open Sans',
@@ -931,7 +931,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H7, semi-bold, 16px',
+        description: 'Brand A desktop H7, semi-bold, 16px',
       },
       'Desktop/Heading/Regular/H1 40px': {
         fontFamily: 'Open Sans',
@@ -941,7 +941,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H1, regular, 40px',
+        description: 'Brand A desktop H1, regular, 40px',
       },
       'Desktop/Heading/Regular/H2 36px': {
         fontFamily: 'Open Sans',
@@ -951,7 +951,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop H2, regular, 36px',
+        description: 'Brand A desktop H2, regular, 36px',
       },
       'Desktop/Body/SemiBold/B2 16px': {
         fontFamily: 'Open Sans',
@@ -961,7 +961,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop body, semi-bold, 16px',
+        description: 'Brand A desktop body, semi-bold, 16px',
       },
       'Desktop/Body/Regular/B3 14px': {
         fontFamily: 'Open Sans',
@@ -971,7 +971,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop body, regular, 14px',
+        description: 'Brand A desktop body, regular, 14px',
       },
       'Desktop/Body/Regular/B2 16px': {
         fontFamily: 'Open Sans',
@@ -981,9 +981,9 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline desktop body, regular, 16px',
+        description: 'Brand A desktop body, regular, 16px',
       },
-      // BetOnline Toolkit - Mobile Typography (Product-focused)
+      // Brand A Toolkit - Mobile Typography (Product-focused)
       'Mobile/Heading/Bold/H1 32px': {
         fontFamily: 'Open Sans',
         fontWeight: '700',
@@ -992,7 +992,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H1, bold, 32px',
+        description: 'Brand A mobile H1, bold, 32px',
       },
       'Mobile/Heading/Bold/H2 28px': {
         fontFamily: 'Open Sans',
@@ -1002,7 +1002,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H2, bold, 28px',
+        description: 'Brand A mobile H2, bold, 28px',
       },
       'Mobile/Heading/Bold/H3 24px': {
         fontFamily: 'Open Sans',
@@ -1012,7 +1012,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H3, bold, 24px',
+        description: 'Brand A mobile H3, bold, 24px',
       },
       'Mobile/Heading/Bold/H4 20px': {
         fontFamily: 'Open Sans',
@@ -1022,7 +1022,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H4, bold, 20px',
+        description: 'Brand A mobile H4, bold, 20px',
       },
       'Mobile/Heading/Bold/H5 18px': {
         fontFamily: 'Open Sans',
@@ -1032,7 +1032,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H5, bold, 18px',
+        description: 'Brand A mobile H5, bold, 18px',
       },
       'Mobile/Heading/Bold/H6 16px': {
         fontFamily: 'Open Sans',
@@ -1042,7 +1042,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H6, bold, 16px',
+        description: 'Brand A mobile H6, bold, 16px',
       },
       'Mobile/Heading/Bold/H7 14px': {
         fontFamily: 'Open Sans',
@@ -1052,7 +1052,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile H7, bold, 14px',
+        description: 'Brand A mobile H7, bold, 14px',
       },
       'Mobile/Body/SemiBold/B2 16px': {
         fontFamily: 'Open Sans',
@@ -1062,7 +1062,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile body, semi-bold, 16px',
+        description: 'Brand A mobile body, semi-bold, 16px',
       },
       'Mobile/Body/Regular/B3 14px': {
         fontFamily: 'Open Sans',
@@ -1072,7 +1072,7 @@ export const designSystem: DesignSystemInfo = {
         letterSpacing: '0',
         textDecoration: 'none',
         textCase: 'none',
-        description: 'BetOnline mobile body, regular, 14px',
+        description: 'Brand A mobile body, regular, 14px',
       },
       // Material UI component typography
       'Material UI/datePicker/currentMonth': {
@@ -1110,7 +1110,7 @@ export const designSystem: DesignSystemInfo = {
   
   // Spacing system
   spacing: {
-    scale: [2, 4, 7, 8, 12, 16, 20, 24, 32, 40, 48, 56, 64, 72, 80, 96], // Includes BetOnline brand book and toolkit tokens
+    scale: [2, 4, 7, 8, 12, 16, 20, 24, 32, 40, 48, 56, 64, 72, 80, 96], // Includes Brand A brand book and toolkit tokens
     unit: 'px',
     grid: {
       columns: 12,
@@ -1123,7 +1123,7 @@ export const designSystem: DesignSystemInfo = {
   borderRadius: {
     none: '0',
     sm: '4px', // borderRadius-1
-    md: '8px', // borderRadius-2, BetOnline brand book token
+    md: '8px', // borderRadius-2, Brand A brand book token
     lg: '12px', // borderRadius-3, Sportsbook-26
     xl: '16px', // borderRadius-4, Sportsbook-26
     '2xl': '40px', // borderRadius-9, Sportsbook-26
@@ -1340,9 +1340,9 @@ export const designSystem: DesignSystemInfo = {
       },
     },
     // Additional brands from Figma
-    BetOnline: {
-      name: 'BetOnline',
-      description: 'BetOnline brand with red, green, and navy color palette',
+    'Brand A': {
+      name: 'Brand A',
+      description: 'Brand A brand with red, green, and navy color palette',
       colors: {
         primary: ['betRed', 'betGreen', 'betNavy'],
         secondary: ['betGreen', 'betNavy'],
@@ -1484,7 +1484,7 @@ export function getDesignSystemResponse(query: string, system: DesignSystemInfo 
       'authentication': 'Authentication',
       'auth': 'Authentication',
       'poker': 'Poker',
-      'betonline': 'BetOnline',
+      'betonline': 'Brand A',
       'tigergaming': 'Tigergaming',
       'lowvig': 'LowVig',
       'wild casino': 'Wild Casino',
@@ -1514,7 +1514,7 @@ export function getDesignSystemResponse(query: string, system: DesignSystemInfo 
     // Brand-specific color query - check for brand names in query
     const brandInQuery = mentionedBrand || 
       (lowerQuery.includes('wild casino') || lowerQuery.includes('wildcasino') ? 'Wild Casino' : null) ||
-      (lowerQuery.includes('betonline') || lowerQuery.includes('bol') ? 'BetOnline' : null) ||
+      (lowerQuery.includes('betonline') || lowerQuery.includes('bol') ? 'Brand A' : null) ||
       (lowerQuery.includes('tiger') ? 'Tiger Gaming' : null) ||
       (lowerQuery.includes('lowvig') ? 'LowVig' : null) ||
       (lowerQuery.includes('high roller') ? 'High Roller' : null) ||
@@ -1760,7 +1760,7 @@ export function getDesignSystemResponse(query: string, system: DesignSystemInfo 
       const brandList = Object.values(system.brands).map(b => b.name).join(', ')
       return `Our design system supports these brands: ${brandList}. Each brand can have its own color palette and component overrides while sharing the base design tokens. Built on MUI v5.15.0.`
     }
-    return "We support multiple brands: Casino, Sports, Loyalty, Authentication, Poker, BetOnline, Tigergaming, LowVig, Wild Casino, High Roller, and SuperSlot. Each brand can customize colors and components while using shared design tokens."
+    return "We support multiple brands: Casino, Sports, Loyalty, Authentication, Poker, Brand A, Tigergaming, LowVig, Wild Casino, High Roller, and SuperSlot. Each brand can customize colors and components while using shared design tokens."
   }
   
   // MUI queries

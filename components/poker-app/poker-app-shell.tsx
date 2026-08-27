@@ -38,7 +38,7 @@ export function PokerAppShell() {
             B
           </div>
           <div className="hidden leading-tight sm:block">
-            <p className="text-[13px] font-semibold text-[var(--ds-fg)]">BetOnline Poker</p>
+            <p className="text-[13px] font-semibold text-[var(--ds-fg)]">Brand A Poker</p>
             <p className="text-[11px] text-[var(--ds-fg-subtle)]">nitroace</p>
           </div>
         </div>
@@ -129,7 +129,7 @@ export function PokerAppShell() {
           {LOBBY_STATS.players} players · {LOBBY_STATS.tables} tables · {LOBBY_STATS.tournaments}{' '}
           tournaments
         </p>
-        <p className="text-[var(--ds-fg-subtle)]">BetOnline Poker</p>
+        <p className="text-[var(--ds-fg-subtle)]">Brand A Poker</p>
       </footer>
 
       <PokerOptionsDialog open={optionsOpen} onOpenChange={setOptionsOpen} />

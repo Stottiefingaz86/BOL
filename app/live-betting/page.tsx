@@ -15,11 +15,11 @@ export default function LiveBettingPage() {
         {/* Left content */}
         <div className="flex-1 flex flex-col gap-6 max-w-xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1a1a1a] leading-tight">
-            BetOnline Will Be Back Soon
+            Brand A Will Be Back Soon
           </h1>
 
           <p className="text-base md:text-lg text-[#333] leading-relaxed">
-            We&apos;re busy updating BetOnline.ag with technology and features to enhance your experience.
+            We&apos;re busy updating brand-a.example with technology and features to enhance your experience.
           </p>
 
           <p className="text-base md:text-lg text-[#333] leading-relaxed font-semibold">
@@ -27,7 +27,7 @@ export default function LiveBettingPage() {
           </p>
 
           <p className="text-base md:text-lg text-[#333] leading-relaxed font-semibold">
-            Thank you for being a loyal BetOnline Customer.
+            Thank you for being a loyal Brand A Customer.
           </p>
 
           {/* Refresh button */}
@@ -46,13 +46,13 @@ export default function LiveBettingPage() {
           <div className="flex items-center gap-3 mt-2">
             <span className="text-sm text-[#666]">Follow us on X for live updates:</span>
             <a
-              href="https://x.com/BetOnline_AG"
+              href="https://x.com/Brand A_AG"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-[#ee3536] hover:text-[#cc2d2e] transition-colors text-sm font-medium"
             >
               <IconBrandX className="w-5 h-5 text-[#1a1a1a]" />
-              @BetOnline_AG
+              @Brand A_AG
             </a>
           </div>
 

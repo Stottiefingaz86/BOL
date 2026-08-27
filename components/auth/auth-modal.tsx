@@ -63,7 +63,7 @@ function BrandPanel() {
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <Image
             src="/banners/beton.png"
-            alt="BetOnline"
+            alt="Brand A"
             width={320}
             height={100}
             className="h-20 w-auto object-contain sm:h-24"
@@ -285,7 +285,7 @@ export function AuthModal() {
             {view === 'login' ? 'Log in' : view === 'createAccount' ? 'Create account' : 'Confirm email'}
           </Dialog.Title>
           <Dialog.Description className="sr-only">
-            Sign in or create a BetOnline account
+            Sign in or create a Brand A account
           </Dialog.Description>
 
           <BrandPanel />
@@ -444,7 +444,7 @@ export function AuthModal() {
                 <div className="mx-auto w-full max-w-md space-y-4">
                   <div>
                     <h3 className="text-xl font-bold text-white">Create an Account</h3>
-                    <p className="mt-1 text-xs text-white/50">Join BetOnline in seconds and unlock welcome bonuses.</p>
+                    <p className="mt-1 text-xs text-white/50">Join Brand A in seconds and unlock welcome bonuses.</p>
                   </div>
                   <div className={fieldsClass}>
                     <input

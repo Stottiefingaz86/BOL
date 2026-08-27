@@ -304,8 +304,8 @@ function MobileToc({
 
 export function SeoPageContent({
   className,
-  brandName = 'BetOnline',
-  brandUrl = 'BetOnline.ag',
+  brandName = 'Brand A',
+  brandUrl = 'brand-a.example',
   leftSections,
   rightSections,
   sections: sectionsProp,

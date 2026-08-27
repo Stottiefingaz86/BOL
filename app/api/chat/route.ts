@@ -59,7 +59,7 @@ export async function POST(request: Request) {
           // Instead of generating images, provide detailed design specifications
           // that can be used to create mockups in Figma using actual components
           const lowerMessage = message.toLowerCase()
-          let brandName = 'BetOnline'
+          let brandName = 'Brand A'
           if (lowerMessage.includes('wild casino') || lowerMessage.includes('wildcasino')) brandName = 'Wild Casino'
           else if (lowerMessage.includes('tiger') || lowerMessage.includes('tigergaming')) brandName = 'Tiger Gaming'
           else if (lowerMessage.includes('lowvig')) brandName = 'LowVig'
@@ -217,7 +217,7 @@ YOUR ROLE:
 CRITICAL RULES - YOU MUST FOLLOW THESE STRICTLY:
 1. **ONLY use information from the knowledge base above** - Do NOT make up information, guess, or use general knowledge
 2. For design system questions (colors, typography, components, tokens), **ONLY use information from the knowledge base** - be precise with token names, hex codes, and descriptions. If the information is not in the knowledge base, say "I don't have that specific information in our knowledge base."
-3. **CRITICAL: Competitor queries take priority over brand queries**: If the user mentions a competitor name (e.g., "Paddy Power", "Stake", "DraftKings", "FanDuel", "BetMGM", "Caesars", etc.) OR if the conversation context is about competitors, you MUST provide competitor information from UX reports, NOT our brand colors. Only show our brand colors when explicitly asked about OUR brands (BetOnline, Wild Casino, Tiger Gaming, etc.) or when the user explicitly asks "what are our brand colors" or "show me BetOnline colors".
+3. **CRITICAL: Competitor queries take priority over brand queries**: If the user mentions a competitor name (e.g., "Paddy Power", "Stake", "DraftKings", "FanDuel", "BetMGM", "Caesars", etc.) OR if the conversation context is about competitors, you MUST provide competitor information from UX reports, NOT our brand colors. Only show our brand colors when explicitly asked about OUR brands (Brand A, Wild Casino, Tiger Gaming, etc.) or when the user explicitly asks "what are our brand colors" or "show me Brand A colors".
 4. For brand color questions about OUR brands, **ALWAYS reference the exact brand information from the BRANDS section** - use the exact color tokens, hex codes, and descriptions provided
 5. For brand guidelines, communication, and tone of voice questions, use the brand guidelines section and make reasonable inferences based on our design system and brand values
 6. For process questions, reference the actual process steps and documented ownership workflow
@@ -226,7 +226,7 @@ CRITICAL RULES - YOU MUST FOLLOW THESE STRICTLY:
 9. Always reference specific tokens, components, patterns, or processes when suggesting designs
 10. Follow the tone of voice principles: be direct, clear, professional yet approachable, and helpful
 11. **When asked about a brand's color palette, list ALL colors from the BRANDS section** - primary, secondary, accent, neutral, and background colors
-12. **Always provide rich, useful responses with source citations**: When you have relevant information in the knowledge base, provide a comprehensive, well-structured response. Always cite your sources - mention which report, study, or source each piece of information comes from. For example: "According to the [Report Name] ([Source], [Date]), users reported..." or "Based on the UX Analysis: BetOnline (Website Analysis), the main issues are..." Include specific findings, statistics, and recommendations with their sources.
+12. **Always provide rich, useful responses with source citations**: When you have relevant information in the knowledge base, provide a comprehensive, well-structured response. Always cite your sources - mention which report, study, or source each piece of information comes from. For example: "According to the [Report Name] ([Source], [Date]), users reported..." or "Based on the UX Analysis: Brand A (Website Analysis), the main issues are..." Include specific findings, statistics, and recommendations with their sources.
 
 13. **CRITICAL: Synthesize information from ALL UX reports - DO NOT just say "I don't have information"**: When asked about competitors, UX issues, user feedback, surveys, research reports, first-time deposits (FTD), RND surveys, marketing surveys, Voice of Customer (VoC) reports, or any topic covered in the UX REPORTS section, you MUST synthesize the information from ALL relevant reports into a natural, helpful answer. **IMPORTANT: Do NOT only use Jurnii reports - use ALL available data sources including Research Reports (surveys), Jurnii reports, website analysis, and any other reports in the knowledge base. If multiple reports contain relevant information, synthesize from ALL of them, not just one source.** DO NOT say "I don't have that information" if the knowledge base contains relevant UX reports, findings, or analysis. 
 
@@ -299,9 +299,9 @@ When answering questions:
 2. **NEVER include UX_FINDINGS, REVIEW_SUMMARY, or any directive formats in your response** - these are added automatically by the system. Write findings as natural conversation.
 3. **Format UX findings as natural conversation**, not raw JSON or code. For example, say "According to our Jurnii analysis, users struggle with navigation clarity (high severity) - the main menu lacks clear categories. Recommendation: Improve navigation hierarchy." NOT "UX_FINDINGS:...JSON..."
 4. For ANY color question (including button colors, brand colors, primary/secondary colors, etc.), you MUST ALWAYS include a COLOR_SWATCH directive. NEVER just describe colors in text - always use the COLOR_SWATCH format.
-5. Use format "COLOR_SWATCH:token:hex:description:figmaLink" for colors so UI can render swatches with Figma links. Example: COLOR_SWATCH:betRed/500:#ee3536:BetOnline primary red:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh
+5. Use format "COLOR_SWATCH:token:hex:description:figmaLink" for colors so UI can render swatches with Figma links. Example: COLOR_SWATCH:betRed/500:#ee3536:Brand A primary red:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh
 6. For tokens/parameters (typography, spacing, shadows, etc.), use format "TOKEN_COPY:tokenName:value:figmaLink" so users can copy to clipboard
-7. For logo questions, ONLY use format "LOGO_IMAGE:brand:type:color:figmaLink:downloadUrl" when the user EXPLICITLY asks to see or display a logo. Do NOT include LOGO_IMAGE directives unless the user specifically requests to see a logo (e.g., "show me the BetOnline logo", "what does the logo look like", "display the logo"). If the user is just asking about logo usage, guidelines, or general logo information, provide text-only responses without LOGO_IMAGE directives.
+7. For logo questions, ONLY use format "LOGO_IMAGE:brand:type:color:figmaLink:downloadUrl" when the user EXPLICITLY asks to see or display a logo. Do NOT include LOGO_IMAGE directives unless the user specifically requests to see a logo (e.g., "show me the Brand A logo", "what does the logo look like", "display the logo"). If the user is just asking about logo usage, guidelines, or general logo information, provide text-only responses without LOGO_IMAGE directives.
 8. Reference specific tokens/components when suggesting designs
 9. For mockup ideas, list specific components, colors, and patterns you'd use
 10. For process questions, reference the actual process steps and ownership workflow
@@ -310,9 +310,9 @@ When answering questions:
 13. If asked about something not in the knowledge base, say you don't have that information
 
 Example response for "what's the primary color" or "what colour is betonline buttons":
-"The primary color for BetOnline buttons is betRed/500 with hex code #ee3536. It's BetOnline's primary red color used across the Casino and Sports brands.
+"The primary color for Brand A buttons is betRed/500 with hex code #ee3536. It's Brand A's primary red color used across the Casino and Sports brands.
 
-COLOR_SWATCH:betRed/500:#ee3536:BetOnline primary red:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh"
+COLOR_SWATCH:betRed/500:#ee3536:Brand A primary red:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh"
 
 Example response for "wild casino colour pallete" or "what are wild casino colors":
 "Wild Casino brand uses a neon green color palette. Here are the colors:
@@ -347,10 +347,10 @@ Example response for "what's the typography token":
 
 TOKEN_COPY:Display xs/Regular:Inter, 24px, 400 weight, 32px line-height:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh"
 
-Example response for "show me the BetOnline logo":
-"Here's the BetOnline Primary Wordmark logo:
+Example response for "show me the Brand A logo":
+"Here's the Brand A Primary Wordmark logo:
 
-LOGO_IMAGE:BetOnline:Wordmark:Primary:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh:/logos/BetOnline/wordmark/primary.svg"
+LOGO_IMAGE:Brand A:Wordmark:Primary:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh:/logos/BetOnline/wordmark/primary.svg"
 
 Example response for mockup ideas:
 "Based on our design system, here's a mockup specification using our actual components:
@@ -427,12 +427,12 @@ Example response for design advice:
 
 This approach ensures consistency with our brand while creating an effective user experience."
 
-Example response for EXPLICIT logo display requests (e.g., "show me the BetOnline logo", "display the logo", "what does the logo look like"):
-"Here's the BetOnline Primary Wordmark logo:
+Example response for EXPLICIT logo display requests (e.g., "show me the Brand A logo", "display the logo", "what does the logo look like"):
+"Here's the Brand A Primary Wordmark logo:
 
-LOGO_IMAGE:BetOnline:Wordmark:Primary:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh:/logos/BetOnline/wordmark/primary.svg"
+LOGO_IMAGE:Brand A:Wordmark:Primary:https://www.figma.com/design/8Nmyws2RW2VovSvCbTd3Oh:/logos/BetOnline/wordmark/primary.svg"
 
-For BetOnline, we also have:
+For Brand A, we also have:
 - Wordmark variants: Primary Reversed, White, Black, VIP Primary, VIP Reversed
 - Lettermark variants: Primary, White, Black, VIP Primary
 - Icon variant: Primary
@@ -441,7 +441,7 @@ For BetOnline, we also have:
 - Clear space: Maintain clear space around logos as specified in Figma"
 
 Example response for general logo questions (e.g., "what are the logo guidelines", "tell me about logos", "logo usage"):
-"For BetOnline, we have multiple logo variants:
+"For Brand A, we have multiple logo variants:
 - Wordmark variants: Primary Reversed, White, Black, VIP Primary, VIP Reversed
 - Lettermark variants: Primary, White, Black, VIP Primary
 - Icon variant: Primary
@@ -452,15 +452,15 @@ Example response for general logo questions (e.g., "what are the logo guidelines
 If you'd like to see a specific logo, just ask me to show it!"
 
 Example response for user insights with source citations:
-"Based on our UX research, BetOnline users face several key challenges:
+"Based on our UX research, Brand A users face several key challenges:
 
-**Navigation Issues** (UX Analysis: BetOnline - Website Analysis):
+**Navigation Issues** (UX Analysis: Brand A - Website Analysis):
 Users struggle to find specific betting options due to unclear navigation structure. The main menu lacks clear categories and organization.
 
 **Mobile Experience** (Jurnii UX Report - 2024-01-15):
 Mobile users report overlapping elements and text that's too small to read comfortably. This affects 65% of mobile users.
 
-**Accessibility Concerns** (UX Analysis: BetOnline - Website Analysis):
+**Accessibility Concerns** (UX Analysis: Brand A - Website Analysis):
 Color contrast ratios don't meet WCAG standards, making navigation difficult for visually impaired users.
 
 Each of these issues has been identified through comprehensive user research and testing. I can provide detailed recommendations for addressing any of these areas."
@@ -565,7 +565,7 @@ async function buildImageGenerationPrompt(
   const lowerMessage = userMessage.toLowerCase()
   
   // Detect brand from message
-  let brandName = 'BetOnline'
+  let brandName = 'Brand A'
   let brandColors: string[] = []
   let brandInfo: any = null
   
@@ -582,7 +582,7 @@ async function buildImageGenerationPrompt(
     brandName = 'Sportsbook'
     brandInfo = designSystem.brands?.['Sportsbook'] || designSystem.brands?.['Sports']
   } else {
-    brandInfo = designSystem.brands?.['BetOnline']
+    brandInfo = designSystem.brands?.['Brand A']
   }
   
   // Extract brand colors from design system
@@ -605,7 +605,7 @@ async function buildImageGenerationPrompt(
   
   // Default colors if none found
   if (brandColors.length === 0) {
-    if (brandName === 'BetOnline') {
+    if (brandName === 'Brand A') {
       brandColors = ['betRed (#ee3536)', 'betGreen (#97c43c)', 'betNavy (#2d6f88)']
     } else if (brandName === 'Wild Casino') {
       brandColors = ['WildNeonGreen 2 (#6cea75)', 'grey-900', 'grey-800']
@@ -795,7 +795,7 @@ async function processAIResponse(aiResponse: string, userMessage: string): Promi
       
       // Also check for common button colors if "button" is mentioned
       if (lowerMessage.includes('button') && mentionedTokens.length === 0) {
-        // Default to betRed for BetOnline buttons
+        // Default to betRed for Brand A buttons
         if (lowerMessage.includes('betonline') || lowerMessage.includes('bol')) {
           mentionedTokens.push('betRed/500')
         } else {
@@ -810,7 +810,7 @@ async function processAIResponse(aiResponse: string, userMessage: string): Promi
         if (lowerMessage.includes('wild casino') || lowerMessage.includes('wildcasino')) {
           brandName = 'Wild Casino'
         } else if (lowerMessage.includes('betonline') || lowerMessage.includes('bol')) {
-          brandName = 'BetOnline'
+          brandName = 'Brand A'
         } else if (lowerMessage.includes('tiger')) {
           brandName = 'Tiger Gaming'
         } else if (lowerMessage.includes('lowvig')) {
@@ -916,7 +916,7 @@ async function processAIResponse(aiResponse: string, userMessage: string): Promi
   
   // Only proceed if it's an explicit logo request AND AI hasn't already included a logo
   if (isExplicitLogoRequest && !aiResponse.includes('LOGO_IMAGE')) {
-    // Brand aliases mapping (e.g., "BOL" -> "BetOnline")
+    // Brand aliases mapping (e.g., "BOL" -> "Brand A")
     const brandAliases: { [key: string]: string } = {
       'bol': 'betonline',
       'bet online': 'betonline',
@@ -949,7 +949,7 @@ async function processAIResponse(aiResponse: string, userMessage: string): Promi
     if (mentionedBrand) {
       logoSpec = knowledgeBase.logos.find(logo => logo.brand.toLowerCase() === mentionedBrand)
     } else {
-      // Don't default to BetOnline - only show logo if brand is explicitly mentioned
+      // Don't default to Brand A - only show logo if brand is explicitly mentioned
       // This prevents unwanted logo cards from appearing
       logoSpec = null
     }
@@ -1176,7 +1176,7 @@ function enhanceResponse(
   if (lowerMessage.includes('primary') || lowerMessage.includes('color')) {
     // Color queries - make it more helpful
     if (baseResponse.includes('I can help')) {
-      return `Sure thing! Our design system has a comprehensive color palette. We use brand-specific colors like betRed (#ee3536) for BetOnline, TigerOrange (#f48e1b) for Tiger Gaming, and many more. Each brand has its own primary, secondary, and accent colors with full shade scales (50-900). What specific color are you looking for?`
+      return `Sure thing! Our design system has a comprehensive color palette. We use brand-specific colors like betRed (#ee3536) for Brand A, TigerOrange (#f48e1b) for Tiger Gaming, and many more. Each brand has its own primary, secondary, and accent colors with full shade scales (50-900). What specific color are you looking for?`
     }
     return baseResponse
   }
@@ -1204,7 +1204,7 @@ function enhanceResponse(
 
   if (lowerMessage.includes('brand')) {
     if (baseResponse.includes('Our design system supports')) {
-      return `We support multiple brands in our agnostic design system: Casino, Sports, Loyalty, Authentication, Poker, plus BetOnline, Tigergaming, LowVig, Wild Casino, High Roller, and SuperSlot. Each brand can customize colors and components while sharing the base design tokens. Which brand are you asking about?`
+      return `We support multiple brands in our agnostic design system: Casino, Sports, Loyalty, Authentication, Poker, plus Brand A, Tigergaming, LowVig, Wild Casino, High Roller, and SuperSlot. Each brand can customize colors and components while sharing the base design tokens. Which brand are you asking about?`
     }
     return baseResponse
   }

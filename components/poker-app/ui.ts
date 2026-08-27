@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-/** Site design-system surfaces (matches BetOnline dark theme) */
+/** Site design-system surfaces (matches Brand A dark theme) */
 export const pokerPanel =
   'rounded-lg border border-white/[0.06] bg-[var(--ds-surface-inset,#252525)]'
 

@@ -1,5 +1,7 @@
 'use client'
 
+import { OriginalsTileBrandCover } from '@/components/brand/brand-logo-placeholder'
+
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -17,7 +19,7 @@ import {
 } from '@/components/ui/cursor-spotlight'
 import { cn } from '@/lib/utils'
 
-/** BetOnline Originals — clear game art for the Casino card */
+/** Brand A Originals — clear game art for the Casino card */
 const CASINO_TILES = [
   '/games/originals/plink.png',
   '/games/originals/blackjack.png',
@@ -175,6 +177,7 @@ function CasinoOriginalsShelf() {
               sizes="80px"
               unoptimized
             />
+            <OriginalsTileBrandCover />
           </div>
         ))}
       </div>

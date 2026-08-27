@@ -67,7 +67,7 @@ export async function GET() {
     
     // Design system
     suggestions.push('Tell me about our design system tokens')
-    suggestions.push('What are BetOnline\'s primary colors?')
+    suggestions.push('What are Brand A\'s primary colors?')
     
     // Fill remaining slots with generic suggestions if needed
     const defaultSuggestions = [
@@ -89,7 +89,7 @@ export async function GET() {
         'What are our brand guidelines?',
         'Do you need retention data?',
         'Tell me about our design system tokens',
-        'What are BetOnline\'s primary colors?',
+        'What are Brand A\'s primary colors?',
       ]
     })
   }

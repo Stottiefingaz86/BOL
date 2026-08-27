@@ -459,7 +459,7 @@ export function ChatWithCH() {
     'What are our brand guidelines?',
     'Do you need retention data?',
     'Tell me about our design system tokens',
-    'What are BetOnline\'s primary colors?',
+    'What are Brand A\'s primary colors?',
   ])
   
   // Load suggestions from API

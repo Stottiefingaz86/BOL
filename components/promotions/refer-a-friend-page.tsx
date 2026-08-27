@@ -632,7 +632,7 @@ export function ReferAFriendPage() {
 
   const handleShareX = useCallback(() => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-      'Join me on BetOnline and play with my referral link:'
+      'Join me on Brand A and play with my referral link:'
     )}&url=${encodeURIComponent(REFERRAL_LINK)}`
     window.open(url, '_blank', 'noopener,noreferrer')
   }, [])

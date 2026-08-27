@@ -1,4 +1,4 @@
-/** Opens the BetOnline Poker client in a sized popup window (not a full tab). */
+/** Opens the Brand A Poker client in a sized popup window (not a full tab). */
 const POPUP_WIDTH = 1180
 const POPUP_HEIGHT = 760
 const POPUP_NAME = 'bol-poker'

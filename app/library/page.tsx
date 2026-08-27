@@ -832,7 +832,7 @@ function SidebarNavPreview() {
               ) : (
                 <div className="h-5 w-[110px] flex items-center">
                   <svg viewBox="0 0 120 20" className="h-5 w-[110px] text-white">
-                    <text x="0" y="15" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="system-ui">BETONLINE</text>
+                    <text x="0" y="15" fill="currentColor" fontSize="14" fontWeight="700" fontFamily="system-ui">House</text>
                   </svg>
                 </div>
               )}
@@ -3569,9 +3569,9 @@ import { BetslipNumberPad } from '@/components/betslip/number-pad'
         {/* Popover preview */}
         <div className="rounded-xl border border-white/10 p-3 w-52" style={{ backgroundColor: 'var(--ds-nav-bg, #1c1c1e)' }}>
           {[
-            { name: 'BetOnline', color: '#ee3536', active: true },
-            { name: 'Wild Casino', color: '#2faf16', active: false },
-            { name: 'Super Slots', color: '#ffdf00', active: false },
+            { name: 'Brand A', color: '#ee3536', active: true },
+            { name: 'Brand B', color: '#2faf16', active: false },
+            { name: 'Brand C', color: '#ffdf00', active: false },
           ].map((b) => (
             <div key={b.name} className={cn(
               'flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[11px] transition-all',
@@ -4401,7 +4401,7 @@ const DESIGN_TOKENS = {
   },
   colors: {
     brand: [
-      { token: '--ds-primary', value: '#ee3536', label: 'Primary (BetOnline Red)' },
+      { token: '--ds-primary', value: '#ee3536', label: 'Primary (Brand A Red)' },
       { token: '--ds-nav-bg', value: '#2D2E2C', label: 'Navigation BG' },
       { token: '--ds-sidebar-bg', value: '#2d2d2d', label: 'Sidebar BG' },
       { token: '--ds-page-bg', value: '#0a0a0a', label: 'Page BG' },

@@ -197,7 +197,7 @@ export const knowledgeBase: KnowledgeBase = {
         'Common Components',
         'Event Row Components',
         'Design tokens (borderRadius-3: 12px, borderRadius-4: 16px, borderRadius-9: 40px, elevation/3)',
-        'Final Designs for BetOnline and Sportbetting brands',
+        'Final Designs for Brand A and Sportbetting brands',
         'Wireframes',
         'Benchmark & References',
         'Playground'
@@ -205,20 +205,20 @@ export const knowledgeBase: KnowledgeBase = {
       lastUpdated: '2025-01-27',
     },
     {
-      name: 'BetOnline BrandBook - Toolkit',
-      url: 'https://www.figma.com/design/X4KXaJZSN23sQJHYhZlT7N/BetOnline_BrandBook---Toolkit',
-      description: 'BetOnline brand book toolkit with comprehensive brand guidelines, colors, typography, spacing, and product-focused design tokens',
+      name: 'Brand A BrandBook - Toolkit',
+      url: 'https://www.figma.com/design/X4KXaJZSN23sQJHYhZlT7N/Brand A_BrandBook---Toolkit',
+      description: 'Brand A brand book toolkit with comprehensive brand guidelines, colors, typography, spacing, and product-focused design tokens',
       contains: [
-        'BetOnline brand colors',
-        'BetOnline typography (Desktop & Mobile headings H1-H7, Body styles)',
-        'BetOnline spacing tokens (1-12 scale)',
-        'BetOnline text colors',
-        'BetOnline background colors',
-        'BetOnline component colors (buttons, tables, navigation, chips, etc.)',
-        'BetOnline product colors (HomePage, VIP/Loyalty, Sportsbook, Cashier)',
-        'BetOnline interaction states (hover, focus, disabled)',
-        'BetOnline shadow/elevation tokens',
-        'BetOnline brand guidelines',
+        'Brand A brand colors',
+        'Brand A typography (Desktop & Mobile headings H1-H7, Body styles)',
+        'Brand A spacing tokens (1-12 scale)',
+        'Brand A text colors',
+        'Brand A background colors',
+        'Brand A component colors (buttons, tables, navigation, chips, etc.)',
+        'Brand A product colors (HomePage, VIP/Loyalty, Sportsbook, Cashier)',
+        'Brand A interaction states (hover, focus, disabled)',
+        'Brand A shadow/elevation tokens',
+        'Brand A brand guidelines',
       ],
     },
     // Add more Figma files here as you share them
@@ -227,7 +227,7 @@ export const knowledgeBase: KnowledgeBase = {
   // Logos - Comprehensive logo system from Figma
   logos: [
     {
-      brand: 'BetOnline',
+      brand: 'Brand A',
       minimumSize: {
         wordmark: '119px width',
         lettermark: '50.79px width',
@@ -235,17 +235,17 @@ export const knowledgeBase: KnowledgeBase = {
       clearSpace: 'Maintain clear space around logos as specified in Figma',
       usage: ['Primary brand identity', 'Marketing materials', 'Digital applications'],
       variants: [
-        { brand: 'BetOnline', type: 'Wordmark', color: 'Primary', description: 'Primary wordmark logo' },
-        { brand: 'BetOnline', type: 'Wordmark', color: 'Primary Reversed', description: 'Primary reversed wordmark' },
-        { brand: 'BetOnline', type: 'Wordmark', color: 'White', description: 'White wordmark for dark backgrounds' },
-        { brand: 'BetOnline', type: 'Wordmark', color: 'Black', description: 'Black wordmark for light backgrounds' },
-        { brand: 'BetOnline', type: 'Wordmark', color: 'VIP Primary', description: 'VIP primary wordmark' },
-        { brand: 'BetOnline', type: 'Wordmark', color: 'VIP Reversed', description: 'VIP reversed wordmark' },
-        { brand: 'BetOnline', type: 'Lettermark', color: 'Primary', description: 'Primary lettermark (B icon)' },
-        { brand: 'BetOnline', type: 'Lettermark', color: 'White', description: 'White lettermark' },
-        { brand: 'BetOnline', type: 'Lettermark', color: 'Black', description: 'Black lettermark' },
-        { brand: 'BetOnline', type: 'Lettermark', color: 'VIP Primary', description: 'VIP primary lettermark' },
-        { brand: 'BetOnline', type: 'Icon', color: 'Primary', description: 'BetOnline icon' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'Primary', description: 'Primary wordmark logo' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'Primary Reversed', description: 'Primary reversed wordmark' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'White', description: 'White wordmark for dark backgrounds' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'Black', description: 'Black wordmark for light backgrounds' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'VIP Primary', description: 'VIP primary wordmark' },
+        { brand: 'Brand A', type: 'Wordmark', color: 'VIP Reversed', description: 'VIP reversed wordmark' },
+        { brand: 'Brand A', type: 'Lettermark', color: 'Primary', description: 'Primary lettermark (B icon)' },
+        { brand: 'Brand A', type: 'Lettermark', color: 'White', description: 'White lettermark' },
+        { brand: 'Brand A', type: 'Lettermark', color: 'Black', description: 'Black lettermark' },
+        { brand: 'Brand A', type: 'Lettermark', color: 'VIP Primary', description: 'VIP primary lettermark' },
+        { brand: 'Brand A', type: 'Icon', color: 'Primary', description: 'Brand A icon' },
       ],
     },
     {
@@ -485,9 +485,9 @@ export const knowledgeBase: KnowledgeBase = {
   // Website information
   websites: [
     {
-      name: 'BetOnline',
+      name: 'Brand A',
       url: 'https://betonline.ag',
-      description: 'Main BetOnline website - primary gambling platform',
+      description: 'Main Brand A website - primary gambling platform',
       type: 'Production',
     },
   ],
@@ -609,50 +609,50 @@ ${colorTokensList}
   - Display xs (24px, Regular/Medium)
   - Text xl (20px, Regular)
   - Text lg (18px, Medium)
-  - Special Headings/Display 5 (110px, Bold, Inter, -3px letter spacing) - BetOnline brand book
-  - Desktop/Heading/Bold/H1-H7 (40px, 36px, 32px, 24px, 20px, 18px, 16px) - BetOnline toolkit
-  - Desktop/Heading/SemiBold/H1-H7 (40px, 36px, 32px, 24px, 20px, 18px, 16px) - BetOnline toolkit
-  - Desktop/Heading/Regular/H1-H2 (40px, 36px) - BetOnline toolkit
-  - Desktop/Heading/ItalicRegular/H1-H6 (40px, 36px, 32px, 24px, 20px, 18px) - BetOnline toolkit
-  - Mobile/Heading/Bold/H1-H7 (32px, 28px, 24px, 20px, 18px, 16px, 14px) - BetOnline toolkit
-  - Mobile/Heading/SemiBold/H1-H2, H6-H7 (32px, 28px, 16px, 14px) - BetOnline toolkit
-  - Mobile/Heading/Regular/H1-H7 (30px, 28px, 24px, 20px, 18px, 16px, 14px) - BetOnline toolkit
-  - Mobile/Heading/Italic Regular/H1-H6 (32px, 28px, 24px, 20px, 18px, 16px) - BetOnline toolkit
+  - Special Headings/Display 5 (110px, Bold, Inter, -3px letter spacing) - Brand A brand book
+  - Desktop/Heading/Bold/H1-H7 (40px, 36px, 32px, 24px, 20px, 18px, 16px) - Brand A toolkit
+  - Desktop/Heading/SemiBold/H1-H7 (40px, 36px, 32px, 24px, 20px, 18px, 16px) - Brand A toolkit
+  - Desktop/Heading/Regular/H1-H2 (40px, 36px) - Brand A toolkit
+  - Desktop/Heading/ItalicRegular/H1-H6 (40px, 36px, 32px, 24px, 20px, 18px) - Brand A toolkit
+  - Mobile/Heading/Bold/H1-H7 (32px, 28px, 24px, 20px, 18px, 16px, 14px) - Brand A toolkit
+  - Mobile/Heading/SemiBold/H1-H2, H6-H7 (32px, 28px, 16px, 14px) - Brand A toolkit
+  - Mobile/Heading/Regular/H1-H7 (30px, 28px, 24px, 20px, 18px, 16px, 14px) - Brand A toolkit
+  - Mobile/Heading/Italic Regular/H1-H6 (32px, 28px, 24px, 20px, 18px, 16px) - Brand A toolkit
 - Body styles: 
   - Body/Bold/Body 4 (12px, SemiBold, Open Sans)
   - Material UI/typography/body2 (14px, Regular, Open Sans)
   - Material UI/typography/caption (12px, Regular, Open Sans)
   - Material UI/typography/h5 (24px, Light, Open Sans)
-  - Text Single/100/Regular (16px, Regular, Inter, 18px line height) - BetOnline brand book
-  - Text Single/100/Bold (16px, Bold, Inter, 18px line height) - BetOnline brand book
-  - Desktop/Body/SemiBold/B1-B4 (18px, 16px, 14px, 12px) - BetOnline toolkit
-  - Desktop/Body/Regular/B1-B4 (18px, 16px, 14px, 12px) - BetOnline toolkit
-  - Desktop/Body/LightItalic/B1-B4 (18px, 16px, 14px, 12px) - BetOnline toolkit
-  - Mobile/Body/SemiBold/B1-B4 (18px, 16px, 14px, 12px) - BetOnline toolkit
-  - Mobile/Body/Regular/B1-B4 (18px, 16px, 14px, 12px) - BetOnline toolkit
-  - Mobile/Body/Italic Regular/B1-B3 (18px, 16px, 14px) - BetOnline toolkit
+  - Text Single/100/Regular (16px, Regular, Inter, 18px line height) - Brand A brand book
+  - Text Single/100/Bold (16px, Bold, Inter, 18px line height) - Brand A brand book
+  - Desktop/Body/SemiBold/B1-B4 (18px, 16px, 14px, 12px) - Brand A toolkit
+  - Desktop/Body/Regular/B1-B4 (18px, 16px, 14px, 12px) - Brand A toolkit
+  - Desktop/Body/LightItalic/B1-B4 (18px, 16px, 14px, 12px) - Brand A toolkit
+  - Mobile/Body/SemiBold/B1-B4 (18px, 16px, 14px, 12px) - Brand A toolkit
+  - Mobile/Body/Regular/B1-B4 (18px, 16px, 14px, 12px) - Brand A toolkit
+  - Mobile/Body/Italic Regular/B1-B3 (18px, 16px, 14px) - Brand A toolkit
 - Button styles:
   - Material UI/button/large (15px, SemiBold, Open Sans)
   - Material UI/button/medium (14px, SemiBold, Open Sans)
   - Material UI/button/small (13px, SemiBold, Open Sans)
 - Alert styles:
-  - Material UI/alert/title (16px, SemiBold, Open Sans) - BetOnline toolkit
-  - Material UI/alert/description (14px, SemiBold, Open Sans) - BetOnline toolkit
+  - Material UI/alert/title (16px, SemiBold, Open Sans) - Brand A toolkit
+  - Material UI/alert/description (14px, SemiBold, Open Sans) - Brand A toolkit
 - Table styles:
   - Material UI/table/header (14px, SemiBold, Open Sans)
 - Date Picker:
-  - Material UI/datePicker/currentMonth (16px, SemiBold, Open Sans) - BetOnline toolkit
+  - Material UI/datePicker/currentMonth (16px, SemiBold, Open Sans) - Brand A toolkit
 
 **SPACING (From Figma):**
 - Base unit: 4px (token: "0,5" = 4)
-- Spacing scale: 2px, 4px, 7px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 56px, 64px, 72px, 80px, 96px (includes BetOnline brand book and toolkit tokens)
+- Spacing scale: 2px, 4px, 7px, 8px, 12px, 16px, 20px, 24px, 32px, 40px, 48px, 56px, 64px, 72px, 80px, 96px (includes Brand A brand book and toolkit tokens)
 - Grid system: 12 columns, 16px gutter, 24px margin
-- BetOnline brand book spacing tokens: 2px, 4px, 7px, 12px, 16px, 32px, 56px, 96px
-- BetOnline toolkit spacing tokens: 1 (8px), 2 (16px), 3 (24px), 4 (32px), 5 (40px), 6 (48px), 7 (56px), 8 (64px), 9 (72px), 10 (80px), 12 (96px)
+- Brand A brand book spacing tokens: 2px, 4px, 7px, 12px, 16px, 32px, 56px, 96px
+- Brand A toolkit spacing tokens: 1 (8px), 2 (16px), 3 (24px), 4 (32px), 5 (40px), 6 (48px), 7 (56px), 8 (64px), 9 (72px), 10 (80px), 12 (96px)
 
 **BORDER RADIUS (From Figma):**
 - borderRadius-1: 4px
-- borderRadius-2: 8px (BetOnline brand book)
+- borderRadius-2: 8px (Brand A brand book)
 - borderRadius-3: 12px (Sportsbook-26)
 - borderRadius-4: 16px (Sportsbook-26)
 - borderRadius-9: 40px (Sportsbook-26)

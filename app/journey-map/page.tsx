@@ -5307,7 +5307,7 @@ export default function JourneyMapPage() {
 
         {/* Footer */}
         <div className="mt-12 pt-6 border-t border-white/10 flex items-center justify-between">
-          <span className="text-[10px] text-white/20 font-mono uppercase tracking-wider">BetOnline UX Journey Map — Live Tracking</span>
+          <span className="text-[10px] text-white/20 font-mono uppercase tracking-wider">Brand A UX Journey Map — Live Tracking</span>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-xs text-white/30 hover:text-white/60 transition-colors cursor-pointer"

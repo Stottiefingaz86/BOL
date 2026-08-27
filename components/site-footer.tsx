@@ -75,8 +75,8 @@ const FOOTER_COLUMNS = [
     links: [
       'VIP Rewards',
       'News Room',
-      'Why BetOnline',
-      'BetOnline Vs Competition',
+      'Why us',
+      'Us Vs Competition',
       'Bet TV',
     ],
   },
@@ -104,7 +104,7 @@ const SOCIAL: {
   {
     icon: IconCrown,
     alt: 'VIP Telegram',
-    href: 'https://t.me/BetOnline_VIP_Notices',
+    href: 'https://t.me/VIP_Notices',
   },
   { icon: IconBrandInstagram, alt: 'Instagram', href: '#' },
   { icon: IconBrandX, alt: 'X', href: '#' },
@@ -200,8 +200,8 @@ export type SiteFooterProps = {
 
 export function SiteFooter({
   className,
-  brandName = 'BetOnline',
-  brandUrl = 'BetOnline.ag',
+  brandName = 'Brand A',
+  brandUrl = 'brand-a.example',
   showSeo = true,
   seo,
   seoAppearance = 'auto',

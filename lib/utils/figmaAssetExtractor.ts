@@ -180,7 +180,7 @@ function getVariableType(variable: any): 'color' | 'spacing' | 'typography' | 's
  * Extract brand name from token name
  */
 function extractBrandFromName(name: string): string | undefined {
-  const brands = ['BetOnline', 'WildCasino', 'TigerGaming', 'LowVig', 'SportsBetting', 'HighRoller', 'GamingCity', 'QueenBee', 'SuperSlots']
+  const brands = ['House', 'WildCasino', 'TigerGaming', 'LowVig', 'SportsBetting', 'HighRoller', 'GamingCity', 'QueenBee', 'SuperSlots']
   
   for (const brand of brands) {
     if (name.toLowerCase().includes(brand.toLowerCase())) {
