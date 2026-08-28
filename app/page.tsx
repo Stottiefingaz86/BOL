@@ -1573,8 +1573,8 @@ function HomePageContent() {
           <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-[var(--ds-border)]">
             {[
               { label: 'Home', onClick: () => { setQuickLinksOpen(false); } },
-              { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
               { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino'); setQuickLinksOpen(false); } },
+              { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
               { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/casino?vipRewardsPage=true'); setQuickLinksOpen(false); } },
             ].map((item) => (
@@ -1687,17 +1687,17 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
-                    onClick={() => { trackNav('sports', 'Sports'); router.push('/sports/football') }}
+                    onClick={() => { trackNav('casino', 'Casino'); router.push('/casino') }}
                   >
-                    Sports
+                    Casino
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
-                    onClick={() => { trackNav('casino', 'Casino'); router.push('/casino') }}
+                    onClick={() => { trackNav('sports', 'Sports'); router.push('/sports/football') }}
                   >
-                    Casino
+                    Sports
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

@@ -367,29 +367,41 @@ button[data-active="true"] {
   background-color: ${surface8} !important;
 }
 
-/* Fix sidebar inner wrapper backgrounds */
+/* Sidebar outer + inner wrappers — use brand sidebar token */
 .group.peer > div.fixed,
 .group.peer > div[style] {
-  background-color: ${surface5} !important;
+  background-color: ${b.sidebarBg} !important;
+}
+[class*="--ds-sidebar-bg"] {
+  background-color: ${b.sidebarBg} !important;
+}
+[class*="\\[\\&\\>div\\]\\:\\!bg-\\[var\\(--ds-sidebar-bg"] > div {
+  background-color: ${b.sidebarBg} !important;
 }
 
 /* Mobile sidebar drawer override */
 [data-sidebar="sidebar"] {
-  background-color: ${b.pageBg} !important;
+  background-color: ${b.sidebarBg} !important;
   backdrop-filter: none !important;
 }
+[data-sidebar="header"] {
+  background-color: ${b.sidebarBg} !important;
+}
 [data-mobile="true"] {
-  background-color: ${b.pageBg} !important;
+  background-color: ${b.sidebarBg} !important;
+}
+[data-state="collapsed"][data-collapsible="icon"] [data-sidebar="header"] {
+  background-color: ${b.sidebarBg} !important;
 }
 
 /* Sidebar outer wrappers */
 .group\\/sidebar-wrapper {
-  --sidebar-width-bg: ${surface5};
+  --sidebar-width-bg: ${b.sidebarBg};
 }
 
 /* Override shadcn CSS variables */
 :root, .dark {
-  --sidebar-background: ${hexToHSL(b.pageBg)} !important;
+  --sidebar-background: ${hexToHSL(b.sidebarBg)} !important;
   --sidebar-accent: ${hexToHSL(b.pageBg)} !important;
   --ds-surface-5: ${surface5};
   --ds-surface-8: ${surface8};
@@ -398,7 +410,7 @@ button[data-active="true"] {
 }
 
 .bg-sidebar {
-  background-color: ${surface5} !important;
+  background-color: ${b.sidebarBg} !important;
 }
 
 /* Sub-nav backdrop-blur */
@@ -418,8 +430,10 @@ button[data-active="true"] {
 /* Override inline style backgrounds for sidebar/cards */
 [style*="background-color: rgb(45, 45, 45)"],
 [style*="background-color: #2d2d2d"],
-[style*="background-color:#2d2d2d"] {
-  background-color: ${surface5} !important;
+[style*="background-color:#2d2d2d"],
+[style*="background-color: rgba(45, 45, 45"],
+[style*="background-color:rgba(45, 45, 45"] {
+  background-color: ${b.sidebarBg} !important;
 }
 
 /* Override inline style backgrounds for page bg */
@@ -717,7 +731,7 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
           root.style.setProperty('--ds-sidebar-bg', brand.sidebarBg)
           root.style.setProperty('--ds-card-bg', brand.cardBg)
           root.style.setProperty('--ds-accent-green', brand.accentGreen)
-          root.style.setProperty('--sidebar-background', hexToHSL(brand.pageBg))
+          root.style.setProperty('--sidebar-background', hexToHSL(brand.sidebarBg))
           // Legacy variable names used by pages
           root.style.setProperty('--brand-primary', brand.primary)
           root.style.setProperty('--brand-primary-hover', brand.primaryHover)
@@ -731,12 +745,14 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
           document.querySelectorAll('[data-page-bg]').forEach(el => {
             (el as HTMLElement).style.backgroundColor = brand.pageBg
           })
-          // Sidebar uses page bg — cards/surfaces use white opacity via CSS injection
           document.querySelectorAll('[data-sidebar="sidebar"]').forEach(el => {
-            (el as HTMLElement).style.backgroundColor = brand.pageBg
+            (el as HTMLElement).style.backgroundColor = brand.sidebarBg
+          })
+          document.querySelectorAll('[data-sidebar="header"]').forEach(el => {
+            (el as HTMLElement).style.backgroundColor = brand.sidebarBg
           })
           document.querySelectorAll('[data-mobile="true"]').forEach(el => {
-            (el as HTMLElement).style.backgroundColor = brand.pageBg
+            (el as HTMLElement).style.backgroundColor = brand.sidebarBg
           })
           document.querySelectorAll('.group.peer > div').forEach(el => {
             const htmlEl = el as HTMLElement
@@ -916,7 +932,7 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
     root.style.setProperty('--ds-sidebar-bg', brand.sidebarBg)
     root.style.setProperty('--ds-card-bg', brand.cardBg)
     root.style.setProperty('--ds-accent-green', brand.accentGreen)
-    root.style.setProperty('--sidebar-background', hexToHSL(brand.pageBg))
+    root.style.setProperty('--sidebar-background', hexToHSL(brand.sidebarBg))
     // Legacy variable names used by pages
     root.style.setProperty('--brand-primary', brand.primary)
     root.style.setProperty('--brand-primary-hover', brand.primaryHover)
@@ -930,7 +946,15 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
     document.querySelectorAll('[data-page-bg]').forEach(el => {
       (el as HTMLElement).style.backgroundColor = brand.pageBg
     })
-    // Sidebar uses page bg — cards/surfaces use white opacity via CSS injection
+    document.querySelectorAll('[data-sidebar="sidebar"]').forEach(el => {
+      (el as HTMLElement).style.backgroundColor = brand.sidebarBg
+    })
+    document.querySelectorAll('[data-sidebar="header"]').forEach(el => {
+      (el as HTMLElement).style.backgroundColor = brand.sidebarBg
+    })
+    document.querySelectorAll('[data-mobile="true"]').forEach(el => {
+      (el as HTMLElement).style.backgroundColor = brand.sidebarBg
+    })
     document.querySelectorAll('.group.peer > div').forEach(el => {
       const htmlEl = el as HTMLElement
       if (htmlEl.style.backgroundColor || htmlEl.classList.contains('fixed')) {

@@ -3316,23 +3316,6 @@ function AccountPageContent() {
                 <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
               </div>
 
-                {visibleProducts.sports && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    className={cn(
-                      "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
-                      "text-[var(--ds-fg-muted)] cursor-pointer"
-                    )}
-                    style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('sports', 'Sports'); router.push('/sports/football') }}
-                  >
-                    <span className="relative z-10">Sports</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                )}
-
-
                 {visibleProducts.casino && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -3345,6 +3328,23 @@ function AccountPageContent() {
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('casino', 'Casino'); router.push('/casino') }}
                   >
                     <span className="relative z-10">Casino</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                )}
+
+
+                {visibleProducts.sports && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className={cn(
+                      "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
+                      "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                      "text-[var(--ds-fg-muted)] cursor-pointer"
+                    )}
+                    style={{ pointerEvents: 'auto' } as React.CSSProperties}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('sports', 'Sports'); router.push('/sports/football') }}
+                  >
+                    <span className="relative z-10">Sports</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 )}
@@ -3560,8 +3560,8 @@ function AccountPageContent() {
               >
                 {[
                   { label: 'Home', page: 'home' as const },
-                  ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                   ...(visibleProducts.casino ? [{ label: 'Casino', page: 'casino' as const }] : []),
+                  ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                   ...(visibleProducts.poker ? [{ label: 'Poker', page: 'poker' as const }] : []),
                   ...(visibleProducts.casino ? [{ label: 'Promotions', page: 'promotions' as const }] : []),
                 ].map((item) => (

@@ -2265,17 +2265,22 @@ function PromosPage({
                   >
                     <Link
                       href={promoOfferPath(promo.slug)}
-                      className="block h-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-primary,#ee3536)]"
+                      className="group block h-full rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-primary,#ee3536)]"
                     >
-                      <Card className="h-full cursor-pointer overflow-hidden border-[var(--ds-promo-card-border)] bg-[var(--ds-promo-card-bg)] text-[var(--ds-promo-card-fg)] transition-opacity hover:opacity-95">
-                        <div className="relative h-48 w-full overflow-hidden bg-white/5">
-                          <div className="tile-shimmer absolute inset-0" />
+                      <Card className="h-full cursor-pointer overflow-hidden rounded-2xl border border-white/[0.06] bg-[var(--ds-promo-card-bg,#141414)] text-[var(--ds-promo-card-fg)] shadow-none transition-colors duration-200 hover:border-white/[0.1] hover:bg-[#1e1e1e]">
+                        <div className="relative h-48 w-full overflow-hidden bg-[#101010]">
+                          <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.03]">
+                            <div className="tile-shimmer absolute inset-0" />
+                          </div>
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--ds-promo-card-bg,#141414)] via-[var(--ds-promo-card-bg,#141414)]/20 to-transparent transition-colors duration-200 group-hover:from-[#1e1e1e] group-hover:via-[#1e1e1e]/25" />
                         </div>
-                        <CardContent className="p-4">
+                        <CardContent className="relative z-10 p-4">
                           <CardTitle className="mb-2 text-lg font-semibold text-white">
                             {promo.title}
                           </CardTitle>
-                          <p className="line-clamp-3 text-sm text-white/65">{promo.description}</p>
+                          <p className="line-clamp-3 text-sm leading-relaxed text-white/55">
+                            {promo.description}
+                          </p>
                         </CardContent>
                       </Card>
                     </Link>
@@ -3194,9 +3199,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         variant="sidebar"
         mobileOverlay
         mobileNoDrag
-        mobileBg="#2d2d2d"
         mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-        className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
+        className="!bg-[var(--ds-sidebar-bg,#2d2d2d)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-sidebar-bg,#2d2d2d)] !h-screen !top-0 !z-[102]"
       >
         {/* Sidebar Header — logo with collapse animation */}
         <SidebarHeader
@@ -3204,7 +3208,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           style={{
             backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
             WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
-            backgroundColor: isMobile ? '#2d2d2d' : 'rgba(45, 45, 45, 0.75)',
+            backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
           }}
         >
           <div className="relative w-full h-full flex items-center justify-center">
@@ -3266,7 +3270,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             style={{
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-              backgroundColor: 'rgba(45, 45, 45, 0.92)',
+              backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
             }}
           >
             <div 
@@ -3275,8 +3279,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             >
               {[
                 { label: 'Home', page: 'home' },
-                { label: 'Sports', page: 'sports' },
                 { label: 'Casino', page: 'casino' },
+                { label: 'Sports', page: 'sports' },
                 { label: 'Poker', page: 'poker' },
                 { label: 'VIP Rewards', page: 'vipRewards' },
               ].map((item) => {
@@ -5739,9 +5743,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
         variant="sidebar"
         mobileOverlay
         mobileNoDrag
-        mobileBg="#2d2d2d"
         mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-        className="!bg-[var(--ds-surface-raised)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-surface-raised)] !h-screen !top-0 !z-[102]"
+        className="!bg-[var(--ds-sidebar-bg,#2d2d2d)] border-r border-[var(--ds-border)] text-[var(--ds-fg)] [&>div]:!bg-[var(--ds-sidebar-bg,#2d2d2d)] !h-screen !top-0 !z-[102]"
       >
         {/* Sidebar Header — sticky, clean */}
         <SidebarHeader 
@@ -5749,7 +5752,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
           style={{
             backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
             WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
-            backgroundColor: isMobile ? '#2d2d2d' : 'rgba(45, 45, 45, 0.75)',
+            backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
           }}
         >
           <div className="relative w-full h-full flex items-center justify-center">
@@ -5812,7 +5815,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
             style={{
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-              backgroundColor: 'rgba(45, 45, 45, 0.92)',
+              backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
             }}
           >
             <div 
@@ -5821,8 +5824,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
             >
               {[
                 { label: 'Home', page: 'home' as const },
-                { label: 'Sports', page: 'sports' as const },
                 { label: 'Casino', page: 'casino' as const },
+                { label: 'Sports', page: 'sports' as const },
                 { label: 'Poker', page: 'poker' as const },
                 { label: 'VIP Rewards', page: 'vipRewards' as const },
               ].map((item) => {
@@ -7686,8 +7689,8 @@ function NavTestPageContent() {
           <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-[var(--ds-border)]">
                 {[
                   { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setOpenMobile(false); router.push('/'); setQuickLinksOpen(false); } },
-                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
                   { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); if (showSports || showVipRewards || showPoker) startSidebarMenuTransition(); goToCasinoLobby(); setQuickLinksOpen(false); } },
+                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); if (!showPoker) startSidebarMenuTransition(); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); if (!showVipRewards) startSidebarMenuTransition(); setShowPoker(false); setShowSports(false); setVipActiveSidebarItem('Promos'); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
@@ -7843,39 +7846,6 @@ function NavTestPageContent() {
                     </Button>
                     <div className="w-px h-5 shrink-0 bg-white/25" aria-hidden />
                   </div>
-                  {visibleProducts.sports && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
-                        "text-[var(--ds-fg-muted)] cursor-pointer",
-                        showSports && "!text-white"
-                      )}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        handoffMobileSidebarToNextPage()
-                        router.push('/sports/football')
-                      }}
-                      data-active={showSports && !showVipRewards}
-                    >
-                      {showSports && !showVipRewards && (
-                        <motion.div
-                          layoutId="casinoNavPill" layout="position"
-                          className="absolute inset-0 rounded-small"
-                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10">Sports</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  )}
-                  
-                  
                   {visibleProducts.casino && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
@@ -7906,6 +7876,39 @@ function NavTestPageContent() {
                         />
                       )}
                       <span className="relative z-10">Casino</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  )}
+                  
+                  
+                  {visibleProducts.sports && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
+                        "hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors",
+                        "text-[var(--ds-fg-muted)] cursor-pointer",
+                        showSports && "!text-white"
+                      )}
+                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handoffMobileSidebarToNextPage()
+                        router.push('/sports/football')
+                      }}
+                      data-active={showSports && !showVipRewards}
+                    >
+                      {showSports && !showVipRewards && (
+                        <motion.div
+                          layoutId="casinoNavPill" layout="position"
+                          className="absolute inset-0 rounded-small"
+                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10">Sports</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   )}
@@ -8121,7 +8124,7 @@ function NavTestPageContent() {
               className="fixed top-0 left-0 h-screen z-[101] transition-[width] duration-200 ease-linear"
               style={{ 
                 width: sidebarOpen ? '16rem' : '3rem',
-                backgroundColor: '#2d2d2d'
+                backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)'
               }}
             />
             {/* Prod-matching vertical divide: logo column | header/nav */}
@@ -8140,9 +8143,8 @@ function NavTestPageContent() {
             variant="sidebar"
             mobileOverlay
             mobileNoDrag
-            mobileBg="#2d2d2d"
             mobileOverlayClassName="!bg-black/30 !backdrop-blur-sm"
-            className="!bg-[#2d2d2d] !border-r-0 text-white [&>div]:!bg-[#2d2d2d] !h-screen !top-0 !z-[102]"
+            className="!bg-[var(--ds-sidebar-bg,#2d2d2d)] !border-r-0 text-white [&>div]:!bg-[var(--ds-sidebar-bg,#2d2d2d)] !h-screen !top-0 !z-[102]"
           >
             {/* Sidebar Header — logo with collapse animation */}
             <SidebarHeader
@@ -8150,7 +8152,7 @@ function NavTestPageContent() {
               style={{
                 backdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
                 WebkitBackdropFilter: isMobile ? 'none' : 'blur(16px) saturate(180%)',
-                backgroundColor: isMobile ? '#2d2d2d' : 'rgba(45, 45, 45, 0.75)',
+                backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
               }}
             >
               <div className="relative w-full h-full flex items-center justify-center">
@@ -8213,7 +8215,7 @@ function NavTestPageContent() {
                 style={{
                   backdropFilter: 'blur(16px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-                  backgroundColor: 'rgba(45, 45, 45, 0.92)',
+                  backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
                 }}
               >
                 <div 
@@ -8222,8 +8224,8 @@ function NavTestPageContent() {
                 >
                   {[
                     { label: 'Home', page: 'home' as const },
-                    ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                     ...(visibleProducts.casino ? [{ label: 'Casino', page: 'casino' as const }] : []),
+                    ...(visibleProducts.sports ? [{ label: 'Sports', page: 'sports' as const }] : []),
                     ...(visibleProducts.poker ? [{ label: 'Poker', page: 'poker' as const }] : []),
                     ...(visibleProducts.casino ? [{ label: 'Promotions', page: 'promotions' as const }] : []),
                   ].map((item) => {
@@ -12453,7 +12455,7 @@ function NavTestPageContent() {
                                     className="fixed z-[100060] w-56 overflow-hidden rounded-xl border border-white/10 shadow-2xl"
                                     data-game-launcher-menu
                                     style={{
-                                      backgroundColor: '#2d2d2d',
+                                      backgroundColor: 'var(--ds-sidebar-bg, #2d2d2d)',
                                       top:
                                         (gameLauncherMenuRef.current?.getBoundingClientRect()
                                           .bottom ?? 64) + 8,

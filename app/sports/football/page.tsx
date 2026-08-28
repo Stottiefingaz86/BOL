@@ -5511,8 +5511,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             >
               {[
                 { label: 'Home', page: 'home' as const },
-                { label: 'Sports', page: 'sports' as const },
                 { label: 'Casino', page: 'casino' as const },
+                { label: 'Sports', page: 'sports' as const },
                 { label: 'Poker', page: 'poker' as const },
                 { label: 'VIP Rewards', page: 'vipRewards' as const },
                 { label: 'Promotions', page: 'promotions' as const },
@@ -9874,6 +9874,42 @@ function NavTestPageContent() {
                         "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
                         "hover:bg-white/5 hover:text-white transition-colors",
                         "text-white/70 cursor-pointer",
+                        !showSports && !showVipRewards && activeSubNav !== 'Live' && "!text-white"
+                      )}
+                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
+                      data-active={!showSports && !showVipRewards && activeSubNav !== 'Live'}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        trackNav('casino', 'Casino')
+                        trackPageView('casino', 'Casino')
+                        handoffMobileSidebarToNextPage()
+                        router.push('/casino')
+                      }}
+                    >
+                      {!showSports && !showVipRewards && activeSubNav !== 'Live' && (
+                        <motion.div
+                          layoutId="sportsNavPill" layout="position"
+                          className="absolute inset-0 rounded-small"
+                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10">Casino</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  
+                  
+                  
+                  
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      className={cn(
+                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
+                        "hover:bg-white/5 hover:text-white transition-colors",
+                        "text-white/70 cursor-pointer",
                         isSportsProductActive && "!text-white"
                       )}
                       style={{ pointerEvents: 'auto' } as React.CSSProperties}
@@ -9899,39 +9935,6 @@ function NavTestPageContent() {
                         />
                       )}
                       <span className="relative z-10">Sports</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  
-                  
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      className={cn(
-                        "h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center relative overflow-visible data-[active=true]:bg-transparent [&>span]:!flex-initial",
-                        "hover:bg-white/5 hover:text-white transition-colors",
-                        "text-white/70 cursor-pointer",
-                        !showSports && !showVipRewards && activeSubNav !== 'Live' && "!text-white"
-                      )}
-                      style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                      data-active={!showSports && !showVipRewards && activeSubNav !== 'Live'}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        trackNav('casino', 'Casino')
-                        trackPageView('casino', 'Casino')
-                        handoffMobileSidebarToNextPage()
-                        router.push('/casino')
-                      }}
-                    >
-                      {!showSports && !showVipRewards && activeSubNav !== 'Live' && (
-                        <motion.div
-                          layoutId="sportsNavPill" layout="position"
-                          className="absolute inset-0 rounded-small"
-                          style={{ backgroundColor: 'var(--ds-primary, #ee3536)' }}
-                          initial={false}
-                          transition={{ type: "spring", stiffness: 400, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10">Casino</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   

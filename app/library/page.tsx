@@ -579,9 +579,9 @@ function SportsSubNavPreview() {
 function MainNavPreview() {
   const [active, setActive] = useState('Casino')
   const [otherOpen, setOtherOpen] = useState(false)
-  const navItems = ['Sports', 'Live Betting', 'Casino', 'Live Casino', 'Poker', 'VIP Rewards']
+  const navItems = ['Casino', 'Live Casino', 'Sports', 'Live Betting', 'Poker', 'VIP Rewards']
   // Items that get the animated pill (layoutId shared)
-  const pillItems = ['Sports', 'Casino', 'Live Casino', 'Poker', 'VIP Rewards']
+  const pillItems = ['Casino', 'Live Casino', 'Sports', 'Poker', 'VIP Rewards']
   return (
     <div className="w-full rounded-lg overflow-hidden border border-white/10 relative">
       <div

@@ -701,7 +701,7 @@ header.bg-\[#2d2d2d\] {
 
 /* Collapsed icon rail: solid logo header (no glass edge) */
 [data-state="collapsed"][data-collapsible="icon"] [data-sidebar="header"] {
-  background-color: #2d2d2d !important;
+  background-color: var(--ds-sidebar-bg, #2d2d2d) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;

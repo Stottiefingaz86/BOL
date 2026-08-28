@@ -106,6 +106,19 @@ const SEGMENT_PALETTE: Record<
   minor: { hub: '#0c1460', mid: '#1b22ec', rim: '#4b76f8', neon: '#93b4ff' },
 }
 
+/**
+ * Vertical tier wordmarks. Every source PNG is the same native width, so the
+ * letters stay one size across tiers and only the height varies with the word
+ * length. Filenames contain spaces, hence the encoding.
+ */
+const TIER_WORDMARK_NATIVE_W = 156
+const TIER_WORDMARK: Record<JackpotTickerTierId, { src: string; nativeH: number }> = {
+  mini: { src: encodeURI('/WHEEL_LOGO/M I N I.png'), nativeH: 431 },
+  major: { src: encodeURI('/WHEEL_LOGO/M A J O R.png'), nativeH: 535 },
+  mega: { src: encodeURI('/WHEEL_LOGO/M E G A.png'), nativeH: 431 },
+  minor: { src: encodeURI('/WHEEL_LOGO/M I N O R.png'), nativeH: 535 },
+}
+
 /** Clockwise order from top — matches Figma: Mini → Major → Mega → Minor. */
 const WHEEL_TIER_ORDER: JackpotTickerTierId[] = ['mini', 'major', 'mega', 'minor']
 
@@ -246,15 +259,13 @@ function adjustHex(hex: string, amount: number): string {
   return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
 }
 
-function segmentLabelPosition(
-  cx: number,
-  cy: number,
-  innerR: number,
-  outerR: number,
-  midAngle: number
-) {
-  const labelR = innerR + (outerR - innerR) * 0.62
-  return polarToCartesian(cx, cy, labelR, midAngle)
+/**
+ * Centre of the tier wordmark, on the wedge bisector. Sits outside the midpoint
+ * because a wedge narrows towards the hub — the tall wordmark needs the wider
+ * end of the slice to clear the dividers.
+ */
+function segmentLabelPosition(cx: number, cy: number, outerR: number, midAngle: number) {
+  return polarToCartesian(cx, cy, outerR * 0.6, midAngle)
 }
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
@@ -474,13 +485,12 @@ function WheelSvg({
   const outerR = 178
   // Full pie slices to the centre — no donut hole or hub competing with segments.
   const segInnerR = 0
-  const labelInnerR = 78
   const showHighlight = phase === 'spin' || phase === 'landed' || phase === 'wipe'
   // Only during spin — landed/wipe use React state so the winner slice stays lit.
   const domDrivenHighlight = phase === 'spin'
-  // Tier wordmark logo (public/jackpot/<tier>_reel.svg), native 304×304.
-  const logoH = isMobile ? 78 : 72
-  const logoW = logoH
+  // Wordmarks are sized by width so the letters match across tiers; height then
+  // follows each PNG's own aspect ratio.
+  const logoW = isMobile ? 32 : 31
   const logosEntering = phase === 'zoom'
 
   return (
@@ -504,12 +514,12 @@ function WheelSvg({
           x2="200"
           y2="378"
         >
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
           <stop offset="18%" stopColor="#67e8f9" stopOpacity="1" />
           <stop offset="38%" stopColor="#c084fc" stopOpacity="1" />
           <stop offset="58%" stopColor="#34d399" stopOpacity="1" />
           <stop offset="78%" stopColor="#38bdf8" stopOpacity="1" />
-          <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.35" />
           <animateTransform
             attributeName="gradientTransform"
             type="rotate"
@@ -632,7 +642,9 @@ function WheelSvg({
             const start = seg.index * SEGMENT_ANGLE - 90
             const end = start + SEGMENT_ANGLE
             const midAngle = start + SEGMENT_ANGLE / 2
-            const label = segmentLabelPosition(cx, cy, labelInnerR, outerR, midAngle)
+            const label = segmentLabelPosition(cx, cy, outerR, midAngle)
+            const wordmark = TIER_WORDMARK[seg.tier.id]
+            const logoH = (logoW * wordmark.nativeH) / TIER_WORDMARK_NATIVE_W
             const isWinner =
               (phase === 'landed' || phase === 'wipe') &&
               highlightedIndex != null &&
@@ -677,14 +689,15 @@ function WheelSvg({
                   strokeWidth="1.2"
                   strokeLinejoin="round"
                 />
-                {/* Tier wordmark — Figma blob + Pacifico label + crown */}
+                {/* Tier wordmark — vertical stacked lettering along the wedge */}
                 <image
                   className="seg-logo"
-                  href={`/jackpot/${seg.tier.id}_reel.svg`}
+                  href={wordmark.src}
                   x={label.x - logoW / 2}
                   y={label.y - logoH / 2}
                   width={logoW}
                   height={logoH}
+                  preserveAspectRatio="xMidYMid meet"
                   transform={`rotate(${midAngle + 90} ${label.x} ${label.y})`}
                   opacity={
                     domDrivenHighlight

@@ -3763,8 +3763,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             >
               {[
                 { label: 'Home', page: 'home' as const },
-                { label: 'Sports', page: 'sports' as const },
                 { label: 'Casino', page: 'casino' as const },
+                { label: 'Sports', page: 'sports' as const },
                 { label: 'Poker', page: 'poker' as const },
                 { label: 'VIP Rewards', page: 'vipRewards' as const },
                 { label: 'Promotions', page: 'promotions' as const },
@@ -6252,8 +6252,8 @@ function NavTestPageContent() {
           <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-hide border-b border-white/10">
                 {[
                   { label: 'Home', onClick: () => { setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
-                  { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { setShowSports(false); setShowVipRewards(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
+                  { label: 'Sports', onClick: () => { setShowSports(true); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Poker', onClick: () => { window.location.href = '/casino?poker=true'; setQuickLinksOpen(false); } },
                   { label: 'Promotions', onClick: () => { router.push('/promotions'); setQuickLinksOpen(false); } },
                 ].map((item) => (
