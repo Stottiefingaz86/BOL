@@ -49,6 +49,7 @@ import {
   GameLauncherJackpotRow,
   JackpotLauncherDropdown,
   JackpotWheelBonus,
+  JackpotExtrasSection,
   useJackpotTicker,
   useJackpotPreviewGameCount,
 } from '@/components/casino/jackpot'
@@ -10142,6 +10143,9 @@ function NavTestPageContent() {
 
                             return (
                               <div className="flex flex-col gap-4 w-full">
+                                <div className={cn(isMobile ? 'px-3' : 'px-6')}>
+                                  <JackpotExtrasSection isMobile={isMobile} />
+                                </div>
                                 <div
                                   className={gridClassName}
                                   style={
@@ -12599,11 +12603,12 @@ function NavTestPageContent() {
               {/* Game viewport — fills space below header */}
               <div
                 className={cn(
-                  'relative min-h-0 flex-1',
+                  'relative flex min-h-0 flex-1 flex-col',
                   !isFullscreen && (isMobile ? 'mx-3 mb-3 mt-2' : 'mx-4 mb-4 mt-2')
                 )}
                 style={{ zIndex: 1 }}
               >
+                <div className="relative min-h-0 flex-1">
                 <AnimatePresence mode="wait">
                   {!gameImageLoaded ? (
                     <motion.div
@@ -12692,6 +12697,8 @@ function NavTestPageContent() {
                     }}
                   />
                 )}
+                </div>
+
               </div>
 
               {showJackpotWheel && gameImageLoaded && isMobile && (

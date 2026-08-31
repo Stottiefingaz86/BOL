@@ -51,7 +51,13 @@ interface JackpotState {
   tickerAmounts: TickerAmounts
   mustDropDeadline: number
   mustDropAmount: number
+  /** Value-based must-drop: current pool toward a hard threshold. */
+  valueMustDropAmount: number
+  valueMustDropThreshold: number
   mustDropDrawerOpen: boolean
+  /** Player's own accumulating pot (personal jackpot). */
+  personalAmount: number
+  personalSeed: number
   megaWinRoll: MegaWinRoll | null
   lastWinAmount: number
   setOptedIn: (optedIn: boolean) => void
@@ -65,6 +71,8 @@ interface JackpotState {
   cancelMegaWinRoll: () => void
   /** Pay out a won tier: returns the won pot and resets that tier back to its seed. */
   registerJackpotWin: (tier: JackpotTickerTierId) => number
+  /** Pay out personal jackpot and reset to seed. */
+  registerPersonalWin: () => number
   tickAmounts: () => void
 }
 
@@ -77,7 +85,11 @@ export const useJackpotStore = create<JackpotState>()(
       tickerAmounts: buildInitialTickerAmounts(),
       mustDropDeadline: Date.now() + 10 * 60 * 60 * 1000 + 44 * 1000,
       mustDropAmount: 12342.5,
+      valueMustDropAmount: 7840.25,
+      valueMustDropThreshold: 10000,
       mustDropDrawerOpen: false,
+      personalAmount: 42.18,
+      personalSeed: 1,
       megaWinRoll: null,
       lastWinAmount: 0,
 
@@ -159,6 +171,13 @@ export const useJackpotStore = create<JackpotState>()(
         return payout
       },
 
+      registerPersonalWin: () => {
+        const payout = get().personalAmount
+        const seed = get().personalSeed
+        set({ lastWinAmount: payout, personalAmount: seed })
+        return payout
+      },
+
       tickAmounts: () => {
         const amounts = { ...get().amounts }
         JACKPOT_TIERS.forEach((tier) => {
@@ -176,6 +195,9 @@ export const useJackpotStore = create<JackpotState>()(
           tickerAmounts[tier.id] = +(tickerAmounts[tier.id] + delta).toFixed(2)
         })
 
+        const personalDelta = 0.02 + Math.random() * 0.18
+        const valueMustDelta = 0.8 + Math.random() * 4.5
+
         set({
           amounts,
           tickerAmounts,
@@ -184,6 +206,11 @@ export const useJackpotStore = create<JackpotState>()(
             Math.random() * 8 +
             1
           ).toFixed(2),
+          valueMustDropAmount: +Math.min(
+            get().valueMustDropThreshold - 0.01,
+            get().valueMustDropAmount + valueMustDelta
+          ).toFixed(2),
+          personalAmount: +(get().personalAmount + personalDelta).toFixed(2),
         })
       },
     }),

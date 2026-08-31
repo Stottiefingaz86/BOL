@@ -2642,11 +2642,12 @@ function HomePageContent() {
               {/* Content Area - Loading then Game Image */}
               <div
                 className={cn(
-                  'relative min-h-0 flex-1',
+                  'relative flex min-h-0 flex-1 flex-col',
                   !isFullscreen && (isMobile ? 'mx-3 mb-3 mt-2' : 'mx-4 mb-4 mt-2')
                 )}
                 style={{ zIndex: 1 }}
               >
+                <div className="relative min-h-0 flex-1">
                 <AnimatePresence mode="wait">
                   {!gameImageLoaded ? (
                     <motion.div
@@ -2735,6 +2736,8 @@ function HomePageContent() {
                     }}
                   />
                 )}
+                </div>
+
               </div>
 
               {showJackpotWheel && gameImageLoaded && isMobile && (

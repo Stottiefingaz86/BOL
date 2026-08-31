@@ -2156,7 +2156,7 @@ button[data-active="true"][class*="SidebarMenuButton"],
 }
 
 .jackpot-marquee-track {
-  animation: jackpot-marquee 36s linear infinite;
+  animation: jackpot-marquee 48s linear infinite;
   will-change: transform;
   width: max-content;
 }

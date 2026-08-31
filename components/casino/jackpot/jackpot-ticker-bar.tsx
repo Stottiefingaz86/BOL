@@ -1,14 +1,15 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   JACKPOT_TICKER_TIERS,
   formatJackpotCompact,
   type JackpotTickerTierConfig,
-  type JackpotTickerTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
 import { cn } from '@/lib/utils'
+import { IconHourglass } from '@tabler/icons-react'
 
 interface JackpotTickerBarProps {
   className?: string
@@ -17,6 +18,22 @@ interface JackpotTickerBarProps {
   /** Flat single-line cells — embed beside opt-in in launcher row */
   embedded?: boolean
   onNavigateToJackpots?: () => void
+}
+
+function useCountdown(deadline: number) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, deadline - Date.now()))
+
+  useEffect(() => {
+    const tick = () => setRemaining(Math.max(0, deadline - Date.now()))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [deadline])
+
+  const h = Math.floor(remaining / 3600000)
+  const m = Math.floor((remaining % 3600000) / 60000)
+  const s = Math.floor((remaining % 60000) / 1000)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
 function tierGlowColor(accent: string): string {
@@ -31,7 +48,7 @@ function TickerCell({
   dense,
   embedded,
 }: {
-  tier: JackpotTickerTierConfig
+  tier: Pick<JackpotTickerTierConfig, 'label' | 'shortLabel' | 'accent'>
   amount: number
   onClick: () => void
   dense?: boolean
@@ -113,11 +130,23 @@ export function JackpotTickerBar({
   onNavigateToJackpots,
 }: JackpotTickerBarProps) {
   const tickerAmounts = useJackpotStore((s) => s.tickerAmounts)
+  const personalAmount = useJackpotStore((s) => s.personalAmount)
+  const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
+  const mustDropDeadline = useJackpotStore((s) => s.mustDropDeadline)
+  const valueAmount = useJackpotStore((s) => s.valueMustDropAmount)
+  const valueThreshold = useJackpotStore((s) => s.valueMustDropThreshold)
+  const countdown = useCountdown(mustDropDeadline)
 
-  const handleTierClick = (_tierId: JackpotTickerTierId) => {
+  const handleTierClick = () => {
     if (onNavigateToJackpots) {
       onNavigateToJackpots()
     }
+  }
+
+  const personalTier = {
+    label: 'Personal Pot',
+    shortLabel: 'YOURS',
+    accent: 'var(--ds-primary, #ee3536)',
   }
 
   return (
@@ -130,17 +159,56 @@ export function JackpotTickerBar({
         className
       )}
     >
-      <div className="grid w-full grid-cols-4 divide-x divide-white/10">
+      <div className="grid w-full grid-cols-5 divide-x divide-white/10">
+        <TickerCell
+          tier={personalTier}
+          amount={personalAmount}
+          onClick={handleTierClick}
+          dense={dense}
+          embedded={embedded}
+        />
         {JACKPOT_TICKER_TIERS.map((tier) => (
           <TickerCell
             key={tier.id}
             tier={tier}
             amount={tickerAmounts[tier.id]}
-            onClick={() => handleTierClick(tier.id)}
+            onClick={handleTierClick}
             dense={dense}
             embedded={embedded}
           />
         ))}
+      </div>
+      <div className="grid w-full grid-cols-2 divide-x divide-white/10 border-t border-white/10">
+        <div className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-2 py-1.5 leading-none">
+          <span className="inline-flex items-center gap-0.5">
+            <IconHourglass className="h-3 w-3 shrink-0 text-sky-300/85" strokeWidth={1.75} />
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-sky-200/80">
+              Must Drop
+            </span>
+          </span>
+          <span className="inline-flex max-w-full items-baseline gap-1">
+            <span className="text-[11px] font-semibold tabular-nums text-white">
+              {formatJackpotCompact(mustDropAmount)}
+            </span>
+            <span className="text-[9px] tabular-nums text-white/40">{countdown}</span>
+          </span>
+        </div>
+        <div className="flex min-w-0 flex-col items-center justify-center gap-0.5 px-2 py-1.5 leading-none">
+          <span className="inline-flex items-center gap-0.5">
+            <IconHourglass className="h-3 w-3 shrink-0 text-amber-300/85" strokeWidth={1.75} />
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-200/80">
+              Must Drop
+            </span>
+          </span>
+          <span className="inline-flex max-w-full items-baseline gap-1">
+            <span className="text-[11px] font-semibold tabular-nums text-white">
+              {formatJackpotCompact(valueAmount)}
+            </span>
+            <span className="truncate text-[9px] text-white/40">
+              before {formatJackpotCompact(valueThreshold)}
+            </span>
+          </span>
+        </div>
       </div>
     </div>
   )
