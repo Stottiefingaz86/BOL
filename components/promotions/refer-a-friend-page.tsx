@@ -802,9 +802,9 @@ export function ReferAFriendPage() {
                       )}
                       value={userQuery}
                       onChange={(e) => setUserQuery(e.target.value)}
-                      placeholder="Filter by user..."
+                      placeholder="Filter by name..."
                       type="text"
-                      aria-label="Filter referrals by user"
+                      aria-label="Filter referrals by name"
                     />
                     <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-[var(--ds-fg-subtle)]">
                       <ListFilterIcon size={15} aria-hidden="true" />
@@ -813,7 +813,7 @@ export function ReferAFriendPage() {
                       <button
                         type="button"
                         className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-[var(--ds-fg-subtle)] outline-none hover:text-[var(--ds-fg)]"
-                        aria-label="Clear user filter"
+                        aria-label="Clear name filter"
                         onClick={() => {
                           setUserQuery('')
                           filterInputRef.current?.focus()
@@ -973,7 +973,7 @@ export function ReferAFriendPage() {
                       <tr className={cn('border-b', hairline)}>
                         {(
                           [
-                            { label: 'User', w: 'w-[16%]' },
+                            { label: 'Name', w: 'w-[16%]' },
                             { label: 'Registered', w: 'w-[12%]' },
                             { label: 'VIP', w: 'w-[10%]' },
                             { label: 'Deposits', w: 'w-[12%]' },

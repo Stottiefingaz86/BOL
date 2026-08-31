@@ -25,7 +25,7 @@ export type ReferralRow = {
 const SEED_REFERRALS: ReferralRow[] = [
   {
     id: 'seed-1',
-    nick: '******eff',
+    nick: 'Marcus',
     registered: '20/04/2026',
     vipLevel: 'Bronze',
     totalDeposits: '$25.00',
@@ -37,7 +37,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-2',
-    nick: '******sso',
+    nick: 'Sofia',
     registered: '17/04/2026',
     vipLevel: 'Black I',
     totalDeposits: '$100.00',
@@ -49,7 +49,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-3',
-    nick: '******a24',
+    nick: 'Diego',
     registered: '11/04/2026',
     vipLevel: 'Elite II',
     totalDeposits: '$150.00',
@@ -61,7 +61,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-4',
-    nick: '******ily',
+    nick: 'Priya',
     registered: '02/04/2026',
     vipLevel: 'Gold',
     totalDeposits: '$500.00',
@@ -73,7 +73,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-5',
-    nick: '******k9r',
+    nick: 'Jamal',
     registered: '28/03/2026',
     vipLevel: 'Silver',
     totalDeposits: '$200.00',
@@ -85,7 +85,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-6',
-    nick: '******mx7',
+    nick: 'Elena',
     registered: '22/03/2026',
     vipLevel: 'Bronze',
     totalDeposits: '$50.00',
@@ -97,7 +97,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-7',
-    nick: '******tjn',
+    nick: 'Noah',
     registered: '15/03/2026',
     vipLevel: 'Platinum I',
     totalDeposits: '$750.00',
@@ -109,7 +109,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-8',
-    nick: '******w2p',
+    nick: 'Aisha',
     registered: '08/03/2026',
     vipLevel: 'Gold',
     totalDeposits: '$320.00',
@@ -121,7 +121,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-9',
-    nick: '******qol',
+    nick: 'Leo',
     registered: '01/03/2026',
     vipLevel: 'Silver',
     totalDeposits: '$80.00',
@@ -133,7 +133,7 @@ const SEED_REFERRALS: ReferralRow[] = [
   },
   {
     id: 'seed-10',
-    nick: '******hz4',
+    nick: 'Maya',
     registered: '20/02/2026',
     vipLevel: 'Elite I',
     totalDeposits: '$1,200.00',
