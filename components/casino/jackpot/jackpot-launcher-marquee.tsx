@@ -181,13 +181,22 @@ function MustDesktop({
 
 interface JackpotLauncherMarqueeProps {
   className?: string
+  /**
+   * `launcher` — Personal + Musts + Mini–Mega (game launcher).
+   * `tiers` — Mini–Mega marquee only (Jackpots tab, below extras cards).
+   */
+  variant?: 'launcher' | 'tiers'
 }
 
 /**
- * Desktop: Personal + Musts pinned, Mini–Mega marquee.
- * Mobile: one looping ticker — Balance, Musts, then Mini–Mega (nothing clipped).
+ * Desktop launcher: Personal + Musts pinned, Mini–Mega marquee.
+ * Mobile launcher: one looping strip.
+ * Tiers variant: Mini–Mega marquee only (full width).
  */
-export function JackpotLauncherMarquee({ className }: JackpotLauncherMarqueeProps) {
+export function JackpotLauncherMarquee({
+  className,
+  variant = 'launcher',
+}: JackpotLauncherMarqueeProps) {
   const tickerAmounts = useJackpotStore((s) => s.tickerAmounts)
   const personalAmount = useJackpotStore((s) => s.personalAmount)
   const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
@@ -245,6 +254,20 @@ export function JackpotLauncherMarquee({ className }: JackpotLauncherMarqueeProp
       })
     )
   ).flat()
+
+  if (variant === 'tiers') {
+    return (
+      <div
+        className={cn(
+          'relative h-10 w-full overflow-hidden rounded-xl border border-white/10 bg-black/20',
+          className
+        )}
+        aria-label="Live jackpot amounts"
+      >
+        <LoopTrack chips={desktopTiers} animatedTiers />
+      </div>
+    )
+  }
 
   return (
     <div className={cn('w-full', className)} aria-label="Live jackpot amounts">

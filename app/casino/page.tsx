@@ -50,6 +50,7 @@ import {
   JackpotLauncherDropdown,
   JackpotWheelBonus,
   JackpotExtrasSection,
+  JackpotLauncherMarquee,
   useJackpotTicker,
   useJackpotPreviewGameCount,
 } from '@/components/casino/jackpot'
@@ -9010,6 +9011,16 @@ function NavTestPageContent() {
                               />
                             )}
                             <span className="relative z-10 whitespace-nowrap">{tab}</span>
+                            {tab === 'Jackpots' && (
+                              <NavNewBadge
+                                className={cn(
+                                  'relative z-10',
+                                  activeSubNav === tab &&
+                                    !selectedVendor &&
+                                    'bg-white/95'
+                                )}
+                              />
+                            )}
                           </TabsTab>
                         ))}
                       </AnimateTabsList>
@@ -9374,7 +9385,7 @@ function NavTestPageContent() {
                           {activeIconTab === 'favorite' || selectedCategory === 'Favorites'
                             ? 'Favorites'
                             : (selectedVendor || selectedCategory || activeSubNav) === 'Jackpots'
-                              ? 'Jackpot Games'
+                              ? 'Jackpots'
                               : (selectedVendor || selectedCategory || activeSubNav)}
                         </motion.h2>
                             
@@ -10145,6 +10156,10 @@ function NavTestPageContent() {
                               <div className="flex flex-col gap-4 w-full">
                                 <div className={cn(isMobile ? 'px-3' : 'px-6')}>
                                   <JackpotExtrasSection isMobile={isMobile} />
+                                  <JackpotLauncherMarquee
+                                    variant="tiers"
+                                    className="mt-2"
+                                  />
                                 </div>
                                 <div
                                   className={gridClassName}
@@ -11257,6 +11272,61 @@ function NavTestPageContent() {
                             casinoActivityFeedPausedRef.current = hovering
                           }}
                         />
+
+                        {activeSubNav === 'Lobby' && !showAllGames && (
+                          <div className="flex w-full flex-col gap-4">
+                            <div
+                              className={cn(
+                                'flex items-center justify-between',
+                                isMobile ? 'px-3' : 'px-6'
+                              )}
+                            >
+                              <h2 className="min-w-0 flex-1 truncate text-lg font-semibold text-black dark:text-[var(--ds-fg)]">
+                                Jackpots
+                              </h2>
+                              <Button
+                                variant="ghost"
+                                className="h-auto shrink-0 rounded-small border border-white/20 px-3 py-1.5 text-xs text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
+                                onClick={() => {
+                                  setSelectedCategory('')
+                                  setSelectedVendor('')
+                                  setActiveSubNav('Jackpots')
+                                  setShowAllGames(true)
+                                }}
+                              >
+                                All Games
+                              </Button>
+                            </div>
+                            <div className={cn(isMobile ? 'px-3' : 'px-6')}>
+                              <JackpotExtrasSection isMobile={isMobile} />
+                              <JackpotLauncherMarquee
+                                variant="tiers"
+                                className="mt-2"
+                              />
+                            </div>
+                            <div
+                              className={cn(
+                                'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 3xl:grid-cols-8',
+                                isMobile ? 'px-3' : 'px-6'
+                              )}
+                            >
+                              {Array.from({ length: 80 }, (_, index) => index)
+                                .filter((index) => isJackpotNetworkGame(index))
+                                .slice(0, jackpotFeedInsertAt)
+                                .map((index, displayIndex) => (
+                                  <LazyGameTile
+                                    key={`lobby-jackpot-${index}`}
+                                    index={index}
+                                    columnIndex={displayIndex % 8}
+                                    rowIndex={Math.floor(displayIndex / 8)}
+                                    onTileClick={setSelectedGame}
+                                    isMobile={isMobile}
+                                    showJackpotNetworkTag
+                                  />
+                                ))}
+                            </div>
+                          </div>
+                        )}
 
                         {activeSubNav !== 'Jackpots' && (
                         <>
