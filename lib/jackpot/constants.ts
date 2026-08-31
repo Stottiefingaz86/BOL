@@ -135,8 +135,8 @@ export const JACKPOT_TIERS: JackpotTierConfig[] = [
 
 export const JACKPOT_CONTRIBUTION_RATE = 0.01
 export const JACKPOT_MIN_QUALIFYING_BET = 1
-/** @deprecated Use per-tier spinAddon — kept for legacy single-toggle UI */
-export const JACKPOT_PER_SPIN_ADDON = 0.1
+/** Flat opt-in cost per spin — unlocks all jackpot tiers */
+export const JACKPOT_PER_SPIN_ADDON = 0.35
 
 /** Win overlay — odometer starts after win-screen bg lands */
 export const JACKPOT_WIN_COUNTUP_DELAY_MS = 900
@@ -186,12 +186,12 @@ export function formatJackpotSpinAddon(value: number): string {
   }).format(value)
 }
 
+/** Flat $0.35 when opted in to all tiers; otherwise $0. */
 export function getJackpotSpinAddonTotal(
   tierOptIns: Partial<Record<JackpotTierId, boolean>>
 ): number {
-  return JACKPOT_TIERS.reduce((sum, tier) => {
-    return tierOptIns[tier.id] ? sum + tier.spinAddon : sum
-  }, 0)
+  const allOn = JACKPOT_TIERS.every((tier) => tierOptIns[tier.id])
+  return allOn ? JACKPOT_PER_SPIN_ADDON : 0
 }
 /** Jackpots tab — only jackpot-network games, capped count */
 export const JACKPOT_ELIGIBLE_GAME_LIMIT = 12

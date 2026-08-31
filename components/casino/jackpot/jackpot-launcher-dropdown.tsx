@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { IconChevronDown, IconCoins, IconSettings } from '@tabler/icons-react'
 import {
   DropdownMenu,
@@ -79,6 +80,88 @@ function GlobalOptInToggle({
   )
 }
 
+function useCountdownLabel(deadline: number) {
+  const [label, setLabel] = useState(() => formatCountdown(deadline))
+
+  useEffect(() => {
+    const tick = () => setLabel(formatCountdown(deadline))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [deadline])
+
+  return label
+}
+
+function formatCountdown(deadline: number) {
+  const remaining = Math.max(0, deadline - Date.now())
+  const h = Math.floor(remaining / 3600000)
+  const m = Math.floor((remaining % 3600000) / 60000)
+  const s = Math.floor((remaining % 60000) / 1000)
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+const MUST_TIME_ACCENT = '#7dd3fc'
+const MUST_VALUE_ACCENT = '#fcd34d'
+
+function LiveJackpotRow({
+  label,
+  amount,
+  accent,
+  detail,
+  meta,
+}: {
+  label: string
+  amount: string
+  accent?: string
+  detail?: string
+  meta?: string
+}) {
+  return (
+    <li className="flex items-center justify-between gap-3 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2">
+      <span className="min-w-0">
+        <span
+          className="block text-xs font-semibold"
+          style={accent ? { color: accent } : undefined}
+        >
+          {label}
+          {meta ? (
+            <span className="ml-1.5 font-normal tabular-nums text-white/40">{meta}</span>
+          ) : null}
+        </span>
+        {detail ? (
+          <span className="mt-0.5 block text-[10px] font-normal tabular-nums text-white/45">
+            {detail}
+          </span>
+        ) : null}
+      </span>
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-white">{amount}</span>
+    </li>
+  )
+}
+
+const TIER_HOW_TO_WIN: Record<
+  (typeof LAUNCHER_TIER_IDS)[number],
+  { blurb: string; how: string }
+> = {
+  mini: {
+    blurb: 'Hits often — keeps the action going.',
+    how: 'Won randomly on opted-in spins. Most frequent tier.',
+  },
+  minor: {
+    blurb: 'Regular wins across the lobby.',
+    how: 'Won randomly on opted-in spins. Mid-frequency wins with a larger pool than Mini.',
+  },
+  major: {
+    blurb: 'Bigger pools, bigger moments.',
+    how: 'Won randomly on opted-in spins. Less common than Mini/Minor; higher payout.',
+  },
+  mega: {
+    blurb: 'Life-changing top tier.',
+    how: 'Won randomly on opted-in spins. Rarest tier with the largest shared pool.',
+  },
+}
+
 function JackpotOptInDetails({
   optedIn,
   toggleOptedIn,
@@ -95,15 +178,28 @@ function JackpotOptInDetails({
   onTickerToggle?: () => void
 }) {
   const launcherTiers = JACKPOT_TIERS.filter((t) => LAUNCHER_TIER_IDS.includes(t.id))
+  const personalAmount = useJackpotStore((s) => s.personalAmount)
+  const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
+  const mustDropDeadline = useJackpotStore((s) => s.mustDropDeadline)
+  const valueMustDropAmount = useJackpotStore((s) => s.valueMustDropAmount)
+  const valueMustDropThreshold = useJackpotStore((s) => s.valueMustDropThreshold)
+  const countdown = useCountdownLabel(mustDropDeadline)
+  // Flat opt-in cost — one amount unlocks every jackpot.
+  const totalAddon =
+    spinAddonTotal > 0 ? spinAddonTotal : JACKPOT_PER_SPIN_ADDON
 
   return (
-    <div className="max-h-[min(70vh,28rem)] overflow-y-auto text-sm">
+    <div className="max-h-[min(75vh,32rem)] overflow-y-auto text-sm">
       <div className="border-b border-white/10 px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="font-semibold text-white">Jackpot opt-in</p>
             <p className="mt-1 text-xs leading-relaxed text-white/55">
-              Opt in to all tiers at once. Each adds to your stake per spin.
+              Opt in once to play for every jackpot. Adds{' '}
+              <span className="font-semibold tabular-nums text-white/75">
+                {formatJackpotSpinAddon(totalAddon)}
+              </span>{' '}
+              to your stake per spin.
             </p>
           </div>
           <GlobalOptInToggle
@@ -136,43 +232,68 @@ function JackpotOptInDetails({
 
       <div className="border-b border-white/10 px-4 py-3">
         <p className="mb-2 font-semibold text-white">Live jackpots</p>
-        <ul className="space-y-2">
+        <ul className="space-y-1.5">
+          <LiveJackpotRow
+            label="Personal Pot"
+            amount={formatJackpotCompact(personalAmount)}
+          />
+          <LiveJackpotRow
+            label="Must Drop"
+            accent={MUST_TIME_ACCENT}
+            detail={`in ${countdown}`}
+            amount={formatJackpotCompact(mustDropAmount)}
+          />
+          <LiveJackpotRow
+            label="Must Drop"
+            accent={MUST_VALUE_ACCENT}
+            detail={`before ${formatJackpotCompact(valueMustDropThreshold)}`}
+            amount={formatJackpotCompact(valueMustDropAmount)}
+          />
           {launcherTiers.map((tier) => (
-            <li key={tier.id} className="flex items-center justify-between gap-3">
-              <span className="text-xs font-medium" style={{ color: tier.accent }}>
-                {tier.label}
-              </span>
-              <span className="text-xs font-semibold tabular-nums text-white">
-                {formatJackpotCompact(amounts[tier.id])}
-              </span>
-            </li>
+            <LiveJackpotRow
+              key={tier.id}
+              label={tier.label}
+              accent={tier.accent}
+              amount={formatJackpotCompact(amounts[tier.id])}
+            />
           ))}
         </ul>
       </div>
 
       <div className="px-4 py-3">
         <p className="mb-2 font-semibold text-white">Jackpot info</p>
-        <ul className="space-y-2">
-          {launcherTiers.map((tier) => (
-            <li key={tier.id} className="text-xs leading-relaxed text-white/55">
-              <span className="font-medium" style={{ color: tier.accent }}>
-                {tier.label}:
-              </span>{' '}
-              {tier.description}
-            </li>
-          ))}
+        <ul className="space-y-3">
+          <li className="text-xs leading-relaxed text-white/55">
+            <span className="font-medium text-white">Personal Pot:</span> Your own balance that
+            grows as you play opted-in jackpot games. Paid only to you when your personal jackpot
+            triggers on a qualifying spin.
+          </li>
+          <li className="text-xs leading-relaxed text-white/55">
+            <span className="font-medium" style={{ color: MUST_TIME_ACCENT }}>
+              Must Drop (time):
+            </span>{' '}
+            A shared pool that is guaranteed to drop before the countdown ends. Any opted-in player
+            on a qualifying spin can win it when it drops.
+          </li>
+          <li className="text-xs leading-relaxed text-white/55">
+            <span className="font-medium" style={{ color: MUST_VALUE_ACCENT }}>
+              Must Drop (value):
+            </span>{' '}
+            A shared pool that is guaranteed to drop before it reaches the listed amount. Opted-in
+            players can win it on a qualifying spin when the must-drop hits.
+          </li>
+          {launcherTiers.map((tier) => {
+            const copy = TIER_HOW_TO_WIN[tier.id as (typeof LAUNCHER_TIER_IDS)[number]]
+            return (
+              <li key={tier.id} className="text-xs leading-relaxed text-white/55">
+                <span className="font-medium" style={{ color: tier.accent }}>
+                  {tier.label}:
+                </span>{' '}
+                {copy.blurb} {copy.how}
+              </li>
+            )
+          })}
         </ul>
-      </div>
-
-      <div className="border-t border-white/10 bg-white/[0.03] px-4 py-3">
-        <div className="flex items-center justify-between gap-3 text-xs">
-          <span className="text-white/55">Added to stake / spin</span>
-          <span className="font-semibold tabular-nums text-white">
-            {optedIn && spinAddonTotal > 0
-              ? `+${formatJackpotSpinAddon(spinAddonTotal)}`
-              : '$0.00'}
-          </span>
-        </div>
       </div>
     </div>
   )
