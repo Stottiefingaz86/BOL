@@ -6274,6 +6274,8 @@ function NavTestPageContent() {
   const pathname = usePathname()
   useJackpotTicker()
   const jackpotFeedInsertAt = useJackpotPreviewGameCount(isMobile)
+  /** Lobby preview: more rows on phone so the block doesn’t look empty */
+  const lobbyJackpotPreviewCount = useJackpotPreviewGameCount(isMobile, isMobile ? 4 : 2)
   const jackpotOptedIn = useJackpotStore((s) => s.optedIn)
   const { trackNav, trackClick, trackAction, trackSidebar, trackPageView } = useTracking('casino')
   const [activeFilter, setActiveFilter] = useState('Lobby')
@@ -11312,7 +11314,7 @@ function NavTestPageContent() {
                             >
                               {Array.from({ length: 80 }, (_, index) => index)
                                 .filter((index) => isJackpotNetworkGame(index))
-                                .slice(0, jackpotFeedInsertAt)
+                                .slice(0, lobbyJackpotPreviewCount)
                                 .map((index, displayIndex) => (
                                   <LazyGameTile
                                     key={`lobby-jackpot-${index}`}

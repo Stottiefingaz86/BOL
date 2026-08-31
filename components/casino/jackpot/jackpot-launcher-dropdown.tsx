@@ -12,7 +12,6 @@ import {
   JACKPOT_PER_SPIN_ADDON,
   formatJackpotCompact,
   formatJackpotSpinAddon,
-  type JackpotTierId,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
 import { cn } from '@/lib/utils'
@@ -24,7 +23,8 @@ interface JackpotLauncherDropdownProps {
   onTickerToggle?: () => void
 }
 
-const LAUNCHER_TIER_IDS: JackpotTierId[] = ['mini', 'minor', 'major', 'mega']
+const LAUNCHER_TIER_IDS = ['mini', 'minor', 'major', 'mega'] as const
+type LauncherTierId = (typeof LAUNCHER_TIER_IDS)[number]
 
 function formatStake(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -140,10 +140,7 @@ function LiveJackpotRow({
   )
 }
 
-const TIER_HOW_TO_WIN: Record<
-  (typeof LAUNCHER_TIER_IDS)[number],
-  { blurb: string; how: string }
-> = {
+const TIER_HOW_TO_WIN: Record<LauncherTierId, { blurb: string; how: string }> = {
   mini: {
     blurb: 'Hits often — keeps the action going.',
     how: 'Won randomly on opted-in spins. Most frequent tier.',
@@ -177,7 +174,9 @@ function JackpotOptInDetails({
   tickerVisible?: boolean
   onTickerToggle?: () => void
 }) {
-  const launcherTiers = JACKPOT_TIERS.filter((t) => LAUNCHER_TIER_IDS.includes(t.id))
+  const launcherTiers = JACKPOT_TIERS.filter((t): t is (typeof JACKPOT_TIERS)[number] & {
+    id: LauncherTierId
+  } => (LAUNCHER_TIER_IDS as readonly string[]).includes(t.id))
   const personalAmount = useJackpotStore((s) => s.personalAmount)
   const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
   const mustDropDeadline = useJackpotStore((s) => s.mustDropDeadline)
@@ -283,7 +282,7 @@ function JackpotOptInDetails({
             players can win it on a qualifying spin when the must-drop hits.
           </li>
           {launcherTiers.map((tier) => {
-            const copy = TIER_HOW_TO_WIN[tier.id as (typeof LAUNCHER_TIER_IDS)[number]]
+            const copy = TIER_HOW_TO_WIN[tier.id]
             return (
               <li key={tier.id} className="text-xs leading-relaxed text-white/55">
                 <span className="font-medium" style={{ color: tier.accent }}>
