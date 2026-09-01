@@ -28,6 +28,7 @@ import {
   AUTH_REQUEST_LOGIN_EVENT,
   AUTH_REQUEST_REGISTER_EVENT,
   consumePendingLogin,
+  markOpenWalletAfterSignup,
 } from '@/lib/auth-session'
 import { cn } from '@/lib/utils'
 
@@ -222,6 +223,12 @@ export function AuthModal() {
     setOpen(false)
     setView('login')
   }, [setLoggedIn])
+
+  /** First signup only — stay on current page and open normal wallet deposit UI. */
+  const finishSignup = useCallback(() => {
+    markOpenWalletAfterSignup()
+    finishLogin()
+  }, [finishLogin])
 
   const handleLoginWithPasskey = useCallback(async () => {
     if (
@@ -692,7 +699,7 @@ export function AuthModal() {
                     type="button"
                     onClick={() => {
                       resetCreateAccount()
-                      finishLogin()
+                      finishSignup()
                     }}
                     className={primaryBtnClass}
                   >

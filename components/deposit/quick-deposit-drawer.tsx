@@ -38,6 +38,10 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  AUTH_OPEN_WALLET_AFTER_SIGNUP_EVENT,
+  consumeOpenWalletAfterSignup,
+} from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
 
 export type QuickDepositStep =
@@ -347,6 +351,22 @@ export function QuickDepositDrawer({
   >("hub");
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
+
+  // Join / first signup only — open normal wallet deposit UI in place
+  useEffect(() => {
+    const openAfterSignup = () => {
+      if (!consumeOpenWalletAfterSignup()) return;
+      onOpenChange(true);
+    };
+    openAfterSignup();
+    window.addEventListener(AUTH_OPEN_WALLET_AFTER_SIGNUP_EVENT, openAfterSignup);
+    return () => {
+      window.removeEventListener(
+        AUTH_OPEN_WALLET_AFTER_SIGNUP_EVENT,
+        openAfterSignup
+      );
+    };
+  }, [onOpenChange]);
   const [cardCvc, setCardCvc] = useState("");
   const [saveCard, setSaveCard] = useState(true);
   const [bitcoinQrExpanded, setBitcoinQrExpanded] = useState(true);

@@ -13,6 +13,7 @@ import {
   IconLock,
 } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
+import { VipTierProgressCard } from '@/components/vip/vip-tier-progress-card'
 import {
   SpotlightOverlay,
   useCursorSpotlight,
@@ -351,6 +352,7 @@ function HeroAtmosphere() {
 export interface HomeHeroProps {
   onRegister?: () => void
   onLogin?: () => void
+  onOpenVip?: () => void
   isLoggedIn?: boolean
   className?: string
 }
@@ -358,11 +360,10 @@ export interface HomeHeroProps {
 export function HomeHero({
   onRegister,
   onLogin,
+  onOpenVip,
   isLoggedIn = false,
   className,
 }: HomeHeroProps) {
-  const router = useRouter()
-
   return (
     <section
       className={cn(
@@ -451,13 +452,14 @@ export function HomeHero({
               </Button>
             </div>
           ) : (
-            <Button
-              onClick={() => router.push('/casino')}
-              className="h-11 w-fit rounded-lg border-0 bg-[#ee3536] px-5 text-sm font-semibold text-white hover:bg-[#d42f30]"
-            >
-              Play Now
-              <IconArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
+            <VipTierProgressCard
+              className="w-full max-w-[340px] border-white/10 bg-black/45 backdrop-blur-sm"
+              fromTier="Bronze"
+              toTier="Silver"
+              percent={25}
+              updatedLabel="Updated 12/25/2024, 8:00 PM ET"
+              onClick={onOpenVip}
+            />
           )}
         </div>
 

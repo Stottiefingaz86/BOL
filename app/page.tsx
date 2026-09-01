@@ -23,11 +23,13 @@ import { DailySpinCard } from '@/components/promotions/daily-spin-card'
 import { SidebarPromos } from '@/components/sidebar-promos'
 import { HomeHero } from '@/components/home/home-hero'
 import { VipTablesSection } from '@/components/home/vip-tables-section'
+import { BiggestLeaguesCarousel } from '@/components/home/biggest-leagues-carousel'
 import { VipRewardsFlipCarousel } from '@/components/home/vip-rewards-flip-carousel'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 import { NavNewBadge } from '@/components/navigation/nav-new-badge'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
+import { RecentlyPlayedSection } from '@/components/casino/recently-played-section'
 import { CasinoFavoritesProvider, useCasinoFavorites } from '@/components/casino/casino-favorites'
 import { GameTileFavoriteButton } from '@/components/casino/game-tile-favorite-button'
 
@@ -1800,6 +1802,7 @@ function HomePageContent() {
         <div className={cn(isMobile ? 'px-3 py-4' : 'px-6 py-4 md:py-6')}>
           <HomeHero
             isLoggedIn={isUserLoggedIn}
+            onOpenVip={openVipDrawer}
             onRegister={() => {
               setAccountDrawerOpen(false)
               requestRegister()
@@ -1991,6 +1994,14 @@ function HomePageContent() {
         </div>
         )}
 
+        {isUserLoggedIn ? (
+          <RecentlyPlayedSection
+            isMobile={isMobile}
+            className="mb-6"
+            onSelectGame={(g) => setSelectedGame(g)}
+          />
+        ) : null}
+
         {/* Slots Carousel Section */}
         <div className="mb-6">
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
@@ -2158,6 +2169,8 @@ function HomePageContent() {
             </Carousel>
           </div>
         </div>
+
+        <BiggestLeaguesCarousel />
 
         {/* Originals Carousel Section */}
         <div className="mb-6">
@@ -3069,6 +3082,8 @@ function HomePageContent() {
                     className="w-full justify-center text-[var(--ds-fg-muted)] hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg-muted)] h-10 px-2 min-w-0"
                     onClick={() => {
                       logout()
+                      setAccountDrawerOpen(false)
+                      setDepositDrawerOpen(false)
                       setAccountDrawerView('account')
                     }}
                   >

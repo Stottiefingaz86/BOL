@@ -1,16 +1,37 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 import { usePathname } from 'next/navigation'
-import { writeAuthLoggedIn } from '@/lib/auth-session'
+import {
+  AUTH_SESSION_CHANGED_EVENT,
+  readAuthLoggedIn,
+  writeAuthLoggedIn,
+} from '@/lib/auth-session'
+
+function subscribeAuthSession(onStoreChange: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  const handler = () => onStoreChange()
+  window.addEventListener(AUTH_SESSION_CHANGED_EVENT, handler)
+  window.addEventListener('storage', handler)
+  return () => {
+    window.removeEventListener(AUTH_SESSION_CHANGED_EVENT, handler)
+    window.removeEventListener('storage', handler)
+  }
+}
 
 /**
- * Demo auth: home (`/`) is always logged out; every other route is logged in.
- * Derived from the current path so VIP/header stay in sync without localStorage races.
+ * Demo auth:
+ * - Home (`/`) follows localStorage so Join can flip to logged-in in place.
+ * - Every other route stays logged in for product demos.
  */
 export function useAuthSession() {
   const pathname = usePathname()
-  const isLoggedIn = pathname !== '/'
+  const storedLoggedIn = useSyncExternalStore(
+    subscribeAuthSession,
+    readAuthLoggedIn,
+    () => false
+  )
+  const isLoggedIn = pathname !== '/' || storedLoggedIn
 
   const setLoggedIn = useCallback((loggedIn: boolean) => {
     writeAuthLoggedIn(loggedIn)
