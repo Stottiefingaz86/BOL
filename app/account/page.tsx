@@ -85,6 +85,7 @@ import {
   SIDEBAR_FOOTER_WALLET,
 } from '@/lib/sidebar-footer-nav'
 import { Button } from '@/components/ui/button'
+import { RecentlyPlayedSection } from '@/components/casino/recently-played-section'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -289,20 +290,8 @@ const transactionsData: Transaction[] = [
 ]
 
 // ═══════════════════════════════════════════════════════════
-// Dashboard — Favourite casino games data
+// Dashboard — Recently played uses Casino RecentlyPlayedSection
 // ═══════════════════════════════════════════════════════════
-const favouriteCasinoGames = [
-  { title: 'Gold Nugget Rush', image: '/games/square/goldNuggetRush.png', provider: 'Betsoft' },
-  { title: 'MegaCrush', image: '/games/square/megacrush.png', provider: 'Betsoft' },
-  { title: 'Mr Mammoth', image: '/games/square/mrMammoth.png', provider: 'Betsoft' },
-  { title: 'Cocktail Wheel', image: '/games/square/cocktailWheel.png', provider: 'House' },
-  { title: 'Take The Bank', image: '/games/square/takeTheBank.png', provider: 'Betsoft' },
-  { title: 'Hooked on Fishing', image: '/games/square/hookedOnFishing.png', provider: 'Betsoft' },
-  { title: 'Roulette', image: '/games/square/roulette.png', provider: 'Fresh Deck' },
-  { title: 'Blackjack', image: '/games/square/blackjack.png', provider: 'Fresh Deck' },
-  { title: 'Baccarat', image: '/games/square/baccarat.png', provider: 'VIG' },
-  { title: 'Gold Nugget Rush 2', image: '/games/square/goldNuggetRush2.png', provider: 'Betsoft' },
-]
 
 const accountPnlByWeek = {
   thisWeek: [
@@ -678,25 +667,8 @@ function DashboardSection({
   unreadNotifications?: number
 }) {
   const isMobile = useIsMobile()
-  const [favCarouselApi, setFavCarouselApi] = React.useState<any>(null)
-  const [favCanScrollPrev, setFavCanScrollPrev] = React.useState(false)
-  const [favCanScrollNext, setFavCanScrollNext] = React.useState(true)
+  const router = useRouter()
   const [pnlRange, setPnlRange] = useState<'thisWeek' | 'lastWeek'>('thisWeek')
-
-  React.useEffect(() => {
-    if (!favCarouselApi) return
-    const onSelect = () => {
-      setFavCanScrollPrev(favCarouselApi.canScrollPrev())
-      setFavCanScrollNext(favCarouselApi.canScrollNext())
-    }
-    onSelect()
-    favCarouselApi.on('select', onSelect)
-    favCarouselApi.on('reInit', onSelect)
-    return () => {
-      favCarouselApi.off('select', onSelect)
-      favCarouselApi.off('reInit', onSelect)
-    }
-  }, [favCarouselApi])
 
   const selectedPnlData = useMemo(() => accountPnlByWeek[pnlRange], [pnlRange])
 
@@ -1131,36 +1103,13 @@ function DashboardSection({
         </div>
       </div>
 
-      {/* Favourites */}
-      <div className="mb-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-[var(--ds-fg)]">Favourites</h2>
-          <div className="flex shrink-0 items-center gap-1">
-            {!isMobile && (
-              <>
-                <Button variant="ghost" size="icon" className="size-7 text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)] disabled:opacity-40" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.max(0, favCarouselApi.selectedScrollSnap() - 2)) }} disabled={!favCarouselApi || !favCanScrollPrev}><IconChevronLeft className="size-4" strokeWidth={2} /></Button>
-                <Button variant="ghost" size="icon" className="size-7 text-[var(--ds-fg-muted)] hover:bg-white/[0.03] hover:text-[var(--ds-fg)] disabled:opacity-40" onClick={() => { if (favCarouselApi) favCarouselApi.scrollTo(Math.min(favCarouselApi.scrollSnapList().length - 1, favCarouselApi.selectedScrollSnap() + 2)) }} disabled={!favCarouselApi || !favCanScrollNext}><IconChevronRight className="size-4" strokeWidth={2} /></Button>
-              </>
-            )}
-          </div>
-        </div>
-        <div className="relative" style={{ overflow: 'visible' }}>
-          <Carousel setApi={setFavCarouselApi} className="relative w-full" style={{ overflow: 'visible' }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-            <CarouselContent className="-mr-2 ml-0 md:-mr-3">
-              {favouriteCasinoGames.map((game, i) => (
-                <CarouselItem key={i} className={cn('basis-auto flex-shrink-0 pr-0', i === 0 ? 'pl-0' : 'pl-2 md:pl-3')}>
-                  <div className="group relative h-[112px] w-[112px] flex-shrink-0 cursor-pointer overflow-hidden rounded-md bg-[var(--ds-control-bg)]">
-                    <Image src={game.image} alt={game.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="112px" />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-1.5">
-                      <div className="truncate text-[10px] font-medium leading-tight text-[var(--ds-fg)]">{game.title}</div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-        </div>
-      </div>
+      {/* Recently Played — same component as Casino lobby */}
+      <RecentlyPlayedSection
+        isMobile={isMobile}
+        flush
+        className="mb-4"
+        onSelectGame={() => router.push('/casino')}
+      />
     </div>
   )
 }

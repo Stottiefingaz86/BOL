@@ -33,6 +33,7 @@ import { QuickDepositDrawer } from '@/components/deposit/quick-deposit-drawer'
 import { DottedGlowBackground } from '@/components/ui/dotted-glow-background'
 import { CasinoActivityPanel } from '@/components/casino/casino-activity-panel'
 import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
+import { RecentlyPlayedSection } from '@/components/casino/recently-played-section'
 import { SeasonalEventGamesBlock } from '@/components/casino/seasonal-event-games-block'
 import { GameTilePlayOverlay } from '@/components/casino/game-tile-play-overlay'
 import { CasinoPromoBanner } from '@/components/casino/casino-promo-banner'
@@ -1209,56 +1210,6 @@ function LiveCasinoTile({
       
       <GameTilePlayOverlay className="z-30" favoriteTitle={title} onLaunch={() => onClick?.()} />
     </div>
-  )
-}
-
-/** Transparent square CTA — muted until hover; spinner stays centered on click */
-function PlayRandomTile({ onLaunch }: { onLaunch: () => void }) {
-  const [loading, setLoading] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
-
-  const handleClick = () => {
-    if (loading) return
-    setLoading(true)
-    timerRef.current = setTimeout(() => {
-      onLaunch()
-      timerRef.current = setTimeout(() => setLoading(false), 400)
-    }, 850)
-  }
-
-  return (
-    <button
-      type="button"
-      data-content-item
-      aria-label={loading ? 'Loading random game' : 'Play Random'}
-      aria-busy={loading}
-      disabled={loading}
-      className={cn(
-        'group relative flex h-[160px] w-[160px] flex-shrink-0 cursor-pointer flex-col items-center overflow-hidden rounded-small border bg-transparent px-2 pb-3 pt-4 transition-colors duration-200 disabled:cursor-wait',
-        'border-white/15 text-[var(--ds-fg-muted)]',
-        'hover:border-white/40 hover:text-[var(--ds-fg)]',
-        loading && 'border-white/40 text-[var(--ds-fg)]'
-      )}
-      onClick={handleClick}
-    >
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 tile-shimmer" />
-      <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center">
-        {loading ? (
-          <IconLoader2 className="h-10 w-10 animate-spin" strokeWidth={1.5} />
-        ) : (
-          <IconArrowsShuffle className="h-10 w-10" strokeWidth={1.5} />
-        )}
-      </div>
-      <span className="relative z-10 shrink-0 text-xs font-semibold">
-        {loading ? 'Loading…' : 'Play Random'}
-      </span>
-    </button>
   )
 }
 
@@ -11116,144 +11067,10 @@ function NavTestPageContent() {
                         )}
 
                         {/* Recently Played — below vendors */}
-                        <div>
-                          <div
-                            className={cn(
-                              'mb-6 flex items-center justify-between relative z-10',
-                              isMobile ? 'px-3' : 'px-6'
-                            )}
-                          >
-                            <h2 className="min-w-0 flex-1 truncate text-lg font-semibold text-black transition-colors duration-300 dark:text-[var(--ds-fg)]">
-                              Recently Played (4)
-                            </h2>
-                          </div>
-                          <div
-                            className="relative"
-                            style={{
-                              overflow: 'visible',
-                              position: 'relative',
-                              width: '100%',
-                              maxWidth: '100%',
-                              boxSizing: 'border-box',
-                              minWidth: 0,
-                            }}
-                          >
-                            <Carousel
-                              className="relative w-full"
-                              style={{
-                                overflow: 'visible',
-                                position: 'relative',
-                                width: '100%',
-                                maxWidth: '100%',
-                                minWidth: 0,
-                              }}
-                              opts={{
-                                dragFree: true,
-                                containScroll: 'trimSnaps',
-                                duration: 15,
-                              }}
-                            >
-                              <CarouselContent className="ml-0 pr-4 md:pr-6">
-                                {[
-                                  {
-                                    title: 'Gemhalla Xtreme',
-                                    image: squareTileImages[0],
-                                  },
-                                  {
-                                    title: 'Money Maker',
-                                    image: squareTileImages[10],
-                                  },
-                                  {
-                                    title: 'Heart of Tiki',
-                                    image: squareTileImages[7],
-                                  },
-                                  {
-                                    title: 'Fiesta Clusters',
-                                    image: squareTileImages[12],
-                                  },
-                                ].map((game, index) => {
-                                  const tag = getMetaTag(index + 30)
-                                  const vendor = getTileVendor(index + 30)
-                                  return (
-                                    <CarouselItem
-                                      key={`recently-played-${index}`}
-                                      className={cn(
-                                        'basis-auto flex-shrink-0 pr-0',
-                                        index === 0
-                                          ? isMobile
-                                            ? 'pl-3'
-                                            : 'pl-6'
-                                          : 'pl-2 md:pl-4'
-                                      )}
-                                    >
-                                      <div
-                                        data-content-item
-                                        className="group relative h-[160px] w-[160px] flex-shrink-0 cursor-pointer overflow-hidden rounded-small bg-[var(--ds-control-bg)] transition-all duration-300 hover:bg-[var(--ds-control-hover)]"
-                                      >
-                                        <Image
-                                          src={game.image}
-                                          alt={game.title}
-                                          fill
-                                          className={slotTileImgClass}
-                                          sizes="160px"
-                                        />
-                                        <GameTagBadge tag={tag} vendor={vendor} />
-                                        <GameTilePlayOverlay
-                                          favoriteTitle={game.title}
-                                          onLaunch={() =>
-                                            setSelectedGame({
-                                              title: game.title,
-                                              image: game.image,
-                                              provider: vendor,
-                                              features: [
-                                                'Recently Played',
-                                                'Quick Resume',
-                                                'Continue Where You Left Off',
-                                              ],
-                                            })
-                                          }
-                                        />
-                                      </div>
-                                    </CarouselItem>
-                                  )
-                                })}
-                                <CarouselItem
-                                  key="recently-played-random"
-                                  className="basis-auto flex-shrink-0 pr-0 pl-2 md:pl-4"
-                                >
-                                  <PlayRandomTile
-                                    onLaunch={() => {
-                                      const randomIndex = Math.floor(
-                                        Math.random() * squareTileImages.length
-                                      )
-                                      const gameNames = [
-                                        'Gold Nugget Rush',
-                                        'Mega Fortune',
-                                        'Starburst',
-                                        'Book of Dead',
-                                        "Gonzo's Quest",
-                                        'Dead or Alive',
-                                        'Immortal Romance',
-                                        'Thunderstruck',
-                                        'Avalon',
-                                        'Blood Suckers',
-                                      ]
-                                      setSelectedGame({
-                                        title: gameNames[randomIndex % gameNames.length],
-                                        image: squareTileImages[randomIndex],
-                                        provider: 'Evolution Gaming',
-                                        features: [
-                                          'Random Pick!',
-                                          'Surprise Game Feature',
-                                        ],
-                                      })
-                                    }}
-                                  />
-                                </CarouselItem>
-                              </CarouselContent>
-                            </Carousel>
-                          </div>
-                        </div>
+                        <RecentlyPlayedSection
+                          isMobile={isMobile}
+                          onSelectGame={(g) => setSelectedGame(g)}
+                        />
 
                         {/* Activity Section */}
                         <CasinoActivityPanel
