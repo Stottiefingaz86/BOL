@@ -12,6 +12,8 @@ type TierAmounts = Record<JackpotTierId, number>
 type TickerAmounts = Record<JackpotTickerTierId, number>
 type TierOptIns = Record<JackpotTierId, boolean>
 
+export type MustDropType = 'time' | 'value'
+
 function buildInitialAmounts(): TierAmounts {
   return JACKPOT_TIERS.reduce((acc, tier) => {
     acc[tier.id] = tier.seedAmount
@@ -55,11 +57,31 @@ interface JackpotState {
   valueMustDropAmount: number
   valueMustDropThreshold: number
   mustDropDrawerOpen: boolean
+  /** Which must-drop variant is active — only one is shown at a time. */
+  activeMustDropType: MustDropType
   /** Player's own accumulating pot (personal jackpot). */
   personalAmount: number
   personalSeed: number
   megaWinRoll: MegaWinRoll | null
   lastWinAmount: number
+  /** Demo toggle — preview must-drop “last hour” heat state. */
+  mustDropHeatPreview: boolean
+  /** Demo sub-state — final 5-second drain preview (requires heat preview). */
+  mustDropFinalePreview: boolean
+  /** Seed amount after a time-based must-drop completes. */
+  mustDropSeed: number
+  /** False after a must-drop is won — UI hidden until a new one is launched. */
+  mustDropLaunched: boolean
+  /** True while the exit animation plays — display frozen at $0. */
+  mustDropExiting: boolean
+  /** True once finale countdown hits zero — prevents fallback to live deadline/amount. */
+  mustDropDrained: boolean
+  /** Pot value captured when finale begins — UI drains from this, not live store ticks. */
+  mustDropFinaleStartAmount: number
+  toggleMustDropHeatPreview: () => void
+  beginMustDropExit: () => void
+  completeMustDropWin: () => void
+  launchMustDrop: () => void
   setOptedIn: (optedIn: boolean) => void
   toggleOptedIn: () => void
   setTierOptIn: (tierId: JackpotTierId, enabled: boolean) => void
@@ -88,10 +110,66 @@ export const useJackpotStore = create<JackpotState>()(
       valueMustDropAmount: 7840.25,
       valueMustDropThreshold: 10000,
       mustDropDrawerOpen: false,
+      activeMustDropType: 'time',
       personalAmount: 42.18,
       personalSeed: 1,
       megaWinRoll: null,
       lastWinAmount: 0,
+      mustDropHeatPreview: false,
+      mustDropFinalePreview: false,
+      mustDropSeed: 8500,
+      mustDropLaunched: true,
+      mustDropExiting: false,
+      mustDropDrained: false,
+      mustDropFinaleStartAmount: 12342.5,
+
+      toggleMustDropHeatPreview: () => {
+        const { mustDropHeatPreview, mustDropFinalePreview, mustDropLaunched, mustDropExiting } =
+          get()
+        if (!mustDropLaunched || mustDropExiting) return
+        if (!mustDropHeatPreview) {
+          set({ mustDropHeatPreview: true, mustDropFinalePreview: false })
+        } else if (!mustDropFinalePreview) {
+          set({
+            mustDropFinalePreview: true,
+            mustDropFinaleStartAmount: get().mustDropAmount,
+          })
+        }
+      },
+
+      beginMustDropExit: () => {
+        if (get().mustDropExiting) return
+        set({
+          mustDropDrained: true,
+          mustDropExiting: true,
+          mustDropHeatPreview: false,
+          mustDropFinalePreview: false,
+          mustDropAmount: 0,
+        })
+      },
+
+      completeMustDropWin: () =>
+        set({
+          mustDropExiting: false,
+          mustDropDrained: false,
+          mustDropHeatPreview: false,
+          mustDropFinalePreview: false,
+          mustDropLaunched: false,
+          mustDropAmount: 0,
+          mustDropFinaleStartAmount: get().mustDropSeed,
+        }),
+
+      launchMustDrop: () =>
+        set({
+          mustDropLaunched: true,
+          mustDropExiting: false,
+          mustDropDrained: false,
+          mustDropAmount: get().mustDropSeed,
+          mustDropFinaleStartAmount: get().mustDropSeed,
+          mustDropDeadline: Date.now() + 10 * 60 * 60 * 1000 + 44 * 1000,
+          mustDropHeatPreview: false,
+          mustDropFinalePreview: false,
+        }),
 
       setOptedIn: (optedIn) =>
         set({
@@ -201,11 +279,18 @@ export const useJackpotStore = create<JackpotState>()(
         set({
           amounts,
           tickerAmounts,
-          mustDropAmount: +(
-            get().mustDropAmount +
-            Math.random() * 8 +
-            1
-          ).toFixed(2),
+          mustDropAmount:
+            !get().mustDropLaunched ||
+            get().mustDropExiting ||
+            get().mustDropDrained ||
+            get().mustDropFinalePreview ||
+            get().mustDropHeatPreview
+              ? get().mustDropAmount
+              : +(
+                  get().mustDropAmount +
+                  Math.random() * 8 +
+                  1
+                ).toFixed(2),
           valueMustDropAmount: +Math.min(
             get().valueMustDropThreshold - 0.01,
             get().valueMustDropAmount + valueMustDelta

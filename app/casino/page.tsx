@@ -10109,10 +10109,6 @@ function NavTestPageContent() {
                               <div className="flex flex-col gap-4 w-full">
                                 <div className={cn(isMobile ? 'px-3' : 'px-6')}>
                                   <JackpotExtrasSection isMobile={isMobile} />
-                                  <JackpotLauncherMarquee
-                                    variant="tiers"
-                                    className="mt-2"
-                                  />
                                 </div>
                                 <div
                                   className={gridClassName}
@@ -11118,10 +11114,6 @@ function NavTestPageContent() {
                             </div>
                             <div className={cn(isMobile ? 'px-3' : 'px-6')}>
                               <JackpotExtrasSection isMobile={isMobile} />
-                              <JackpotLauncherMarquee
-                                variant="tiers"
-                                className="mt-2"
-                              />
                             </div>
                             <div
                               className={cn(

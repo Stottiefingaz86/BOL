@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { IconChevronDown, IconCoins, IconSettings } from '@tabler/icons-react'
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import {
   formatJackpotSpinAddon,
 } from '@/lib/jackpot/constants'
 import { useJackpotStore } from '@/lib/store/jackpotStore'
+import { useActiveMustDrop, MUST_DROP_TIME_INFO, MUST_DROP_VALUE_INFO } from '@/lib/jackpot/use-active-must-drop'
 import { cn } from '@/lib/utils'
 
 interface JackpotLauncherDropdownProps {
@@ -79,30 +79,6 @@ function GlobalOptInToggle({
     </button>
   )
 }
-
-function useCountdownLabel(deadline: number) {
-  const [label, setLabel] = useState(() => formatCountdown(deadline))
-
-  useEffect(() => {
-    const tick = () => setLabel(formatCountdown(deadline))
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
-  }, [deadline])
-
-  return label
-}
-
-function formatCountdown(deadline: number) {
-  const remaining = Math.max(0, deadline - Date.now())
-  const h = Math.floor(remaining / 3600000)
-  const m = Math.floor((remaining % 3600000) / 60000)
-  const s = Math.floor((remaining % 60000) / 1000)
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-}
-
-const MUST_TIME_ACCENT = '#7dd3fc'
-const MUST_VALUE_ACCENT = '#fcd34d'
 
 function LiveJackpotRow({
   label,
@@ -177,12 +153,7 @@ function JackpotOptInDetails({
   const launcherTiers = JACKPOT_TIERS.filter((t): t is (typeof JACKPOT_TIERS)[number] & {
     id: LauncherTierId
   } => (LAUNCHER_TIER_IDS as readonly string[]).includes(t.id))
-  const personalAmount = useJackpotStore((s) => s.personalAmount)
-  const mustDropAmount = useJackpotStore((s) => s.mustDropAmount)
-  const mustDropDeadline = useJackpotStore((s) => s.mustDropDeadline)
-  const valueMustDropAmount = useJackpotStore((s) => s.valueMustDropAmount)
-  const valueMustDropThreshold = useJackpotStore((s) => s.valueMustDropThreshold)
-  const countdown = useCountdownLabel(mustDropDeadline)
+  const mustDrop = useActiveMustDrop()
   // Flat opt-in cost — one amount unlocks every jackpot.
   const totalAddon =
     spinAddonTotal > 0 ? spinAddonTotal : JACKPOT_PER_SPIN_ADDON
@@ -232,22 +203,14 @@ function JackpotOptInDetails({
       <div className="border-b border-white/10 px-4 py-3">
         <p className="mb-2 font-semibold text-white">Live jackpots</p>
         <ul className="space-y-1.5">
-          <LiveJackpotRow
-            label="Personal Pot"
-            amount={formatJackpotCompact(personalAmount)}
-          />
-          <LiveJackpotRow
-            label="Must Drop"
-            accent={MUST_TIME_ACCENT}
-            detail={`in ${countdown}`}
-            amount={formatJackpotCompact(mustDropAmount)}
-          />
-          <LiveJackpotRow
-            label="Must Drop"
-            accent={MUST_VALUE_ACCENT}
-            detail={`before ${formatJackpotCompact(valueMustDropThreshold)}`}
-            amount={formatJackpotCompact(valueMustDropAmount)}
-          />
+          {mustDrop.isVisible ? (
+            <LiveJackpotRow
+              label="Must Drop"
+              accent={mustDrop.accent}
+              detail={mustDrop.detailShort}
+              amount={formatJackpotCompact(mustDrop.displayAmount)}
+            />
+          ) : null}
           {launcherTiers.map((tier) => (
             <LiveJackpotRow
               key={tier.id}
@@ -263,23 +226,10 @@ function JackpotOptInDetails({
         <p className="mb-2 font-semibold text-white">Jackpot info</p>
         <ul className="space-y-3">
           <li className="text-xs leading-relaxed text-white/55">
-            <span className="font-medium text-white">Personal Pot:</span> Your own balance that
-            grows as you play opted-in jackpot games. Paid only to you when your personal jackpot
-            triggers on a qualifying spin.
-          </li>
-          <li className="text-xs leading-relaxed text-white/55">
-            <span className="font-medium" style={{ color: MUST_TIME_ACCENT }}>
-              Must Drop (time):
+            <span className="font-medium" style={{ color: mustDrop.accent }}>
+              Must Drop{mustDrop.type === 'time' ? ' (time)' : ' (value)'}:
             </span>{' '}
-            A shared pool that is guaranteed to drop before the countdown ends. Any opted-in player
-            on a qualifying spin can win it when it drops.
-          </li>
-          <li className="text-xs leading-relaxed text-white/55">
-            <span className="font-medium" style={{ color: MUST_VALUE_ACCENT }}>
-              Must Drop (value):
-            </span>{' '}
-            A shared pool that is guaranteed to drop before it reaches the listed amount. Opted-in
-            players can win it on a qualifying spin when the must-drop hits.
+            {mustDrop.type === 'time' ? MUST_DROP_TIME_INFO : MUST_DROP_VALUE_INFO}
           </li>
           {launcherTiers.map((tier) => {
             const copy = TIER_HOW_TO_WIN[tier.id]

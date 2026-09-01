@@ -1,13 +1,15 @@
 'use client'
 
-import { useJackpotStore } from '@/lib/store/jackpotStore'
+import { useActiveMustDrop } from '@/lib/jackpot/use-active-must-drop'
 import { JackpotTickingAmount } from '@/components/casino/jackpot/jackpot-ticking-amount'
 import { cn } from '@/lib/utils'
 import { IconHourglass } from '@tabler/icons-react'
 
 /** Display-only must-drop summary row. */
 export function JackpotMustDropCard({ className }: { className?: string }) {
-  const amount = useJackpotStore((s) => s.mustDropAmount)
+  const mustDrop = useActiveMustDrop()
+
+  if (!mustDrop.isVisible) return null
 
   return (
     <div
@@ -17,15 +19,19 @@ export function JackpotMustDropCard({ className }: { className?: string }) {
       )}
     >
       <div className="flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0 border border-white/10 bg-white/10">
-        <IconHourglass className="w-4 h-4 text-white/60" strokeWidth={1.75} />
+        <IconHourglass
+          className="w-4 h-4"
+          style={{ color: mustDrop.accent }}
+          strokeWidth={1.75}
+        />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/50">
-          Must drop daily
+          Must drop
         </p>
-        <p className="text-xs text-white/75 mt-0.5">Guaranteed before midnight</p>
+        <p className="text-xs text-white/75 mt-0.5 truncate">{mustDrop.detailLong}</p>
       </div>
-      <JackpotTickingAmount value={amount} size="xs" />
+      <JackpotTickingAmount value={mustDrop.amount} size="xs" />
     </div>
   )
 }
