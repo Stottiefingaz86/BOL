@@ -290,7 +290,7 @@ export function RecentlyPlayedSection({
             titleClassName
           )}
         >
-          Recently Played ({RECENTLY_PLAYED_GAMES.length})
+          Continue Playing
         </h2>
       </div>
 

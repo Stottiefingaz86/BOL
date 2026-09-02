@@ -207,6 +207,17 @@ export function CasinoSearchParamsEffects({
       setShowPoker(false)
       router.replace('/casino', { scroll: false })
     }
+    if (tabParam === 'jackpots') {
+      setActiveSubNav('Jackpots')
+      setShowAllGames(true)
+      setSelectedCategory('')
+      setSelectedVendor('')
+      setShowSports(false)
+      setShowVipRewards(false)
+      setShowPoker(false)
+      router.replace('/casino', { scroll: false })
+      window.scrollTo(0, 0)
+    }
   }, [
     searchParams,
     router,

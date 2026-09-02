@@ -1,28 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   IconTrophy,
   IconChevronRight,
-  IconChevronDown,
-  IconGift,
+  IconHourglass,
+  IconFlame,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
+import { formatJackpotCompact } from '@/lib/jackpot/constants'
+import { useActiveMustDrop } from '@/lib/jackpot/use-active-must-drop'
 import { cn } from '@/lib/utils'
 
 // ---------------------------------------------------------------------------
 // SidebarPromos
-// Promotion stack rendered at the top of the product sidebars (casino,
-// sports, etc.). Modeled on the "Daily Race" pattern from competitor sites
-// — a glanceable list of active money pools the player can join.
-//
-// This is intentionally self-contained so it can be dropped in / removed
-// from any sidebar with a single line change.
+// Glanceable promo rows at the top of product sidebars (Daily Race, Must Drop).
 // ---------------------------------------------------------------------------
 
-type PromoTone = 'amber' | 'red' | 'violet' | 'emerald' | 'sky'
+type PromoTone = 'amber' | 'red' | 'violet' | 'emerald' | 'sky' | 'orange'
 
 interface PromoItem {
   id: string
@@ -37,6 +33,8 @@ interface PromoItem {
   /** Default URL to navigate to when clicked. Overridden by `onClick`. */
   href?: string
   onClick?: () => void
+  heatingUp?: boolean
+  critical?: boolean
 }
 
 const TONE_STYLES: Record<
@@ -73,14 +71,16 @@ const TONE_STYLES: Record<
     badgeBg: 'rgba(14, 165, 233, 0.14)',
     badgeText: '#bae6fd',
   },
+  orange: {
+    iconBg: 'rgba(251, 146, 60, 0.14)',
+    iconColor: '#fb923c',
+    badgeBg: 'rgba(251, 146, 60, 0.16)',
+    badgeText: '#fdba74',
+  },
 }
 
-// Mock end dates relative to "now" so the timers always read sensibly during
-// design QA. In production these would come from a promotions API.
-function buildPromoData(): PromoItem[] {
+function buildDailyRaceItem(): PromoItem {
   const now = new Date()
-
-  // Daily race ends at next midnight UTC
   const nextMidnightUtc = new Date(
     Date.UTC(
       now.getUTCFullYear(),
@@ -92,24 +92,21 @@ function buildPromoData(): PromoItem[] {
     )
   )
 
-  return [
-    {
-      id: 'daily-race',
-      prize: '$25K',
-      label: 'Daily Race',
-      icon: IconTrophy,
-      tone: 'amber',
-      endsAt: nextMidnightUtc,
-      // Lives in VIP Hub (Daily Races tab), not Promotions sidebar
-      onClick: () => {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(
-            new CustomEvent('vip:open-drawer', { detail: { tab: 'Daily Races' } })
-          )
-        }
-      },
+  return {
+    id: 'daily-race',
+    prize: '$25K',
+    label: 'Daily Race',
+    icon: IconTrophy,
+    tone: 'amber',
+    endsAt: nextMidnightUtc,
+    onClick: () => {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('vip:open-drawer', { detail: { tab: 'Daily Races' } })
+        )
+      }
     },
-  ]
+  }
 }
 
 function pad(n: number) {
@@ -142,38 +139,47 @@ interface SidebarPromosProps {
   onItemClick?: (item: PromoItem) => void
 }
 
-const COLLAPSE_STORAGE_KEY = 'sidebar-promos-open'
-
-/** Survives remounts when the left menu swaps products / routes. */
-let cachedOpen: boolean | null = null
-
-function readStoredOpen(): boolean {
-  if (typeof window === 'undefined') return true
-  try {
-    const stored = window.localStorage.getItem(COLLAPSE_STORAGE_KEY)
-    if (stored !== null) return stored === 'true'
-  } catch {
-    /* ignore — localStorage may be unavailable */
-  }
-  return true
-}
-
-function getInitialOpen(): boolean {
-  if (cachedOpen !== null) return cachedOpen
-  const next = readStoredOpen()
-  cachedOpen = next
-  return next
-}
-
 export function SidebarPromos({
   collapsed = false,
   items,
   onItemClick,
 }: SidebarPromosProps) {
   const router = useRouter()
-  const [data] = useState(() => items ?? buildPromoData())
-  // Sync init — never default open then snap shut from localStorage (that flash).
-  const [isOpen, setIsOpen] = useState(getInitialOpen)
+  const mustDrop = useActiveMustDrop()
+  const [dailyRace] = useState(buildDailyRaceItem)
+
+  const data = useMemo(() => {
+    if (items) return items
+
+    const next: PromoItem[] = [dailyRace]
+    if (mustDrop.isVisible && !mustDrop.isExiting) {
+      next.push({
+        id: 'must-drop',
+        prize: formatJackpotCompact(mustDrop.displayAmount),
+        label: 'Must Drop',
+        icon: mustDrop.isHeatingUp ? IconFlame : IconHourglass,
+        tone: mustDrop.isHeatingUp ? 'orange' : 'sky',
+        badge: mustDrop.countdown || undefined,
+        heatingUp: mustDrop.isHeatingUp && !mustDrop.isFinale,
+        critical: mustDrop.isCritical && !mustDrop.isFinale,
+        onClick: () => {
+          router.push('/casino?tab=jackpots')
+        },
+      })
+    }
+    return next
+  }, [
+    dailyRace,
+    items,
+    mustDrop.countdown,
+    mustDrop.displayAmount,
+    mustDrop.isCritical,
+    mustDrop.isExiting,
+    mustDrop.isFinale,
+    mustDrop.isHeatingUp,
+    mustDrop.isVisible,
+    router,
+  ])
 
   const handleItemClick = (item: PromoItem) => {
     if (item.onClick) {
@@ -184,84 +190,28 @@ export function SidebarPromos({
     onItemClick?.(item)
   }
 
-  const toggle = () => {
-    setIsOpen((curr) => {
-      const next = !curr
-      cachedOpen = next
-      try {
-        window.localStorage.setItem(COLLAPSE_STORAGE_KEY, String(next))
-      } catch {
-        /* ignore */
-      }
-      return next
-    })
-  }
-
-  // When the surrounding sidebar collapses to icon-only mode, hide the
-  // promo block entirely — there's no good way to represent it as icons
-  // without re-introducing label clutter.
   if (collapsed) return null
 
   return (
     <div className="px-2 pt-2 pb-1 min-w-0 max-w-full">
-      <div className="rounded-lg bg-white/[0.025] border border-white/[0.06] overflow-hidden min-w-0">
-        {/* Toggle bar — gift + "Promotions" + chevron (matches Promotion nav). */}
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={isOpen ? 'Collapse promotions' : 'Expand promotions'}
-          aria-expanded={isOpen}
-          className="w-full h-9 flex items-center gap-2 px-2.5 hover:bg-white/[0.03] transition-colors"
-        >
-          <IconGift
-            strokeWidth={1.8}
-            className="w-4 h-4 text-white/55 flex-shrink-0"
-          />
-          <span className="flex-1 text-left text-[13px] font-medium text-white/75">
-            Promotions
-          </span>
-          <IconChevronDown
-            strokeWidth={2}
-            className={cn(
-              'w-3.5 h-3.5 text-white/45 transition-transform duration-200',
-              !isOpen && '-rotate-90'
-            )}
-          />
-        </button>
+      <div className="min-w-0 overflow-visible rounded-lg border border-white/[0.06] bg-white/[0.025]">
+        <div className="flex flex-col gap-0.5 px-1 py-1">
+          {data.map((item) => (
+            <PromoRow
+              key={item.id}
+              item={item}
+              onClick={() => handleItemClick(item)}
+            />
+          ))}
 
-        {/* Collapsible body */}
-        <AnimatePresence initial={false}>
-          {isOpen && (
-            <motion.div
-              key="promos-body"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="flex flex-col gap-0.5 px-1 pb-1">
-                {data.map((item) => (
-                  <PromoRow
-                    key={item.id}
-                    item={item}
-                    onClick={() => handleItemClick(item)}
-                  />
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    router.push('/casino?vipRewardsPage=true')
-                  }
-                  className="mt-1 mx-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] font-medium text-white/50 hover:text-white hover:bg-white/[0.04] transition-colors"
-                >
-                  <span className="w-full text-left">All Promotions</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <button
+            type="button"
+            onClick={() => router.push('/casino?vipRewardsPage=true')}
+            className="mx-1 mt-0.5 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-medium text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white"
+          >
+            <span className="w-full text-left">All Promotions</span>
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -272,48 +222,78 @@ function PromoRow({ item, onClick }: { item: PromoItem; onClick?: () => void }) 
   const Icon = item.icon
   const countdown = useCountdown(item.endsAt)
   const badge = countdown ?? item.badge
+  const heating = Boolean(item.heatingUp)
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group w-full max-w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/[0.04] transition-colors text-left overflow-hidden"
+      className={cn(
+        'group relative flex w-full max-w-full items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white/[0.04]',
+        heating && 'jackpot-must-drop-heat',
+        heating &&
+          (item.critical
+            ? 'jackpot-must-drop-shake-intense'
+            : 'jackpot-must-drop-shake')
+      )}
     >
+      {heating ? (
+        <span
+          className="jackpot-must-drop-flames pointer-events-none absolute inset-0"
+          aria-hidden
+        />
+      ) : null}
+
       <div
-        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+        className="relative z-[1] flex size-8 shrink-0 items-center justify-center rounded-md"
         style={{ background: styles.iconBg }}
       >
         <Icon
           strokeWidth={1.8}
-          className="w-4 h-4"
+          className={cn('size-4', heating && 'jackpot-must-drop-label-heat')}
           style={{ color: styles.iconColor }}
         />
       </div>
 
-      <div className="flex-1 min-w-0 overflow-hidden">
-        <div className="text-sm font-bold text-white leading-tight tabular-nums truncate">
+      <div className="relative z-[1] min-w-0 flex-1 overflow-hidden">
+        <div
+          className={cn(
+            'truncate text-sm font-bold leading-tight tabular-nums text-white',
+            heating && 'jackpot-must-drop-amount-heat'
+          )}
+        >
           {item.prize}
         </div>
-        <div className="text-[11px] text-white/55 leading-tight truncate">
+        <div
+          className={cn(
+            'truncate text-[11px] leading-tight text-white/55',
+            heating && 'jackpot-must-drop-label-heat'
+          )}
+        >
           {item.label}
         </div>
       </div>
 
-      {badge && (
+      {badge ? (
         <span
-          className="text-[10px] font-bold px-1.5 py-0.5 rounded-md tabular-nums whitespace-nowrap flex-shrink-0"
-          style={{
-            background: styles.badgeBg,
-            color: styles.badgeText,
-          }}
+          className={cn(
+            'relative z-[1] shrink-0 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums',
+            heating && 'jackpot-must-drop-countdown-heat'
+          )}
+          style={
+            heating
+              ? undefined
+              : {
+                  background: styles.badgeBg,
+                  color: styles.badgeText,
+                }
+          }
         >
           {badge}
         </span>
-      )}
+      ) : null}
 
-      <IconChevronRight
-        className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors flex-shrink-0 -ml-0.5"
-      />
+      <IconChevronRight className="relative z-[1] -ml-0.5 size-3.5 shrink-0 text-white/20 transition-colors group-hover:text-white/50" />
     </button>
   )
 }

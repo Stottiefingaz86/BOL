@@ -115,7 +115,7 @@ export const useJackpotStore = create<JackpotState>()(
       personalSeed: 1,
       megaWinRoll: null,
       lastWinAmount: 0,
-      mustDropHeatPreview: false,
+      mustDropHeatPreview: true,
       mustDropFinalePreview: false,
       mustDropSeed: 8500,
       mustDropLaunched: true,
