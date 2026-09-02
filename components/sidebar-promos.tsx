@@ -12,6 +12,11 @@ import {
 import { formatJackpotCompact } from '@/lib/jackpot/constants'
 import { useActiveMustDrop } from '@/lib/jackpot/use-active-must-drop'
 import { cn } from '@/lib/utils'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 // ---------------------------------------------------------------------------
 // SidebarPromos
@@ -132,7 +137,7 @@ function useCountdown(target?: Date): string | null {
 }
 
 interface SidebarPromosProps {
-  /** When true (sidebar collapsed to icons-only), the promos hide entirely. */
+  /** When true (sidebar collapsed to icons-only), show compact icon buttons. */
   collapsed?: boolean
   /** Override the default promo list. */
   items?: PromoItem[]
@@ -190,10 +195,22 @@ export function SidebarPromos({
     onItemClick?.(item)
   }
 
-  if (collapsed) return null
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-1 px-1 py-2">
+        {data.map((item) => (
+          <CollapsedPromoIcon
+            key={item.id}
+            item={item}
+            onClick={() => handleItemClick(item)}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <div className="px-2 pt-2 pb-1 min-w-0 max-w-full">
+    <div className="min-w-0 max-w-full px-2 pb-1 pt-2">
       <div className="min-w-0 overflow-visible rounded-lg border border-white/[0.06] bg-white/[0.025]">
         <div className="flex flex-col gap-0.5 px-1 py-1">
           {data.map((item) => (
@@ -203,17 +220,63 @@ export function SidebarPromos({
               onClick={() => handleItemClick(item)}
             />
           ))}
-
-          <button
-            type="button"
-            onClick={() => router.push('/casino?vipRewardsPage=true')}
-            className="mx-1 mt-0.5 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-medium text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white"
-          >
-            <span className="w-full text-left">All Promotions</span>
-          </button>
         </div>
       </div>
     </div>
+  )
+}
+
+function CollapsedPromoIcon({
+  item,
+  onClick,
+}: {
+  item: PromoItem
+  onClick?: () => void
+}) {
+  const styles = TONE_STYLES[item.tone]
+  const Icon = item.icon
+  const countdown = useCountdown(item.endsAt)
+  const badge = countdown ?? item.badge
+  const heating = Boolean(item.heatingUp)
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={item.label}
+          className={cn(
+            'relative flex size-9 items-center justify-center overflow-hidden rounded-md transition-colors hover:bg-white/[0.06]',
+            heating && 'jackpot-must-drop-heat',
+            heating &&
+              (item.critical
+                ? 'jackpot-must-drop-shake-intense'
+                : 'jackpot-must-drop-shake')
+          )}
+          style={{ background: styles.iconBg }}
+        >
+          {heating ? (
+            <span
+              className="jackpot-must-drop-flames pointer-events-none absolute inset-0"
+              aria-hidden
+            />
+          ) : null}
+          <Icon
+            strokeWidth={1.8}
+            className="relative z-[1] size-4"
+            style={{ color: styles.iconColor }}
+          />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="flex flex-col gap-0.5">
+        <span className="font-semibold">{item.label}</span>
+        <span className="tabular-nums text-white/70">
+          {item.prize}
+          {badge ? ` · ${badge}` : ''}
+        </span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
