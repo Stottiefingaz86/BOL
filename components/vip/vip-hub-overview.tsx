@@ -130,8 +130,8 @@ type HubSection = {
 }
 
 /**
- * Build VIP hub rows (no SCHEDULED / LOCKED / ON DEMAND section titles).
- * Final display order is claimable-first via orderHubSections().
+ * Build VIP hub rows in fixed product order:
+ * Rakeback → Refer a Friend → Weekly Cash Boost → Monthly Cash Boost → Post-Monthly Cash Boost → Reloads → Free Spins
  */
 function buildHubSections(
   tier: VipHubTierBand,
@@ -148,7 +148,7 @@ function buildHubSections(
 
   const weeklyBoostActive: HubRow = {
     id: 'weekly-boost',
-    name: 'Weekly Boost',
+    name: 'Weekly Cash Boost',
     info: 'Boost your balance every week as you climb the VIP ladder.',
     icon: 'boost-7',
     kind: 'cooldown',
@@ -177,7 +177,7 @@ function buildHubSections(
 
   const monthlyBoostActive: HubRow = {
     id: 'monthly-boost',
-    name: 'Monthly Boost',
+    name: 'Monthly Cash Boost',
     info: 'Monthly VIP boost based on your tier and play.',
     icon: 'boost-30',
     kind: 'claim',
@@ -186,7 +186,7 @@ function buildHubSections(
 
   const postMonthlyBoostActive: HubRow = {
     id: 'post-monthly-boost',
-    name: 'Post-Monthly Boost',
+    name: 'Post-Monthly Cash Boost',
     info: 'A boost available after your monthly cycle completes.',
     icon: 'boost-15',
     kind: 'cooldown',
@@ -195,7 +195,7 @@ function buildHubSections(
 
   const weeklyBoostLocked: HubRow = {
     id: 'weekly-boost-locked',
-    name: 'Weekly Boost',
+    name: 'Weekly Cash Boost',
     info: 'Unlocks at Silver VIP and above.',
     icon: 'boost-7',
     kind: 'locked',
@@ -204,7 +204,7 @@ function buildHubSections(
 
   const monthlyBoostLocked: HubRow = {
     id: 'monthly-boost-locked',
-    name: 'Monthly Boost',
+    name: 'Monthly Cash Boost',
     info: 'Unlocks at Platinum VIP and above.',
     icon: 'boost-30',
     kind: 'locked',
@@ -213,7 +213,7 @@ function buildHubSections(
 
   const postMonthlyBoostLocked: HubRow = {
     id: 'post-monthly-boost-locked',
-    name: 'Post-Monthly Boost',
+    name: 'Post-Monthly Cash Boost',
     info: 'Unlocks at Platinum VIP and above.',
     icon: 'boost-15',
     kind: 'locked',
@@ -235,25 +235,27 @@ function buildHubSections(
         : 'No commission ready. Earn more as friends play',
   }
 
-  const onDemand: HubRow[] = [
-    {
-      id: 'special-reload',
-      name: 'Special Reload',
-      info: 'Limited-time reload offers for VIP members. Multi-release: older campaigns stay pinned first.',
-      icon: 'reload-star',
-      kind: 'claim',
-      amount: 5,
-      subtitle: '0 of 7 claimed',
-    },
-    {
-      id: 'special-boost',
-      name: 'Special Boost',
-      info: 'Exclusive boosts for special VIP campaigns.',
-      icon: 'boost-star',
-      kind: 'claim',
-      amount: 3,
-      removeOnClaim: true,
-    },
+  const specialReload: HubRow = {
+    id: 'special-reload',
+    name: 'Special Reload',
+    info: 'Limited-time reload offers for VIP members. Multi-release: older campaigns stay pinned first.',
+    icon: 'reload-star',
+    kind: 'claim',
+    amount: 5,
+    subtitle: '0 of 7 claimed',
+  }
+
+  const specialBoost: HubRow = {
+    id: 'special-boost',
+    name: 'Special Boost',
+    info: 'Exclusive boosts for special VIP campaigns.',
+    icon: 'boost-star',
+    kind: 'claim',
+    amount: 3,
+    removeOnClaim: true,
+  }
+
+  const freeSpins: HubRow[] = [
     {
       id: 'free-spins',
       name: 'Free Spins',
@@ -284,33 +286,30 @@ function buildHubSections(
     },
   ]
 
-  let scheduled: HubRow[]
-  let locked: HubRow[]
+  const weekly =
+    tier === 'bronze' ? weeklyBoostLocked : weeklyBoostActive
+  const monthly =
+    tier === 'platinum' ? monthlyBoostActive : monthlyBoostLocked
+  const postMonthly =
+    tier === 'platinum' ? postMonthlyBoostActive : postMonthlyBoostLocked
 
-  if (tier === 'bronze') {
-    scheduled = [monthlyReload, postMonthlyReload]
-    locked = [weeklyBoostLocked, monthlyBoostLocked, postMonthlyBoostLocked]
-  } else if (tier === 'silver-gold') {
-    scheduled = [weeklyBoostActive, monthlyReload, postMonthlyReload]
-    locked = [monthlyBoostLocked, postMonthlyBoostLocked]
-  } else {
-    scheduled = [weeklyBoostActive, monthlyBoostActive, postMonthlyBoostActive]
-    locked = []
-  }
+  // Bronze / Silver–Gold still get the scheduled reload windows; Platinum uses boosts above.
+  const reloads: HubRow[] =
+    tier === 'platinum'
+      ? [specialReload, specialBoost]
+      : [monthlyReload, postMonthlyReload, specialReload, specialBoost]
 
-  const sections: HubSection[] = [
-    { id: 'rakeback', title: null, rows: [rakeback] },
-    { id: 'referral', title: null, rows: [referAFriend] },
-    { id: 'scheduled', title: null, rows: scheduled },
+  const rows: HubRow[] = [
+    rakeback,
+    referAFriend,
+    weekly,
+    monthly,
+    postMonthly,
+    ...reloads,
+    ...freeSpins,
   ]
 
-  if (locked.length > 0) {
-    sections.push({ id: 'locked', title: null, rows: locked })
-  }
-
-  sections.push({ id: 'on-demand', title: null, rows: onDemand })
-
-  return sections
+  return [{ id: 'rakeback', title: null, rows }]
 }
 
 function asLoginRows(sections: HubSection[]): HubSection[] {
@@ -332,30 +331,9 @@ function asLoginRows(sections: HubSection[]): HubSection[] {
   }))
 }
 
-/** Lower = higher in the hub. Claimable first, then empty claims, cooldowns, locked. */
-function hubRowPriority(row: HubRow): number {
-  if (row.kind === 'locked') return 40
-  if (row.kind === 'cooldown') return 30
-  if (row.kind === 'login') return 10
-  if (row.kind === 'claim') {
-    if (row.ctaLabel && (row.spinsLeft ?? 0) > 0) return 0
-    if (typeof row.amount === 'number' && row.amount > 0) return 0
-    return 20
-  }
-  return 50
-}
-
-function orderRowsByAvailability(rows: HubRow[]): HubRow[] {
-  return [...rows].sort((a, b) => {
-    const diff = hubRowPriority(a) - hubRowPriority(b)
-    if (diff !== 0) return diff
-    return 0
-  })
-}
-
-/** Flatten sections and put claimable rewards at the top. */
+/** Keep the fixed product order from buildHubSections (do not re-sort by claimability). */
 function orderHubSections(sections: HubSection[]): HubSection[] {
-  const rows = orderRowsByAvailability(sections.flatMap((section) => section.rows))
+  const rows = sections.flatMap((section) => section.rows)
   if (rows.length === 0) return []
   return [{ id: 'rakeback', title: null, rows }]
 }
@@ -819,7 +797,8 @@ function BenefitRow({
                   side="top"
                   className="z-[200] max-w-[260px] border-[var(--ds-border)] bg-[var(--ds-surface)] text-xs text-[var(--ds-fg)]"
                 >
-                  <p>{row.info}</p>
+                  <p className="font-semibold text-[var(--ds-fg)]">{row.name}</p>
+                  <p className="mt-1 text-[var(--ds-fg-muted)]">{row.info}</p>
                   {row.infoLinkHref ? (
                     <a
                       href={row.infoLinkHref}

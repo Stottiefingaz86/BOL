@@ -53,21 +53,33 @@ const DEFAULT_TILES: VipBenefitTile[] = [
   },
   {
     id: 'weekly-boost',
-    name: 'Weekly Boost',
+    name: 'Weekly Cash Boost',
     icon: <IconGift className="w-6 h-6" />,
     requiredTier: 'Silver',
   },
   {
     id: 'monthly-bonus',
-    name: 'Monthly Bonus',
+    name: 'Monthly Cash Boost',
     icon: <IconDiamond className="w-6 h-6" />,
     requiredTier: 'Bronze',
   },
   {
     id: 'post-monthly',
-    name: 'Post-Monthly',
+    name: 'Post-Monthly Cash Boost',
     icon: <IconCalendarStats className="w-6 h-6" />,
     requiredTier: 'Bronze',
+  },
+  {
+    id: 'reloads',
+    name: 'Reloads',
+    icon: <IconRefresh className="w-6 h-6" />,
+    requiredTier: 'Platinum',
+  },
+  {
+    id: 'free-spins',
+    name: 'Free Spins',
+    icon: <IconRotateClockwise className="w-6 h-6" />,
+    requiredTier: 'Gold',
   },
   {
     id: 'quarterly-bonus',
@@ -80,18 +92,6 @@ const DEFAULT_TILES: VipBenefitTile[] = [
     name: 'Free Bet',
     icon: <IconSoccerField className="w-6 h-6" />,
     requiredTier: 'Gold',
-  },
-  {
-    id: 'free-spins',
-    name: 'Free Spins',
-    icon: <IconRotateClockwise className="w-6 h-6" />,
-    requiredTier: 'Gold',
-  },
-  {
-    id: 'reloads',
-    name: 'Reloads',
-    icon: <IconRefresh className="w-6 h-6" />,
-    requiredTier: 'Platinum',
   },
   {
     id: 'lossback',
