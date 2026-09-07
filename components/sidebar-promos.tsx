@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import {
   IconTrophy,
   IconChevronRight,
-  IconHourglass,
   IconFlame,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
@@ -158,14 +157,17 @@ export function SidebarPromos({
 
     const next: PromoItem[] = [dailyRace]
     if (mustDrop.isVisible && !mustDrop.isExiting) {
+      const isValue = mustDrop.type === 'value'
       next.push({
         id: 'must-drop',
         prize: formatJackpotCompact(mustDrop.displayAmount),
         label: 'Must Drop',
-        icon: mustDrop.isHeatingUp ? IconFlame : IconHourglass,
-        tone: mustDrop.isHeatingUp ? 'orange' : 'sky',
-        badge: mustDrop.countdown || undefined,
-        heatingUp: mustDrop.isHeatingUp && !mustDrop.isFinale,
+        icon: IconFlame,
+        tone: 'orange',
+        badge: isValue
+          ? mustDrop.detailShort?.replace(/^before /i, '')
+          : mustDrop.countdown || undefined,
+        heatingUp: true,
         critical: mustDrop.isCritical && !mustDrop.isFinale,
         onClick: () => {
           router.push('/casino?tab=jackpots')
@@ -177,12 +179,13 @@ export function SidebarPromos({
     dailyRace,
     items,
     mustDrop.countdown,
+    mustDrop.detailShort,
     mustDrop.displayAmount,
     mustDrop.isCritical,
     mustDrop.isExiting,
     mustDrop.isFinale,
-    mustDrop.isHeatingUp,
     mustDrop.isVisible,
+    mustDrop.type,
     router,
   ])
 
