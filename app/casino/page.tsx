@@ -5790,7 +5790,7 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen, onNavigate, menuLoadin
                       // Keep drawer open when switching products; only leave for Sports route.
                       if (item.page === 'sports') {
                         handoffMobileSidebarToNextPage()
-                        router.push('/sports/football')
+                        router.push('/sports')
                         return
                       }
                       if (item.page === 'home') {
@@ -7645,7 +7645,7 @@ function NavTestPageContent() {
                 {[
                   { label: 'Home', product: null, onClick: () => { trackNav('home', 'Home'); trackPageView('home', 'Home'); setOpenMobile(false); router.push('/'); setQuickLinksOpen(false); } },
                   { label: 'Casino', product: 'casino' as const, onClick: () => { trackNav('casino', 'Casino'); trackPageView('casino', 'Casino'); if (showSports || showVipRewards || showPoker) startSidebarMenuTransition(); goToCasinoLobby(); setQuickLinksOpen(false); } },
-                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports/football'); setQuickLinksOpen(false); } },
+                  { label: 'Sports', product: 'sports' as const, onClick: () => { trackNav('sports', 'Sports'); trackPageView('sports', 'Sports'); handoffMobileSidebarToNextPage(); router.push('/sports'); setQuickLinksOpen(false); } },
                   { label: 'Poker', product: 'poker' as const, onClick: () => { trackNav('poker', 'Poker'); if (!showPoker) startSidebarMenuTransition(); setShowPoker(true); setShowSports(false); setShowVipRewards(false); setQuickLinksOpen(false); } },
                   { label: 'Promotions', product: null, onClick: () => { trackNav('promotions', 'Promotions'); if (!showVipRewards) startSidebarMenuTransition(); setShowPoker(false); setShowSports(false); setVipActiveSidebarItem('Promos'); setShowVipRewards(true); window.scrollTo(0, 0); setQuickLinksOpen(false); } },
                 ].filter(item => !item.product || visibleProducts[item.product]).map((item) => (
@@ -7850,7 +7850,7 @@ function NavTestPageContent() {
                         e.preventDefault()
                         e.stopPropagation()
                         handoffMobileSidebarToNextPage()
-                        router.push('/sports/football')
+                        router.push('/sports')
                       }}
                       data-active={showSports && !showVipRewards}
                     >
@@ -8194,7 +8194,7 @@ function NavTestPageContent() {
                         onClick={() => {
                           if (item.page === 'sports') {
                             handoffMobileSidebarToNextPage()
-                            router.push('/sports/football')
+                            router.push('/sports')
                             return
                           }
                           if (item.page === 'home') {

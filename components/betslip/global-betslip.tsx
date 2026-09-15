@@ -32,10 +32,12 @@ function oddsToDecimal(oddsStr: string): number {
   const cleaned = oddsStr.replace('+', '').trim()
   const oddsValue = parseFloat(cleaned)
   if (isNaN(oddsValue)) return 2
-  if (oddsStr.startsWith('+') || (oddsValue < 2.0 && oddsValue > 0)) {
-    return oddsValue / 100 + 1
-  }
-  return oddsValue
+  // American odds: "+150" → 2.5, "-110" → 1.909
+  if (oddsStr.trim().startsWith('+')) return oddsValue / 100 + 1
+  if (oddsValue < 0) return 100 / Math.abs(oddsValue) + 1
+  if (oddsValue >= 100) return oddsValue / 100 + 1
+  // Decimal odds (e.g. "1.91")
+  return oddsValue > 1 ? oddsValue : 2
 }
 
 // ─── View Switcher (lives inside drawer context) ─────────
@@ -775,26 +777,17 @@ export default function GlobalBetslip() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
-  // On sports pages, sport pages have their own local betslip — hide the global one entirely.
   // usePathname() updates on ALL navigations (client-side and browser back/forward),
   // unlike popstate which only fires on browser history navigation.
+  // The rebuilt /sports home uses this global betslip too (the legacy local one is archived).
   const pathname = usePathname()
-  const isSportsPage = pathname?.startsWith('/sports') ?? false
   const isMaintenancePage = pathname === '/live-betting'
   const isLibraryPage = pathname?.startsWith('/library') ?? false
   const isPokerApp = pathname?.startsWith('/poker-app') ?? false
 
-  // Close global betslip if we navigate to sports (prevent stale open state)
-  useEffect(() => {
-    if (isSportsPage && isOpen) {
-      setOpen(false)
-    }
-  }, [isSportsPage])
-
   // Listen for bet:copy-to-slip events (from chat "copy to betslip" button)
   useEffect(() => {
     const handleCopyBet = (e: Event) => {
-      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/sports')) return
       const detail = (e as CustomEvent).detail as { legs: { event: string; selection: string; odds: string }[] } | undefined
       if (!detail?.legs?.length) return
       const newBets: BetItem[] = detail.legs.map((leg, i) => ({
@@ -820,9 +813,8 @@ export default function GlobalBetslip() {
     confirmation: BetslipConfirmationView,
   }), [])
 
-  // Don't render on sports pages — they have their own local betslip
   // Don't render on server — vaul needs document
-  if (!mounted || isSportsPage || isMaintenancePage || isLibraryPage || isPokerApp) return null
+  if (!mounted || isMaintenancePage || isLibraryPage || isPokerApp) return null
 
   return (
     <FamilyDrawerRoot

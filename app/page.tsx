@@ -225,22 +225,22 @@ const squareTileImages = [
 ]
 
 const TRENDING_SPORTS = [
-  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports/football/nfl', image: '/banners/homepage_trending/football.png' },
-  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports/basketball/nba', image: '/banners/homepage_trending/basketball.png' },
-  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports/baseball/mlb', image: '/banners/homepage_trending/baseball.png' },
-  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports/hockey/nhl', image: '/banners/homepage_trending/hocky.png' },
-  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports/soccer', image: '/banners/homepage_trending/soccer.png' },
-  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports/tennis', image: '/banners/homepage_trending/tennis.png' },
-  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports/mma', image: '/banners/homepage_trending/mma.png' },
-  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports/football', image: '/banners/homepage_trending/golf.png' },
-  { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports/mma' },
-  { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports/rugby' },
-  { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports/football' },
-  { name: 'Volleyball', icon: '/sports_icons/volley.svg', href: '/sports/volleyball' },
-  { name: 'Lacrosse', icon: '/sports_icons/lacrosse.svg', href: '/sports/lacrosse' },
-  { name: 'Pool', icon: '/sports_icons/pool.svg', href: '/sports/pool' },
-  { name: 'Table Tennis', icon: '/sports_icons/table_tennis.svg', href: '/sports/table-tennis' },
-  { name: 'Horse Racing', icon: '/sports_icons/Horse-Racing-101.svg', href: '/sports/football' },
+  { name: 'Football', icon: '/sports_icons/football.svg', href: '/sports', image: '/banners/homepage_trending/football.png' },
+  { name: 'Basketball', icon: '/sports_icons/Basketball.svg', href: '/sports', image: '/banners/homepage_trending/basketball.png' },
+  { name: 'Baseball', icon: '/sports_icons/baseball.svg', href: '/sports', image: '/banners/homepage_trending/baseball.png' },
+  { name: 'Hockey', icon: '/sports_icons/Hockey.svg', href: '/sports', image: '/banners/homepage_trending/hocky.png' },
+  { name: 'Soccer', icon: '/sports_icons/soccer.svg', href: '/sports', image: '/banners/homepage_trending/soccer.png' },
+  { name: 'Tennis', icon: '/sports_icons/tennis.svg', href: '/sports', image: '/banners/homepage_trending/tennis.png' },
+  { name: 'MMA', icon: '/sports_icons/mma.svg', href: '/sports', image: '/banners/homepage_trending/mma.png' },
+  { name: 'Golf', icon: '/sports_icons/Golf.svg', href: '/sports', image: '/banners/homepage_trending/golf.png' },
+  { name: 'Boxing', icon: '/sports_icons/mma.svg', href: '/sports' },
+  { name: 'Rugby', icon: '/sports_icons/rugby.svg', href: '/sports' },
+  { name: 'Cricket', icon: '/sports_icons/Cricket.svg', href: '/sports' },
+  { name: 'Volleyball', icon: '/sports_icons/volley.svg', href: '/sports' },
+  { name: 'Lacrosse', icon: '/sports_icons/lacrosse.svg', href: '/sports' },
+  { name: 'Pool', icon: '/sports_icons/pool.svg', href: '/sports' },
+  { name: 'Table Tennis', icon: '/sports_icons/table_tennis.svg', href: '/sports' },
+  { name: 'Horse Racing', icon: '/sports_icons/Horse-Racing-101.svg', href: '/sports' },
   { name: 'All Sports', icon: '/sports_icons/all sports.svg', href: '/sports' },
 ]
 
@@ -1576,7 +1576,7 @@ function HomePageContent() {
             {[
               { label: 'Home', onClick: () => { setQuickLinksOpen(false); } },
               { label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino'); setQuickLinksOpen(false); } },
-              { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football'); setQuickLinksOpen(false); } },
+              { label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports'); setQuickLinksOpen(false); } },
               { label: 'Poker', onClick: () => { trackNav('poker', 'Poker'); router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
               { label: 'Promotions', onClick: () => { trackNav('promotions', 'Promotions'); router.push('/casino?vipRewardsPage=true'); setQuickLinksOpen(false); } },
             ].map((item) => (
@@ -1697,7 +1697,7 @@ function HomePageContent() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     className="h-10 min-w-[80px] px-4 py-2 rounded-small text-sm font-medium justify-center hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)] transition-colors text-[var(--ds-fg-muted)] cursor-pointer"
-                    onClick={() => { trackNav('sports', 'Sports'); router.push('/sports/football') }}
+                    onClick={() => { trackNav('sports', 'Sports'); router.push('/sports') }}
                   >
                     Sports
                   </SidebarMenuButton>
@@ -1820,7 +1820,7 @@ function HomePageContent() {
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2 
               className="text-lg font-semibold text-[var(--ds-fg)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors"
-              onClick={() => router.push('/sports/football')}
+              onClick={() => router.push('/sports')}
             >
               Top Sports
             </h2>
@@ -1828,7 +1828,7 @@ function HomePageContent() {
               <Button
                 variant="ghost"
                 className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
-                onClick={() => router.push('/sports/football')}
+                onClick={() => router.push('/sports')}
               >
                 View All
               </Button>
@@ -2097,7 +2097,7 @@ function HomePageContent() {
           <div className={cn("flex items-center justify-between mb-4", isMobile ? "px-3" : "px-6")}>
             <h2
               className="text-lg font-semibold text-[var(--ds-fg)] cursor-pointer hover:text-[var(--ds-fg-muted)] transition-colors"
-              onClick={() => router.push('/sports/football')}
+              onClick={() => router.push('/sports')}
             >
               Trending Sports
             </h2>
@@ -2105,7 +2105,7 @@ function HomePageContent() {
               <Button
                 variant="ghost"
                 className="text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] hover:bg-[var(--ds-control-bg)] text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small"
-                onClick={() => router.push('/sports/football')}
+                onClick={() => router.push('/sports')}
               >
                 See More
               </Button>
@@ -3297,7 +3297,7 @@ function HomePageContent() {
               icon: IconBallAmericanFootball,
               onClick: () => {
                 trackNav('sports', 'Sports')
-                router.push('/sports/football')
+                router.push('/sports')
               },
             },
           ]}

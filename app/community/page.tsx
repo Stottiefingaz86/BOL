@@ -35,7 +35,7 @@ import { BrandLogoPlaceholder } from '@/components/brand/brand-logo-placeholder'
 const topNavItems = [
   { label: "Forum", href: "/community", icon: IconMessageCircle2 },
   { label: "Casino", href: "/casino", icon: IconDice },
-  { label: "Sportsbook", href: "/sports/soccer/premier-league", icon: IconBallFootball },
+  { label: "Sportsbook", href: "/sports", icon: IconBallFootball },
   { label: "Blog", href: "/journey-map", icon: IconNews },
 ]
 
@@ -199,7 +199,7 @@ export default function CommunityPage() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <Link
-                href="/sports/soccer/premier-league"
+                href="/sports"
                 className="h-8 w-8 rounded-small border border-white/15 bg-white/5 hover:bg-white/10 flex items-center justify-center shrink-0"
               >
                 <IconArrowLeft className="w-4 h-4 text-white/80" />

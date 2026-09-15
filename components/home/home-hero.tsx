@@ -474,7 +474,7 @@ export function HomeHero({
           </DestinationCard>
 
           <DestinationCard
-            href="/sports/football"
+            href="/sports"
             title="Sports"
             band="sports"
             icon={<IconBallFootball className="h-4 w-4" strokeWidth={2} />}

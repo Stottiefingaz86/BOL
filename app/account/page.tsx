@@ -3161,7 +3161,7 @@ function AccountPageContent() {
           <div className="flex items-center h-full px-3 gap-2 min-w-max">
             {[
               { label: 'Home', onClick: () => { trackNav('home', 'Home'); router.push('/') } },
-              ...(visibleProducts.sports ? [{ label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports/football') } }] : []),
+              ...(visibleProducts.sports ? [{ label: 'Sports', onClick: () => { trackNav('sports', 'Sports'); router.push('/sports') } }] : []),
               ...(visibleProducts.liveBetting ? [{ label: 'Live Betting', onClick: () => { trackNav('live-betting', 'Live Betting'); window.location.href = '/live-betting' } }] : []),
               ...(visibleProducts.casino ? [{ label: 'Casino', onClick: () => { trackNav('casino', 'Casino'); router.push('/casino') } }] : []),
               ...(visibleProducts.liveCasino ? [{ label: 'Live Casino', onClick: () => { trackNav('casino', 'Live Casino'); router.push('/casino') } }] : []),
@@ -3291,7 +3291,7 @@ function AccountPageContent() {
                       "text-[var(--ds-fg-muted)] cursor-pointer"
                     )}
                     style={{ pointerEvents: 'auto' } as React.CSSProperties}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('sports', 'Sports'); router.push('/sports/football') }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); trackNav('sports', 'Sports'); router.push('/sports') }}
                   >
                     <span className="relative z-10">Sports</span>
                   </SidebarMenuButton>
@@ -3520,7 +3520,7 @@ function AccountPageContent() {
                       trackNav(item.page, item.label)
                       setOpenMobile(false)
                       if (item.page === 'sports') {
-                        router.push('/sports/football')
+                        router.push('/sports')
                       } else if (item.page === 'home') {
                         router.push('/')
                       } else if (item.page === 'casino') {

@@ -17,55 +17,55 @@ const BIGGEST_MARKETS = [
     id: 'nfl',
     name: 'NFL',
     icon: '/banners/sports_league/NFL.svg',
-    href: '/sports/football/nfl',
+    href: '/sports',
   },
   {
     id: 'nba',
     name: 'NBA',
     icon: '/banners/sports_league/nba.svg',
-    href: '/sports/basketball/nba',
+    href: '/sports',
   },
   {
     id: 'mlb',
     name: 'MLB',
     icon: '/banners/sports_league/MLB.svg',
-    href: '/sports/baseball/mlb',
+    href: '/sports',
   },
   {
     id: 'nhl',
     name: 'NHL',
     icon: '/banners/sports_league/NHL.svg',
-    href: '/sports/hockey/nhl',
+    href: '/sports',
   },
   {
     id: 'premier-league',
     name: 'Premier League',
     icon: '/banners/sports_league/prem.svg',
-    href: '/sports/soccer/premier-league',
+    href: '/sports',
   },
   {
     id: 'la-liga',
     name: 'La Liga',
     icon: '/banners/sports_league/laliga.svg',
-    href: '/sports/soccer/la-liga',
+    href: '/sports',
   },
   {
     id: 'mls',
     name: 'MLS',
     icon: '/banners/sports_league/mls.svg',
-    href: '/sports/soccer/mls',
+    href: '/sports',
   },
   {
     id: 'atp',
     name: 'ATP',
     icon: '/banners/sports_league/ATP.svg',
-    href: '/sports/tennis/atp',
+    href: '/sports',
   },
   {
     id: 'f1',
     name: 'Formula 1',
     icon: '/banners/sports_league/f1.svg',
-    href: '/sports/football',
+    href: '/sports',
   },
 ] as const
 
@@ -91,7 +91,7 @@ export function BiggestLeaguesCarousel({ className }: BiggestLeaguesCarouselProp
         </h2>
         <button
           type="button"
-          onClick={() => router.push('/sports/football')}
+          onClick={() => router.push('/sports')}
           className="inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold text-[#ee3536] transition-colors hover:text-[#ff5555]"
         >
           View All
