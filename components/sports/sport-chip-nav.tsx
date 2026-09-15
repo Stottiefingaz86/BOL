@@ -16,7 +16,7 @@ interface SportChipNavProps {
 export function SportChipNav({ chips, activeId, onSelect, className, edgeInset = 0 }: SportChipNavProps) {
   return (
     <div
-      className={cn('flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-hide', className)}
+      className={cn('flex items-center gap-1.5 overflow-x-auto overflow-y-hidden pb-2 scrollbar-hide', className)}
       style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
       role="tablist"
       aria-label="Sports"

@@ -54,21 +54,23 @@ export function EventRow({
       <div className={cn('relative flex flex-col', className)} style={liveTint(event.isLive)}>
         {/* Scoreboard */}
         <div className="flex items-center gap-2 px-3 pt-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2 py-2">
+          <div
+            role="link"
+            tabIndex={0}
+            aria-label={`Open ${event.home.name} v ${event.away.name}`}
+            onClick={() => onOpen?.(event)}
+            onKeyDown={(e) => e.key === 'Enter' && onOpen?.(event)}
+            className="group/open -mx-1 flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-lg px-1 py-2 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/15"
+          >
             <StatusColumn clock={event.clock} clockSub={event.clockSub} isLive={event.isLive} />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <TeamLine name={event.home.name} logo={event.home.logo} score={event.home.score} />
               <TeamLine name={event.away.name} logo={event.away.logo} score={event.away.score} />
             </div>
+            <span className="flex shrink-0 items-center justify-center rounded-lg p-1.5 text-[var(--ds-fg-muted)] transition-colors group-hover/open:text-[var(--ds-fg)]">
+              <IconChevronRight className="h-4 w-4" strokeWidth={1.5} />
+            </span>
           </div>
-          <button
-            type="button"
-            aria-label="Open event"
-            onClick={() => onOpen?.(event)}
-            className="flex shrink-0 items-center justify-center rounded-lg p-1.5 text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
-          >
-            <IconChevronRight className="h-4 w-4" strokeWidth={1.5} />
-          </button>
         </div>
 
         {/* Picks — team abbreviations pinned left, market columns scroll */}
@@ -87,21 +89,23 @@ export function EventRow({
     <div className={cn('relative flex items-stretch gap-2 px-4', className)} style={liveTint(event.isLive)}>
       {/* Status + teams + chevron */}
       <div className="relative flex w-[309px] shrink-0 items-center gap-2 pt-5">
-        <div className="flex min-w-0 flex-1 items-center justify-center gap-2 py-3">
+        <div
+          role="link"
+          tabIndex={0}
+          aria-label={`Open ${event.home.name} v ${event.away.name}`}
+          onClick={() => onOpen?.(event)}
+          onKeyDown={(e) => e.key === 'Enter' && onOpen?.(event)}
+          className="group/open -mx-1 flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-1 py-3 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/15"
+        >
           <StatusColumn clock={event.clock} clockSub={event.clockSub} isLive={event.isLive} />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <TeamLine name={event.home.name} logo={event.home.logo} score={event.home.score} />
             <TeamLine name={event.away.name} logo={event.away.logo} score={event.away.score} />
           </div>
+          <span className="flex shrink-0 items-center justify-center rounded-lg p-1.5 text-[var(--ds-fg-muted)] transition-colors group-hover/open:text-[var(--ds-fg)]">
+            <IconChevronRight className="h-4 w-4" strokeWidth={1.5} />
+          </span>
         </div>
-        <button
-          type="button"
-          aria-label="Open event"
-          onClick={() => onOpen?.(event)}
-          className="flex shrink-0 items-center justify-center rounded-lg p-1.5 text-[var(--ds-fg-muted)] transition-colors hover:bg-[var(--ds-control-bg)] hover:text-[var(--ds-fg)]"
-        >
-          <IconChevronRight className="h-4 w-4" strokeWidth={1.5} />
-        </button>
       </div>
 
       {/* Markets */}

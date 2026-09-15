@@ -11,6 +11,7 @@ interface EventListCardProps {
   layout?: 'desktop' | 'mobile'
   selectedIds?: Set<string>
   onSelectOdds?: (cell: OddsCell, event: SportsEvent, marketTitle: string) => void
+  onOpenEvent?: (event: SportsEvent) => void
   className?: string
 }
 
@@ -20,6 +21,7 @@ export function EventListCard({
   layout = 'desktop',
   selectedIds,
   onSelectOdds,
+  onOpenEvent,
   className,
 }: EventListCardProps) {
   return (
@@ -46,6 +48,7 @@ export function EventListCard({
               layout={layout}
               selectedIds={selectedIds}
               onSelectOdds={onSelectOdds}
+              onOpen={onOpenEvent}
             />
           </Fragment>
         ))}

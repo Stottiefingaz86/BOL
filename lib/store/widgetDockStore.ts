@@ -6,8 +6,15 @@ export interface TrackerEventData {
   id: number
   team1: string
   team2: string
+  /** Optional crest / abbreviation shown in the tracker scoreboard (falls back to initials). */
+  team1Logo?: string
+  team2Logo?: string
+  team1Code?: string
+  team2Code?: string
   league: string
   country: string
+  /** Drives the 3D field drawn in the tracker (defaults to soccer). */
+  sport?: 'football' | 'basketball' | 'soccer'
   score?: { team1: number; team2: number }
   minute?: string
   isLive?: boolean

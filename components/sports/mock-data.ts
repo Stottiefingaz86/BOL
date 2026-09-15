@@ -20,6 +20,8 @@ export interface SportChip {
 
 export interface PopularEvent {
   id: string
+  /** The SportsEvent this card opens (`/sports/event/:eventId`). */
+  eventId: string
   league: string
   leagueIcon: string
   country: string
@@ -117,52 +119,6 @@ export const PROMO_BANNERS: PromoBanner[] = [
 const nfl = (slug: string) => `https://a.espncdn.com/i/teamlogos/nfl/500/${slug}.png`
 const ncaa = (id: number) => `https://a.espncdn.com/i/teamlogos/ncaa/500/${id}.png`
 
-export const POPULAR_EVENTS: PopularEvent[] = [
-  {
-    id: 'pop-1',
-    league: 'NFL',
-    leagueIcon: '/banners/sports_league/NFL.svg',
-    country: 'USA',
-    clock: 'Q1, 8:44',
-    isLive: true,
-    home: { name: 'Tennessee Titans', code: 'TEN', logo: nfl('ten'), score: 5, percent: 50 },
-    away: { name: 'Philadelphia Eagles', code: 'PHI', logo: nfl('phi'), score: 4, percent: 50 },
-    marketLabel: 'Moneyline',
-  },
-  {
-    id: 'pop-2',
-    league: 'NFL',
-    leagueIcon: '/banners/sports_league/NFL.svg',
-    country: 'USA',
-    clock: 'Q2, 3:12',
-    isLive: true,
-    home: { name: 'Kansas City Chiefs', code: 'KC', logo: nfl('kc'), score: 14, percent: 62 },
-    away: { name: 'Buffalo Bills', code: 'BUF', logo: nfl('buf'), score: 10, percent: 38 },
-    marketLabel: 'Moneyline',
-  },
-  {
-    id: 'pop-3',
-    league: 'NFL',
-    leagueIcon: '/banners/sports_league/NFL.svg',
-    country: 'USA',
-    clock: 'Q3, 6:01',
-    isLive: true,
-    home: { name: 'Dallas Cowboys', code: 'DAL', logo: nfl('dal'), score: 21, percent: 55 },
-    away: { name: 'New York Giants', code: 'NYG', logo: nfl('nyg'), score: 17, percent: 45 },
-    marketLabel: 'Moneyline',
-  },
-  {
-    id: 'pop-4',
-    league: 'NFL',
-    leagueIcon: '/banners/sports_league/NFL.svg',
-    country: 'USA',
-    clock: 'Q4, 1:48',
-    isLive: true,
-    home: { name: 'San Francisco 49ers', code: 'SF', logo: nfl('sf'), score: 28, percent: 68 },
-    away: { name: 'Seattle Seahawks', code: 'SEA', logo: nfl('sea'), score: 20, percent: 32 },
-    marketLabel: 'Moneyline',
-  },
-]
 
 /** Full American-football market set matching the Figma desktop row. */
 function footballMarkets(
@@ -358,3 +314,43 @@ export const BASKETBALL_LEAGUES: LeagueGroup[] = [
     ],
   },
 ]
+
+export const ALL_LEAGUES: LeagueGroup[] = [...FOOTBALL_LEAGUES, ...BASKETBALL_LEAGUES]
+
+export function findEventById(id: string): { event: SportsEvent; league: LeagueGroup } | null {
+  for (const league of ALL_LEAGUES) {
+    const event = league.events.find((e) => e.id === id)
+    if (event) return { event, league }
+  }
+  return null
+}
+
+/** Implied win probability (%) from American moneyline odds. */
+function impliedPercent(odds: string): number {
+  const n = parseFloat(odds)
+  if (Number.isNaN(n) || n === 0) return 50
+  const p = n > 0 ? 100 / (n + 100) : -n / (-n + 100)
+  return Math.round(p * 100)
+}
+
+function toPopular(event: SportsEvent, league: LeagueGroup): PopularEvent {
+  const ml = event.markets.find((m) => /^moneyline$/i.test(m.name))
+  const homePct = impliedPercent(ml?.cells[0]?.odds ?? '-110')
+  return {
+    id: `pop-${event.id}`,
+    eventId: event.id,
+    league: league.title,
+    leagueIcon: league.icon,
+    country: league.subtitle,
+    clock: event.clock,
+    isLive: event.isLive,
+    home: { ...event.home, score: event.home.score ?? 0, percent: homePct },
+    away: { ...event.away, score: event.away.score ?? 0, percent: 100 - homePct },
+    marketLabel: 'Moneyline',
+  }
+}
+
+/** Popular Events rail — the live events across all leagues, so every card opens a real event page. */
+export const POPULAR_EVENTS: PopularEvent[] = ALL_LEAGUES.flatMap((league) =>
+  league.events.filter((e) => e.isLive).map((e) => toPopular(e, league))
+)

@@ -7,14 +7,20 @@ import type { PopularEvent } from './mock-data'
 
 interface PopularEventCardProps {
   event: PopularEvent
+  onOpen?: (event: PopularEvent) => void
   className?: string
 }
 
-export function PopularEventCard({ event, className }: PopularEventCardProps) {
+export function PopularEventCard({ event, onOpen, className }: PopularEventCardProps) {
   return (
     <article
+      role={onOpen ? 'link' : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={() => onOpen?.(event)}
+      onKeyDown={(e) => e.key === 'Enter' && onOpen?.(event)}
       className={cn(
-        'flex h-[160px] w-[340px] shrink-0 flex-col overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#262626]',
+        'flex h-[160px] w-[340px] shrink-0 flex-col overflow-hidden rounded-[10px] border border-white/[0.06] bg-[#262626] transition-colors',
+        onOpen && 'cursor-pointer hover:border-white/[0.14] hover:bg-[#2b2b2b] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20',
         className
       )}
       style={

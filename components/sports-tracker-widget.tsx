@@ -10,6 +10,7 @@ import {
   IconArrowBarRight,
   IconArrowsMaximize,
 } from '@tabler/icons-react'
+import { Pitch3D } from '@/components/sports/pitch-3d'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useChatStore } from '@/lib/store/chatStore'
 import {
@@ -38,12 +39,28 @@ interface TrackerContentProps {
   event: TrackerEventData
   maxHeight?: number | string
   isCompact?: boolean // docked mode: tighter spacing
+  /** Skip the competition line + scoreboard (when the host page already shows the score). */
+  hideScoreboard?: boolean
+}
+
+function TeamCrest({ name, logo }: { name: string; logo?: string }) {
+  return (
+    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+      {logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logo} alt="" className="w-6 h-6 object-contain" />
+      ) : (
+        <span className="text-xs font-bold text-white/70">{name.substring(0, 2).toUpperCase()}</span>
+      )}
+    </div>
+  )
 }
 
 export function TrackerWidgetContent({
   event,
   maxHeight,
   isCompact = false,
+  hideScoreboard = false,
 }: TrackerContentProps) {
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState('Live')
@@ -126,7 +143,8 @@ export function TrackerWidgetContent({
     }
   }, [event?.statscoreEventId, event?.statscoreConfigId])
 
-  if (hasStatscoreConfig) {
+  // If the STATSCORE SDK fails (domain not whitelisted / expired event) fall through to the static tracker
+  if (hasStatscoreConfig && statscoreStatus !== 'error') {
     return (
       <div
         className="relative"
@@ -138,31 +156,6 @@ export function TrackerWidgetContent({
           className="statscore-widget-root"
           style={{ width: '100%', minHeight: isMobile ? 280 : 380 }}
         />
-        {/* Error fallback — only shows when SDK itself fails to initialise */}
-        {statscoreStatus === 'error' && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center z-10 px-4"
-            style={{ backgroundColor: widgetBg }}
-          >
-            <span className="text-[11px] text-white/50 mb-1 text-center">
-              STATSCORE widget couldn&apos;t load
-            </span>
-            <span className="text-[9px] text-white/30 mb-3 text-center">
-              Ensure your domain is whitelisted and the config/event IDs are valid.
-            </span>
-            <button
-              onClick={() => {
-                setStatscoreStatus('idle')
-                widgetInstanceRef.current = null
-                const el = statscoreContainerRef.current
-                if (el) el.innerHTML = ''
-              }}
-              className="text-[10px] text-[#ee3536] hover:text-[#ee3536]/80 underline cursor-pointer"
-            >
-              Retry
-            </button>
-          </div>
-        )}
       </div>
     )
   }
@@ -173,89 +166,85 @@ export function TrackerWidgetContent({
       className="overflow-y-auto"
       style={{ backgroundColor: widgetBg, maxHeight }}
     >
-      {/* Competition Info */}
-      <div
-        className="flex items-center justify-between px-3 py-1.5 border-b border-white/5"
-        style={{ backgroundColor: widgetBgDarker }}
-      >
-        <div className="flex items-center gap-1.5">
-          <div className="w-4 h-3 rounded-sm bg-white/10 flex items-center justify-center">
-            <span className="text-[6px]">🏴</span>
+      {!hideScoreboard && (
+        <>
+        {/* Competition Info */}
+        <div
+          className="flex items-center justify-between px-3 py-1.5 border-b border-white/5"
+          style={{ backgroundColor: widgetBgDarker }}
+        >
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-3 rounded-sm bg-white/10 flex items-center justify-center">
+              <span className="text-[6px]">🏴</span>
+            </div>
+            <span className="text-[10px] text-white/60">
+              {event.country}, {event.league}
+            </span>
           </div>
-          <span className="text-[10px] text-white/60">
-            {event.country}, {event.league}
+          <span className="text-[10px] text-white/40">
+            {new Date().toLocaleDateString('en-GB')}{' '}
+            {new Date().toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </span>
         </div>
-        <span className="text-[10px] text-white/40">
-          {new Date().toLocaleDateString('en-GB')}{' '}
-          {new Date().toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </span>
-      </div>
 
-      {/* Scoreboard */}
-      <div className="px-4 py-3" style={{ backgroundColor: widgetBg }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold text-white/70">
-                {event.team1.substring(0, 2).toUpperCase()}
+        {/* Scoreboard */}
+        <div className="px-4 py-3" style={{ backgroundColor: widgetBg }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <TeamCrest name={event.team1} logo={event.team1Logo} />
+              <span className="text-sm font-medium text-white truncate">
+                {event.team1}
               </span>
             </div>
-            <span className="text-sm font-medium text-white truncate">
-              {event.team1}
-            </span>
-          </div>
-          <div className="flex flex-col items-center mx-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-white tabular-nums">
-                {event.score?.team1 ?? 0}
-              </span>
-              <span className="text-lg text-white/30">:</span>
-              <span className="text-2xl font-bold text-white tabular-nums">
-                {event.score?.team2 ?? 0}
-              </span>
-            </div>
-            {event.isLive && (
-              <div className="flex items-center gap-1 mt-0.5">
-                <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse" />
-                <span className="text-[10px] font-semibold text-[#ee3536]">
-                  {event.minute || "45'"}
+            <div className="flex flex-col items-center mx-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-white tabular-nums">
+                  {event.score?.team1 ?? 0}
+                </span>
+                <span className="text-lg text-white/30">:</span>
+                <span className="text-2xl font-bold text-white tabular-nums">
+                  {event.score?.team2 ?? 0}
                 </span>
               </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-            <span className="text-sm font-medium text-white truncate text-right">
-              {event.team2}
-            </span>
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-bold text-white/70">
-                {event.team2.substring(0, 2).toUpperCase()}
+              {event.isLive && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <div className="w-1.5 h-1.5 bg-[#ee3536] rounded-full animate-pulse" />
+                  <span className="text-[10px] font-semibold text-[#ee3536]">
+                    {event.minute || "45'"}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+              <span className="text-sm font-medium text-white truncate text-right">
+                {event.team2}
               </span>
+              <TeamCrest name={event.team2} logo={event.team2Logo} />
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-2 pt-2 border-t border-white/5">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-[#00ffa5] font-semibold">1</span>
+              <span className="text-[10px] text-white/40">⚽</span>
+              <span className="text-[10px] text-[#ff00ed] font-semibold">3</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-[#00ffa5] font-semibold">2</span>
+              <span className="text-[10px] text-white/40">🟨</span>
+              <span className="text-[10px] text-[#ff00ed] font-semibold">1</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-[#00ffa5] font-semibold">0</span>
+              <span className="text-[10px] text-white/40">🟥</span>
+              <span className="text-[10px] text-[#ff00ed] font-semibold">0</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-center gap-6 mt-2 pt-2 border-t border-white/5">
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-[#00ffa5] font-semibold">1</span>
-            <span className="text-[10px] text-white/40">⚽</span>
-            <span className="text-[10px] text-[#ff00ed] font-semibold">3</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-[#00ffa5] font-semibold">2</span>
-            <span className="text-[10px] text-white/40">🟨</span>
-            <span className="text-[10px] text-[#ff00ed] font-semibold">1</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-[#00ffa5] font-semibold">0</span>
-            <span className="text-[10px] text-white/40">🟥</span>
-            <span className="text-[10px] text-[#ff00ed] font-semibold">0</span>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Timeline */}
       <div className="px-3 py-2" style={{ backgroundColor: widgetBgDarker }}>
@@ -263,13 +252,13 @@ export function TrackerWidgetContent({
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-[#00ffa5]" />
             <span className="text-[9px] text-white/50">
-              {event.team1.substring(0, 3).toUpperCase()}
+              {event.team1Code ?? event.team1.substring(0, 3).toUpperCase()}
             </span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-[#ff00ed]" />
             <span className="text-[9px] text-white/50">
-              {event.team2.substring(0, 3).toUpperCase()}
+              {event.team2Code ?? event.team2.substring(0, 3).toUpperCase()}
             </span>
           </div>
         </div>
@@ -313,103 +302,17 @@ export function TrackerWidgetContent({
         ))}
       </div>
 
-      {/* Live Pitch */}
+      {/* Live Pitch — stadium-style 3D field */}
       {activeTab === 'Live' && (
-        <div
-          className="relative bg-[#1a3a1a] overflow-hidden"
-          style={{ height: isCompact ? 120 : isMobile ? 140 : 180 }}
-        >
-          <svg
-            viewBox="0 0 100 65"
-            className="w-full h-full"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <rect x="0" y="0" width="100" height="65" fill="#1a5c1a" />
-            <rect
-              x="2"
-              y="2"
-              width="96"
-              height="61"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <line
-              x1="50"
-              y1="2"
-              x2="50"
-              y2="63"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <circle
-              cx="50"
-              cy="32.5"
-              r="8"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <circle cx="50" cy="32.5" r="0.8" fill="rgba(255,255,255,0.4)" />
-            <rect
-              x="2"
-              y="15"
-              width="14"
-              height="35"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <rect
-              x="2"
-              y="22"
-              width="5"
-              height="21"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <rect
-              x="84"
-              y="15"
-              width="14"
-              height="35"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <rect
-              x="93"
-              y="22"
-              width="5"
-              height="21"
-              fill="none"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="0.3"
-            />
-            <circle cx="62" cy="28" r="1.2" fill="white" opacity="0.9">
-              <animate
-                attributeName="opacity"
-                values="0.9;0.5;0.9"
-                dur="2s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            <ellipse
-              cx="60"
-              cy="30"
-              rx="12"
-              ry="8"
-              fill="rgba(255,0,237,0.08)"
-            />
-            <ellipse
-              cx="38"
-              cy="35"
-              rx="10"
-              ry="7"
-              fill="rgba(0,255,165,0.06)"
-            />
-          </svg>
+        <div className="relative overflow-hidden">
+          <Pitch3D
+            sport={event.sport ?? 'soccer'}
+            clock={event.minute}
+            isLive={event.isLive}
+            homePercent={45}
+            label="Play by play"
+            height={isCompact ? 200 : isMobile ? 220 : 250}
+          />
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-3 py-1">
             <span className="text-[10px] font-semibold text-[#00ffa5]">
               45%

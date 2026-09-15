@@ -8,7 +8,7 @@ import { Top10GamesCarousel } from '@/components/casino/top-10-games-carousel'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
-import { useBetslipStore } from '@/lib/store/betslipStore'
+import { useSportsBetslip } from './use-sports-betslip'
 import { EventListCard } from './event-list-card'
 import { MarketFilterBar } from './market-filter-bar'
 import { PopularEventsRail } from './popular-events-rail'
@@ -21,7 +21,6 @@ import {
   SPORT_CHIPS,
   type LeagueGroup,
   type MarketFilter,
-  type OddsCell,
   type SportId,
   type SportsEvent,
 } from './mock-data'
@@ -40,14 +39,8 @@ export function SportsHome({
   const router = useRouter()
   const [marketFilter, setMarketFilter] = useState<MarketFilter>('events')
 
-  const bets = useBetslipStore((s) => s.bets)
-  const addBet = useBetslipStore((s) => s.addBet)
-  const removeBet = useBetslipStore((s) => s.removeBet)
-  const setOpen = useBetslipStore((s) => s.setOpen)
-  const setMinimized = useBetslipStore((s) => s.setMinimized)
-  const setManuallyClosed = useBetslipStore((s) => s.setManuallyClosed)
-
-  const selectedIds = useMemo(() => new Set(bets.map((b) => b.id)), [bets])
+  const { selectedIds, toggleOdds } = useSportsBetslip()
+  const openEvent = (event: SportsEvent) => router.push(`/sports/event/${event.id}`)
 
   const footballLeagues = useMemo(
     () => visibleLeagues(FOOTBALL_LEAGUES, activeSport, 'football'),
@@ -65,25 +58,6 @@ export function SportsHome({
   // Sport-specific page (any chip other than Sports Home): breadcrumbs instead of casino banners
   const isSportPage = activeSport !== 'home'
   const sportLabel = SPORT_CHIPS.find((c) => c.id === activeSport)?.label ?? 'Sport'
-
-  const handleSelectOdds = (cell: OddsCell, event: SportsEvent, marketTitle: string) => {
-    if (selectedIds.has(cell.id)) {
-      removeBet(cell.id)
-      return
-    }
-    addBet({
-      id: cell.id,
-      eventId: hashEventId(event.id),
-      eventName: `${event.home.name} vs ${event.away.name}`,
-      marketTitle,
-      selection: cell.line ?? cell.odds,
-      odds: cell.odds,
-      stake: 0,
-    })
-    setManuallyClosed(false)
-    setMinimized(false)
-    setOpen(true)
-  }
 
   return (
     <div className="w-full space-y-5 px-4 pb-10 pt-4 md:px-6 md:pt-5">
@@ -105,7 +79,11 @@ export function SportsHome({
             title="Popular Events"
             onSeeAll={() => setActiveSport('football')}
           />
-          <PopularEventsRail events={POPULAR_EVENTS} className={isMobile ? '-mx-4' : '-mx-6'} />
+          <PopularEventsRail
+            events={POPULAR_EVENTS}
+            onOpen={(e) => router.push(`/sports/event/${e.eventId}`)}
+            className={isMobile ? '-mx-4' : '-mx-6'}
+          />
         </section>
       )}
 
@@ -129,7 +107,8 @@ export function SportsHome({
                 league={league}
                 layout={isMobile ? 'mobile' : 'desktop'}
                 selectedIds={selectedIds}
-                onSelectOdds={handleSelectOdds}
+                onSelectOdds={toggleOdds}
+                onOpenEvent={openEvent}
               />
             ))}
           </div>
@@ -161,7 +140,8 @@ export function SportsHome({
                 league={league}
                 layout={isMobile ? 'mobile' : 'desktop'}
                 selectedIds={selectedIds}
-                onSelectOdds={handleSelectOdds}
+                onSelectOdds={toggleOdds}
+                onOpenEvent={openEvent}
               />
             ))}
           </div>
@@ -239,8 +219,3 @@ function visibleLeagues(leagues: LeagueGroup[], activeSport: SportId, sport: Spo
   )
 }
 
-function hashEventId(id: string): number {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0
-  return Math.abs(hash)
-}

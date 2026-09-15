@@ -14,12 +14,13 @@ import type { PopularEvent } from './mock-data'
 
 interface PopularEventsRailProps {
   events: PopularEvent[]
+  onOpen?: (event: PopularEvent) => void
   /** Pass negative margins (e.g. `-mx-6`) so the rail bleeds to the content edges like the casino carousels. */
   className?: string
 }
 
 /** Full-bleed horizontal rail — same Carousel/drag behaviour as the casino lobby banners. */
-export function PopularEventsRail({ events, className }: PopularEventsRailProps) {
+export function PopularEventsRail({ events, onOpen, className }: PopularEventsRailProps) {
   const isMobile = useIsMobile()
 
   return (
@@ -43,7 +44,7 @@ export function PopularEventsRail({ events, className }: PopularEventsRailProps)
                 index === 0 ? (isMobile ? 'pl-4' : 'pl-6') : 'pl-2 md:pl-3'
               )}
             >
-              <PopularEventCard event={event} />
+              <PopularEventCard event={event} onOpen={onOpen} />
             </CarouselItem>
           ))}
         </CarouselContent>
