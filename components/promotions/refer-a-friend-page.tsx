@@ -466,6 +466,7 @@ export function ReferAFriendPage() {
   const [demoLoggedIn, setDemoLoggedIn] = useState(true)
   const claimableAmount = useReferralStore((s) => s.claimableAmount)
   const claimCommission = useReferralStore((s) => s.claimCommission)
+  const lifetimeCommission = useReferralStore((s) => s.lifetimeCommission)
   const referrals = useReferralStore((s) => s.referrals)
   const addPendingInvite = useReferralStore((s) => s.addPendingInvite)
 
@@ -781,7 +782,7 @@ export function ReferAFriendPage() {
                 </div>
                 <StatCard icon={IconUsers} label="Joined" value={String(joinedCount)} />
                 <StatCard icon={IconShare2} label="Referrals Sent" value={String(sentCount)} />
-                <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value="$20,000" />
+                <StatCard icon={IconTopologyStar3} label="Lifetime Commission" value={`$${Math.round(lifetimeCommission).toLocaleString('en-US')}`} />
               </section>
 
               <section className={cn('min-w-0 overflow-hidden', cardClass)}>

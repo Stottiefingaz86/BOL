@@ -4,6 +4,7 @@ import { create } from 'zustand'
 
 export const REFERRAL_REWARD_ID = 'refer-a-friend'
 export const REFERRAL_INITIAL_CLAIMABLE = 40
+export const REFERRAL_INITIAL_LIFETIME = 20000
 export const REFERRAL_COMMISSION_RATE = '10%'
 
 export type ReferralStatus = 'pending' | 'joined'
@@ -171,6 +172,8 @@ function maskEmail(email: string) {
 
 type ReferralStore = {
   claimableAmount: number
+  /** Everything ever claimed from referrals — rolls up on each claim. */
+  lifetimeCommission: number
   referrals: ReferralRow[]
   claimCommission: () => number
   addPendingInvite: (input: {
@@ -182,6 +185,7 @@ type ReferralStore = {
 
 export const useReferralStore = create<ReferralStore>((set, get) => ({
   claimableAmount: REFERRAL_INITIAL_CLAIMABLE,
+  lifetimeCommission: REFERRAL_INITIAL_LIFETIME,
   referrals: SEED_REFERRALS,
 
   claimCommission: () => {
@@ -191,6 +195,7 @@ export const useReferralStore = create<ReferralStore>((set, get) => ({
     // resets it to zero — it builds back up as those players wager again.
     set((state) => ({
       claimableAmount: 0,
+      lifetimeCommission: state.lifetimeCommission + amount,
       referrals: state.referrals.map((row) =>
         row.commission > 0
           ? { ...row, claimed: formatMoney(parseMoney(row.claimed) + row.commission), commission: 0 }
