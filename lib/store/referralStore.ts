@@ -152,6 +152,16 @@ function formatInviteDate(date = new Date()) {
   return `${day}/${month}/${year}`
 }
 
+/** "$1,200.00" → 1200; "—" → 0 */
+function parseMoney(value: string) {
+  const n = Number.parseFloat(value.replace(/[^0-9.-]/g, ''))
+  return Number.isFinite(n) ? n : 0
+}
+
+function formatMoney(value: number) {
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
 function maskEmail(email: string) {
   const [local, domain] = email.split('@')
   if (!domain) return '******'
@@ -177,7 +187,16 @@ export const useReferralStore = create<ReferralStore>((set, get) => ({
   claimCommission: () => {
     const amount = get().claimableAmount
     if (amount <= 0) return 0
-    set({ claimableAmount: 0 })
+    // Claiming sweeps every referral's outstanding commission into their "claimed" total and
+    // resets it to zero — it builds back up as those players wager again.
+    set((state) => ({
+      claimableAmount: 0,
+      referrals: state.referrals.map((row) =>
+        row.commission > 0
+          ? { ...row, claimed: formatMoney(parseMoney(row.claimed) + row.commission), commission: 0 }
+          : row
+      ),
+    }))
     return amount
   },
 

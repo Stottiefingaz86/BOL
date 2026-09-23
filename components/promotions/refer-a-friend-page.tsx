@@ -509,17 +509,20 @@ export function ReferAFriendPage() {
       return haystack.includes(q)
     })
 
+    // When commissions tie (e.g. everything is $0.00 right after a claim), fall back to
+    // lifetime claimed so the biggest earners keep their place instead of the table reshuffling.
+    const claimedOf = (row: ReferralRow) => Number.parseFloat(row.claimed.replace(/[^0-9.]/g, '')) || 0
     rows = [...rows].sort((a, b) => {
       switch (sortBy) {
         case 'commission-asc':
-          return a.commission - b.commission
+          return a.commission - b.commission || claimedOf(a) - claimedOf(b)
         case 'newest':
           return parseReferralDate(b.registered) - parseReferralDate(a.registered)
         case 'oldest':
           return parseReferralDate(a.registered) - parseReferralDate(b.registered)
         case 'commission-desc':
         default:
-          return b.commission - a.commission
+          return b.commission - a.commission || claimedOf(b) - claimedOf(a)
       }
     })
 

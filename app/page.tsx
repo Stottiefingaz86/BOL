@@ -905,7 +905,19 @@ function HomePageContent() {
   // can launch the drawer without needing to thread `openVipDrawer` down
   // through props. Toggle when already open so crown clicks don't re-play open.
   useEffect(() => {
-    const handler = () => {
+    const handler = (evt: Event) => {
+      // Optional `detail.tab` (e.g. from the research overlay's "Redeem now") opens straight onto that tab.
+      const tab = (evt as CustomEvent<{ tab?: string }>).detail?.tab
+      if (tab) {
+        setVipActiveTab(tab)
+        setVipDrawerOpen(true)
+        queueMicrotask(() => {
+          setAccountDrawerOpen(false)
+          setDepositDrawerOpen(false)
+          useChatStore.getState().setIsOpen(false)
+        })
+        return
+      }
       setVipDrawerOpen((open) => {
         if (open) return false
         queueMicrotask(() => {

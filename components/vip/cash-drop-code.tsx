@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IconBrandTelegram, IconCheck, IconGift } from '@tabler/icons-react'
 
@@ -16,6 +16,28 @@ export function CashDropCode({
   const [code, setCode] = useState('')
   const [claimed, setClaimed] = useState(false)
   const [error, setError] = useState('')
+
+  // Pre-fill when arriving via a "Redeem" link (e.g. the research overlay's reward).
+  useEffect(() => {
+    const apply = (raw: string | null | undefined) => {
+      if (!raw) return
+      setCode(raw.toUpperCase())
+      setError('')
+    }
+    try {
+      const prefill = sessionStorage.getItem('cashdrop:prefill')
+      if (prefill) {
+        sessionStorage.removeItem('cashdrop:prefill')
+        apply(prefill)
+      }
+    } catch {
+      /* ignore */
+    }
+    // Also handle the case where this panel is already mounted when Redeem is pressed.
+    const onPrefill = (evt: Event) => apply((evt as CustomEvent<{ code?: string }>).detail?.code)
+    window.addEventListener('cashdrop:prefill', onPrefill)
+    return () => window.removeEventListener('cashdrop:prefill', onPrefill)
+  }, [])
 
   const handleClaim = useCallback(() => {
     if (!code.trim()) {

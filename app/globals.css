@@ -2514,3 +2514,18 @@ button[data-active="true"][class*="SidebarMenuButton"],
     transform: translateX(-50%);
   }
 }
+
+/* Research session replay — rrweb Replayer inside our own player chrome */
+.research-replay .replayer-wrapper {
+  position: relative;
+  float: none;
+  background: #000;
+}
+.research-replay .replayer-wrapper > iframe {
+  border: 0;
+  display: block;
+}
+.research-replay .replayer-mouse {
+  /* rrweb's stock cursor; keep but make it visible on dark UIs */
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
+}

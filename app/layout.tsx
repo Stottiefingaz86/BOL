@@ -10,6 +10,8 @@ import { AnimationInspector } from '@/components/dev/animation-inspector'
 import { PreventOverscroll } from '@/components/prevent-overscroll'
 import EsportsLinkFix from '@/components/navigation/esports-link-fix'
 import { Toaster } from '@/components/ui/sonner'
+import { ResearchProvider } from '@/components/research/research-provider'
+import { ResearchHostBridges } from '@/components/research/host-bridges'
 import './globals.css'
 
 const figtree = Figtree({
@@ -63,6 +65,8 @@ export default function RootLayout({
           <DesignCustomizer />
           <AnimationInspector />
           <Toaster position="top-left" />
+          <ResearchHostBridges />
+          <ResearchProvider />
         </ThemeProvider>
       </body>
     </html>

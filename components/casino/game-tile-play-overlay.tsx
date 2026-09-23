@@ -5,6 +5,7 @@ import { IconLoader2, IconPlayerPlay } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import { GameTileFavoriteButton } from '@/components/casino/game-tile-favorite-button'
 import { useCasinoFavoritesOptional } from '@/components/casino/casino-favorites'
+import { emitResearchEvent } from '@/components/research/research-events'
 
 export type GameTilePlayOverlayProps = {
   onLaunch: () => void
@@ -50,6 +51,7 @@ export function GameTilePlayOverlay({
     setLoading(true)
     timerRef.current = setTimeout(() => {
       onLaunch()
+      emitResearchEvent('game:launched', { title: favoriteTitle ?? '' })
       // Reset after launch so reopening the tile works once the launcher closes
       timerRef.current = setTimeout(() => setLoading(false), 400)
     }, delayMs)

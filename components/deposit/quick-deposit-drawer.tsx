@@ -43,6 +43,7 @@ import {
   consumeOpenWalletAfterSignup,
 } from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
+import { emitResearchEvent } from "@/components/research/research-events";
 
 export type QuickDepositStep =
   | "started"
@@ -503,6 +504,7 @@ export function QuickDepositDrawer({
           amount,
           method: normalizedId,
         });
+        emitResearchEvent('deposit:completed', { amount, method: normalizedId });
         setStepLoading({
           started: true,
           processing: false,

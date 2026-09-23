@@ -1,9 +1,8 @@
 "use client"
 
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useBetslipStore, BetItem } from "@/lib/store/betslipStore"
-import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import {
@@ -21,10 +20,14 @@ import {
   IconChevronDown,
   IconChevronRight,
   IconCheck,
-  IconMessageCircle2,
   IconTrash,
+  IconFlame,
 } from "@tabler/icons-react"
 import { BetslipNumberPad } from "@/components/betslip/number-pad"
+import { JackpotLiveAmount } from "@/components/casino/jackpot/jackpot-live-amount"
+import { useJackpotStore } from "@/lib/store/jackpotStore"
+import { useActiveMustDrop } from "@/lib/jackpot/use-active-must-drop"
+import { JACKPOT_TIERS, formatJackpotCompact } from "@/lib/jackpot/constants"
 import { motion, AnimatePresence } from "framer-motion"
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -56,16 +59,14 @@ function BetslipViewSwitcher() {
 function BetslipConfirmationView() {
   const { setView } = useFamilyDrawer()
   const { pendingBets, setShowConfirmation, clearAll, setMyBetsAlertCount, setBets, setOpen, setManuallyClosed, setPlacedBets } = useBetslipStore()
-  const [sharing, setSharing] = useState(false)
-  const [shared, setShared] = useState(false)
 
   return (
     <div className="flex flex-col w-full bg-white" style={{ maxHeight: 'inherit', overflow: 'auto' }}>
       <div className="flex flex-col items-center justify-center px-6 py-6">
         {/* Success Icon */}
         <div className="mb-4">
-          <div className="w-16 h-16 rounded-full bg-[#8fd790] flex items-center justify-center">
-            <IconCheck className="w-8 h-8 text-[#0a0a0a]" strokeWidth={3} />
+          <div className="w-16 h-16 rounded-full bg-[#1fae4b] flex items-center justify-center">
+            <IconCheck className="w-8 h-8 text-white" strokeWidth={3} />
           </div>
         </div>
 
@@ -97,55 +98,18 @@ function BetslipConfirmationView() {
           >
             DONE
           </button>
-          {(() => {
-            return (
-              <button
-                disabled={sharing || shared}
-                onClick={() => {
-                  if (pendingBets.length > 0 && !sharing && !shared) {
-                    setSharing(true)
-                    setTimeout(() => {
-                      const { shareBetToChat } = useChatStore.getState()
-                      shareBetToChat(pendingBets.map((b) => ({
-                        eventName: b.eventName,
-                        selection: b.selection,
-                        odds: b.odds,
-                        stake: b.stake,
-                      })))
-                      setSharing(false)
-                      setShared(true)
-                    }, 1200)
-                  }
-                }}
-                className={cn(
-                  "w-full py-3 px-4 rounded text-sm font-medium transition-all flex items-center justify-center gap-2",
-                  shared
-                    ? "border border-emerald-500/50 bg-emerald-500/20 text-emerald-600 cursor-default"
-                    : sharing
-                    ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 cursor-wait opacity-80"
-                    : "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
-                )}
-              >
-                {sharing ? (
-                  <>
-                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
-                    SHARING...
-                  </>
-                ) : shared ? (
-                  <>
-                    <IconCheck className="w-4 h-4" />
-                    SHARED TO CHAT ✓
-                  </>
-                ) : (
-                  <>
-                    <IconMessageCircle2 className="w-4 h-4" />
-                    SHARE TO CHAT
-                  </>
-                )}
-              </button>
-            )
-          })()}
         </div>
+
+        {/* Casino cross-sell — get the punter into the casino while the bet settles */}
+        <CasinoCrossSell
+          onNavigate={() => {
+            setView('default')
+            setShowConfirmation(false)
+            clearAll()
+            setOpen(false)
+            setManuallyClosed(true)
+          }}
+        />
 
         {/* Re-use Selections */}
         <div className="text-center pt-4 border-t border-black/10 w-full max-w-sm">
@@ -173,6 +137,70 @@ function BetslipConfirmationView() {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Casino cross-sell (confirmation view) ────────────────
+/**
+ * Dark, on-brand jackpot promo (same store / amount components as the casino sidebar & jackpot tab).
+ * Goal: pull the punter into the casino while their bet settles.
+ */
+function CasinoCrossSell({ onNavigate }: { onNavigate: () => void }) {
+  const router = useRouter()
+  const amounts = useJackpotStore((s) => s.amounts)
+  const mustDrop = useActiveMustDrop()
+  const tiers = JACKPOT_TIERS.filter((t) => t.id !== 'mega').slice(0, 3)
+  const go = (href: string) => {
+    onNavigate()
+    router.push(href)
+  }
+
+  return (
+    <div className="w-full max-w-sm mb-6 rounded-lg border border-black/10 bg-white">
+      <div className="px-4 pt-4 pb-3">
+        {/* Header row */}
+        <div className="flex items-center justify-between gap-3">
+          <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.12em] text-black/50">Casino jackpots</p>
+          {mustDrop.isVisible ? (
+            <span className="inline-flex items-center gap-1 whitespace-nowrap text-[11px] text-black/60">
+              <IconFlame className="size-3.5 text-[#ee3536]" strokeWidth={2} />
+              Must drop <span className="font-semibold tabular-nums text-black">{mustDrop.countdown || mustDrop.detailShort}</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-black/60">
+              <span className="size-1.5 rounded-full bg-[#1fae4b]" />
+              Live
+            </span>
+          )}
+        </div>
+
+        {/* Mega amount */}
+        <div className="mt-1.5 flex items-baseline justify-between gap-3">
+          <JackpotLiveAmount value={amounts.mega} size="sm" className="!text-[22px] !text-black" />
+          <span className="text-[11px] text-black/50">Mega jackpot</span>
+        </div>
+
+        {/* Tiers */}
+        <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-black/60">
+          {tiers.map((tier) => (
+            <span key={tier.id} className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <span className="size-1.5 rounded-full" style={{ backgroundColor: tier.accent }} />
+              {tier.label}
+              <span className="font-semibold tabular-nums text-black">{formatJackpotCompact(amounts[tier.id])}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => go('/casino?tab=jackpots')}
+        className="flex w-full items-center justify-center gap-1 border-t border-black/10 px-4 py-3 text-sm font-medium text-black transition-colors hover:bg-black/5 rounded-b-lg"
+      >
+        PLAY JACKPOT GAMES
+        <IconChevronRight className="size-4" />
+      </button>
     </div>
   )
 }
@@ -561,7 +589,7 @@ function BetslipDefaultView() {
                           <span className="text-[11px] font-semibold text-black/80 whitespace-nowrap">{bet.odds}</span>
                         </div>
                     <div className="flex-shrink-0 w-[100px] min-w-[100px]">
-                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8fd790] focus-within:ring-1 focus-within:ring-[#8fd790]/30 transition-all", numpadTarget === bet.id ? "border-[#8fd790] ring-1 ring-[#8fd790]/30" : "border-black/10")}>
+                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#1fae4b] focus-within:ring-1 focus-within:ring-[#1fae4b]/30 transition-all", numpadTarget === bet.id ? "border-[#1fae4b] ring-1 ring-[#1fae4b]/30" : "border-black/10")}>
                         <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                         <input
                           data-vaul-no-drag=""
@@ -654,7 +682,7 @@ function BetslipDefaultView() {
                     </div>
                     <div className="flex-shrink-0 text-xs font-medium text-black mr-1.5">{parlayOdds}</div>
                     <div className="flex-shrink-0 w-[100px] min-w-[100px]">
-                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#8fd790] focus-within:ring-1 focus-within:ring-[#8fd790]/30 transition-all", numpadTarget === 'parlay' ? "border-[#8fd790] ring-1 ring-[#8fd790]/30" : "border-black/10")}>
+                      <div className={cn("border rounded-lg h-[38px] flex items-center justify-end px-2 relative bg-white focus-within:border-[#1fae4b] focus-within:ring-1 focus-within:ring-[#1fae4b]/30 transition-all", numpadTarget === 'parlay' ? "border-[#1fae4b] ring-1 ring-[#1fae4b]/30" : "border-black/10")}>
                         <span className="absolute left-2 text-xs text-black/50 z-10">$</span>
                         <input
                           data-vaul-no-drag=""
@@ -731,7 +759,7 @@ function BetslipDefaultView() {
             disabled={totalStake === 0}
             className={cn(
               "w-full py-3 rounded-lg transition-all flex flex-col items-center justify-center font-medium shadow-sm",
-              totalStake > 0 ? "bg-[#8fd790] text-[#0a0a0a] hover:bg-[#7fc780] active:scale-[0.98]" : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              totalStake > 0 ? "bg-[#1fae4b] text-white hover:bg-[#1a9640] active:scale-[0.98]" : "bg-gray-100 text-gray-400 cursor-not-allowed"
             )}
           >
             <span className="text-xs font-medium uppercase tracking-wide">
