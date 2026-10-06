@@ -1202,6 +1202,12 @@ header[class*="z-\[100\]"] [role="button"] {
   pointer-events: auto !important;
 }
 
+/* Popovers opened from inside the auth modal (content z 100011) */
+[data-radix-popper-content-wrapper]:has([data-auth-modal-popover]) {
+  z-index: 100030 !important;
+  pointer-events: auto !important;
+}
+
 /* Similar games drawer from game launcher */
 [data-vaul-drawer].similar-games-drawer,
 [data-vaul-drawer][data-similar-games-drawer] {

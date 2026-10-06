@@ -1,12 +1,15 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import {
   IconArrowUp,
-  IconHistory,
-  IconSettings,
+  IconGift,
+  IconX,
 } from '@tabler/icons-react'
 
+import { useIsFirstTimeDepositor } from '@/lib/store/depositStore'
+import { useChurnStore } from '@/lib/store/churnStore'
 import { cn } from '@/lib/utils'
 
 export type WalletHubActionTab =
@@ -16,6 +19,8 @@ export type WalletHubActionTab =
   | 'settings'
 
 export type DepositCategory = 'crypto' | 'card' | 'others'
+
+const WELCOME_OFFER_DISMISSED_KEY = 'bol-welcome-offer-dismissed'
 
 export type CryptoCoinId =
   | 'btc'
@@ -146,7 +151,8 @@ export function WalletHubActionTabs({
   active,
   onChange,
 }: {
-  active: WalletHubActionTab
+  /** `'none'` renders every tab deselected (e.g. while a deposit confirmation is showing). */
+  active: WalletHubActionTab | 'none'
   onChange: (tab: WalletHubActionTab) => void
 }) {
   /** Match header-user-controls: 36px height, radius 8, border white/6 */
@@ -157,15 +163,6 @@ export function WalletHubActionTabs({
   const primaryBtn = (tab: 'deposit' | 'withdrawal') =>
     cn(
       'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold capitalize transition-colors',
-      controlH,
-      active === tab
-        ? 'border border-[var(--ds-primary,#ee3536)] bg-[var(--ds-primary,#ee3536)] text-white'
-        : inactiveSurface,
-    )
-
-  const iconBtn = (tab: 'history' | 'settings') =>
-    cn(
-      'relative inline-flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg transition-colors',
       controlH,
       active === tab
         ? 'border border-[var(--ds-primary,#ee3536)] bg-[var(--ds-primary,#ee3536)] text-white'
@@ -202,24 +199,6 @@ export function WalletHubActionTabs({
         <IconArrowUp className="size-4" stroke={2} />
         Withdraw
       </button>
-      <div className="ml-auto flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => onChange('history')}
-          className={iconBtn('history')}
-          aria-label="History"
-        >
-          <IconHistory className="size-4" stroke={1.75} />
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange('settings')}
-          className={iconBtn('settings')}
-          aria-label="Settings"
-        >
-          <IconSettings className="size-4" stroke={1.75} />
-        </button>
-      </div>
     </div>
   )
 }
@@ -319,6 +298,101 @@ export function WalletHubCryptoTutorialLink() {
   )
 }
 
+/**
+ * Welcome offer reminder shown under the deposit sub-nav.
+ * Only renders for first-time depositors — disappears once a deposit has been made.
+ */
+export function WalletHubWelcomeOffer({ className }: { className?: string }) {
+  const isFirstTime = useIsFirstTimeDepositor()
+  const freeSpins = useChurnStore((s) => s.freeSpinsOffer)
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    try {
+      return sessionStorage.getItem(WELCOME_OFFER_DISMISSED_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
+
+  // Low-balance journey: free spins promised on the next deposit. Takes priority
+  // over the welcome offer and can't be dismissed (it's a live bonus).
+  if (freeSpins) {
+    return (
+      <div
+        data-wallet-free-spins-offer=""
+        className={cn(
+          'relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5',
+          className,
+        )}
+      >
+        <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
+        <div className="relative flex items-center gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
+            <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">
+              Bonus on this deposit
+            </p>
+            <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
+              {freeSpins} Free Spins
+            </p>
+            <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+              Added to your account as soon as your deposit lands.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full bg-[#ee3536]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#ff7a7a]">
+            Ready
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isFirstTime || dismissed) return null
+  return (
+    <div
+      data-wallet-welcome-offer=""
+      className={cn(
+        'relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5 pr-10',
+        className,
+      )}
+    >
+      {/* soft red glow in the corner instead of a solid block */}
+      <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
+      <button
+        type="button"
+        onClick={() => {
+          setDismissed(true)
+          try {
+            sessionStorage.setItem(WELCOME_OFFER_DISMISSED_KEY, 'true')
+          } catch {
+            // ignore
+          }
+        }}
+        aria-label="Dismiss welcome offer"
+        className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full text-[var(--ds-fg-subtle)] transition-colors hover:bg-white/[0.08] hover:text-[var(--ds-fg)]"
+      >
+        <IconX className="size-4" />
+      </button>
+      <div className="relative flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
+          <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">Welcome offer</p>
+          <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
+            $250 in Free Sports Bets <span className="font-normal text-[var(--ds-fg-subtle)]">+</span> 100 Free Spins
+          </p>
+          <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+            Applied automatically to your first deposit.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /** Figma crypto deposit home layout, styled like account hub (dark) */
 export function WalletHubDepositHome({
   category,
@@ -340,8 +414,9 @@ export function WalletHubDepositHome({
   onSelectCard: () => void
 }) {
   return (
-    <div className="flex w-full flex-col gap-6 pt-5">
+    <div className="flex w-full flex-col gap-5 pt-5">
       <WalletHubCategoryPills active={category} onChange={onCategoryChange} />
+      <WalletHubWelcomeOffer />
 
       <div className="flex w-full flex-col items-center gap-3">
         {category === 'crypto' ? (

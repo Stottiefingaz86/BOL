@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils'
 
 export type SportsDrawerId = 'account' | 'vip' | 'deposit' | null
 
-const VIP_TABS = ['VIP', 'Benefits', 'Daily Races', 'Bet & Get', 'Cash Drop Codes']
+const VIP_TABS = ['VIP', 'Daily Races', 'Bet & Get', 'Cash Drop Codes', 'Benefits']
 
 /**
  * Header drawers for the sports page — the same Account / VIP Hub / Wallet panels

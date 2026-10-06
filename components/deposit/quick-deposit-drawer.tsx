@@ -25,8 +25,13 @@ import {
   CRYPTO_COINS,
   type CryptoCoinId,
   type DepositCategory,
+  type WalletHubActionTab,
 } from "@/components/deposit/wallet-hub-home";
 import { WalletHubCryptoDeposit } from "@/components/deposit/wallet-hub-crypto-deposit";
+import { useChurnStore } from '@/lib/store/churnStore';
+import { toast } from '@/components/ui/sonner';
+import { useDepositStore } from "@/lib/store/depositStore";
+import { useDepositTrackerStore } from "@/lib/store/depositTrackerStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -505,6 +510,18 @@ export function QuickDepositDrawer({
           method: normalizedId,
         });
         emitResearchEvent('deposit:completed', { amount, method: normalizedId });
+        useDepositStore.getState().recordDeposit(amount, normalizedId);
+        {
+          const spins = useChurnStore.getState().awardFreeSpinsOnDeposit();
+          if (spins > 0) {
+            window.setTimeout(() => {
+              toast.success(`${spins} free spins unlocked`, {
+                description: 'Claim them in the VIP Hub to start spinning.',
+                duration: 6000,
+              });
+            }, 600);
+          }
+        }
         setStepLoading({
           started: true,
           processing: false,
@@ -562,10 +579,57 @@ export function QuickDepositDrawer({
     ],
   );
 
+  // Mirror open state so the header toast knows when to show, and re-attach to an in-flight
+  // crypto deposit when the wallet is reopened.
+  useEffect(() => {
+    const trackerStore = useDepositTrackerStore.getState();
+    trackerStore.setWalletOpen(open);
+    if (!open) {
+      // Closing the wallet after seeing "Deposit confirmed" — don't show it again.
+      if (trackerStore.active?.stage === "confirmed") trackerStore.dismiss();
+      return;
+    }
+    const tracked = trackerStore.active;
+    if (tracked && tracked.stage === "confirmed" && !tracked.openRequested) {
+      // Already credited; the toast is the only reminder. Don't trap the wallet on the old screen.
+      useDepositTrackerStore.getState().dismiss();
+      return;
+    }
+    if (tracked && CRYPTO_COINS.some((c) => c.id === tracked.coinId)) {
+      useDepositTrackerStore.getState().setOpenRequested(false);
+      setHubTab("deposit");
+      setDepositCategory("crypto");
+      setSelectedCoinId(tracked.coinId as CryptoCoinId);
+      setSelectedPaymentMethod("bitcoin");
+      setShowDepositConfirmation(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const trackedStage = useDepositTrackerStore((s) => s.active?.stage);
+  const showingConfirmedTracker =
+    hubTab === "deposit" && !!selectedCoinId && trackedStage === "confirmed";
+  /** Tab bar: Deposit looks deselected while the confirmation is up; picking it clears the confirmation. */
+  const actionTabsActive: WalletHubActionTab | "none" = showingConfirmedTracker ? "none" : hubTab;
+  const handleActionTabChange = useCallback(
+    (tab: WalletHubActionTab) => {
+      if (showingConfirmedTracker) {
+        useDepositTrackerStore.getState().dismiss();
+        setSelectedCoinId(undefined);
+      }
+      setHubTab(tab);
+    },
+    [showingConfirmedTracker],
+  );
+
   const handleHubBack = useCallback(() => {
     if (showDepositConfirmation) {
       setShowDepositConfirmation(false);
       return;
+    }
+    // Leaving a confirmed crypto tracker clears it so the player can deposit again.
+    if (selectedCoinId && useDepositTrackerStore.getState().active?.stage === "confirmed") {
+      useDepositTrackerStore.getState().dismiss();
     }
     if (depositFlowScreen !== "hub") {
       setDepositFlowScreen("hub");
@@ -665,7 +729,7 @@ export function QuickDepositDrawer({
               <h2 className="text-base font-semibold text-[var(--ds-fg)]">{title}</h2>
             </div>
             {!isFlowCheckout && !showDepositConfirmation ? (
-              <WalletHubActionTabs active={hubTab} onChange={setHubTab} />
+              <WalletHubActionTabs active={actionTabsActive} onChange={handleActionTabChange} />
             ) : null}
           </div>
         )}
@@ -699,7 +763,7 @@ export function QuickDepositDrawer({
               <h2 className="text-base font-semibold text-[var(--ds-fg)]">{title}</h2>
             </div>
             {!isFlowCheckout && !showDepositConfirmation ? (
-              <WalletHubActionTabs active={hubTab} onChange={setHubTab} />
+              <WalletHubActionTabs active={actionTabsActive} onChange={handleActionTabChange} />
             ) : null}
           </DrawerHeader>
         )}
@@ -1226,6 +1290,10 @@ export function QuickDepositDrawer({
                   setSelectedPaymentMethod("bitcoin");
                 }}
                 currencySymbol={currencySymbol}
+                onDone={(confirmed) => {
+                  if (confirmed) setSelectedCoinId(undefined);
+                  onOpenChange(false);
+                }}
               />
             ) : (
               <WalletHubDepositHome

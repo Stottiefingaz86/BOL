@@ -4,7 +4,14 @@ import { VipCrownNavButton } from '@/components/vip/vip-crown-nav-button'
 import { HeaderUserControls } from '@/components/navigation/header-user-controls'
 
 import { VipHubScrollBody } from '@/components/vip/vip-hub-scroll-body'
-import { useRainBalance } from '@/hooks/use-rain-balance'
+import { animateDisplayBalance, useRainBalance } from '@/hooks/use-rain-balance'
+import {
+  BALANCE_AFTER_RECOMMENDED_PLAY,
+  GAME_CLOSE_LOSS,
+  isChurnRisk,
+  useChurnStore,
+} from '@/lib/store/churnStore'
+import { RecommendedGamesModal, type RecommendedGame } from '@/components/casino/recommended-games-modal'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { VipBenefitTiles } from '@/components/vip/vip-benefit-tiles'
 import { VipHubOverview } from '@/components/vip/vip-hub-overview'
@@ -5030,7 +5037,7 @@ function VipDrawerContent({
     const container = vipTabsContainerRef.current
     if (!container) return
 
-    const tabs = ['VIP', 'Benefits', 'Daily Races', 'Bet & Get', 'Cash Drop Codes']
+    const tabs = ['VIP', 'Daily Races', 'Bet & Get', 'Cash Drop Codes', 'Benefits']
     const activeIndex = tabs.indexOf(vipActiveTab)
     
     if (activeIndex === -1) return
@@ -5134,7 +5141,7 @@ function VipDrawerContent({
               pointerEvents: 'auto'
             }}
           >
-            {['VIP', 'Benefits', 'Daily Races', 'Bet & Get', 'Cash Drop Codes'].map((tab, index) => (
+            {['VIP', 'Daily Races', 'Bet & Get', 'Cash Drop Codes', 'Benefits'].map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => setVipActiveTab(tab)}
@@ -6971,6 +6978,69 @@ function NavTestPageContent() {
     setAdvSortBy('a-z')
   }
   const [selectedGame, setSelectedGame] = useState<{ title: string; image: string; provider?: string; features?: string[] } | null>(null)
+  const [recommendedGamesOpen, setRecommendedGamesOpen] = useState(false)
+  const prevSelectedGameRef = useRef<typeof selectedGame>(null)
+  const balanceRef = useRef(balance)
+  useEffect(() => {
+    balanceRef.current = balance
+  }, [balance])
+
+  /** Deduct from the balance (clamped at 0) with the usual roll animation. Returns the new balance. */
+  const deductBalance = useCallback((amount: number, duration = 700) => {
+    const applied = Math.min(Math.max(balanceRef.current, 0), amount)
+    const next = +(balanceRef.current - applied).toFixed(2)
+    balanceRef.current = next
+    if (applied > 0) animateDisplayBalance(-applied, setBalance, setDisplayBalance, duration)
+    return next
+  }, [])
+
+  // Churn-prevention journey (see lib/store/churnStore.ts):
+  //  1. close a game → -$8 → Recommended games modal
+  //  2. play a recommended game → balance runs down to $1 → on close, low-balance toast + 50 free spins offer
+  const lowBalancePlayRef = useRef(false)
+  useEffect(() => {
+    const prev = prevSelectedGameRef.current
+    prevSelectedGameRef.current = selectedGame
+    const churn = useChurnStore.getState()
+    const launched = selectedGame && (!prev || prev.title !== selectedGame.title)
+    const closed = prev && (!selectedGame || prev.title !== selectedGame.title)
+
+    if (closed) {
+      churn.recordSessionClose(prev.title)
+      if (lowBalancePlayRef.current) {
+        // Step 2b: closing the game played after the modal. Balance is already at $1.
+        lowBalancePlayRef.current = false
+        if (!selectedGame && !churn.lowBalanceNotified) {
+          window.setTimeout(() => churn.markLowBalanceNotified(), 500)
+        }
+      } else {
+        // Step 1: a normal close loses $8; first churn signal opens the modal.
+        const after = deductBalance(GAME_CLOSE_LOSS)
+        if (!selectedGame && isChurnRisk(after)) {
+          churn.markRecommendedShown()
+          window.setTimeout(() => setRecommendedGamesOpen(true), 450)
+        }
+      }
+    }
+
+    if (launched && churn.recommendedShownAt && !churn.lowBalanceNotified) {
+      // Step 2a: any game played after the modal (from it or not) runs the balance down to $1.
+      lowBalancePlayRef.current = true
+      setRecommendedGamesOpen(false)
+      const toSpend = balanceRef.current - BALANCE_AFTER_RECOMMENDED_PLAY
+      if (toSpend > 0) window.setTimeout(() => deductBalance(toSpend, 1200), 1500)
+    }
+  }, [selectedGame, deductBalance])
+
+  const handlePlayRecommended = useCallback((game: RecommendedGame) => {
+    setRecommendedGamesOpen(false)
+    setSelectedGame({
+      title: game.title,
+      image: game.image,
+      provider: game.provider,
+      features: ['Low Volatility', `RTP ${game.rtp}`, 'Frequent Small Wins'],
+    })
+  }, [])
   useEffect(() => {
     if (selectedGame) {
       trackPageView('game-launch', `Game: ${selectedGame.title}`)
@@ -12472,6 +12542,7 @@ function NavTestPageContent() {
                           setIsFullscreen(false)
                         }}
                         className="p-1.5 hover:bg-[var(--ds-control-hover)] rounded-full transition-colors"
+                        aria-label="Close game"
                 >
                   <IconX className="w-4 h-4 text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]" />
                 </button>
@@ -12728,6 +12799,12 @@ function NavTestPageContent() {
             </div>
           </DrawerContent>
         </Drawer>
+
+        <RecommendedGamesModal
+          open={recommendedGamesOpen}
+          onClose={() => setRecommendedGamesOpen(false)}
+          onPlay={handlePlayRecommended}
+        />
 
         {/* Advanced Search — custom portal (Vaul nested dialog is blocked by search overlay) */}
         {typeof document !== 'undefined' &&

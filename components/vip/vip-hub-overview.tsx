@@ -21,6 +21,8 @@ import {
   REFERRAL_REWARD_ID,
   useReferralStore,
 } from '@/lib/store/referralStore'
+import { useVipRewardsStore } from '@/lib/store/vipRewardsStore'
+import { DEPOSIT_FREE_SPINS_REWARD_ID, useChurnStore } from '@/lib/store/churnStore'
 import { cn } from '@/lib/utils'
 import {
   Tooltip,
@@ -133,9 +135,15 @@ type HubSection = {
  * Build VIP hub rows in fixed product order:
  * Rakeback → Refer a Friend → Weekly Cash Boost → Monthly Cash Boost → Post-Monthly Cash Boost → Reloads → Free Spins
  */
+function depositFreeSpinsExpiry(): string {
+  const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`
+}
+
 function buildHubSections(
   tier: VipHubTierBand,
-  referralClaimable = 0
+  referralClaimable = 0,
+  depositFreeSpins = 0
 ): HubSection[] {
   const rakeback: HubRow = {
     id: 'rakeback',
@@ -256,6 +264,24 @@ function buildHubSections(
   }
 
   const freeSpins: HubRow[] = [
+    ...(depositFreeSpins > 0
+      ? [
+          {
+            id: DEPOSIT_FREE_SPINS_REWARD_ID,
+            name: 'Free Spins',
+            info: `Your deposit bonus. $${FREE_SPIN_STAKE_PER_SPIN} per spin on ${FREE_SPIN_GAME_OPTIONS[0].name}. Claim, then open the game to play.`,
+            icon: 'free-spins',
+            kind: 'claim',
+            subtitle: `${depositFreeSpins} spins ready · Deposit bonus`,
+            ctaLabel: 'Play',
+            spinsLeft: depositFreeSpins,
+            spinsTotal: depositFreeSpins,
+            stakePerSpin: FREE_SPIN_STAKE_PER_SPIN,
+            expiresAt: depositFreeSpinsExpiry(),
+            assignedGame: FREE_SPIN_GAME_OPTIONS[0],
+          } satisfies HubRow,
+        ]
+      : []),
     {
       id: 'free-spins',
       name: 'Free Spins',
@@ -332,6 +358,34 @@ function asLoginRows(sections: HubSection[]): HubSection[] {
 }
 
 /** Keep the fixed product order from buildHubSections (do not re-sort by claimability). */
+/**
+ * How many hub rewards still need the player's attention (claimable and not yet claimed).
+ * Free spins count until activated; referral commission counts only when > 0.
+ */
+export function countClaimableRewards(
+  tier: VipHubTierBand,
+  referralClaimable: number,
+  claimedIds: string[],
+  depositFreeSpins = 0
+): number {
+  return buildHubSections(tier, referralClaimable, depositFreeSpins)
+    .flatMap((section) => section.rows)
+    .filter((row) => row.kind === 'claim' && !claimedIds.includes(row.id) && (typeof row.amount !== 'number' || row.amount > 0))
+    .length
+}
+
+/** Live count for the header crown badge. 0 when logged out. */
+export function useVipClaimableCount(tier: VipHubTierBand = 'bronze') {
+  const { isLoggedIn } = useAuthSession()
+  const referralClaimable = useReferralStore((s) => s.claimableAmount)
+  const claimedIds = useVipRewardsStore((s) => s.claimedIds)
+  const depositFreeSpins = useChurnStore((s) => s.freeSpinsAwarded)
+  return useMemo(
+    () => (isLoggedIn ? countClaimableRewards(tier, referralClaimable, claimedIds, depositFreeSpins) : 0),
+    [isLoggedIn, tier, referralClaimable, claimedIds, depositFreeSpins]
+  )
+}
+
 function orderHubSections(sections: HubSection[]): HubSection[] {
   const rows = sections.flatMap((section) => section.rows)
   if (rows.length === 0) return []
@@ -455,14 +509,15 @@ function BenefitRow({
   const rowRef = useRef<HTMLDivElement | null>(null)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
 
+  const alreadyClaimed = useVipRewardsStore((s) => s.claimedIds.includes(row.id))
+  const markClaimed = useVipRewardsStore((s) => s.markClaimed)
   const [claiming, setClaiming] = useState(false)
   const [showClaimedFlash, setShowClaimedFlash] = useState(false)
   const [claimInactive, setClaimInactive] = useState(
     () =>
       row.kind === 'claim' &&
-      !row.ctaLabel &&
-      typeof row.amount === 'number' &&
-      row.amount <= 0
+      ((!row.ctaLabel && typeof row.amount === 'number' && row.amount <= 0) ||
+        (alreadyClaimed && typeof row.spinsLeft !== 'number'))
   )
   const [spinsLeft, setSpinsLeft] = useState(() =>
     row.kind === 'claim' && typeof row.spinsLeft === 'number' ? row.spinsLeft : 0
@@ -475,7 +530,7 @@ function BenefitRow({
   /** Free spins start as Claim; after activation CTA becomes Play / Choose Game */
   const isFreeSpins =
     row.kind === 'claim' && typeof row.spinsLeft === 'number'
-  const [activated, setActivated] = useState(false)
+  const [activated, setActivated] = useState(alreadyClaimed && isFreeSpins)
   const playCtaLabel =
     row.kind === 'claim' ? row.ctaLabel ?? (row.chooseGame ? 'Choose Game' : 'Play') : undefined
   const chooseGame = isFreeSpins && row.kind === 'claim' && row.chooseGame === true
@@ -597,6 +652,7 @@ function BenefitRow({
       if (row.id === REFERRAL_REWARD_ID) {
         useReferralStore.getState().claimCommission()
       }
+      if (opts?.spinsUsed == null) markClaimed(row.id)
       setClaiming(false)
       if (opts?.spinsUsed != null) {
         setSpinsLeft(remainingAfter)
@@ -608,7 +664,7 @@ function BenefitRow({
         }
       }
     },
-    [assignedGame, chooseGame, onClaimed, row, spinsLeft]
+    [assignedGame, chooseGame, markClaimed, onClaimed, row, spinsLeft]
   )
 
   const playFreeSpinsOnGame = useCallback(
@@ -968,8 +1024,32 @@ export function VipHubOverview({
 }) {
   const { isLoggedIn } = useAuthSession()
   const referralClaimable = useReferralStore((s) => s.claimableAmount)
+  const claimedIds = useVipRewardsStore((s) => s.claimedIds)
   const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set())
   const [focusedRewardId, setFocusedRewardId] = useState<string | null>(null)
+  const depositFreeSpins = useChurnStore((s) => s.freeSpinsAwarded)
+
+  // Deposit-bonus free spins waiting to be claimed → land the player on that row.
+  const depositSpinsUnclaimed = depositFreeSpins > 0 && !claimedIds.includes(DEPOSIT_FREE_SPINS_REWARD_ID)
+  useEffect(() => {
+    if (!depositSpinsUnclaimed) return
+    setFocusedRewardId(DEPOSIT_FREE_SPINS_REWARD_ID)
+    const t1 = window.setTimeout(() => {
+      document
+        .querySelector(`[data-reward-id="${DEPOSIT_FREE_SPINS_REWARD_ID}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 320)
+    const t2 = window.setTimeout(
+      () => setFocusedRewardId((current) => (current === DEPOSIT_FREE_SPINS_REWARD_ID ? null : current)),
+      4200
+    )
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+    // Only when the hub mounts with unclaimed deposit spins.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const handler = (evt: Event) => {
@@ -988,19 +1068,15 @@ export function VipHubOverview({
   }, [])
 
   const sections = useMemo(() => {
-    const base = buildHubSections(tier, referralClaimable)
+    const base = buildHubSections(tier, referralClaimable, depositFreeSpins)
     const withAuth = isLoggedIn ? base : asLoginRows(base)
-    const filtered =
-      removedIds.size === 0
-        ? withAuth
-        : withAuth
-            .map((section) => ({
-              ...section,
-              rows: section.rows.filter((row) => !removedIds.has(row.id)),
-            }))
-            .filter((section) => section.rows.length > 0)
+    const hidden = (row: HubRow) =>
+      removedIds.has(row.id) || (row.kind === 'claim' && Boolean(row.removeOnClaim) && claimedIds.includes(row.id))
+    const filtered = withAuth
+      .map((section) => ({ ...section, rows: section.rows.filter((row) => !hidden(row)) }))
+      .filter((section) => section.rows.length > 0)
     return orderHubSections(filtered)
-  }, [isLoggedIn, referralClaimable, removedIds, tier])
+  }, [claimedIds, depositFreeSpins, isLoggedIn, referralClaimable, removedIds, tier])
 
   const handleClaimed = useCallback((id: string, remove: boolean) => {
     if (!remove) return

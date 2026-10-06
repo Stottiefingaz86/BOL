@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 type BalanceSetter = React.Dispatch<React.SetStateAction<number>>
 
-function animateDisplayBalance(
+export function animateDisplayBalance(
   amount: number,
   setBalance: BalanceSetter,
   setDisplayBalance: BalanceSetter,
