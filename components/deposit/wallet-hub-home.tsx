@@ -2,25 +2,18 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
-import {
-  IconArrowUp,
-  IconGift,
-  IconX,
-} from '@tabler/icons-react'
+import { IconArrowUp, IconGift, IconX } from '@tabler/icons-react'
 
 import { useIsFirstTimeDepositor } from '@/lib/store/depositStore'
 import { useChurnStore } from '@/lib/store/churnStore'
 import { cn } from '@/lib/utils'
 
 export type WalletHubActionTab =
-  | 'deposit'
-  | 'withdrawal'
-  | 'history'
-  | 'settings'
+  'deposit' | 'withdrawal' | 'history' | 'settings'
 
 export type DepositCategory = 'crypto' | 'card' | 'others'
 
-const WELCOME_OFFER_DISMISSED_KEY = 'bol-welcome-offer-dismissed'
+export const WELCOME_OFFER_DISMISSED_KEY = 'bol-welcome-offer-dismissed'
 
 export type CryptoCoinId =
   | 'btc'
@@ -102,7 +95,10 @@ export function CryptoCoinIcon({
 }) {
   return (
     <span
-      className={cn('relative inline-block shrink-0 overflow-hidden rounded-full', className)}
+      className={cn(
+        'relative inline-block shrink-0 overflow-hidden rounded-full',
+        className,
+      )}
       style={{ width: size, height: size }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -126,7 +122,10 @@ export function CryptoTutorialIcon({
 }) {
   return (
     <span
-      className={cn('relative inline-block shrink-0 overflow-hidden rounded-full', className)}
+      className={cn(
+        'relative inline-block shrink-0 overflow-hidden rounded-full',
+        className,
+      )}
       style={{ width: size, height: size }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -183,8 +182,8 @@ export function WalletHubActionTabs({
             width={16}
             height={16}
             className={cn(
-              "size-4",
-              active === "deposit" && "brightness-0 invert",
+              'size-4',
+              active === 'deposit' && 'brightness-0 invert',
             )}
             unoptimized
           />
@@ -202,7 +201,6 @@ export function WalletHubActionTabs({
     </div>
   )
 }
-
 
 export function WalletHubCategoryPills({
   active,
@@ -270,8 +268,12 @@ export function WalletHubCryptoGrid({
           >
             <CryptoCoinIcon id={coin.id} size={28} />
             <span className="flex w-full flex-col items-center leading-[1.47]">
-              <span className="w-full text-xs font-semibold text-[var(--ds-fg)]">{coin.name}</span>
-              <span className="w-full text-xs font-normal text-[var(--ds-fg-muted)]">({coin.ticker})</span>
+              <span className="w-full text-xs font-semibold text-[var(--ds-fg)]">
+                {coin.name}
+              </span>
+              <span className="w-full text-xs font-normal text-[var(--ds-fg-muted)]">
+                ({coin.ticker})
+              </span>
             </span>
           </button>
         )
@@ -291,7 +293,8 @@ export function WalletHubCryptoTutorialLink() {
       <span className="flex items-center justify-center gap-2">
         <CryptoTutorialIcon size={18} />
         <span className="text-xs text-[var(--ds-fg-muted)]">
-          New to Crypto? <span className="text-[#6ea8ff]">Get Started Here</span>
+          New to Crypto?{' '}
+          <span className="text-[#6ea8ff]">Get Started Here</span>
         </span>
       </span>
     </a>
@@ -314,81 +317,84 @@ export function WalletHubWelcomeOffer({ className }: { className?: string }) {
     }
   })
 
-  // Low-balance journey: free spins promised on the next deposit. Takes priority
-  // over the welcome offer and can't be dismissed (it's a live bonus).
-  if (freeSpins) {
-    return (
-      <div
-        data-wallet-free-spins-offer=""
-        className={cn(
-          'relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5',
-          className,
-        )}
-      >
-        <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
-        <div className="relative flex items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
-            <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">
-              Bonus on this deposit
-            </p>
-            <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
-              {freeSpins} Free Spins
-            </p>
-            <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
-              Added to your account as soon as your deposit lands.
-            </p>
-          </div>
-          <span className="shrink-0 rounded-full bg-[#ee3536]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#ff7a7a]">
-            Ready
-          </span>
-        </div>
-      </div>
-    )
-  }
+  const showWelcome = isFirstTime && !dismissed
+  if (!freeSpins && !showWelcome) return null
 
-  if (!isFirstTime || dismissed) return null
   return (
-    <div
-      data-wallet-welcome-offer=""
-      className={cn(
-        'relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5 pr-10',
-        className,
-      )}
-    >
-      {/* soft red glow in the corner instead of a solid block */}
-      <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
-      <button
-        type="button"
-        onClick={() => {
-          setDismissed(true)
-          try {
-            sessionStorage.setItem(WELCOME_OFFER_DISMISSED_KEY, 'true')
-          } catch {
-            // ignore
-          }
-        }}
-        aria-label="Dismiss welcome offer"
-        className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full text-[var(--ds-fg-subtle)] transition-colors hover:bg-white/[0.08] hover:text-[var(--ds-fg)]"
-      >
-        <IconX className="size-4" />
-      </button>
-      <div className="relative flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
-          <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">Welcome offer</p>
-          <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
-            $250 in Free Sports Bets <span className="font-normal text-[var(--ds-fg-subtle)]">+</span> 100 Free Spins
-          </p>
-          <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
-            Applied automatically to your first deposit.
-          </p>
+    <div className={cn('flex w-full shrink-0 flex-col gap-3', className)}>
+      {/* Low-balance journey: free spins promised on the next deposit. Can't be dismissed (live bonus). */}
+      {freeSpins ? (
+        <div
+          data-wallet-free-spins-offer=""
+          className="relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5"
+        >
+          <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
+          <div className="relative flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
+              <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">
+                Bonus on this deposit
+              </p>
+              <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
+                {freeSpins} Free Spins
+              </p>
+              <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+                Added to your account as soon as your deposit lands.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full bg-[#ee3536]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#ff7a7a]">
+              Ready
+            </span>
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {showWelcome ? (
+        <div
+          data-wallet-welcome-offer=""
+          className="relative w-full shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[var(--ds-overlay)] p-3.5 pr-10"
+        >
+          {/* soft red glow in the corner instead of a solid block */}
+          <div className="pointer-events-none absolute -left-8 -top-10 size-32 rounded-full bg-[#ee3536]/20 blur-2xl" />
+          <button
+            type="button"
+            onClick={() => {
+              setDismissed(true)
+              try {
+                sessionStorage.setItem(WELCOME_OFFER_DISMISSED_KEY, 'true')
+              } catch {
+                // ignore
+              }
+            }}
+            aria-label="Dismiss welcome offer"
+            className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full text-[var(--ds-fg-subtle)] transition-colors hover:bg-white/[0.08] hover:text-[var(--ds-fg)]"
+          >
+            <IconX className="size-4" />
+          </button>
+          <div className="relative flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/[0.06] ring-1 ring-white/[0.08]">
+              <IconGift className="size-5 text-[#ff5a5a]" stroke={1.75} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--ds-fg-subtle)]">
+                Welcome offer
+              </p>
+              <p className="mt-1 text-[13px] font-bold leading-snug text-[var(--ds-fg)]">
+                $250 in Free Sports Bets{' '}
+                <span className="font-normal text-[var(--ds-fg-subtle)]">
+                  +
+                </span>{' '}
+                100 Free Spins
+              </p>
+              <p className="mt-1 text-[11px] leading-snug text-[var(--ds-fg-muted)]">
+                Applied automatically to your first deposit.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -421,7 +427,10 @@ export function WalletHubDepositHome({
       <div className="flex w-full flex-col items-center gap-3">
         {category === 'crypto' ? (
           <>
-            <WalletHubCryptoGrid selectedId={selectedCoinId} onSelect={onSelectCoin} />
+            <WalletHubCryptoGrid
+              selectedId={selectedCoinId}
+              onSelect={onSelectCoin}
+            />
             <WalletHubCryptoTutorialLink />
           </>
         ) : null}
@@ -432,8 +441,12 @@ export function WalletHubDepositHome({
             onClick={onSelectCard}
             className="flex h-[100px] w-full flex-col items-center justify-center gap-2 rounded-lg bg-[var(--ds-overlay)] p-3 transition-colors hover:bg-[var(--ds-control-hover)]"
           >
-            <span className="text-xs font-semibold text-[var(--ds-fg)]">Credit / Debit Card</span>
-            <span className="text-[10px] text-[var(--ds-fg-subtle)]">Min $25 · Fee 9.75%</span>
+            <span className="text-xs font-semibold text-[var(--ds-fg)]">
+              Credit / Debit Card
+            </span>
+            <span className="text-[10px] text-[var(--ds-fg-subtle)]">
+              Min $25 · Fee 9.75%
+            </span>
           </button>
         ) : null}
 
@@ -450,8 +463,12 @@ export function WalletHubDepositHome({
                     'bg-[var(--ds-control-hover)] ring-1 ring-[var(--ds-primary,#ee3536)]',
                 )}
               >
-                <span className="text-xs font-semibold text-[var(--ds-fg)]">{m.label}</span>
-                <span className="text-[10px] text-[var(--ds-fg-subtle)]">Fee {m.feeLabel}</span>
+                <span className="text-xs font-semibold text-[var(--ds-fg)]">
+                  {m.label}
+                </span>
+                <span className="text-[10px] text-[var(--ds-fg-subtle)]">
+                  Fee {m.feeLabel}
+                </span>
               </button>
             ))}
           </div>

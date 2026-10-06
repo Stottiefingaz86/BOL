@@ -20,6 +20,8 @@ import {
 } from '@tabler/icons-react'
 import { motion } from 'framer-motion'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useDepositStore } from '@/lib/store/depositStore'
+import { WELCOME_OFFER_DISMISSED_KEY } from '@/components/deposit/wallet-hub-home'
 import { fireConfetti } from '@/lib/confetti'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useAuthSession } from '@/hooks/use-auth-session'
@@ -502,6 +504,13 @@ export function AuthModal() {
 
   /** First signup only — stay on current page and open normal wallet deposit UI. */
   const finishSignup = useCallback(() => {
+    // A brand-new account has no deposit history, so the welcome offer is live again.
+    useDepositStore.getState().reset()
+    try {
+      sessionStorage.removeItem(WELCOME_OFFER_DISMISSED_KEY)
+    } catch {
+      // ignore
+    }
     markOpenWalletAfterSignup()
     finishLogin()
   }, [finishLogin])
