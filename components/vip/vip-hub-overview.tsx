@@ -147,8 +147,8 @@ function buildHubSections(
 ): HubSection[] {
   const rakeback: HubRow = {
     id: 'rakeback',
-    name: 'Rakeback',
-    info: 'Claim a share of every bet back, every 15 minutes. Terms & Conditions',
+    name: 'Casino Rakeback',
+    info: 'Claim a share of every casino bet back, every 15 minutes. Terms & Conditions',
     icon: 'rakeback',
     kind: 'claim',
     amount: 0.2,
