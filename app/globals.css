@@ -277,14 +277,13 @@ img, video {
   inset: 0;
   pointer-events: none;
   opacity: 0;
-  mix-blend-mode: screen;
+  color: #fff;
 }
 .nf-glitch-layer--a {
-  color: #ee3536;
   animation: nf-glitch-a 7s steps(1, end) infinite;
 }
 .nf-glitch-layer--b {
-  color: #7fd8ff;
+  color: rgba(255, 255, 255, 0.45);
   animation: nf-glitch-b 7s steps(1, end) infinite 0.08s;
 }
 
