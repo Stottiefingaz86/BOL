@@ -265,22 +265,9 @@ img, video {
   image-rendering: crisp-edges;
 }
 
-/* 404 page: slow rings + subtle, infrequent glitch on the big numeral */
-@keyframes nf-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.nf-ring-slow {
-  animation: nf-spin 48s linear infinite;
-}
-.nf-ring-fast {
-  animation: nf-spin 26s linear infinite reverse;
-}
-
+/* 404 page: subtle, infrequent glitch on the big numeral */
 .nf-glitch {
   color: #fff;
-  text-shadow: 0 0 40px rgba(238, 53, 54, 0.35);
 }
 .nf-glitch-base {
   animation: nf-flicker 7s steps(1, end) infinite;
@@ -402,8 +389,6 @@ img, video {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nf-ring-slow,
-  .nf-ring-fast,
   .nf-glitch-base,
   .nf-glitch-layer {
     animation: none !important;
