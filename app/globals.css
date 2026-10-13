@@ -265,6 +265,151 @@ img, video {
   image-rendering: crisp-edges;
 }
 
+/* 404 page: slow rings + subtle, infrequent glitch on the big numeral */
+@keyframes nf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nf-ring-slow {
+  animation: nf-spin 48s linear infinite;
+}
+.nf-ring-fast {
+  animation: nf-spin 26s linear infinite reverse;
+}
+
+.nf-glitch {
+  color: #fff;
+  text-shadow: 0 0 40px rgba(238, 53, 54, 0.35);
+}
+.nf-glitch-base {
+  animation: nf-flicker 7s steps(1, end) infinite;
+}
+.nf-glitch-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.nf-glitch-layer--a {
+  color: #ee3536;
+  animation: nf-glitch-a 7s steps(1, end) infinite;
+}
+.nf-glitch-layer--b {
+  color: #7fd8ff;
+  animation: nf-glitch-b 7s steps(1, end) infinite 0.08s;
+}
+
+/* Quiet ~93% of the cycle; a short burst of sliced offsets near the end. */
+@keyframes nf-glitch-a {
+  0%,
+  92.9%,
+  96.2%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+  }
+  93% {
+    opacity: 0.9;
+    transform: translate(-5px, 0);
+    clip-path: inset(12% 0 68% 0);
+  }
+  93.6% {
+    opacity: 0.9;
+    transform: translate(5px, -1px);
+    clip-path: inset(55% 0 20% 0);
+  }
+  94.2% {
+    opacity: 0.8;
+    transform: translate(-5px, 1px);
+    clip-path: inset(30% 0 45% 0);
+  }
+  95% {
+    opacity: 0.9;
+    transform: translate(6px, 0);
+    clip-path: inset(70% 0 8% 0);
+  }
+  95.6% {
+    opacity: 0.7;
+    transform: translate(-1px, 0);
+    clip-path: inset(5% 0 85% 0);
+  }
+}
+@keyframes nf-glitch-b {
+  0%,
+  92.9%,
+  96.2%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+  }
+  93% {
+    opacity: 0.8;
+    transform: translate(5px, 0);
+    clip-path: inset(60% 0 25% 0);
+  }
+  93.6% {
+    opacity: 0.8;
+    transform: translate(-5px, 1px);
+    clip-path: inset(8% 0 78% 0);
+  }
+  94.2% {
+    opacity: 0.7;
+    transform: translate(3px, -1px);
+    clip-path: inset(42% 0 40% 0);
+  }
+  95% {
+    opacity: 0.8;
+    transform: translate(-6px, 0);
+    clip-path: inset(20% 0 65% 0);
+  }
+  95.6% {
+    opacity: 0.6;
+    transform: translate(1px, 0);
+    clip-path: inset(80% 0 5% 0);
+  }
+}
+@keyframes nf-flicker {
+  0%,
+  92.9%,
+  96.2%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+  93% {
+    opacity: 0.85;
+    transform: translate(1px, 0);
+  }
+  93.6% {
+    opacity: 1;
+    transform: translate(-1px, 0);
+  }
+  94.2% {
+    opacity: 0.9;
+    transform: translate(1px, 0) skewX(-1deg);
+  }
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  95.6% {
+    opacity: 0.92;
+    transform: translate(-1px, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nf-ring-slow,
+  .nf-ring-fast,
+  .nf-glitch-base,
+  .nf-glitch-layer {
+    animation: none !important;
+  }
+}
+
 /* Shimmer animation for skeleton loaders */
 @keyframes toast-countdown {
   from {
